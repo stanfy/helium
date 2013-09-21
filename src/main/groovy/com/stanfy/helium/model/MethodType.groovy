@@ -8,6 +8,7 @@ enum MethodType {
   GET,
   POST,
   PUT,
-  DELETE
+  DELETE,
+  PATCH
 
 }
