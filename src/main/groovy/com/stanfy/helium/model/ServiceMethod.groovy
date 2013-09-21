@@ -6,7 +6,7 @@ package com.stanfy.helium.model
 class ServiceMethod extends Descriptionable {
 
   /** Method path. */
-  GString path
+  String path
 
   /** Method type: get, post, etc. */
   MethodType type

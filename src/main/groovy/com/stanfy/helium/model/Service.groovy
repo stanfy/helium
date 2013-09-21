@@ -12,6 +12,6 @@ class Service extends Descriptionable {
   String location
 
   /** Service methods. */
-  List<ServiceMethod> methods
+  final List<ServiceMethod> methods = new ArrayList<>()
 
 }

@@ -1,6 +1,7 @@
 package com.stanfy.helium.dsl
 
 import com.stanfy.helium.model.MethodType
+import com.stanfy.helium.utils.DefaultTypesLoader
 import spock.lang.Specification
 
 /**
@@ -10,6 +11,17 @@ class DslSpec extends Specification {
 
   /** Dsl instance under the test. */
   Dsl dsl = new Dsl()
+
+  def "can describe simple types"() {
+    when:
+    dsl.type 'type1'
+    dsl.type "${1 + 2}"
+    def registeredNames = dsl.types.all().inject("") { String res, def type -> res + "$type.name;" }
+
+    then:
+    registeredNames.contains "type1;"
+    registeredNames.contains "3;"
+  }
 
   def "can describe services"() {
     when:
@@ -36,10 +48,12 @@ class DslSpec extends Specification {
 
   def "can describe messages"() {
     when:
-    dsl.message "A" spec {
+    DefaultTypesLoader.loadFor dsl
+    int defaultTypesCount = dsl.types.all().collect { it }.size()
+    dsl.type "A" message {
       data(description : 'Data bytes', type : "bytes")
     }
-    dsl.message "B" spec {
+    dsl.type "B" message {
       id {
         required false
       }
@@ -47,13 +61,14 @@ class DslSpec extends Specification {
         required true
       }
     }
-    dsl.message "C" spec {
+    dsl.type "C" message {
       id long optional
       name String required
     }
 
     then:
     dsl.messages.size() == 3
+    dsl.messages.size() == dsl.types.all().collect { it }.size() - defaultTypesCount
     dsl.messages[0].name == "A"
     dsl.messages[1].name == "B"
     dsl.messages[2].name == "C"
@@ -81,22 +96,28 @@ class DslSpec extends Specification {
 
   def "can describe service methods"() {
     when:
-    dsl.message "PersonProfile" spec { }
+    dsl.type "bool"
+    dsl.type "PersonProfile" message { }
     dsl.service {
-      get "/person/${id}" spec {
+      get "/person/@id" spec {
         name 'Get Person'
         description 'bla bla bla'
         parameters {
           full 'bool' required
           friends(type : 'bool', description : 'whether to include the friends list to the response')
         }
-        response PersonProfile
+        response "PersonProfile"
       }
     }
 
     then:
     dsl.services[0].methods[0].type == MethodType.GET
-    dsl.services[0].methods[0].type == MethodType.GET
+    dsl.services[0].methods[0].path == "/person/@id"
+    dsl.services[0].methods[0].name == "Get Person"
+    dsl.services[0].methods[0].description == "bla bla bla"
+    dsl.services[0].methods[0].parameters.fields[0].name == "full"
+    dsl.services[0].methods[0].parameters.fields[1].name == "friends"
+    dsl.services[0].methods[0].response.name == "PersonProfile"
 
   }
 

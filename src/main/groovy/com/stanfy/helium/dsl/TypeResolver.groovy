@@ -13,4 +13,6 @@ interface TypeResolver {
 
   void registerNewType(Type type)
 
+  Iterable<Type> all()
+
 }

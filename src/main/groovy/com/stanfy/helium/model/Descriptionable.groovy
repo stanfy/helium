@@ -3,7 +3,7 @@ package com.stanfy.helium.model
 /**
  * Entity that has name and description.
  */
-class Descriptionable extends ConfigurableEntity {
+class Descriptionable {
 
   /** Name. */
   String name
