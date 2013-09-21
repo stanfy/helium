@@ -9,8 +9,8 @@ Example
 ```groovy
 type "PersonProfile" message {
   id long required
-  name string required
-  dob timestamp optional
+  name 'string' required
+  dob 'timestamp' optional
 }
 
 service {
