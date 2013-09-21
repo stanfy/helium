@@ -9,7 +9,7 @@ import com.stanfy.helium.model.ServiceMethod
 class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
 
   static {
-    ["parameters", "response"].each {
+    ["parameters", "response", "body"].each {
       ConfigurableServiceMethod.metaClass."$it" << { Object arg ->
         if (arg instanceof Closure<?>) {
           delegate.defineMessageType(it, (Closure<?>)arg)

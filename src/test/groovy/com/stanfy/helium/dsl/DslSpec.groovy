@@ -108,6 +108,11 @@ class DslSpec extends Specification {
         }
         response "PersonProfile"
       }
+
+      post "/person/@id" spec {
+        name "Edit Person Profile"
+        body "PersonProfile"
+      }
     }
 
     then:
@@ -118,6 +123,9 @@ class DslSpec extends Specification {
     dsl.services[0].methods[0].parameters.fields[0].name == "full"
     dsl.services[0].methods[0].parameters.fields[1].name == "friends"
     dsl.services[0].methods[0].response.name == "PersonProfile"
+    dsl.services[0].methods[1].type == MethodType.POST
+    dsl.services[0].methods[1].name == "Edit Person Profile"
+    dsl.services[0].methods[1].body == dsl.services[0].methods[0].response
 
   }
 
