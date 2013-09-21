@@ -25,7 +25,7 @@ service {
     description 'bla bla bla'
     parameters {
       full 'bool' required
-      param(name : 'friends', type : 'bool', description : 'whether to include the friends list to the response')
+      friends(type : 'bool', description : 'whether to include the friends list to the response')
     }
     response "PersonProfile"
   }
