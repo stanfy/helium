@@ -7,10 +7,10 @@ import spock.lang.Specification
 /**
  * Spec for DSL entry point.
  */
-class DslSpec extends Specification {
+class ProjectSpec extends Specification {
 
-  /** Dsl instance under the test. */
-  Dsl dsl = new Dsl()
+  /** Project instance under the test. */
+  Project dsl = new Project()
 
   def "can describe simple types"() {
     when:

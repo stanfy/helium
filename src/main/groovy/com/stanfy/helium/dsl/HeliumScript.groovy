@@ -6,10 +6,10 @@ package com.stanfy.helium.dsl
 abstract class HeliumScript extends Script {
 
   /** DSL instance. */
-  private Dsl dsl
+  private Project project
 
-  public void setDsl(final Dsl dsl) {
-    this.dsl = dsl
+  public void setProject(final Project dsl) {
+    this.project = dsl
   }
 
   @Override
@@ -18,7 +18,7 @@ abstract class HeliumScript extends Script {
       return super.invokeMethod(name, args)
     } catch (MissingMethodException e) {
       if (name == e.method) {
-        dsl.invokeMethod(name, args)
+        project.invokeMethod(name, args)
       } else {
         throw e
       }

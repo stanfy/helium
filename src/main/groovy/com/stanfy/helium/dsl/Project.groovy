@@ -12,7 +12,7 @@ import groovy.transform.PackageScope
  * Entry point to Helium DSL.
  */
 @CompileStatic
-class Dsl {
+class Project {
 
   /** Services list. */
   private final List<Service> services = new ArrayList<>()

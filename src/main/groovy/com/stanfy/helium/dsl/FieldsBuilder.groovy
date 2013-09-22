@@ -14,15 +14,15 @@ class FieldsBuilder {
   private final Message message
 
   /** Type resolver. */
-  private final Dsl dsl
+  private final Project project
 
   /** Type resolver. */
   private final TypeResolver typeResolver
 
   @CompileStatic
-  FieldsBuilder(final Message message, final Dsl dsl, final TypeResolver typeResolver) {
+  FieldsBuilder(final Message message, final Project project, final TypeResolver typeResolver) {
     this.message = message
-    this.dsl = dsl
+    this.project = project
     this.typeResolver = typeResolver
   }
 
@@ -40,7 +40,7 @@ class FieldsBuilder {
     if (arg instanceof Closure) {
       // just configure
       Field f = new Field()
-      Dsl.callConfigurationSpec(new ConfigurableProxy<Field>(f, dsl), (Closure<?>)arg)
+      Project.callConfigurationSpec(new ConfigurableProxy<Field>(f, project), (Closure<?>)arg)
       f.name = name
       message.fields.add f
       return f

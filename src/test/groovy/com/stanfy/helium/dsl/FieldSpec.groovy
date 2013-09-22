@@ -19,7 +19,7 @@ class FieldSpec extends Specification {
 
   def "should be configurable"() {
     when:
-    Dsl.callConfigurationSpec(new ConfigurableProxy<Field>(field, new Dsl())) {
+    Project.callConfigurationSpec(new ConfigurableProxy<Field>(field, new Project())) {
       name "id"
       description "Identifier"
       type new Type(name : "long")

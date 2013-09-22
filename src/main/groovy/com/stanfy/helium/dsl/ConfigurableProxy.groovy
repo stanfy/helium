@@ -7,14 +7,14 @@ package com.stanfy.helium.dsl
 class ConfigurableProxy<T extends GroovyObject> {
 
   /** DSL instance. */
-  final Dsl dsl
+  final Project project
 
   /** Core object. */
   final T core
 
-  public ConfigurableProxy(final T core, final Dsl dsl) {
+  public ConfigurableProxy(final T core, final Project project) {
     this.core = core
-    this.dsl = dsl
+    this.project = project
   }
 
   @Override

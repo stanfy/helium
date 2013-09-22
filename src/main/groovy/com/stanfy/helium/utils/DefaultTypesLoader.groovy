@@ -1,9 +1,8 @@
 package com.stanfy.helium.utils
 
-import com.stanfy.helium.dsl.Dsl
-import com.stanfy.helium.dsl.HeliumScript
+import com.stanfy.helium.dsl.Project
+import com.stanfy.helium.handler.ScriptExtender
 import groovy.transform.CompileStatic
-import org.codehaus.groovy.control.CompilerConfiguration
 
 /**
  * Default types loader.
@@ -15,13 +14,8 @@ class DefaultTypesLoader {
     return new InputStreamReader(DefaultTypesLoader.classLoader.getResourceAsStream("com/stanfy/helium/dsl/def-types.spec"), "UTF-8")
   }
 
-  static void loadFor(Dsl dsl) {
-    CompilerConfiguration config = new CompilerConfiguration()
-    config.scriptBaseClass = HeliumScript.canonicalName
-    GroovyCodeSource source = new GroovyCodeSource(openScript(), "DefTypes.spec", "/helium/default")
-    HeliumScript script = new GroovyShell(new Binding(), config).parse(source) as HeliumScript
-    script.setDsl dsl
-    script.run()
+  static void loadFor(Project project) {
+    new ScriptExtender(openScript(), "DefTypes.spec", "/helium/default").handle(project)
   }
 
 }

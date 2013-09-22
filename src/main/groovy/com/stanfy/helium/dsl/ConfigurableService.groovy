@@ -20,8 +20,8 @@ class ConfigurableService extends ConfigurableProxy<Service> {
     }
   }
 
-  ConfigurableService(final Service core, final Dsl dsl) {
-    super(core, dsl)
+  ConfigurableService(final Service core, final Project project) {
+    super(core, project)
   }
 
   ServiceMethod addServiceMethod(final String path, final MethodType type, Closure<?> spec) {
@@ -29,7 +29,7 @@ class ConfigurableService extends ConfigurableProxy<Service> {
 
     Closure<?> body = spec.clone() as Closure<?>
     body.resolveStrategy = Closure.DELEGATE_ONLY
-    body.delegate = new ConfigurableServiceMethod(method, getDsl())
+    body.delegate = new ConfigurableServiceMethod(method, getProject())
     body.call()
 
     getCore().methods.add method

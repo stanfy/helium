@@ -10,7 +10,7 @@ class HeliumScriptSpec extends Specification {
 
   def "DSL methods should be first-class ones"() {
     given:
-    Dsl dsl = new Dsl()
+    Project dsl = new Project()
     DefaultTypesLoader.loadFor dsl
 
     def allTypes = DefaultTypesLoader.openScript().text.split(/\n/).inject([]) { def result, String line ->
