@@ -42,7 +42,7 @@ class HeliumSpec extends Specification {
 
   def "can load default types"() {
     when:
-    helium.from simpleClosure() defaultTypes true processBy handler
+    helium.from simpleClosure() defaultTypes() processBy handler
 
     then:
     handler.notesCount == 2
@@ -55,6 +55,18 @@ class HeliumSpec extends Specification {
   def "can handle dsl from reader"() {
     when:
     helium.from new StringReader(simpleScript()) processBy handler
+
+    then:
+    handler.notesCount == 2
+    handler.messagesCount == 1
+    handler.structureUnitsCount == 5
+    handler.servicesCount == 1
+    handler.typesCount == 2
+  }
+
+  def "can handle dsl from string"() {
+    when:
+    helium.from simpleScript() processBy handler
 
     then:
     handler.notesCount == 2

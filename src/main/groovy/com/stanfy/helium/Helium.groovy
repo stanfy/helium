@@ -18,11 +18,8 @@ class Helium {
   /** Default file name. */
   private static final String DEFAULT_FILE_NAME = "Project.spec"
 
-  /** Initial project builder. */
-  private Handler builder
-
   /** DSL instance to build. */
-  private Project project
+  private final Project project = new Project()
 
   /** Default types flag. */
   private boolean defaultTypes
@@ -30,8 +27,11 @@ class Helium {
   /** Encoding used to read files. */
   private String encoding = "UTF-8"
 
-  Helium defaultTypes(boolean value) {
-    this.defaultTypes = value
+  Helium defaultTypes() {
+    if (!this.defaultTypes) {
+      this.defaultTypes = true
+      DefaultTypesLoader.loadFor project
+    }
     return this
   }
 
@@ -42,34 +42,29 @@ class Helium {
   }
 
   Helium from(final Closure<?> spec) {
-    builder = new ClosureExtender(spec)
+    new ClosureExtender(spec).handle(project)
     return this
   }
 
   Helium from(final Reader scriptReader) {
-    builder = new ScriptExtender(scriptReader, DEFAULT_FILE_NAME, DEFAULT_USER_PATH)
+    new ScriptExtender(scriptReader, DEFAULT_FILE_NAME, DEFAULT_USER_PATH).handle(project)
     return this
   }
 
   Helium from(final File scriptFile) {
-    builder = new ScriptExtender(new InputStreamReader(new FileInputStream(scriptFile), encoding),
-        scriptFile.name.replaceAll(/\W+/, "_"), DEFAULT_USER_PATH)
+    new ScriptExtender(new InputStreamReader(new FileInputStream(scriptFile), encoding),
+        scriptFile.name.replaceAll(/\W+/, "_"), DEFAULT_USER_PATH).handle(project)
+    return this
+  }
+
+  Helium from(final String scriptText) {
+    new ScriptExtender(new StringReader(scriptText), DEFAULT_FILE_NAME, DEFAULT_USER_PATH).handle(project)
     return this
   }
 
   Helium processBy(final Handler handler) {
     if (!handler) { throw new IllegalArgumentException("Handler is not specified") }
-
-    // 1. build
-    if (!project) {
-      project = new Project()
-      if (defaultTypes) { DefaultTypesLoader.loadFor project }
-      builder.handle(project)
-    }
-
-    // 2. process
     handler.handle(project)
-
     return this
   }
 

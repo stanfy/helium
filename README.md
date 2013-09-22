@@ -1,42 +1,72 @@
 Helium
 ======
 
-DSL for REST API description
+Helium is a DSL for REST API specifications and also a Java API for processing descriptions written in this language.
 
-Example
--------
+Specification Example
+---------------------
 
 ```groovy
-note "Simple REST API example"
+note "Twitter REST API example"
 
-type "PersonProfile" message {
+type "UserProfile" message {
   id long required
-  name 'string' required
-  dob 'timestamp' optional
+  screen_name 'string' required
+  profile_image_url_https 'string' optional
 }
 
 service {
-  name 'Some web-service API'
-  description 'bla bla bla'
-  version 1
+  name 'Twitter API'
+  description 'Piece of Twitter API'
+  version 1.1
 
-  location "http://api-example.com/api/${version}"
+  location "https://api.twitter.com/${version}"
 
-  get "/person/${id}" spec {
-    name 'Get Person'
-    description 'bla bla bla'
+  get "/users/show.json" spec {
+    name 'Get user profile'
+    description '''
+      Returns a variety of information about the user specified by the required user_id
+      or screen_name parameter. The author's most recent Tweet will be returned inline when possible.
+    '''
     parameters {
-      full 'bool' required
-      friends(type : 'bool', description : 'whether to include the friends list to the response')
+      user_id long optional
+      screen_name 'string' optional
+      include_entities 'bool' optional
     }
-    response "PersonProfile"
-  }
-
-  post "/person/${id}" spec {
-    name "Edit person profile"
-    body "PersonProfile"
+    response "UserProfile"
   }
 
 }
 ```
 
+Java API Examples
+-----------------
+
+```java
+// read from string
+new Helium().from("service {name 'Example Service'}").processBy(new Handler() {
+  public void process(Project p) {
+    System.out.println(p.getServices());
+  }
+});
+
+// read from file
+new Helium().from(new File("twitter.spec")).processBy(new Handler() {
+  public void process(Project p) {
+    System.out.println(p.getServices());
+  }
+});
+```
+
+*With Groovy :)*
+
+You can write the specification code directly in your client:
+```groovy
+new Helium().from {
+  service {
+    name 'Example service'
+  }
+}.processBy({ Project p ->
+  println p.services
+} as Handler)
+```
