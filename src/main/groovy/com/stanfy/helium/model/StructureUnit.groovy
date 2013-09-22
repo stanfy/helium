@@ -3,15 +3,9 @@ package com.stanfy.helium.model
 import groovy.transform.CompileStatic
 
 /**
- * Method type.
+ * Specification structure unit (e.g general notes, type, service).
  */
 @CompileStatic
-enum MethodType {
-
-  GET,
-  POST,
-  PUT,
-  DELETE,
-  PATCH
+interface StructureUnit {
 
 }

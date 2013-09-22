@@ -17,13 +17,6 @@ class ConfigurableProxy<T extends GroovyObject> {
     this.dsl = dsl
   }
 
-  void configure(Closure<?> config) {
-    config = (Closure<?>) config.clone()
-    config.delegate = this
-    config.resolveStrategy = Closure.DELEGATE_ONLY
-    config.call()
-  }
-
   @Override
   def getProperty(final String name) {
     return core.getProperty(name)

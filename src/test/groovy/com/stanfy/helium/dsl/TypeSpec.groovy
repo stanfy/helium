@@ -1,7 +1,6 @@
-package com.stanfy.helium.model
+package com.stanfy.helium.dsl
 
-import com.stanfy.helium.dsl.ConfigurableProxy
-import com.stanfy.helium.dsl.Dsl
+import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
 /**
@@ -14,7 +13,7 @@ class TypeSpec extends Specification {
 
   def "should be configurable"() {
     when:
-    new ConfigurableProxy<Type>(type, new Dsl()).configure {
+    Dsl.callConfigurationSpec(new ConfigurableProxy<Type>(type, new Dsl())) {
       name "Int64"
       description "Java long"
     }

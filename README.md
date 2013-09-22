@@ -7,6 +7,8 @@ Example
 -------
 
 ```groovy
+note "Simple REST API example"
+
 type "PersonProfile" message {
   id long required
   name 'string' required

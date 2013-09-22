@@ -16,11 +16,15 @@ class DslSpec extends Specification {
     when:
     dsl.type 'type1'
     dsl.type "${1 + 2}"
+    dsl.type "with description" spec {
+      description "very simple type"
+    }
     def registeredNames = dsl.types.all().inject("") { String res, def type -> res + "$type.name;" }
 
     then:
     registeredNames.contains "type1;"
     registeredNames.contains "3;"
+    !dsl.types.byName("with description").description.empty
   }
 
   def "can describe services"() {
@@ -127,6 +131,34 @@ class DslSpec extends Specification {
     dsl.services[0].methods[1].name == "Edit Person Profile"
     dsl.services[0].methods[1].body == dsl.services[0].methods[0].response
 
+  }
+
+  def "can describe notes"() {
+    when:
+    dsl.note "aha"
+    dsl.note """and more"""
+    dsl.note 'trivial'
+
+    then:
+    dsl.notes[0].value == 'aha'
+    dsl.notes[1].value == 'and more'
+    dsl.notes[2].value == 'trivial'
+  }
+
+  def "maintains structure sequence"() {
+    when:
+    dsl.note "note1"
+    dsl.service {
+      name "service1"
+    }
+    dsl.type "type1"
+    dsl.note "note2"
+
+    then:
+    dsl.structure[0].value == "note1"
+    dsl.structure[1].name == "service1"
+    dsl.structure[2].name == "type1"
+    dsl.structure[3].value == "note2"
   }
 
 }

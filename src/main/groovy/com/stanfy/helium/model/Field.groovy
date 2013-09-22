@@ -1,8 +1,11 @@
 package com.stanfy.helium.model
 
+import groovy.transform.CompileStatic
+
 /**
  * Message field.
  */
+@CompileStatic
 class Field extends Descriptionable {
 
   /** Field type. */

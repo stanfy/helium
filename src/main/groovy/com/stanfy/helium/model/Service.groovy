@@ -1,9 +1,12 @@
 package com.stanfy.helium.model
 
+import groovy.transform.CompileStatic
+
 /**
  * Service entity.
  */
-class Service extends Descriptionable {
+@CompileStatic
+class Service extends Descriptionable implements StructureUnit {
 
   /** Version name. */
   String version

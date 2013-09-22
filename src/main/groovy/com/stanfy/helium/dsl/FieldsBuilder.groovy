@@ -40,7 +40,7 @@ class FieldsBuilder {
     if (arg instanceof Closure) {
       // just configure
       Field f = new Field()
-      new ConfigurableProxy<Field>(f, dsl).configure arg
+      Dsl.callConfigurationSpec(new ConfigurableProxy<Field>(f, dsl), (Closure<?>)arg)
       f.name = name
       message.fields.add f
       return f
