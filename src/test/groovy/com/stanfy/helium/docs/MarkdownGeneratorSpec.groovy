@@ -19,7 +19,7 @@ class MarkdownGeneratorSpec extends Specification {
       version 1.1
       get "/message/@id" spec {
         name "Get message"
-        description "Returnes a message"
+        description "Returns a message"
         response "SomeMessage"
       }
     }

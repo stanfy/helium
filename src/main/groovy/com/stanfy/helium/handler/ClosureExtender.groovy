@@ -15,7 +15,7 @@ class ClosureExtender implements Handler {
   }
 
   public void handle(final Project project) {
-    closure.resolveStrategy = Closure.DELEGATE_ONLY
+    closure.resolveStrategy = Closure.DELEGATE_FIRST
     closure.delegate = project
     closure.call()
   }

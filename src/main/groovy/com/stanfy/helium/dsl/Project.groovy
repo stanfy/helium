@@ -70,7 +70,7 @@ class Project {
 
   @PackageScope static void callConfigurationSpec(final def proxy, final Closure<?> spec) {
     Closure<?> body = spec.clone() as Closure<?>
-    body.resolveStrategy = Closure.DELEGATE_ONLY
+    body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = proxy
     body.call()
   }

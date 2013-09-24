@@ -1,5 +1,6 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.utils.DefaultTypesLoader
 import spock.lang.Specification

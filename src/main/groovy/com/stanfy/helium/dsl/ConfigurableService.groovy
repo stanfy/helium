@@ -28,7 +28,7 @@ class ConfigurableService extends ConfigurableProxy<Service> {
     ServiceMethod method = new ServiceMethod(path: path, type: type)
 
     Closure<?> body = spec.clone() as Closure<?>
-    body.resolveStrategy = Closure.DELEGATE_ONLY
+    body.resolveStrategy = Closure.DELEGATE_FIRST
     body.delegate = new ConfigurableServiceMethod(method, getProject())
     body.call()
 
