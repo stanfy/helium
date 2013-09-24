@@ -9,6 +9,19 @@ import groovy.transform.CompileStatic
 class Message extends Type {
 
   /** Message fields. */
-  final List<Field> fields = new ArrayList<>()
+  private final List<Field> fields = new ArrayList<>()
+
+  List<Field> getFields() { return Collections.unmodifiableList(fields) }
+
+  Field fieldByName(final String name) {
+    return fields.find { Field field -> field.name == name }
+  }
+
+  void addField(final Field f) {
+    if (fieldByName(f.name)) {
+      throw new IllegalArgumentException("Field with name $f.name is already defined in message $name")
+    }
+    fields.add f
+  }
 
 }

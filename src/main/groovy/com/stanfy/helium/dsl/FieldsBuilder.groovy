@@ -42,7 +42,7 @@ class FieldsBuilder {
       Field f = new Field()
       Project.callConfigurationSpec(new ConfigurableProxy<Field>(f, project), (Closure<?>)arg)
       f.name = name
-      message.fields.add f
+      message.addField(f)
       return f
     }
 
@@ -51,13 +51,13 @@ class FieldsBuilder {
       arg.type = type
       Field f = new Field(arg)
       f.name = name
-      message.fields.add f
+      message.addField(f)
       return f
     }
 
     // treat parameter as a type
     Field field = new Field(name : name, type : resolveType(arg))
-    message.fields.add field
+    message.addField(field)
     return new OptionalFieldTrigger(field : field)
   }
 
