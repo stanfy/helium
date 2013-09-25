@@ -35,12 +35,14 @@ class RestApiTestsGeneratorSpec extends Specification {
       }
     }
     def testText = testFile?.text
+    println testText
 
     then:
     testsCount == 1
-    testText.contains "public class TwitterAPITest"
+    testText.contains "public class TwitterAPITest extends ${RestApiMethods.simpleName}"
     testText.contains "@Test"
-    testText.contains "public void users_show_json() {"
+    testText.contains "public void users_show_json()"
+    testText.contains "send(request)"
   }
 
 }

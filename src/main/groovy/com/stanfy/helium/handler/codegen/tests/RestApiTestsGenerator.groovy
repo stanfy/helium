@@ -2,9 +2,15 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.handler.Handler
+import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
+import org.apache.http.client.methods.HttpDelete
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.HttpPatch
+import org.apache.http.client.methods.HttpPost
+import org.apache.http.client.methods.HttpPut
 
 import javax.lang.model.element.Modifier
 
@@ -32,19 +38,78 @@ class RestApiTestsGenerator implements Handler {
       def out = new OutputStreamWriter(new FileOutputStream(destination), "UTF-8")
 
       JavaWriter writer = new JavaWriter(out).emitPackage(packageName)
-      writer.emitImports("org.junit.Test").emitStaticImports("org.fest.assertions.api.Assertions.assertThat")
-      writer.beginType(className, 'class', Collections.<Modifier>singleton(Modifier.PUBLIC))
-      service.methods.each { addTestMethod writer, it }
+
+      writer
+          .emitImports("org.junit.Test")
+          .emitImports(RestApiMethods.name)
+          .emitImports("org.apache.http.client.methods.*")
+          .emitImports("org.apache.http.HttpResponse")
+          .emitStaticImports("org.fest.assertions.api.Assertions.assertThat")
+
+      writer.beginType(className, 'class', Collections.<Modifier>singleton(Modifier.PUBLIC), RestApiMethods.simpleName)
+      service.methods.each { addTestMethods writer, service, it }
       writer.endType()
       writer.close()
     }
   }
 
-  private static void addTestMethod(final JavaWriter out, ServiceMethod method) {
-    String name = method.canonicalName
-    out.emitAnnotation('Test')
-    out.beginMethod('void', name, Collections.<Modifier>singleton(Modifier.PUBLIC))
+  private static String getRequestClass(final MethodType type) {
+    switch (type) {
+      case MethodType.GET:
+        return HttpGet.simpleName;
+      case MethodType.POST:
+        return HttpPost.simpleName;
+      case MethodType.PUT:
+        return HttpPut.simpleName;
+      case MethodType.DELETE:
+        return HttpDelete.simpleName;
+      case MethodType.PATCH:
+        return HttpPatch.simpleName;
+      default:
+        throw new UnsupportedOperationException("Unknown method type " + type)
+    }
+  }
+
+  private static void addTestMethods(final JavaWriter out, final Service service, ServiceMethod method) {
+    String encoding = method.encoding
+    if (!encoding) { encoding = service.encoding }
+    if (!encoding) { encoding = 'UTF-8' }
+
+    if (method.parameters && method.parameters.hasRequiredFields()) {
+      startTestMethod(out, method, "_shouldFailWithOutParameters")
+      sendRequestBody(out, service, method)
+      validateStatusCode(out, false)
+      out.endMethod()
+    }
+
+    startTestMethod(out, method, "_example")
+    sendRequestBody(out, service, method)
+    validateStatusCode(out, true)
+    validateBody(out, encoding)
+
     out.endMethod()
   }
 
+  private static void validateStatusCode(final JavaWriter out, final boolean success) {
+    out.emitStatement('validateStatus(response, %s)', success ? "true" : "false")
+  }
+
+  private static void validateBody(final JavaWriter out, final String encoding) {
+    out.emitStatement('assertThat(validate(response, "%s")).isEmpty()', encoding)
+  }
+
+  private static void sendRequestBody(final JavaWriter out, final Service service, ServiceMethod method, String... configureStatements) {
+    String requestClass = getRequestClass(method.type)
+    out.emitStatement("$requestClass request = new ${requestClass}()")
+    out.emitStatement('request.setURI("%s")', service.getMethodUri(method))
+    configureStatements.each {
+      out.emitStatement(it)
+    }
+    out.emitStatement('HttpResponse response = send(request)')
+  }
+  private static void startTestMethod(final JavaWriter out, ServiceMethod method, String nameSuffix) {
+    String name = method.canonicalName
+    out.emitAnnotation('Test')
+    out.beginMethod('void', name + nameSuffix, Collections.<Modifier>singleton(Modifier.PUBLIC), null, [Exception.simpleName])
+  }
 }

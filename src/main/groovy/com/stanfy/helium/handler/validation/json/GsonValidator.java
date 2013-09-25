@@ -1,10 +1,8 @@
-package com.stanfy.helium.handler.codegen.tests.json;
+package com.stanfy.helium.handler.validation.json;
 
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.stanfy.helium.handler.validation.ValidationError;
-import com.stanfy.helium.handler.validation.json.DefaultJsonTypeValidator;
-import com.stanfy.helium.handler.validation.json.JsonValidator;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Sequence;

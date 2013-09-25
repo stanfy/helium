@@ -28,4 +28,8 @@ class Message extends Type {
     return fields.findAll() { Field field -> field.required }
   }
 
+  boolean hasRequiredFields() {
+    return fields.any { Field f -> f.required }
+  }
+
 }

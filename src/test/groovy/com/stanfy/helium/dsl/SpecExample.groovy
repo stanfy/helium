@@ -30,7 +30,7 @@ final class SpecExample {
         '''
         parameters {
           user_id long optional
-          screen_name 'string' optional
+          screen_name 'string' required
           include_entities 'bool' optional
         }
         response "UserProfile"

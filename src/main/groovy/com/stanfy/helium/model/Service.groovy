@@ -14,11 +14,18 @@ class Service extends Descriptionable implements StructureUnit {
   /** Service location (base URL/path). */
   String location
 
+  /** Encoding used. */
+  String encoding
+
   /** Service methods. */
   final List<ServiceMethod> methods = new ArrayList<>()
 
   String getCanonicalName() {
     return name?.replaceAll(/\W+/, '')
+  }
+
+  String getMethodUri(final ServiceMethod method) {
+    return "$location/$method.path"
   }
 
 }
