@@ -20,4 +20,7 @@ interface Project {
   /** @return structure of the specification */
   List<StructureUnit> getStructure()
 
+  /** @return sequences described in this project */
+  List<Sequence> getSequences();
+
 }

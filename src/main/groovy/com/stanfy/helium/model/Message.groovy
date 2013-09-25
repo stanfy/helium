@@ -28,9 +28,4 @@ class Message extends Type {
     return fields.findAll() { Field field -> field.required }
   }
 
-  boolean isArray() {
-    // TODO
-    return false
-  }
-
 }

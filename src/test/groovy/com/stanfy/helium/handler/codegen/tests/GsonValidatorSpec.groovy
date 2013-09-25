@@ -3,6 +3,8 @@ package com.stanfy.helium.handler.codegen.tests
 import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.handler.codegen.tests.json.GsonValidator
 import com.stanfy.helium.model.Message
+import com.stanfy.helium.model.Sequence
+import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
 /**
@@ -11,6 +13,8 @@ import spock.lang.Specification
 class GsonValidatorSpec extends Specification {
   
   Message testMessage
+  Sequence listMessage
+  Message structMessage
 
   GsonValidator testValidator
 
@@ -24,7 +28,17 @@ class GsonValidatorSpec extends Specification {
       f2 'float' optional
       f3 'string' optional
     }
+    dsl.type 'List' sequence 'A'
+    dsl.type 'ListWithName' message {
+      items 'A' sequence
+    }
+    dsl.type 'Struct' message {
+      a 'A' required
+      b 'ListWithName' optional
+    }
     testMessage = dsl.messages[0]
+    listMessage = dsl.sequences[0]
+    structMessage = dsl.messages[2]
     testValidator = new GsonValidator(testMessage)
   }
 
@@ -49,7 +63,7 @@ class GsonValidatorSpec extends Specification {
 
     expect:
     errors.size() == 1
-    errors[0].message == testMessage
+    errors[0].type == testMessage
     errors[0].explanation.contains('is not')
   }
 
@@ -79,7 +93,7 @@ class GsonValidatorSpec extends Specification {
 
     expect:
     errors.size() == 1
-    errors[0].message == testMessage
+    errors[0].type == testMessage
     errors[0].field != null
     errors[0].field.name == 'f1'
   }
@@ -96,7 +110,7 @@ class GsonValidatorSpec extends Specification {
 
     expect:
     errors.size() == 1
-    errors[0].message == testMessage
+    errors[0].type == testMessage
     errors[0].field != null
     errors[0].field.name == 'f1'
   }
@@ -113,7 +127,7 @@ class GsonValidatorSpec extends Specification {
 
     expect:
     errors.size() == 1
-    errors[0].message == testMessage
+    errors[0].type == testMessage
     errors[0].field.name == 'f3'
   }
 
@@ -123,7 +137,7 @@ class GsonValidatorSpec extends Specification {
 
     expect:
     !errors.empty
-    errors[0].message == testMessage
+    errors[0].type == testMessage
     errors[0].explanation.contains("aha")
   }
 
@@ -133,10 +147,63 @@ class GsonValidatorSpec extends Specification {
 
     expect:
     errors.size() == 1
-    errors[0].message == testMessage
+    errors[0].type == testMessage
     errors[0].field != null
     errors[0].field.name == 'f1'
     errors[0].explanation.contains("not provided")
   }
 
+  def "accepts valid arrays"() {
+    given:
+    testValidator = new GsonValidator(listMessage)
+    def errors = testValidator.validate('''
+      [
+        {
+          "f1" : 2,
+          "f2" : 1.5,
+          "f3" : "abc"
+        }
+      ]
+    ''')
+
+    expect:
+    errors.empty
+  }
+
+  def "accepts empty arrays"() {
+    given:
+    testValidator = new GsonValidator(listMessage)
+    def errors = testValidator.validate('[]')
+
+    expect:
+    errors.empty
+  }
+
+  def "validates arrays"() {
+    given:
+    testValidator = new GsonValidator(listMessage)
+    def errors = testValidator.validate('''
+      [
+        {
+          "f3" : 2
+        }
+      ]
+    ''')
+
+    expect:
+    errors.size() == 2
+    errors[0].type == testMessage
+    errors[1].type == testMessage
+  }
+
+  def "validates primitives only"() {
+    given:
+    def errors1 = new GsonValidator(new Type(name : 'int32')).validate('2')
+    def errors2 = new GsonValidator(new Type(name : 'int32')).validate('"aha"')
+
+    expect:
+    errors1.empty
+    !errors2.empty
+  }
+  
 }

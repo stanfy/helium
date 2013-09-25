@@ -63,11 +63,13 @@ class ProjectDslSpec extends Specification {
       }
       name {
         required true
+        sequence true
       }
     }
     dsl.type "C" message {
       id long optional
       name String required
+      list int sequence
     }
 
     then:
@@ -88,14 +90,28 @@ class ProjectDslSpec extends Specification {
     !dsl.messages[1].fields[0].required
     dsl.messages[1].fields[1].name == "name"
     dsl.messages[1].fields[1].required
+    dsl.messages[1].fields[1].sequence
 
-    dsl.messages[2].fields.size() == 2
+    dsl.messages[2].fields.size() == 3
     dsl.messages[2].fields[0].name == "id"
     !dsl.messages[2].fields[0].required
     dsl.messages[2].fields[0].type.name == "int64"
     dsl.messages[2].fields[1].name == "name"
     dsl.messages[2].fields[1].required
     dsl.messages[2].fields[1].type.name == "string"
+    dsl.messages[2].fields[2].name == "list"
+    dsl.messages[2].fields[2].type.name == "int32"
+    dsl.messages[2].fields[2].sequence
+    !dsl.messages[2].fields[2].required
+  }
+
+  def "can describe sequences"() {
+    when:
+    dsl.type "bool"
+    dsl.type 'A' sequence 'bool'
+
+    then:
+    dsl.sequences[0].name == 'A'
   }
 
   def "can describe service methods"() {

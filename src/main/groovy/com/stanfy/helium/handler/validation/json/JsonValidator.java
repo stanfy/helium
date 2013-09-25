@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.validation.json;
 
 import com.stanfy.helium.handler.validation.ValidationError;
 import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.Type;
 
 import java.io.*;
 import java.util.Collections;
@@ -13,10 +14,10 @@ import java.util.List;
 public abstract class JsonValidator {
 
   /** Message. */
-  private final Message message;
+  private final Type type;
 
-  public JsonValidator(final Message message) {
-    this.message = message;
+  public JsonValidator(final Type type) {
+    this.type = type;
   }
 
   protected static String getFullErrorMessage(final Throwable e) {
@@ -25,13 +26,13 @@ public abstract class JsonValidator {
     return stackOut.toString();
   }
 
-  public Message getMessage() { return message; }
+  public Type getType() { return type; }
 
   public List<ValidationError> validate(final String json) {
     try {
       return validate(new StringReader(json));
     } catch (IOException e) {
-      return Collections.singletonList(new ValidationError(message, "Could not parse input JSON\n" + getFullErrorMessage(e)));
+      return Collections.singletonList(new ValidationError(type, "Could not parse input JSON\n" + getFullErrorMessage(e)));
     }
   }
 

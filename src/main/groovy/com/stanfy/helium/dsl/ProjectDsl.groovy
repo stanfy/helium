@@ -12,6 +12,8 @@ class ProjectDsl implements Project {
   private final List<Service> services = new ArrayList<>()
   /** Messages list. */
   private final List<Message> messages = new ArrayList<>()
+  /** Sequences list. */
+  private final List<Sequence> sequences = new ArrayList<>()
   /** Notes list. */
   private final List<Note> notes = new ArrayList<>()
 
@@ -53,18 +55,34 @@ class ProjectDsl implements Project {
     return Collections.unmodifiableList(structure)
   }
 
+  @Override
+  public List<Sequence> getSequences() {
+    applyPendingTypes()
+    return Collections.unmodifiableList(sequences)
+  }
+
   public Message createAndAddMessage(final String name, final Closure<?> spec) {
     Message m = new Message(name : name)
     callConfigurationSpec(new FieldsBuilder(m, this, typeResolver), spec)
     messages.add m
-    Type prevType = pendingTypeDefinitions.remove(name)
-    pendingTypeDefinitions[name] = m
-    if (prevType) {
-      structure.set(structure.indexOf(prevType), m)
-    } else {
-      structure.add(m)
-    }
+    updatePendingTypes(name, m)
     return m
+  }
+
+  public Sequence createAndAddSequence(final String name, final String itemsType) {
+    Sequence seq = new Sequence(name : name, itemsType : typeResolver.byName(itemsType))
+    sequences.add seq
+    updatePendingTypes(name, seq)
+  }
+
+  private void updatePendingTypes(final String name, final Type type) {
+    Type prevType = pendingTypeDefinitions.remove(name)
+    pendingTypeDefinitions[name] = type
+    if (prevType) {
+      structure.set(structure.indexOf(prevType), type)
+    } else {
+      structure.add(type)
+    }
   }
 
   @PackageScope static void callConfigurationSpec(final def proxy, final Closure<?> spec) {
@@ -99,7 +117,8 @@ class ProjectDsl implements Project {
     structure.add type
     return [
         "message" : { Closure<?> spec -> createAndAddMessage(name, spec) },
-        "spec" : { Closure<?> spec -> callConfigurationSpec(new ConfigurableProxy<Type>(type, owner), spec) }
+        "spec" : { Closure<?> spec -> callConfigurationSpec(new ConfigurableProxy<Type>(type, owner), spec) },
+        "sequence" : { String item -> createAndAddSequence(name, item) }
     ]
   }
 

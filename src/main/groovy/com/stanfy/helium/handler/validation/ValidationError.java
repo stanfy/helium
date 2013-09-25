@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.validation;
 
 import com.stanfy.helium.model.Field;
-import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.Type;
 
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public class ValidationError {
 
   /** Message. */
-  private final Message message;
+  private final Type type;
 
   /** Field. */
   private final Field field;
@@ -26,18 +26,18 @@ public class ValidationError {
     this(null, null, explanation);
   }
 
-  public ValidationError(final Message msg, final String explanation) {
+  public ValidationError(final Type msg, final String explanation) {
     this(msg, null, explanation);
   }
 
-  public ValidationError(final Message msg, final Field field, final String explanation) {
-    this.message = msg;
+  public ValidationError(final Type msg, final Field field, final String explanation) {
+    this.type = msg;
     this.field = field;
     this.explanation = explanation;
   }
 
-  public Message getMessage() {
-    return message;
+  public Type getType() {
+    return type;
   }
 
   public Field getField() {
@@ -59,8 +59,8 @@ public class ValidationError {
   @Override
   public String toString() {
     StringBuilder res = new StringBuilder().append("[");
-    if (message != null) {
-      res.append("\nmessage=").append(message);
+    if (type != null) {
+      res.append("\ntype=").append(type);
     }
     if (field != null) {
       if (res.length() > 1) { res.append(","); }

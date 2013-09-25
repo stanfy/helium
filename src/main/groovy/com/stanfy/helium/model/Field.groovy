@@ -19,6 +19,9 @@ class Field extends Descriptionable {
   /** Required option, true by default. */
   boolean required = true
 
+  /** Sequence option. */
+  boolean sequence;
+
   /** Value examples. */
   private List<String> examples
 

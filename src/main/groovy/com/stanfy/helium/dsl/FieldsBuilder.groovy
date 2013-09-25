@@ -87,7 +87,16 @@ class OptionalFieldTrigger {
     field.required = false
   }
 
+  boolean getSequence() {
+    field.sequence = true
+    field.required = false
+  }
+
   void setRequired(boolean value) {
     field.required = value
+  }
+
+  void setSequence(boolean value) {
+    field.sequence = value
   }
 }
