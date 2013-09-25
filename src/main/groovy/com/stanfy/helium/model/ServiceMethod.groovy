@@ -23,4 +23,9 @@ class ServiceMethod extends Descriptionable {
   /** Request body. */
   Message body
 
+  String getCanonicalName() {
+    String res = path.replaceAll(/[\/.]+/, '_').replaceAll(/\W+/, '')
+    return res[0] == '_' ? res[1..-1] : res
+  }
+
 }

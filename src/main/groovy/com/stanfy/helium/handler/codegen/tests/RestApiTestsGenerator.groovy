@@ -40,8 +40,11 @@ class RestApiTestsGenerator implements Handler {
     }
   }
 
-  private void addTestMethod(final JavaWriter out, ServiceMethod method) {
-
+  private static void addTestMethod(final JavaWriter out, ServiceMethod method) {
+    String name = method.canonicalName
+    out.emitAnnotation('Test')
+    out.beginMethod('void', name, Collections.<Modifier>singleton(Modifier.PUBLIC))
+    out.endMethod()
   }
 
 }

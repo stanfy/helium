@@ -39,6 +39,8 @@ class RestApiTestsGeneratorSpec extends Specification {
     then:
     testsCount == 1
     testText.contains "public class TwitterAPITest"
+    testText.contains "@Test"
+    testText.contains "public void users_show_json() {"
   }
 
 }
