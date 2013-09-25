@@ -30,6 +30,7 @@ class GsonValidatorSpec extends Specification {
     }
     dsl.type 'List' sequence 'A'
     dsl.type 'ListWithName' message {
+      name 'string'
       items 'A' sequence
     }
     dsl.type 'Struct' message {
@@ -205,5 +206,67 @@ class GsonValidatorSpec extends Specification {
     errors1.empty
     !errors2.empty
   }
-  
+
+  def "some complex validations are also possible..."() {
+    given:
+    testValidator = new GsonValidator(structMessage)
+    def errors = testValidator.validate('''
+      {
+        "a" : {
+          "f1" : 1
+        },
+        "b" : {
+          "name" : "test list",
+          "items" : [
+            {
+              "f1" : 2
+            },
+            {
+              "f1" : 3
+            }
+          ]
+        }
+      }
+    ''')
+
+    expect:
+    errors.empty
+  }
+
+  def "and validations works on these complex examples :)"() {
+    given:
+    testValidator = new GsonValidator(structMessage)
+    def errors = testValidator.validate '''
+      {
+        "a" : {
+          // "f1" : 1
+        },
+        "b" : {
+          // "name" : "test list",
+          "items" : [
+            {
+              "f1" : 2
+            },
+            {
+              // "f1" : 3
+            }
+          ]
+        }
+      }
+    '''
+
+    expect:
+    errors.size() == 2
+    errors[0].field.name == "a"
+    !errors[0].children.empty
+    errors[0].children[0].field.name == "f1"
+
+    errors[1].field.name == "b"
+    !errors[1].children.empty
+    errors[1].children[1].field.name == "name"
+    def deepErrors = errors[1].children[0].children
+    !deepErrors.empty
+    deepErrors[0].field.name == "f1"
+  }
+
 }

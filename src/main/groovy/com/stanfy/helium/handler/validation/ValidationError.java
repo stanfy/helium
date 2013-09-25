@@ -56,25 +56,39 @@ public class ValidationError {
     this.children = children;
   }
 
-  @Override
-  public String toString() {
-    StringBuilder res = new StringBuilder().append("[");
+  private static StringBuilder indent(final CharSequence spaces, final StringBuilder res) {
+    return res.append('\n').append(spaces);
+  }
+
+  private void dump(final int size, final StringBuilder res) {
+    StringBuilder indent = new StringBuilder();
+    for (int i = 0; i < size; i++) { indent.append(' '); }
+
+    indent(indent, res).append("[");
     if (type != null) {
-      res.append("\ntype=").append(type);
+      indent(indent, res).append("type=").append(type);
     }
     if (field != null) {
       if (res.length() > 1) { res.append(","); }
-      res.append("\nfield=").append(field);
+      indent(indent, res).append("field=").append(field);
     }
     if (explanation != null) {
       if (res.length() > 1) { res.append(","); }
-      res.append("\nexplanation=").append(explanation);
+      indent(indent, res).append("explanation=").append(explanation);
     }
     if (children != null && !children.isEmpty()) {
       if (res.length() > 1) { res.append(","); }
-      res.append("\nchildren=").append(children);
+      for (ValidationError child : children) {
+        child.dump(size + 2, res);
+      }
     }
-    res.append("\n]");
+    indent(indent, res).append("]");
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder res = new StringBuilder();
+    dump(0, res);
     return res.toString();
   }
 

@@ -108,7 +108,23 @@ public class GsonValidator extends JsonValidator {
       visitedFields.add(fieldName);
 
       Type fieldType = field.getType();
-      if (fieldType instanceof Message) {
+      if (fieldType instanceof Sequence) {
+        throw new IllegalStateException("Sequences are accepted as roots only!");
+      }
+
+      if (field.isSequence()) {
+
+        json.beginArray();
+        LinkedList<ValidationError> children = new LinkedList<ValidationError>();
+        validateArrayValue(fieldType, json, children);
+        if (!children.isEmpty()) {
+          ValidationError fieldError = new ValidationError(message, field, "there are some errors inside");
+          fieldError.setChildren(children);
+          errors.add(fieldError);
+        }
+        json.endArray();
+
+      } else if (fieldType instanceof Message) {
         GsonValidator nextValidator = new GsonValidator(fieldType);
         List<ValidationError> children = nextValidator.validate(json);
         if (!children.isEmpty()) {
