@@ -1,7 +1,8 @@
 package com.stanfy.helium
 
-import com.stanfy.helium.dsl.Project
+import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.handler.Handler
+import com.stanfy.helium.model.Project
 import spock.lang.Specification
 
 /**
@@ -13,6 +14,10 @@ class HeliumSpec extends Specification {
   Helium helium = new Helium()
   /** Stats handler. */
   StatsHandler handler = new StatsHandler()
+
+  public static loadDefaultTypesFor(final ProjectDsl project) {
+    DefaultTypesLoader.loadFor(project)
+  }
 
   private static Closure<?> simpleClosure() {
     new GroovyShell().evaluate("return {${simpleScript()}}") as Closure<?>

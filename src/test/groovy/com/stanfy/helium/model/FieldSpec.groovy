@@ -27,4 +27,24 @@ class FieldSpec extends Specification {
     field.name == 'a'
   }
 
+  def "setExamples checks type"() {
+    when:
+    field.type = new Message(name : 'A')
+    field.examples = ['a']
+
+    then:
+    def e = thrown(IllegalStateException)
+    e.message.startsWith("Example")
+  }
+
+  def "getExamples is unmodifiable"() {
+    when:
+    field.examples = ['a']
+    field.examples.add('b')
+
+    then:
+    thrown(UnsupportedOperationException)
+    field.examples == ['a']
+  }
+
 }

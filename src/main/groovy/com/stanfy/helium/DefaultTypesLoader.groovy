@@ -1,13 +1,15 @@
-package com.stanfy.helium.utils
+package com.stanfy.helium
 
-import com.stanfy.helium.dsl.Project
 import com.stanfy.helium.handler.ScriptExtender
+import com.stanfy.helium.model.Project
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 
 /**
  * Default types loader.
  */
 @CompileStatic
+@PackageScope
 class DefaultTypesLoader {
 
   static Reader openScript() {

@@ -1,5 +1,7 @@
 package com.stanfy.helium.dsl
 
+import groovy.transform.CompileStatic
+
 /**
  * Configurable wrapper.
  * @param <T> wrapped instance type.
@@ -7,12 +9,13 @@ package com.stanfy.helium.dsl
 class ConfigurableProxy<T extends GroovyObject> {
 
   /** DSL instance. */
-  final Project project
+  final ProjectDsl project
 
   /** Core object. */
   final T core
 
-  public ConfigurableProxy(final T core, final Project project) {
+  @CompileStatic
+  public ConfigurableProxy(final T core, final ProjectDsl project) {
     this.core = core
     this.project = project
   }

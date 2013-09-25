@@ -1,6 +1,7 @@
 package com.stanfy.helium.dsl
 
-import com.stanfy.helium.utils.DefaultTypesLoader
+import com.stanfy.helium.DefaultTypesLoader
+import com.stanfy.helium.HeliumSpec
 import spock.lang.Specification
 
 /**
@@ -10,8 +11,8 @@ class HeliumScriptSpec extends Specification {
 
   def "DSL methods should be first-class ones"() {
     given:
-    Project dsl = new Project()
-    DefaultTypesLoader.loadFor dsl
+    ProjectDsl dsl = new ProjectDsl()
+    HeliumSpec.loadDefaultTypesFor dsl
 
     def allTypes = DefaultTypesLoader.openScript().text.split(/\n/).inject([]) { def result, String line ->
       String[] parts = line.split(/\s+/)

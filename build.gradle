@@ -6,5 +6,8 @@ repositories {
 
 dependencies {
   compile 'org.codehaus.groovy:groovy-all:2.1.7'
+  compile 'com.squareup:javawriter:2.1.2'
+  compile 'org.apache.httpcomponents:httpclient:4.3'
+
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
 }

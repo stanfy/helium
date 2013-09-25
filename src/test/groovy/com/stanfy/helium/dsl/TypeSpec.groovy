@@ -13,7 +13,7 @@ class TypeSpec extends Specification {
 
   def "should be configurable"() {
     when:
-    Project.callConfigurationSpec(new ConfigurableProxy<Type>(type, new Project())) {
+    ProjectDsl.callConfigurationSpec(new ConfigurableProxy<Type>(type, new ProjectDsl())) {
       name "Int64"
       description "Java long"
     }

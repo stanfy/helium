@@ -17,4 +17,8 @@ class Service extends Descriptionable implements StructureUnit {
   /** Service methods. */
   final List<ServiceMethod> methods = new ArrayList<>()
 
+  String getCanonicalName() {
+    return name?.replaceAll(/\W+/, '')
+  }
+
 }

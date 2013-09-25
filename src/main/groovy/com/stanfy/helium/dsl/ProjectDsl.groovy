@@ -1,18 +1,12 @@
 package com.stanfy.helium.dsl
 
-import com.stanfy.helium.model.Message
-import com.stanfy.helium.model.Note
-import com.stanfy.helium.model.Service
-import com.stanfy.helium.model.StructureUnit
-import com.stanfy.helium.model.Type
-import groovy.transform.CompileStatic
+import com.stanfy.helium.model.*
 import groovy.transform.PackageScope
 
 /**
  * Entry point to Helium DSL.
  */
-@CompileStatic
-class Project {
+class ProjectDsl implements Project {
 
   /** Services list. */
   private final List<Service> services = new ArrayList<>()
@@ -30,25 +24,30 @@ class Project {
   /** Types resolver. */
   private TypeResolver typeResolver = new DefaultTypeResolver()
 
+  @Override
   public List<Service> getServices() {
     return Collections.unmodifiableList(services)
   }
 
+  @Override
   public List<Message> getMessages() {
     applyPendingTypes()
     return Collections.unmodifiableList(messages)
   }
 
+  @Override
   public TypeResolver getTypes() {
     applyPendingTypes()
     return typeResolver
   }
 
+  @Override
   public List<Note> getNotes() {
     applyPendingTypes()
     return Collections.unmodifiableList(notes)
   }
 
+  @Override
   public List<StructureUnit> getStructure() {
     applyPendingTypes()
     return Collections.unmodifiableList(structure)

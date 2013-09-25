@@ -1,7 +1,7 @@
 package com.stanfy.helium.docs
 
-import com.stanfy.helium.dsl.Project
 import com.stanfy.helium.handler.Handler
+import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.StructureUnit
 
 /**
@@ -19,6 +19,7 @@ class MarkdownGenerator implements Handler {
     this.out = new OutputStreamWriter(new FileOutputStream(out), encoding)
   }
 
+  @Override
   void handle(final Project project) {
     try {
       project.structure.each { StructureUnit unit ->

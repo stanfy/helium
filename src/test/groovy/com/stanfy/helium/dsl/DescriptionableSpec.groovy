@@ -13,7 +13,7 @@ class DescriptionableSpec extends Specification {
 
   def "should be configurable"() {
     when:
-    Project.callConfigurationSpec(new ConfigurableProxy<Descriptionable>(service, new Project())) {
+    ProjectDsl.callConfigurationSpec(new ConfigurableProxy<Descriptionable>(service, new ProjectDsl())) {
       name "abc"
       description "hey"
     }

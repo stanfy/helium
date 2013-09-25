@@ -20,7 +20,7 @@ class ConfigurableService extends ConfigurableProxy<Service> {
     }
   }
 
-  ConfigurableService(final Service core, final Project project) {
+  ConfigurableService(final Service core, final ProjectDsl project) {
     super(core, project)
   }
 

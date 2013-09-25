@@ -20,7 +20,7 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
     }
   }
 
-  ConfigurableServiceMethod(final ServiceMethod core, final Project project) {
+  ConfigurableServiceMethod(final ServiceMethod core, final ProjectDsl project) {
     super(core, project)
   }
 

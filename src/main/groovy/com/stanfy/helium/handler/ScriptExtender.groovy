@@ -1,7 +1,8 @@
 package com.stanfy.helium.handler
 
 import com.stanfy.helium.dsl.HeliumScript
-import com.stanfy.helium.dsl.Project
+import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.model.Project
 import org.codehaus.groovy.control.CompilerConfiguration
 
 /**
@@ -23,8 +24,9 @@ class ScriptExtender implements Handler {
     this.script = new GroovyShell(new Binding(), config).parse(source) as HeliumScript
   }
 
+  @Override
   public void handle(final Project project) {
-    script.setProject project
+    script.setProject((ProjectDsl)project)
     script.run()
   }
 

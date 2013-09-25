@@ -1,4 +1,4 @@
-package com.stanfy.helium.dsl
+package com.stanfy.helium.model
 
 import com.stanfy.helium.model.Type
 

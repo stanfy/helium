@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler
 
-import com.stanfy.helium.dsl.Project
+import com.stanfy.helium.model.Project
 
 /**
  * DSL handler.

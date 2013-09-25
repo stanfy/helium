@@ -1,6 +1,7 @@
 package com.stanfy.helium.dsl
 
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.TypeResolver
 
 /**
  * Default types resolver.

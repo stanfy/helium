@@ -1,17 +1,16 @@
 package com.stanfy.helium.dsl
 
-import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
-import com.stanfy.helium.utils.DefaultTypesLoader
+import com.stanfy.helium.DefaultTypesLoader
 import spock.lang.Specification
 
 /**
  * Spec for DSL entry point.
  */
-class ProjectSpec extends Specification {
+class ProjectDslSpec extends Specification {
 
   /** Project instance under the test. */
-  Project dsl = new Project()
+  ProjectDsl dsl = new ProjectDsl()
 
   def "can describe simple types"() {
     when:

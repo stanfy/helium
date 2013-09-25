@@ -6,9 +6,9 @@ package com.stanfy.helium.dsl
 abstract class HeliumScript extends Script {
 
   /** DSL instance. */
-  private Project project
+  private ProjectDsl project
 
-  public void setProject(final Project dsl) {
+  public void setProject(final ProjectDsl dsl) {
     this.project = dsl
   }
 

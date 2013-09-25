@@ -1,10 +1,9 @@
 package com.stanfy.helium
 
-import com.stanfy.helium.dsl.Project
+import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.handler.ClosureExtender
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.handler.ScriptExtender
-import com.stanfy.helium.utils.DefaultTypesLoader
 import groovy.transform.CompileStatic
 
 /**
@@ -19,7 +18,7 @@ class Helium {
   private static final String DEFAULT_FILE_NAME = "Project.spec"
 
   /** DSL instance to build. */
-  private final Project project = new Project()
+  private final ProjectDsl project = new ProjectDsl()
 
   /** Default types flag. */
   private boolean defaultTypes

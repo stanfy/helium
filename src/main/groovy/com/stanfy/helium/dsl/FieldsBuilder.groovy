@@ -3,6 +3,7 @@ package com.stanfy.helium.dsl
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.TypeResolver
 import groovy.transform.CompileStatic
 
 /**
@@ -14,13 +15,13 @@ class FieldsBuilder {
   private final Message message
 
   /** Type resolver. */
-  private final Project project
+  private final ProjectDsl project
 
   /** Type resolver. */
   private final TypeResolver typeResolver
 
   @CompileStatic
-  FieldsBuilder(final Message message, final Project project, final TypeResolver typeResolver) {
+  FieldsBuilder(final Message message, final ProjectDsl project, final TypeResolver typeResolver) {
     this.message = message
     this.project = project
     this.typeResolver = typeResolver
@@ -40,7 +41,7 @@ class FieldsBuilder {
     if (arg instanceof Closure) {
       // just configure
       Field f = new Field()
-      Project.callConfigurationSpec(new ConfigurableProxy<Field>(f, project), (Closure<?>)arg)
+      ProjectDsl.callConfigurationSpec(new ConfigurableProxy<Field>(f, project), (Closure<?>)arg)
       f.name = name
       message.addField(f)
       return f
