@@ -24,4 +24,13 @@ class Message extends Type {
     fields.add f
   }
 
+  Collection<Field> getRequiredFields() {
+    return fields.findAll() { Field field -> field.required }
+  }
+
+  boolean isArray() {
+    // TODO
+    return false
+  }
+
 }

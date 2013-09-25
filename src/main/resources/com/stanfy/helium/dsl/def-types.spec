@@ -1,9 +1,7 @@
 package com.stanfy.helium.dsl
 
-type "double"
-type "float"
-type "int32"
-type "int64"
-type "bool"
-type "string"
-type "bytes"
+import com.stanfy.helium.DefaultType
+
+DefaultType.values().each {
+  type it.toString().toLowerCase(Locale.US)
+}
