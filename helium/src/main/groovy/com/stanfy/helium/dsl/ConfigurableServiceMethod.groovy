@@ -1,6 +1,5 @@
 package com.stanfy.helium.dsl
 
-import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.ServiceMethod
 
 /**
@@ -31,7 +30,7 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
 
   void defineMessageType(final String property, String messageType) {
     ServiceMethod core = getCore()
-    core."$property" = (Message) getProject().types.byName(messageType)
+    core."$property" = getProject().types.byName(messageType)
   }
 
 }

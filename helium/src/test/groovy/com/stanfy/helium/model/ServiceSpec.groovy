@@ -19,8 +19,8 @@ class ServiceSpec extends Specification {
 
   def "can generate service method uri"() {
     given:
-    service.location = "http://api.com"
-    ServiceMethod m = new ServiceMethod(path : 'person/show')
+    service.location = "http://api.com/"
+    ServiceMethod m = new ServiceMethod(path : '/person/show')
 
     expect:
     service.getMethodUri(m) == "http://api.com/person/show"

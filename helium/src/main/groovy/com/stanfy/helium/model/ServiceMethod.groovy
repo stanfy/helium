@@ -18,10 +18,10 @@ class ServiceMethod extends Descriptionable {
   Message parameters
 
   /** Response. */
-  Message response
+  Type response
 
   /** Request body. */
-  Message body
+  Type body
 
   /** Used encoding. */
   String encoding

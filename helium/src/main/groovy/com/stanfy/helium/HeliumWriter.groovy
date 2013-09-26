@@ -191,16 +191,20 @@ class HeliumWriter implements Closeable {
     writeLine "}"
   }
 
-  private void emitMethodInternalType(final String property, final Message message) throws IOException {
-    if (writtenTypes.contains(message.name)) {
-      writeLine "$property '$message.name'"
+  private void emitMethodInternalType(final String property, final Type type) throws IOException {
+    if (writtenTypes.contains(type.name)) {
+      writeLine "$property '$type.name'"
       return
     }
-    writeLine "$property {"
-    incIndent()
-    writeMessageFields(message)
-    decIndent()
-    writeLine "}"
+    if (type instanceof Message) {
+      writeLine "$property {"
+      incIndent()
+      writeMessageFields((Message)type)
+      decIndent()
+      writeLine "}"
+      return
+    }
+    throw new IllegalStateException("$type was not defined earlier")
   }
 
   private void writeMessageFields(final Message message) throws IOException {

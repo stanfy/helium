@@ -34,7 +34,7 @@ class RestApiTestsGenerator implements Handler {
     if (!output) { throw new IllegalStateException("Output is note defined") }
     if (!output.directory) { throw new IllegalStateException("Output is not a directory") }
 
-    File packageDir = new File(output, packageName.replaceAll(/\\./, '/'))
+    File packageDir = new File(output, packageName.replaceAll(/\./, '/'))
     packageDir.mkdirs()
 
     File specFile = new File(packageDir, RestApiMethods.TEST_SPEC_NAME)

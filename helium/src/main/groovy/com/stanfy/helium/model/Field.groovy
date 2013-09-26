@@ -11,7 +11,7 @@ import java.util.regex.Pattern
 class Field extends Descriptionable {
 
   /** Name pattern. */
-  private static final Pattern NAME_PATTERN = ~/^[a-zA-A0-9_-]+$/
+  private static final Pattern NAME_PATTERN = ~/^[a-zA-Z0-9_-]+$/
 
   /** Field type. */
   Type type

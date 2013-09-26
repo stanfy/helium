@@ -21,7 +21,7 @@ class ScriptExtender implements Handler {
     CompilerConfiguration config = new CompilerConfiguration()
     config.scriptBaseClass = HeliumScript.canonicalName
     GroovyCodeSource source = new GroovyCodeSource(scriptReader, name, path)
-    this.script = new GroovyShell(new Binding(), config).parse(source) as HeliumScript
+    this.script = new GroovyShell(HeliumScript.classLoader, new Binding(), config).parse(source) as HeliumScript
   }
 
   @Override

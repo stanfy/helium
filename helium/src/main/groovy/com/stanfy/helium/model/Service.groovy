@@ -25,7 +25,11 @@ class Service extends Descriptionable implements StructureUnit {
   }
 
   String getMethodUri(final ServiceMethod method) {
-    return "$location/$method.path"
+    if (!location) { throw new IllegalStateException("Service location is not specified") }
+    String loc = location.endsWith('/') ? location[0..-2] : location
+    if (!method.path) { throw new IllegalStateException("Service method path is not specified") }
+    String path = method.path.startsWith('/') ? method.path[1..-1] : method.path
+    return "$loc/$path"
   }
 
 }
