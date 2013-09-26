@@ -1,10 +1,24 @@
-apply plugin : 'groovy'
 
-repositories {
-  mavenCentral()
-}
+subprojects {
+  buildscript {
+    repositories {
+      mavenCentral()
+    }
 
-dependencies {
-  compile 'org.codehaus.groovy:groovy-all:2.1.7'
-  testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+    dependencies {
+      classpath 'org.gradle.api.plugins:gradle-nexus-plugin:0.3'
+    }
+  }
+
+  group = 'com.stanfy.helium'
+  version = '0.1-SNAPSHOT'
+
+  repositories {
+    mavenCentral()
+  }
+
+  afterEvaluate {
+    install.dependsOn check
+  }
+
 }
