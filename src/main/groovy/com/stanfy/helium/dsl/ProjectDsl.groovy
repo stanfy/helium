@@ -27,61 +27,67 @@ class ProjectDsl implements Project {
   private TypeResolver typeResolver = new DefaultTypeResolver()
 
   @Override
-  public List<Service> getServices() {
+  List<Service> getServices() {
     return Collections.unmodifiableList(services)
   }
 
   @Override
-  public List<Message> getMessages() {
+  List<Message> getMessages() {
     applyPendingTypes()
     return Collections.unmodifiableList(messages)
   }
 
   @Override
-  public TypeResolver getTypes() {
+  TypeResolver getTypes() {
     applyPendingTypes()
     return typeResolver
   }
 
   @Override
-  public List<Note> getNotes() {
+  List<Note> getNotes() {
     applyPendingTypes()
     return Collections.unmodifiableList(notes)
   }
 
   @Override
-  public List<StructureUnit> getStructure() {
+  List<StructureUnit> getStructure() {
     applyPendingTypes()
     return Collections.unmodifiableList(structure)
   }
 
   @Override
-  public List<Sequence> getSequences() {
+  List<Sequence> getSequences() {
     applyPendingTypes()
     return Collections.unmodifiableList(sequences)
   }
 
-  public Message createAndAddMessage(final String name, final Closure<?> spec) {
+  @PackageScope
+  TypeResolver getTypeResolver() { return typeResolver }
+
+  public Message createAndAddMessage(final String name, final Closure<?> spec, final boolean addToStructure) {
     Message m = new Message(name : name)
     callConfigurationSpec(new FieldsBuilder(m, this, typeResolver), spec)
     messages.add m
-    updatePendingTypes(name, m)
+    updatePendingTypes(name, m, addToStructure)
     return m
   }
 
   public Sequence createAndAddSequence(final String name, final String itemsType) {
     Sequence seq = new Sequence(name : name, itemsType : typeResolver.byName(itemsType))
     sequences.add seq
-    updatePendingTypes(name, seq)
+    updatePendingTypes(name, seq, true)
+    return seq
   }
 
-  private void updatePendingTypes(final String name, final Type type) {
+  private void updatePendingTypes(final String name, final Type type, final boolean addToStructure) {
     Type prevType = pendingTypeDefinitions.remove(name)
     pendingTypeDefinitions[name] = type
-    if (prevType) {
-      structure.set(structure.indexOf(prevType), type)
-    } else {
-      structure.add(type)
+    if (addToStructure) {
+      if (prevType) {
+        structure.set(structure.indexOf(prevType), type)
+      } else {
+        structure.add(type)
+      }
     }
   }
 
@@ -116,7 +122,7 @@ class ProjectDsl implements Project {
     pendingTypeDefinitions[name] = type
     structure.add type
     return [
-        "message" : { Closure<?> spec -> createAndAddMessage(name, spec) },
+        "message" : { Closure<?> spec -> createAndAddMessage(name, spec, true) },
         "spec" : { Closure<?> spec -> callConfigurationSpec(new ConfigurableProxy<Type>(type, owner), spec) },
         "sequence" : { String item -> createAndAddSequence(name, item) }
     ]

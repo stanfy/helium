@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
+import com.stanfy.helium.HeliumWriter
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Project
@@ -31,25 +32,39 @@ class RestApiTestsGenerator implements Handler {
     if (!output) { throw new IllegalStateException("Output is note defined") }
     if (!output.directory) { throw new IllegalStateException("Output is not a directory") }
 
+    File packageDir = new File(output, packageName.replaceAll(/\\./, '/'))
+    packageDir.mkdirs()
+
+    File specFile = new File(packageDir, RestApiMethods.TEST_SPEC_NAME)
+    HeliumWriter specWriter = new HeliumWriter(new OutputStreamWriter(new FileOutputStream(specFile), "UTF-8"))
+    try {
+      specWriter.writeProject(project)
+    } finally {
+      specWriter.close()
+    }
+
     project.services.each { Service service ->
       String className = "${service.canonicalName}Test"
-      File destination = new File(output, "${packageName.replaceAll(/\./, '/')}/${className}.java")
-      destination.parentFile.mkdirs()
+      File destination = new File(packageDir, "${className}.java")
       def out = new OutputStreamWriter(new FileOutputStream(destination), "UTF-8")
 
       JavaWriter writer = new JavaWriter(out).emitPackage(packageName)
 
-      writer
-          .emitImports("org.junit.Test")
-          .emitImports(RestApiMethods.name)
-          .emitImports("org.apache.http.client.methods.*")
-          .emitImports("org.apache.http.HttpResponse")
-          .emitStaticImports("org.fest.assertions.api.Assertions.assertThat")
+      try {
+        writer
+            .emitImports("org.junit.Test")
+            .emitImports(RestApiMethods.name)
+            .emitImports("org.apache.http.client.methods.*")
+            .emitImports("org.apache.http.HttpResponse")
+            .emitStaticImports("org.fest.assertions.api.Assertions.assertThat")
 
-      writer.beginType(className, 'class', Collections.<Modifier>singleton(Modifier.PUBLIC), RestApiMethods.simpleName)
-      service.methods.each { addTestMethods writer, service, it }
-      writer.endType()
-      writer.close()
+        writer.beginType(className, 'class', Collections.<Modifier>singleton(Modifier.PUBLIC), RestApiMethods.simpleName)
+        service.methods.each { addTestMethods writer, service, it }
+        writer.endType()
+      } finally {
+        writer.close()
+      }
+
     }
   }
 
@@ -85,7 +100,7 @@ class RestApiTestsGenerator implements Handler {
     startTestMethod(out, method, "_example")
     sendRequestBody(out, service, method)
     validateStatusCode(out, true)
-    validateBody(out, encoding)
+    validateBody(out, encoding, method)
 
     out.endMethod()
   }
@@ -94,8 +109,8 @@ class RestApiTestsGenerator implements Handler {
     out.emitStatement('validateStatus(response, %s)', success ? "true" : "false")
   }
 
-  private static void validateBody(final JavaWriter out, final String encoding) {
-    out.emitStatement('assertThat(validate(response, "%s")).isEmpty()', encoding)
+  private static void validateBody(final JavaWriter out, final String encoding, final ServiceMethod method) {
+    out.emitStatement('validate(response, "%s", "%s")', encoding, method.response.name)
   }
 
   private static void sendRequestBody(final JavaWriter out, final Service service, ServiceMethod method, String... configureStatements) {

@@ -26,7 +26,7 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
 
   void defineMessageType(final String property, Closure<?> body) {
     ServiceMethod core = getCore()
-    core."$property" = getProject().createAndAddMessage("${core.name}_$property", body)
+    core."$property" = getProject().createAndAddMessage("${core.canonicalName}_$property", body, false)
   }
 
   void defineMessageType(final String property, String messageType) {

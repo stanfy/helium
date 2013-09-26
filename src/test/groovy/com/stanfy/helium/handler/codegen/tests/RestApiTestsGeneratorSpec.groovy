@@ -28,7 +28,11 @@ class RestApiTestsGeneratorSpec extends Specification {
     run()
     int testsCount = 0
     File testFile = null
+    File specFile = null
     generator.output.eachFileRecurse {
+      if (it.name == RestApiMethods.TEST_SPEC_NAME) {
+        specFile = it
+      }
       if (it.name.endsWith("Test.java")) {
         testsCount++
         testFile = it
@@ -38,11 +42,14 @@ class RestApiTestsGeneratorSpec extends Specification {
     println testText
 
     then:
+    specFile != null
     testsCount == 1
     testText.contains "public class TwitterAPITest extends ${RestApiMethods.simpleName}"
     testText.contains "@Test"
-    testText.contains "public void users_show_json()"
+    testText.contains "public void users_show_json"
     testText.contains "send(request)"
+    testText.contains "validate(response"
+
   }
 
 }

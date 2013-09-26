@@ -1,5 +1,6 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.model.Type
 import groovy.transform.CompileStatic
 
 /**
@@ -31,16 +32,30 @@ class ConfigurableProxy<T extends GroovyObject> {
       return metaClass.invokeMethod(this, name, args)
     } catch (MissingMethodException e) {
       if (name == e.method && core.hasProperty(name)) {
-        try {
-          if (args.getClass().isArray()) {
-            if (args.length != 1) { throw new IllegalArgumentException("Bad arguments $args for property $name") }
-            core."$name" = args[0]
-          } else {
-            core."$name" = args
-          }
-        } catch (ClassCastException castError) {
-          throw e
+
+        final Object argument
+        if (args.getClass().isArray()) {
+          if (args.length != 1) { throw new IllegalArgumentException("Bad arguments $args for property $name") }
+          argument = args[0]
+        } else {
+          argument = args
         }
+
+        try {
+          core."$name" = argument
+        } catch (ClassCastException castError) {
+          if (name.equalsIgnoreCase('type')) {
+            final Type type = argument instanceof Class ? project.typeResolver.byGroovyClass(argument) : project.typeResolver.byName("$argument")
+            try {
+              core."$name" = type
+            } catch (Exception typeError) {
+              throw e
+            }
+          } else {
+            throw e
+          }
+        }
+
         return core."$name"
       }
       throw e

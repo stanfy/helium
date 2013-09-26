@@ -17,4 +17,8 @@ class Note implements StructureUnit {
     return "Note($part)"
   }
 
+  String[] getLines() {
+    return value.split(/\n/)
+  }
+
 }

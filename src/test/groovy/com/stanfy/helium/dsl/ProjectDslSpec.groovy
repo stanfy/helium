@@ -59,9 +59,11 @@ class ProjectDslSpec extends Specification {
     }
     dsl.type "B" message {
       id {
+        type 'int64'
         required false
       }
       name {
+        type 'string'
         required true
         sequence true
       }
@@ -87,8 +89,10 @@ class ProjectDslSpec extends Specification {
 
     dsl.messages[1].fields.size() == 2
     dsl.messages[1].fields[0].name == "id"
+    dsl.messages[1].fields[0].type.name == "int64"
     !dsl.messages[1].fields[0].required
     dsl.messages[1].fields[1].name == "name"
+    dsl.messages[1].fields[1].type.name == "string"
     dsl.messages[1].fields[1].required
     dsl.messages[1].fields[1].sequence
 

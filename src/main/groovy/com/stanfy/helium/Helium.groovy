@@ -4,6 +4,7 @@ import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.handler.ClosureExtender
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.handler.ScriptExtender
+import com.stanfy.helium.model.Project
 import groovy.transform.CompileStatic
 
 /**
@@ -25,6 +26,8 @@ class Helium {
 
   /** Encoding used to read files. */
   private String encoding = "UTF-8"
+
+  Project getProject() { return project; }
 
   Helium defaultTypes() {
     if (!this.defaultTypes) {
