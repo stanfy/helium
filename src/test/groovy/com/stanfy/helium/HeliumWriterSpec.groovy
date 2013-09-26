@@ -23,7 +23,7 @@ class HeliumWriterSpec extends Specification {
     out.toString() == "note '''\n  test\n'''\n"
   }
 
-  // TODO check examples
+  // TODO: check examples and descriptions
 
   def "can write projects"() {
     when:
