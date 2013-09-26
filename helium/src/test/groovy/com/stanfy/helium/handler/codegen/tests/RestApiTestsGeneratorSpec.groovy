@@ -24,6 +24,7 @@ class RestApiTestsGeneratorSpec extends Specification {
     when:
     generator.srcOutput = File.createTempDir()
     generator.srcOutput.deleteOnExit()
+    generator.userAgent = "test agent"
     run()
     int testsCount = 0
     File testFile = null
@@ -49,6 +50,7 @@ class RestApiTestsGeneratorSpec extends Specification {
     testText.contains "public void users_show_json_shouldFailWithOutParameters"
     testText.contains "send(request)"
     testText.contains "validate(response"
+    testText.contains 'setUserAgent("test agent")'
 
   }
 

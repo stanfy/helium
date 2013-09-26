@@ -29,8 +29,7 @@ public class RestApiMethods {
   public static final String TEST_SPEC_NAME = "test.spec";
 
   /** HTTP client instance. */
-  private final HttpClient client = HttpClientBuilder.create()
-      .build();
+  private final HttpClient client = httpClientBuilder().build();
 
   /** Specification project. */
   private Project project;
@@ -41,6 +40,10 @@ public class RestApiMethods {
 
   public RestApiMethods(final Project project) {
     this.project = project;
+  }
+
+  protected HttpClientBuilder httpClientBuilder() {
+    return HttpClientBuilder.create();
   }
 
   private Project loadDefaultTestSpec() {

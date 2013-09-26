@@ -16,6 +16,9 @@ class GenerateApiTestsTask extends DefaultTask {
   /** Helium instance. */
   Helium helium
 
+  /** User agent (optional). */
+  String userAgent
+
   /** Input specification file. */
   @InputFile
   File input
@@ -30,7 +33,7 @@ class GenerateApiTestsTask extends DefaultTask {
     sourcesDir.mkdirs()
     File resDir = new File(output, "src/test/resources")
     resDir.mkdirs()
-    helium.processBy new RestApiTestsGenerator(srcOutput: sourcesDir, resourcesOutput: resDir)
+    helium.processBy new RestApiTestsGenerator(srcOutput: sourcesDir, resourcesOutput: resDir, userAgent: userAgent)
 
     File buildFile = new File(output, "build.gradle")
     buildFile.withWriter('UTF-8') {

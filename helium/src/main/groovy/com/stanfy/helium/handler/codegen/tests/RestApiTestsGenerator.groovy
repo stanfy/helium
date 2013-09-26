@@ -10,6 +10,7 @@ import com.stanfy.helium.model.ServiceMethod
 import groovy.transform.CompileStatic
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.*
+import org.apache.http.impl.client.HttpClientBuilder
 
 import javax.lang.model.element.Modifier
 
@@ -30,6 +31,9 @@ class RestApiTestsGenerator implements Handler {
 
   /** Package name for tests. */
   String packageName = "spec.tests.rest"
+
+  /** User agent string. */
+  String userAgent
 
   @Override
   void handle(final Project project) {
@@ -67,7 +71,15 @@ class RestApiTestsGenerator implements Handler {
             .emitStaticImports("org.fest.assertions.api.Assertions.assertThat")
 
         writer.beginType(className, 'class', Collections.<Modifier>singleton(Modifier.PUBLIC), RestApiMethods.simpleName)
+
+        if (userAgent) {
+          writer.beginMethod(HttpClientBuilder.name, "httpClientBuilder", Collections.singleton(Modifier.PROTECTED))
+          writer.emitStatement('return super.httpClientBuilder().setUserAgent("%s")', userAgent)
+          writer.endMethod()
+        }
+
         service.methods.each { ServiceMethod method -> addTestMethods writer, service, method }
+
         writer.endType()
       } finally {
         writer.close()
