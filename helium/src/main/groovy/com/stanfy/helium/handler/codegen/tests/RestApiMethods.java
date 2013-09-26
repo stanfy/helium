@@ -36,16 +36,16 @@ public class RestApiMethods {
   private Project project;
 
   public RestApiMethods() {
-    this(loadDefaultTestSpec());
+    this.project = loadDefaultTestSpec();
   }
 
   public RestApiMethods(final Project project) {
     this.project = project;
   }
 
-  private static Project loadDefaultTestSpec() {
-    String path = RestApiMethods.class.getPackage().getName().replaceAll("\\.", "/") + "/" + TEST_SPEC_NAME;
-    InputStream input = RestApiMethods.class.getClassLoader().getResourceAsStream(path);
+  private Project loadDefaultTestSpec() {
+    String path = getClass().getPackage().getName().replaceAll("\\.", "/") + "/" + TEST_SPEC_NAME;
+    InputStream input = getClass().getClassLoader().getResourceAsStream(path);
     if (input == null) {
       throw new IllegalStateException("Test spec not found in cp at " + path);
     }
@@ -57,6 +57,10 @@ public class RestApiMethods {
     }
   }
 
+  private static void log(final Object message) {
+    System.out.println(String.valueOf(message));
+  }
+
   /**
    * Assert either successful or client error response status code.
    * @param response HTTP response instance
@@ -64,11 +68,13 @@ public class RestApiMethods {
    */
   protected static void validateStatus(final HttpResponse response, final boolean success) {
     if (success) {
+      log("Validating successful status...");
       assertThat(response.getStatusLine().getStatusCode())
           .describedAs("Successful HTTP status code expected")
           .isGreaterThanOrEqualTo(HttpStatus.SC_OK)
           .isLessThan(HttpStatus.SC_MULTIPLE_CHOICES);
     } else {
+      log("Validating error status...");
       assertThat(response.getStatusLine().getStatusCode())
           .describedAs("Client error expected")
           .isGreaterThanOrEqualTo(HttpStatus.SC_BAD_REQUEST)
@@ -90,6 +96,7 @@ public class RestApiMethods {
    * @throws IOException in case of I/O errors
    */
   protected void validate(final HttpResponse response, final String encoding, final String typeName) throws IOException {
+    log("Validating response body...");
     HttpEntity respEntity = response.getEntity();
     assertThat(respEntity).describedAs("HTTP entity should not be absent").isNotNull();
 
@@ -110,7 +117,11 @@ public class RestApiMethods {
    * @throws Exception in case of any error
    */
   protected HttpResponse send(final HttpRequestBase request) throws Exception {
-    return client.execute(request);
+    log("Send request " + request.getRequestLine());
+    long startTime = System.currentTimeMillis();
+    HttpResponse resp = client.execute(request);
+    log("Response loaded in " + (System.currentTimeMillis() - startTime) + " ms");
+    return resp;
   }
 
 }

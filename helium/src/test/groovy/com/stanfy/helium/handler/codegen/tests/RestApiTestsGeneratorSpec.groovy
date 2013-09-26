@@ -2,7 +2,6 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.stanfy.helium.Helium
 import com.stanfy.helium.dsl.SpecExample
-import com.stanfy.helium.handler.codegen.tests.RestApiTestsGenerator
 import spock.lang.Specification
 
 /**
@@ -23,13 +22,13 @@ class RestApiTestsGeneratorSpec extends Specification {
 
   def "should generate JUnit tests"() {
     when:
-    generator.output = File.createTempDir()
-    generator.output.deleteOnExit()
+    generator.srcOutput = File.createTempDir()
+    generator.srcOutput.deleteOnExit()
     run()
     int testsCount = 0
     File testFile = null
     File specFile = null
-    generator.output.eachFileRecurse {
+    generator.srcOutput.eachFileRecurse {
       if (it.name == RestApiMethods.TEST_SPEC_NAME) {
         specFile = it
       }

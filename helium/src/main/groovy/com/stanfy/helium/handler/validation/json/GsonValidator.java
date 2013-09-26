@@ -20,15 +20,17 @@ public class GsonValidator extends JsonValidator {
     super(type);
   }
 
-  public List<ValidationError> validate(final Reader reader) throws IOException {
+  public List<ValidationError> validate(final Reader reader) {
     try {
       JsonReader json = new JsonReader(reader);
       json.setLenient(true);
       return validate(json);
     } catch (JsonSyntaxException e) {
-      return Collections.singletonList(new ValidationError(getType(), "Could not parse input JSON\n" + getFullErrorMessage(e)));
+      return Collections.singletonList(new ValidationError(getType(), "Could not parse input JSON (syntax error)\n" + getFullErrorMessage(e)));
     } catch (IllegalStateException e) {
-      return Collections.singletonList(new ValidationError(getType(), "Could not parse input JSON\n" + getFullErrorMessage(e)));
+      return Collections.singletonList(new ValidationError(getType(), "Could not parse input JSON (bad response structure)\n" + getFullErrorMessage(e)));
+    } catch (IOException e) {
+      return Collections.singletonList(new ValidationError(getType(), "Could not parse input JSON (I/O error)\n" + getFullErrorMessage(e)));
     }
   }
 

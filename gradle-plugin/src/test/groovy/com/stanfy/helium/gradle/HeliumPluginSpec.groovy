@@ -17,11 +17,12 @@ class HeliumPluginSpec extends Specification {
     f.deleteOnExit()
     f << "type 'string'"
     p.helium {
-      specification = f
+      specification f
     }
 
     expect:
     p.tasks.findByName('genApiTests') != null
+    p.tasks.findByName('runApiTests') != null
   }
 
 }
