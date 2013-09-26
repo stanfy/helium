@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.tests
+package com.stanfy.helium.handler.validation
 
 import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.handler.validation.json.GsonValidator
