@@ -21,6 +21,8 @@ import javax.lang.model.element.Modifier
  */
 class RestApiTestsGenerator implements Handler {
 
+  // TODO: use examples
+
   /** Output directory. */
   File output
 
