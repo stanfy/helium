@@ -30,6 +30,9 @@ class HeliumExtension {
   /** Specification location. */
   File specification
 
+  /** User agent. */
+  String userAgent
+
   private Project project
 
   private GenerateApiTestsTask genTask
@@ -49,6 +52,7 @@ class HeliumExtension {
     genTask.helium = heliumInstance
     genTask.output = new File(project.buildDir, "source/$TESTS_OUT_PATH")
     genTask.input = file
+    genTask.userAgent = userAgent
     LOG.debug "genApiTests task: input=$genTask.input, output=$genTask.output"
 
     runTask = project.tasks.create('runApiTests', GradleBuild)

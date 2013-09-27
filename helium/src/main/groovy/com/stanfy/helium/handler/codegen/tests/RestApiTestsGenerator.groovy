@@ -7,9 +7,11 @@ import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
+import com.stanfy.helium.model.tests.MethodTestInfo
 import groovy.transform.CompileStatic
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.*
+import org.apache.http.impl.client.HttpClientBuilder
 
 import javax.lang.model.element.Modifier
 
@@ -30,6 +32,9 @@ class RestApiTestsGenerator implements Handler {
 
   /** Package name for tests. */
   String packageName = "spec.tests.rest"
+
+  /** User agent string. */
+  String userAgent
 
   @Override
   void handle(final Project project) {
@@ -67,7 +72,15 @@ class RestApiTestsGenerator implements Handler {
             .emitStaticImports("org.fest.assertions.api.Assertions.assertThat")
 
         writer.beginType(className, 'class', Collections.<Modifier>singleton(Modifier.PUBLIC), RestApiMethods.simpleName)
+
+        if (userAgent) {
+          writer.beginMethod(HttpClientBuilder.name, "httpClientBuilder", Collections.singleton(Modifier.PROTECTED))
+          writer.emitStatement('return super.httpClientBuilder().setUserAgent("%s")', userAgent)
+          writer.endMethod()
+        }
+
         service.methods.each { ServiceMethod method -> addTestMethods writer, service, method }
+
         writer.endType()
       } finally {
         writer.close()
@@ -98,19 +111,32 @@ class RestApiTestsGenerator implements Handler {
     if (!encoding) { encoding = service.encoding }
     if (!encoding) { encoding = 'UTF-8' }
 
-    if (method.parameters && method.parameters.hasRequiredFields()) {
+    MethodTestInfo testInfo = method.testInfo.resolve(service.testsInfo)
+
+    if (method.parameters?.hasRequiredFields()) {
+
+      // make test without required parameters - should fail
       startTestMethod(out, method, "_shouldFailWithOutParameters")
-      sendRequestBody(out, service, method)
+      sendRequestBody(out, method.type, service.getMethodUri(testInfo, method))
       validateStatusCode(out, false)
       out.endMethod()
+
     }
 
-    startTestMethod(out, method, "_example")
-    sendRequestBody(out, service, method)
-    validateStatusCode(out, true)
-    validateBody(out, encoding, method)
+    if (testInfo.useExamples) {
 
-    out.endMethod()
+      String uriQuery = method.getUriQueryWithExamples(encoding)
+      if (uriQuery || !method.parameters?.hasRequiredFields()) {
+        // can make an example
+        startTestMethod(out, method, "_example")
+        sendRequestBody(out, method.type, "${service.getMethodUri(testInfo, method)}$uriQuery")
+        validateStatusCode(out, true)
+        validateBody(out, encoding, method)
+        out.endMethod()
+      }
+
+    }
+
   }
 
   private static void validateStatusCode(final JavaWriter out, final boolean success) {
@@ -121,13 +147,10 @@ class RestApiTestsGenerator implements Handler {
     out.emitStatement('validate(response, "%s", "%s")', encoding, method.response.name)
   }
 
-  private static void sendRequestBody(final JavaWriter out, final Service service, ServiceMethod method, String... configureStatements) {
-    String requestClass = getRequestClass(method.type)
+  private static void sendRequestBody(final JavaWriter out, final MethodType type, final String uri) {
+    String requestClass = getRequestClass(type)
     out.emitStatement("$requestClass request = new ${requestClass}()")
-    out.emitStatement('request.setURI(new URI("%s"))', service.getMethodUri(method))
-    configureStatements.each { String stmt ->
-      out.emitStatement(stmt)
-    }
+    out.emitStatement('request.setURI(new URI("%s"))', uri)
     out.emitStatement('HttpResponse response = send(request)')
   }
   private static void startTestMethod(final JavaWriter out, ServiceMethod method, String nameSuffix) {

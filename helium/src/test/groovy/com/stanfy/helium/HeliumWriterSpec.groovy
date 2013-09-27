@@ -2,6 +2,8 @@ package com.stanfy.helium
 
 import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.model.Note
+import com.stanfy.helium.model.tests.MethodTestInfo
+import com.stanfy.helium.model.tests.TestsInfo
 import spock.lang.Specification
 
 /**
@@ -21,6 +23,31 @@ class HeliumWriterSpec extends Specification {
 
     then:
     out.toString() == "note '''\n  test\n'''\n"
+  }
+
+  def "can write service test info"() {
+    when:
+    writer.writeTestsInfo(new TestsInfo(useExamples: true))
+
+    then:
+    out.toString() == '''
+tests {
+  useExamples true
+}
+'''.trim() + '\n'
+  }
+
+  def "can write method test info"() {
+    when:
+    writer.writeMethodTestsInfo(new MethodTestInfo(pathExample: [p1 : 'v1', p2 : 'v2']))
+
+    then:
+    out.toString() == '''
+tests {
+  useExamples false
+  pathExample 'p1': 'v1', 'p2': 'v2'
+}
+'''.trim() + '\n'
   }
 
   // TODO: check examples and descriptions
@@ -54,6 +81,10 @@ class HeliumWriterSpec extends Specification {
           code 'int32'
         }
         body 'A'
+        tests {
+          useExamples true
+          pathExample id: '123'
+        }
       }
     }
     writer.writeProject(dsl)
@@ -99,9 +130,19 @@ service {
         required true
       }
     }
+    tests {
+      useExamples true
+      pathExample 'id': '123'
+    }
+  }
+  tests {
+    useExamples false
   }
 }
 """.trim() + '\n'
+
+    new Helium().from(out.toString()).project.services.size() == 1
+
   }
 
 }
