@@ -88,8 +88,15 @@ public class GsonValidator extends JsonValidator {
 
   private void validateArrayValue(final Type itemType, final JsonReader json, final List<ValidationError> errors) throws IOException {
     GsonValidator validator = new GsonValidator(itemType);
+    int index = 0;
     while (json.hasNext()) {
-      errors.addAll(validator.validate(json));
+      List<ValidationError> children = validator.validate(json);
+      if (!children.isEmpty()) {
+        ValidationError error = new ValidationError(itemType, "Item " + index + " contains errors");
+        error.setChildren(children);
+        errors.add(error);
+      }
+      index++;
     }
   }
 

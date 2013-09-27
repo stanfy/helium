@@ -1,0 +1,16 @@
+Tests Generation:
+
+- setting HTTP headers - implementing now
+- use examples for request bodies
+- describe test scenario: run request A, use results for running request B...
+
+
+Code generation:
+
+- Java POJOs
+- Swagger
+- Request builders for Enroscar
+- Retrofit integration
+- Protobuffers
+
+- Objective-C?

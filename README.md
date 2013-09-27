@@ -31,12 +31,12 @@ service {
     parameters {
       user_id long optional
       screen_name 'string' optional
-      include_entities 'bool' optional
+      include_entities boolean optional
     }
     response "UserProfile"
   }
-
 }
+
 ```
 
 Java API Examples

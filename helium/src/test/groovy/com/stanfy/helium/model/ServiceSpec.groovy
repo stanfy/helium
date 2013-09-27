@@ -23,7 +23,18 @@ class ServiceSpec extends Specification {
     ServiceMethod m = new ServiceMethod(path : '/person/show')
 
     expect:
-    service.getMethodUri(m) == "http://api.com/person/show"
+    service.getMethodUri(null, m) == "http://api.com/person/show"
+  }
+
+  def "substitutes request method path parameters"() {
+    given:
+    service.location = "http://api.com/"
+    ServiceMethod m = new ServiceMethod(path : '/person/show/@id')
+    m.testInfo.useExamples = true
+    m.testInfo.pathExample = [id:'123']
+
+    expect:
+    service.getMethodUri(m.testInfo, m) == "http://api.com/person/show/123"
   }
 
 }

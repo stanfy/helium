@@ -29,8 +29,7 @@ public class RestApiMethods {
   public static final String TEST_SPEC_NAME = "test.spec";
 
   /** HTTP client instance. */
-  private final HttpClient client = HttpClientBuilder.create()
-      .build();
+  private final HttpClient client = httpClientBuilder().build();
 
   /** Specification project. */
   private Project project;
@@ -41,6 +40,10 @@ public class RestApiMethods {
 
   public RestApiMethods(final Project project) {
     this.project = project;
+  }
+
+  protected HttpClientBuilder httpClientBuilder() {
+    return HttpClientBuilder.create();
   }
 
   private Project loadDefaultTestSpec() {
@@ -67,16 +70,19 @@ public class RestApiMethods {
    * @param success true for success, false for client error
    */
   protected static void validateStatus(final HttpResponse response, final boolean success) {
+    String status = response.getStatusLine().getReasonPhrase();
+    String reason = status != null && status.length() > 0 ? " Got '" + status + "'" : "";
+
     if (success) {
       log("Validating successful status...");
       assertThat(response.getStatusLine().getStatusCode())
-          .describedAs("Successful HTTP status code expected")
+          .describedAs("Successful HTTP status code expected." + reason)
           .isGreaterThanOrEqualTo(HttpStatus.SC_OK)
           .isLessThan(HttpStatus.SC_MULTIPLE_CHOICES);
     } else {
       log("Validating error status...");
       assertThat(response.getStatusLine().getStatusCode())
-          .describedAs("Client error expected")
+          .describedAs("Client error expected." + reason)
           .isGreaterThanOrEqualTo(HttpStatus.SC_BAD_REQUEST)
           .isLessThan(HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
@@ -120,7 +126,7 @@ public class RestApiMethods {
     log("Send request " + request.getRequestLine());
     long startTime = System.currentTimeMillis();
     HttpResponse resp = client.execute(request);
-    log("Response loaded in " + (System.currentTimeMillis() - startTime) + " ms");
+    log("Response loaded in " + (System.currentTimeMillis() - startTime) + " ms: " + resp.getStatusLine());
     return resp;
   }
 
