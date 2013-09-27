@@ -2,6 +2,7 @@ package com.stanfy.helium.dsl
 
 import com.stanfy.helium.model.Type
 import groovy.transform.CompileStatic
+import groovy.transform.PackageScope
 
 /**
  * Configurable wrapper.
@@ -21,6 +22,17 @@ class ConfigurableProxy<T extends GroovyObject> {
     this.project = project
   }
 
+  @CompileStatic
+  @PackageScope
+  static Object resolveSingleArgument(final String name, final Object args) {
+    if (args.getClass().isArray()) {
+      Object[] argArray = (Object[]) args
+      if (argArray.length != 1) { throw new IllegalArgumentException("Expected one argument for $name") }
+      return argArray[0]
+    }
+    return args
+  }
+
   @Override
   def getProperty(final String name) {
     return core.getProperty(name)
@@ -33,21 +45,15 @@ class ConfigurableProxy<T extends GroovyObject> {
     } catch (MissingMethodException e) {
       if (name == e.method && core.hasProperty(name)) {
 
-        final Object argument
-        if (args.getClass().isArray()) {
-          if (args.length != 1) { throw new IllegalArgumentException("Bad arguments $args for property $name") }
-          argument = args[0]
-        } else {
-          argument = args
-        }
+        final Object argument = resolveSingleArgument(name, args)
 
         try {
-          core."$name" = argument
+          core.setProperty(name, argument)
         } catch (ClassCastException castError) {
           if (name.equalsIgnoreCase('type')) {
-            final Type type = argument instanceof Class ? project.typeResolver.byGroovyClass(argument) : project.typeResolver.byName("$argument")
+            final Type type = argument instanceof Class ? project.typeResolver.byGroovyClass((Class<?>)argument) : project.typeResolver.byName("$argument")
             try {
-              core."$name" = type
+              core.setProperty(name, type)
             } catch (Exception typeError) {
               throw e
             }
@@ -56,7 +62,7 @@ class ConfigurableProxy<T extends GroovyObject> {
           }
         }
 
-        return core."$name"
+        return core.getProperty(name)
       }
       throw e
     }

@@ -60,11 +60,25 @@ final class SpecExample {
         response "UserProfile"
         tests {
           pathExample example: 'HOP'
+          httpHeaders {
+            'Super-Header' 'A'
+          }
         }
+      }
+
+      get "product/get" spec {
+        name 'Get test product'
+        parameters {
+          id(type: 'int64', required: true, examples: ['23288'])
+        }
+        response "int32"
       }
 
       tests {
         useExamples true
+        httpHeaders {
+          'User-Agent' 'Mozilla'
+        }
       }
 
     }

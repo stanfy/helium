@@ -19,8 +19,6 @@ class ConfigurableService extends ConfigurableProxy<Service> {
         ]
       }
     }
-
-    ConfigurableService.metaClass.tests << { Closure<?> spec -> delegate.addTestsInfo(spec) }
   }
 
   ConfigurableService(final Service core, final ProjectDsl project) {
@@ -39,10 +37,10 @@ class ConfigurableService extends ConfigurableProxy<Service> {
     return method
   }
 
-  TestsInfo addTestsInfo(final Closure<?> spec) {
+  TestsInfo tests(final Closure<?> spec) {
     Service service = getCore()
-    ProjectDsl.callConfigurationSpec(new ConfigurableProxy<TestsInfo>(service.testsInfo, getProject()), spec)
-    return service.testsInfo
+    ProjectDsl.callConfigurationSpec(new ConfigurableTestsInfo(service.testInfo, getProject()), spec)
+    return service.testInfo
   }
 
 }

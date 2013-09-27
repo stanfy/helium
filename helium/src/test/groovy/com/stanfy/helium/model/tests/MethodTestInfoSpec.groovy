@@ -19,4 +19,17 @@ class MethodTestInfoSpec extends Specification {
     !info.resolve(global).useExamples
   }
 
+  def "resolve() merges headers map"() {
+    when:
+    TestsInfo global = new TestsInfo(httpHeaders: ['1' : 'a', '2' : 'b'])
+    info.httpHeaders = ['1' : 'c', '3' : 'd']
+
+    then:
+    info.resolve(global).httpHeaders == [
+        '1' : 'c',
+        '2' : 'b',
+        '3' : 'd'
+    ]
+  }
+
 }

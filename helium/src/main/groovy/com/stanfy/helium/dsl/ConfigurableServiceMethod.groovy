@@ -1,8 +1,6 @@
 package com.stanfy.helium.dsl
 
 import com.stanfy.helium.model.ServiceMethod
-import com.stanfy.helium.model.tests.MethodTestInfo
-import com.stanfy.helium.model.tests.TestsInfo
 
 /**
  * Extended proxy for ServiceMethod.
@@ -18,9 +16,6 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
           delegate.defineMessageType(it, (String)arg)
         }
       }
-    }
-    ConfigurableServiceMethod.metaClass.tests << { Closure<?> description ->
-      delegate.defineTestsInfo description
     }
   }
 
@@ -38,8 +33,8 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
     core."$property" = getProject().types.byName(messageType)
   }
 
-  void defineTestsInfo(final Closure<?> spec) {
-    ProjectDsl.callConfigurationSpec(new ConfigurableProxy<MethodTestInfo>(getCore().testInfo, getProject()), spec)
+  void tests(final Closure<?> spec) {
+    ProjectDsl.callConfigurationSpec(new ConfigurableMethodTestsInfo(getCore().testInfo, getProject()), spec)
   }
 
 }
