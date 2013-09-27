@@ -60,11 +60,17 @@ final class SpecExample {
         response "UserProfile"
         tests {
           pathExample example: 'HOP'
+          httpHeaders {
+            'Super-Header' 'A'
+          }
         }
       }
 
       tests {
         useExamples true
+        httpHeaders {
+          'User-Agent' 'Mozilla'
+        }
       }
 
     }

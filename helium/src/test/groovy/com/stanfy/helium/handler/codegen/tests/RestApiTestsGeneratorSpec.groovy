@@ -60,6 +60,10 @@ class RestApiTestsGeneratorSpec extends Specification {
     // get required/@example
     testText.contains "public void required_example_example()"
     testText.contains "required/HOP?param1=2"
+
+    // headers
+    testText.contains 'request.addHeader("User-Agent", "Mozilla")'
+    testText.contains 'request.addHeader("Super-Header", "A")'
   }
 
 }

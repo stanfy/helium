@@ -1,12 +1,10 @@
 package com.stanfy.helium.dsl
 
 import com.stanfy.helium.model.tests.TestsInfo
-import groovy.transform.CompileStatic
 
 /**
  * Proxy for TestsInfo.
  */
-@CompileStatic
 class ConfigurableTestsInfo extends ConfigurableProxy<TestsInfo> {
 
   ConfigurableTestsInfo(TestsInfo core, ProjectDsl project) {
@@ -14,7 +12,8 @@ class ConfigurableTestsInfo extends ConfigurableProxy<TestsInfo> {
   }
 
   void httpHeaders(final Closure<?> body) {
-    ProjectDsl.callConfigurationSpec(new ConfigurableStringMap(getCore().httpHeaders, "HTTP headers"), body)
+    TestsInfo info = getCore()
+    ProjectDsl.callConfigurationSpec(new ConfigurableStringMap(info.httpHeaders, "HTTP headers"), body)
   }
 
 }

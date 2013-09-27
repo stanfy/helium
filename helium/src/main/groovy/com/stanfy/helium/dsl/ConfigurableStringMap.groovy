@@ -25,12 +25,7 @@ class ConfigurableStringMap {
 
   @Override
   Object invokeMethod(final String name, final Object args) {
-    Object arg = args
-    if (args.class.isArray()) {
-      Object[] arguments = (Object[])args
-      if (arguments.length != 1) { throw new IllegalArgumentException("Expected one argument only for value of $name in ${this.name}") }
-      arg = arguments[0]
-    }
+    Object arg = ConfigurableProxy.resolveSingleArgument("$name in ${this.name}", args)
     if (!(arg instanceof String)) {
       throw new IllegalArgumentException("Values of ${this.name} must be strings. Got: $arg of type ${arg.class} for $name")
     }

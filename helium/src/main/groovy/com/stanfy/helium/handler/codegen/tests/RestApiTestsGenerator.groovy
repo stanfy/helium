@@ -117,7 +117,7 @@ class RestApiTestsGenerator implements Handler {
 
       // make test without required parameters - should fail
       startTestMethod(out, method, "_shouldFailWithOutParameters")
-      sendRequestBody(out, method.type, service.getMethodUri(testInfo, method))
+      sendRequestBody(out, method.type, service.getMethodUri(testInfo, method), testInfo.httpHeaders)
       validateStatusCode(out, false)
       out.endMethod()
 
@@ -129,7 +129,7 @@ class RestApiTestsGenerator implements Handler {
       if (uriQuery || !method.parameters?.hasRequiredFields()) {
         // can make an example
         startTestMethod(out, method, "_example")
-        sendRequestBody(out, method.type, "${service.getMethodUri(testInfo, method)}$uriQuery")
+        sendRequestBody(out, method.type, "${service.getMethodUri(testInfo, method)}$uriQuery", testInfo.httpHeaders)
         validateStatusCode(out, true)
         validateBody(out, encoding, method)
         out.endMethod()
@@ -147,10 +147,13 @@ class RestApiTestsGenerator implements Handler {
     out.emitStatement('validate(response, "%s", "%s")', encoding, method.response.name)
   }
 
-  private static void sendRequestBody(final JavaWriter out, final MethodType type, final String uri) {
+  private static void sendRequestBody(final JavaWriter out, final MethodType type, final String uri, final Map<String, String> headers) {
     String requestClass = getRequestClass(type)
     out.emitStatement("$requestClass request = new ${requestClass}()")
     out.emitStatement('request.setURI(new URI("%s"))', uri)
+    headers.each { String key, String value ->
+      out.emitStatement('request.addHeader("%s", "%s")', key, value)
+    }
     out.emitStatement('HttpResponse response = send(request)')
   }
   private static void startTestMethod(final JavaWriter out, ServiceMethod method, String nameSuffix) {
