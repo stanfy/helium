@@ -152,7 +152,7 @@ class HeliumWriter implements Closeable {
       writeLine "encoding $service.encoding"
     }
     service.methods.each { ServiceMethod m -> writeServiceMethod(m) }
-    writeTestsInfo(service.testsInfo)
+    writeTestsInfo(service.testInfo)
     endService()
   }
 
@@ -236,18 +236,20 @@ class HeliumWriter implements Closeable {
   }
 
   private void writeStringsMap(final String name, final Map<String, String> map) {
-    StringBuilder res = new StringBuilder()
-    res << "$name "
-    int counter = 1
-    int max = map.size()
+    writeLine "$name {"
+    incIndent()
     map.each { String key, String value ->
-      res << "'$key': '$value'${counter++ == max ? '' : ', '}"
+      writeLine "'$key' '$value'"
     }
-    writeLine "$res"
+    decIndent()
+    writeLine "}"
   }
 
   private void emitTestsInfoDetails(final TestsInfo testsInfo) {
     writeLine "useExamples ${!!testsInfo.useExamples}"
+    if (!testsInfo.httpHeaders.isEmpty()) {
+      writeStringsMap "httpHeaders", testsInfo.httpHeaders
+    }
   }
 
   public void startTests() {

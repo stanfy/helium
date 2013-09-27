@@ -12,7 +12,7 @@ class MethodTestInfo extends TestsInfo {
   Map<String, String> pathExample
 
   MethodTestInfo resolve(final TestsInfo globalInfo) {
-    def headersMap = new LinkedHashMap<String, Object>()
+    def headersMap = new LinkedHashMap<String, String>()
     headersMap.putAll(globalInfo.httpHeaders)
     headersMap.putAll(httpHeaders)
 

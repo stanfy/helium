@@ -111,7 +111,7 @@ class RestApiTestsGenerator implements Handler {
     if (!encoding) { encoding = service.encoding }
     if (!encoding) { encoding = 'UTF-8' }
 
-    MethodTestInfo testInfo = method.testInfo.resolve(service.testsInfo)
+    MethodTestInfo testInfo = method.testInfo.resolve(service.testInfo)
 
     if (method.parameters?.hasRequiredFields()) {
 

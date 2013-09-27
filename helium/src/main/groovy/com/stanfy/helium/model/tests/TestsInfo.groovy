@@ -12,6 +12,6 @@ class TestsInfo {
   Boolean useExamples
 
   /** Set of predefined HTTP headers. */
-  Map<String, Object> httpHeaders = new LinkedHashMap<>()
+  Map<String, String> httpHeaders = new LinkedHashMap<>()
 
 }
