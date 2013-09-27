@@ -1,5 +1,7 @@
 package com.stanfy.helium.model
 
+import com.stanfy.helium.model.tests.TestsInfo
+
 /**
  * Spec project.
  */
@@ -21,6 +23,6 @@ interface Project {
   List<StructureUnit> getStructure()
 
   /** @return sequences described in this project */
-  List<Sequence> getSequences();
+  List<Sequence> getSequences()
 
 }

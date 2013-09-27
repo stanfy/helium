@@ -10,6 +10,8 @@ import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.StructureUnit
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.tests.MethodTestInfo
+import com.stanfy.helium.model.tests.TestsInfo
 import groovy.transform.CompileStatic
 
 /**
@@ -150,6 +152,7 @@ class HeliumWriter implements Closeable {
       writeLine "encoding $service.encoding"
     }
     service.methods.each { ServiceMethod m -> writeServiceMethod(m) }
+    writeTestsInfo(service.testsInfo)
     endService()
   }
 
@@ -178,6 +181,10 @@ class HeliumWriter implements Closeable {
     if (method.response) {
       emitMethodInternalType("response", method.response)
     }
+    if (!method.testInfo) {
+      throw new IllegalStateException("Method $method has null tests info")
+    }
+    writeMethodTestsInfo(method.testInfo)
     endServiceMethod()
   }
 
@@ -211,6 +218,47 @@ class HeliumWriter implements Closeable {
     message.fields.each { Field f ->
       emitField(f)
     }
+  }
+
+  public void writeTestsInfo(final TestsInfo testsInfo) {
+    startTests()
+    emitTestsInfoDetails testsInfo
+    endTests()
+  }
+
+  public void writeMethodTestsInfo(final MethodTestInfo testsInfo) {
+    startTests()
+    emitTestsInfoDetails testsInfo
+    if (testsInfo.pathExample) {
+      writeStringsMap "pathExample", testsInfo.pathExample
+    }
+    endTests()
+  }
+
+  private void writeStringsMap(final String name, final Map<String, String> map) {
+    writeLine "$name ["
+    incIndent()
+    int counter = 1
+    int max = map.size()
+    map.each { String key, String value ->
+      writeLine "'$key': '$value'${counter++ == max ? '' : ','}"
+    }
+    decIndent()
+    writeLine "]"
+  }
+
+  private void emitTestsInfoDetails(final TestsInfo testsInfo) {
+    writeLine "useExamples ${!!testsInfo.useExamples}"
+  }
+
+  public void startTests() {
+    writeLine "tests {"
+    incIndent()
+  }
+
+  public void endTests() {
+    decIndent()
+    writeLine "}"
   }
 
   @Override

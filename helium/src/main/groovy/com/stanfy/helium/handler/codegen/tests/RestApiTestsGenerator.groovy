@@ -7,6 +7,7 @@ import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
+import com.stanfy.helium.model.tests.MethodTestInfo
 import groovy.transform.CompileStatic
 import org.apache.http.HttpResponse
 import org.apache.http.client.methods.*
@@ -110,6 +111,9 @@ class RestApiTestsGenerator implements Handler {
     if (!encoding) { encoding = service.encoding }
     if (!encoding) { encoding = 'UTF-8' }
 
+    MethodTestInfo testInfo = method.testInfo.resolve(service.testsInfo)
+
+    // make test without required parameters - should fail
     if (method.parameters && method.parameters.hasRequiredFields()) {
       startTestMethod(out, method, "_shouldFailWithOutParameters")
       sendRequestBody(out, service, method)
@@ -117,12 +121,15 @@ class RestApiTestsGenerator implements Handler {
       out.endMethod()
     }
 
-    startTestMethod(out, method, "_example")
-    sendRequestBody(out, service, method)
-    validateStatusCode(out, true)
-    validateBody(out, encoding, method)
+    // generate tests with examples
+    if (testInfo.useExamples) {
+      startTestMethod(out, method, "_example")
+      sendRequestBody(out, service, method)
+      validateStatusCode(out, true)
+      validateBody(out, encoding, method)
+      out.endMethod()
+    }
 
-    out.endMethod()
   }
 
   private static void validateStatusCode(final JavaWriter out, final boolean success) {

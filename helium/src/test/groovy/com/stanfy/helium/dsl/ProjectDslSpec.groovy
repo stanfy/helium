@@ -181,4 +181,35 @@ class ProjectDslSpec extends Specification {
     dsl.structure[3].value == "note2"
   }
 
+  def "can describe service tests info"() {
+    when:
+    dsl.service {
+      tests {
+        useExamples true
+      }
+    }
+
+    then:
+    dsl.services[0].testsInfo.useExamples
+  }
+
+  def "can describe method test info"() {
+    when:
+    dsl.service {
+      get "/a/@param1/@param2" spec {
+        tests {
+          useExamples true
+          pathExample param1: "1", param2: "2"
+        }
+      }
+    }
+
+    then:
+    dsl.services[0].testsInfo != null
+    !dsl.services[0].testsInfo.useExamples
+
+    dsl.services[0].methods[0].testInfo.useExamples
+    dsl.services[0].methods[0].testInfo.pathExample.size() == 2
+  }
+
 }
