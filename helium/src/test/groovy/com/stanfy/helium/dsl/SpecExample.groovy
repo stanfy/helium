@@ -66,6 +66,14 @@ final class SpecExample {
         }
       }
 
+      get "product/get" spec {
+        name 'Get test product'
+        parameters {
+          id(type: 'int64', required: true, examples: ['23288'])
+        }
+        response "int32"
+      }
+
       tests {
         useExamples true
         httpHeaders {

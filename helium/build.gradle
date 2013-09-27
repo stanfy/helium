@@ -1,5 +1,6 @@
-apply plugin : 'groovy'
-apply plugin: 'nexus'
+apply plugin: 'groovy'
+apply plugin: 'signing'
+apply plugin: 'maven'
 
 dependencies {
   compile 'org.codehaus.groovy:groovy-all:2.1.7'
