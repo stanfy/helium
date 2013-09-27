@@ -59,7 +59,9 @@ final class SpecExample {
         }
         response "UserProfile"
         tests {
-          pathExample example: 'HOP'
+          pathExample {
+            'example' 'HOP'
+          }
           httpHeaders {
             'Super-Header' 'A'
           }
@@ -72,6 +74,20 @@ final class SpecExample {
           id(type: 'int64', required: true, examples: ['23288'])
         }
         response "int32"
+      }
+
+      post "post/@example" spec {
+        name "Post example"
+        tests {
+          pathExample {
+            'example' '123'
+          }
+        }
+        parameters {
+          full(type: 'bool', required: false, examples: ['false'])
+        }
+        body 'UserProfile'
+        response 'int64'
       }
 
       tests {

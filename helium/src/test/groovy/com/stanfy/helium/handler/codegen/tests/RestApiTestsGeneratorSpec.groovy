@@ -63,6 +63,11 @@ class RestApiTestsGeneratorSpec extends Specification {
     testText.contains "public void product_get_example()"
     testText.contains "product/get?id=23288"
 
+    // post post/example
+    testText.contains "public void post_example_shouldFailWithOutBody"
+    testText.contains "post/123?full=false"
+    !testText.contains("public void post_example_example")
+
     // headers
     testText.contains 'request.addHeader("User-Agent", "Mozilla")'
     testText.contains 'request.addHeader("Super-Header", "A")'

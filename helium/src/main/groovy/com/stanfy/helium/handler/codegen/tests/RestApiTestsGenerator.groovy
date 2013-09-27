@@ -109,29 +109,41 @@ class RestApiTestsGenerator implements Handler {
 
     MethodTestInfo testInfo = method.testInfo.resolve(service.testInfo)
 
+    MethodGenerator gen = new MethodGenerator(out: out, service: service, method: method, testInfo: testInfo)
+
     if (method.parameters?.hasRequiredFields()) {
 
       // make test without required parameters - should fail
-      startTestMethod(out, method, "_shouldFailWithOutParameters")
-      sendRequestBody(out, method.type, service.getMethodUri(testInfo, method), testInfo.httpHeaders)
-      validateStatusCode(out, false)
-      out.endMethod()
+      gen.method("_shouldFailWithOutParameters", service.getMethodUri(testInfo, method)) {
+        validateStatusCode(out, false)
+      }
 
     }
 
     if (testInfo.useExamples) {
 
       String uriQuery = method.getUriQueryWithExamples(encoding)
-      if (uriQuery || !method.parameters?.hasRequiredFields()) {
+      boolean paramsReady = uriQuery || !method.parameters?.hasRequiredFields()
+      String parametrizedUri = "${service.getMethodUri(testInfo, method)}$uriQuery"
+      if (paramsReady && !method.type.hasBody) {
         // can make an example
-        startTestMethod(out, method, "_example")
-        sendRequestBody(out, method.type, "${service.getMethodUri(testInfo, method)}$uriQuery", testInfo.httpHeaders)
-        validateStatusCode(out, true)
-        validateBody(out, encoding, method)
-        out.endMethod()
+        gen.method("_example", parametrizedUri) {
+          validateStatusCode(out, true)
+          validateBody(out, encoding, method)
+        }
       }
 
+
+      if (method.type.hasBody && uriQuery) {
+
+        // make test without body - should fail
+        gen.method("_shouldFailWithOutBody", parametrizedUri) {
+          validateStatusCode(out, false)
+        }
+
+      }
     }
+
 
   }
 
@@ -140,6 +152,7 @@ class RestApiTestsGenerator implements Handler {
   }
 
   private static void validateBody(final JavaWriter out, final String encoding, final ServiceMethod method) {
+    if (!method.response) { throw new IllegalStateException("Method response is not defined") }
     out.emitStatement('validate(response, "%s", "%s")', encoding, method.response.name)
   }
 
@@ -157,4 +170,22 @@ class RestApiTestsGenerator implements Handler {
     out.emitAnnotation('Test')
     out.beginMethod('void', name + nameSuffix, Collections.<Modifier>singleton(Modifier.PUBLIC), null, [Exception.simpleName])
   }
+
+  private static class MethodGenerator {
+
+    JavaWriter out
+    ServiceMethod method
+    Service service
+    MethodTestInfo testInfo
+
+    void method(final String suffix, final String url, final Closure<?> body) {
+      startTestMethod(out, method, suffix)
+      sendRequestBody(out, method.type, url, testInfo.httpHeaders)
+      body.call()
+      out.endMethod()
+    }
+
+  }
+
 }
+
