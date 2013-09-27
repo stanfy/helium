@@ -1,4 +1,6 @@
 
+boolean hasCredentials = hasProperty('nexusUsername') && hasProperty('nexusPassword')
+
 subprojects {
   buildscript {
     repositories {
@@ -19,6 +21,61 @@ subprojects {
 
   afterEvaluate {
     install.dependsOn check
+
+    signing {
+      sign configurations.archives
+    }
+
+    uploadArchives {
+      repositories {
+        mavenDeployer {
+          beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+          repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+            if (hasCredentials) {
+              authentication(userName: nexusUsername, password: nexusPassword)
+            }
+          }
+          snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+            if (hasCredentials) {
+              authentication(userName: nexusUsername, password: nexusPassword)
+            }
+          }
+
+          pom.project {
+            name 'Helium'
+            description 'Helium'
+            url 'https://github.com/stanfy/helium'
+            inceptionYear '2013'
+
+            scm {
+              url 'https://github.com/stanfy/helium'
+              connection 'scm:git:git@github.com:stanfy/helium.git'
+              developerConnection 'scm:git:git@github.com:stanfy/helium.git'
+            }
+
+            licenses {
+              license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+              }
+            }
+
+            developers {
+              developer {
+                id 'rmazur'
+                name 'Roman Mazur'
+                email 'rmazur@stanfy.com.ua'
+              }
+            }
+          }
+
+        }
+      }
+    }
   }
+
+
 
 }

@@ -186,11 +186,17 @@ class ProjectDslSpec extends Specification {
     dsl.service {
       tests {
         useExamples true
+        httpHeaders {
+          'header 1' 'value 1'
+          'header 2' 'value 2'
+        }
       }
     }
 
     then:
-    dsl.services[0].testsInfo.useExamples
+    dsl.services[0].testInfo.useExamples
+    dsl.services[0].testInfo.httpHeaders['header 1'] == 'value 1'
+    dsl.services[0].testInfo.httpHeaders['header 2'] == 'value 2'
   }
 
   def "can describe method test info"() {
@@ -199,17 +205,28 @@ class ProjectDslSpec extends Specification {
       get "/a/@param1/@param2" spec {
         tests {
           useExamples true
-          pathExample param1: "1", param2: "2"
+          pathExample {
+            param1 "1"
+            param2 "2"
+          }
+          httpHeaders {
+            'header 1' 'value 1'
+            'header 2' 'value 2'
+          }
         }
       }
     }
 
     then:
-    dsl.services[0].testsInfo != null
-    !dsl.services[0].testsInfo.useExamples
+    dsl.services[0].testInfo != null
+    !dsl.services[0].testInfo.useExamples
+    dsl.services[0].testInfo.httpHeaders != null
+    dsl.services[0].testInfo.httpHeaders.isEmpty()
 
     dsl.services[0].methods[0].testInfo.useExamples
     dsl.services[0].methods[0].testInfo.pathExample.size() == 2
+    dsl.services[0].methods[0].testInfo.httpHeaders['header 1'] == 'value 1'
+    dsl.services[0].methods[0].testInfo.httpHeaders['header 2'] == 'value 2'
   }
 
 }
