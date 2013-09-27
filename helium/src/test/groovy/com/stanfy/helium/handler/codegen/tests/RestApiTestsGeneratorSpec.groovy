@@ -59,6 +59,7 @@ class RestApiTestsGeneratorSpec extends Specification {
     testText.contains "public void required_example_example()"
     testText.contains "required/HOP?param1=2"
     // get product/get
+    testText.contains "public void product_get_shouldFailWithOutParameters"
     testText.contains "public void product_get_example()"
     testText.contains "product/get?id=23288"
 
