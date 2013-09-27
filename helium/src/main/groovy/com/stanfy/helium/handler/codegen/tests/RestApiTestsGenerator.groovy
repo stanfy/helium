@@ -113,21 +113,28 @@ class RestApiTestsGenerator implements Handler {
 
     MethodTestInfo testInfo = method.testInfo.resolve(service.testsInfo)
 
-    // make test without required parameters - should fail
-    if (method.parameters && method.parameters.hasRequiredFields()) {
+    if (method.parameters?.hasRequiredFields()) {
+
+      // make test without required parameters - should fail
       startTestMethod(out, method, "_shouldFailWithOutParameters")
-      sendRequestBody(out, service, method)
+      sendRequestBody(out, method.type, service.getMethodUri(testInfo, method))
       validateStatusCode(out, false)
       out.endMethod()
+
     }
 
-    // generate tests with examples
     if (testInfo.useExamples) {
-      startTestMethod(out, method, "_example")
-      sendRequestBody(out, service, method)
-      validateStatusCode(out, true)
-      validateBody(out, encoding, method)
-      out.endMethod()
+
+      String uriQuery = method.getUriQueryWithExamples(encoding)
+      if (uriQuery || !method.parameters?.hasRequiredFields()) {
+        // can make an example
+        startTestMethod(out, method, "_example")
+        sendRequestBody(out, method.type, "${service.getMethodUri(testInfo, method)}$uriQuery")
+        validateStatusCode(out, true)
+        validateBody(out, encoding, method)
+        out.endMethod()
+      }
+
     }
 
   }
@@ -140,13 +147,10 @@ class RestApiTestsGenerator implements Handler {
     out.emitStatement('validate(response, "%s", "%s")', encoding, method.response.name)
   }
 
-  private static void sendRequestBody(final JavaWriter out, final Service service, ServiceMethod method, String... configureStatements) {
-    String requestClass = getRequestClass(method.type)
+  private static void sendRequestBody(final JavaWriter out, final MethodType type, final String uri) {
+    String requestClass = getRequestClass(type)
     out.emitStatement("$requestClass request = new ${requestClass}()")
-    out.emitStatement('request.setURI(new URI("%s"))', service.getMethodUri(method))
-    configureStatements.each { String stmt ->
-      out.emitStatement(stmt)
-    }
+    out.emitStatement('request.setURI(new URI("%s"))', uri)
     out.emitStatement('HttpResponse response = send(request)')
   }
   private static void startTestMethod(final JavaWriter out, ServiceMethod method, String nameSuffix) {

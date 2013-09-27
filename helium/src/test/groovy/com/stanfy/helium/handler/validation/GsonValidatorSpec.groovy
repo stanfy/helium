@@ -192,9 +192,10 @@ class GsonValidatorSpec extends Specification {
     ''')
 
     expect:
-    errors.size() == 2
-    errors[0].type == testMessage
-    errors[1].type == testMessage
+    errors.size() == 1
+    !errors[0].children?.empty
+    errors[0].children[0].type == testMessage
+    errors[0].children[1].type == testMessage
   }
 
   def "validates primitives only"() {
@@ -266,7 +267,8 @@ class GsonValidatorSpec extends Specification {
     errors[1].children[1].field.name == "name"
     def deepErrors = errors[1].children[0].children
     !deepErrors.empty
-    deepErrors[0].field.name == "f1"
+    !deepErrors[0].children?.empty
+    deepErrors[0].children[0].field.name == 'f1'
   }
 
 }

@@ -10,7 +10,7 @@ class MethodTestInfo extends TestsInfo {
 
   MethodTestInfo resolve(final TestsInfo globalInfo) {
     return new MethodTestInfo(
-      useExamples: this.useExamples == null ? globalInfo.useExamples : this.useExamples,
+      useExamples: this.useExamples == null ? !!globalInfo.useExamples : this.useExamples,
       pathExample: pathExample
     )
   }

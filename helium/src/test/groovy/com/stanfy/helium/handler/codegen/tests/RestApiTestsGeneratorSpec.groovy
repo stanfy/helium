@@ -46,12 +46,20 @@ class RestApiTestsGeneratorSpec extends Specification {
     testFile.absolutePath.contains("spec/tests/rest/")
     testText.contains "public class TwitterAPITest extends ${RestApiMethods.simpleName}"
     testText.contains "@Test"
-    testText.contains "public void users_show_json_example"
-    testText.contains "public void users_show_json_shouldFailWithOutParameters"
     testText.contains "send(request)"
     testText.contains "validate(response"
     testText.contains 'setUserAgent("test agent")'
 
+    // get users/show.json
+    testText.contains "public void users_show_json_shouldFailWithOutParameters"
+    // get test/@param.json
+    testText.contains "public void test_param_json_example()"
+    testText.contains "test/value.json"
+    // get simple/request
+    testText.contains "public void simple_request_example()"
+    // get required/@example
+    testText.contains "public void required_example_example()"
+    testText.contains "required/HOP?param1=2"
   }
 
 }

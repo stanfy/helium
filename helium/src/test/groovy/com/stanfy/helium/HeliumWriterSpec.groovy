@@ -45,10 +45,7 @@ tests {
     out.toString() == '''
 tests {
   useExamples false
-  pathExample [
-    'p1': 'v1',
-    'p2': 'v2'
-  ]
+  pathExample 'p1': 'v1', 'p2': 'v2'
 }
 '''.trim() + '\n'
   }
@@ -135,9 +132,7 @@ service {
     }
     tests {
       useExamples true
-      pathExample [
-        'id': '123'
-      ]
+      pathExample 'id': '123'
     }
   }
   tests {
@@ -145,6 +140,9 @@ service {
   }
 }
 """.trim() + '\n'
+
+    new Helium().from(out.toString()).project.services.size() == 1
+
   }
 
 }

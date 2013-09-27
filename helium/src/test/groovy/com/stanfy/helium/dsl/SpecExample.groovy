@@ -36,6 +36,37 @@ final class SpecExample {
         response "UserProfile"
       }
 
+      get "/test/@param.json" spec {
+        name "Test method"
+        response "UserProfile"
+        tests {
+          pathExample param: 'value'
+        }
+      }
+
+      get "/simple/request" spec {
+        name "Simple request without required parameters"
+        parameters {
+          a 'string' optional
+        }
+        response "UserProfile"
+      }
+
+      get "/required/@example" spec {
+        name "Example with required parameters and parametrized path"
+        parameters {
+          param1(type: 'int32', required: true, examples: ['2'])
+        }
+        response "UserProfile"
+        tests {
+          pathExample example: 'HOP'
+        }
+      }
+
+      tests {
+        useExamples true
+      }
+
     }
 
   }

@@ -1,5 +1,6 @@
 package com.stanfy.helium.model
 
+import com.stanfy.helium.model.tests.MethodTestInfo
 import com.stanfy.helium.model.tests.TestsInfo
 import groovy.transform.CompileStatic
 
@@ -28,11 +29,16 @@ class Service extends Descriptionable implements StructureUnit {
     return name?.replaceAll(/\W+/, '')
   }
 
-  String getMethodUri(final ServiceMethod method) {
+  String getMethodUri(final MethodTestInfo testInfo, final ServiceMethod method) {
+    if (!method.path) { throw new IllegalStateException("Service method path is not specified") }
+    String path = method.path
+    if (testInfo?.useExamples && testInfo?.pathExample) {
+      path = method.getPathWithParameters(method.testInfo.pathExample)
+    }
+    path = path.startsWith('/') ? path[1..-1] : path
+
     if (!location) { throw new IllegalStateException("Service location is not specified") }
     String loc = location.endsWith('/') ? location[0..-2] : location
-    if (!method.path) { throw new IllegalStateException("Service method path is not specified") }
-    String path = method.path.startsWith('/') ? method.path[1..-1] : method.path
     return "$loc/$path"
   }
 

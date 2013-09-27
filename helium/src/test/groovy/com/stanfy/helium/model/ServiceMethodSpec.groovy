@@ -37,4 +37,29 @@ class ServiceMethodSpec extends Specification {
     !v2
   }
 
+  def "forms URI query with examples"() {
+    given:
+    Message testType = new Message(name: 'TestType')
+    Type str = new Type(name: 'string')
+    testType.addField(new Field(name : 'a', type: str, examples: ['1']))
+    testType.addField(new Field(name : 'b', type: str, required: false, examples: ['2']))
+    testType.addField(new Field(name : 'c', type: str, required: false))
+
+    method.parameters = testType
+    String q1 = method.getUriQueryWithExamples('UTF-8')
+
+    method.parameters = null
+    String q2 = method.getUriQueryWithExamples('UTF-8')
+
+    testType.addField(new Field(name : 'd', required: true))
+    method.parameters = testType
+    String q3 = method.getUriQueryWithExamples('UTF-8')
+
+    expect:
+    q1 == '?a=1&b=2'
+    q2 == ''
+    q3 == ''
+
+  }
+
 }

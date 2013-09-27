@@ -236,15 +236,14 @@ class HeliumWriter implements Closeable {
   }
 
   private void writeStringsMap(final String name, final Map<String, String> map) {
-    writeLine "$name ["
-    incIndent()
+    StringBuilder res = new StringBuilder()
+    res << "$name "
     int counter = 1
     int max = map.size()
     map.each { String key, String value ->
-      writeLine "'$key': '$value'${counter++ == max ? '' : ','}"
+      res << "'$key': '$value'${counter++ == max ? '' : ', '}"
     }
-    decIndent()
-    writeLine "]"
+    writeLine "$res"
   }
 
   private void emitTestsInfoDetails(final TestsInfo testsInfo) {
