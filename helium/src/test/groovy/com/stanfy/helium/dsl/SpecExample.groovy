@@ -90,6 +90,17 @@ final class SpecExample {
         response 'int64'
       }
 
+      post "account/add" spec {
+        name 'Registration'
+        description "Add new user"
+        body {
+          email(type: 'string', required: true, examples: ['john.doe@gmail.com'])
+          name(type: 'string', required: true, examples: ['John Doe'])
+          password(type: 'string', required: true, examples: ['123'])
+        }
+        response "UserProfile"
+      }
+
       tests {
         useExamples true
         httpHeaders {

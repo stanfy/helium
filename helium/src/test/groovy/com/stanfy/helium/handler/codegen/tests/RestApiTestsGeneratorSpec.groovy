@@ -2,6 +2,10 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.stanfy.helium.Helium
 import com.stanfy.helium.dsl.SpecExample
+import com.stanfy.helium.handler.Handler
+import com.stanfy.helium.model.Message
+import com.stanfy.helium.model.Project
+import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
 /**
@@ -15,23 +19,58 @@ class RestApiTestsGeneratorSpec extends Specification {
     new Helium().defaultTypes() from SpecExample.example processBy generator
   }
 
+  private void runExampleGenerator() {
+    generator.srcOutput = File.createTempDir()
+    generator.srcOutput.deleteOnExit()
+    run()
+  }
+
+  private File findFile(def filter) {
+    File res = null
+    generator.srcOutput.eachFileRecurse {
+      if (res) { return }
+      if (filter(it)) {
+        res = it
+      }
+    }
+    return res
+  }
+
   def "should require output"() {
     when: run()
     then: thrown(IllegalStateException)
   }
 
+  def "should rewrite spec for tests"() {
+    when:
+    runExampleGenerator()
+    File specFile = findFile { it.name == RestApiMethods.TEST_SPEC_NAME }
+
+    then:
+    specFile != null
+    specFile.text.contains "type 'UserProfile' message"
+  }
+
+  def "generated spec must be able to be interpreted"() {
+    when:
+    runExampleGenerator()
+    File specFile = findFile { it.name == RestApiMethods.TEST_SPEC_NAME }
+    Type userProfile = null
+    new Helium().from(specFile).processBy({ Project project ->
+      userProfile = project.types.byName('UserProfile')
+    } as Handler)
+
+    then:
+    userProfile != null
+    userProfile instanceof Message
+  }
+  
   def "should generate JUnit tests"() {
     when:
-    generator.srcOutput = File.createTempDir()
-    generator.srcOutput.deleteOnExit()
-    run()
+    runExampleGenerator()
     int testsCount = 0
     File testFile = null
-    File specFile = null
     generator.srcOutput.eachFileRecurse {
-      if (it.name == RestApiMethods.TEST_SPEC_NAME) {
-        specFile = it
-      }
       if (it.name.endsWith("Test.java")) {
         testsCount++
         testFile = it
@@ -40,7 +79,6 @@ class RestApiTestsGeneratorSpec extends Specification {
     def testText = testFile?.text
 
     then:
-    specFile != null
     testsCount == 1
     testFile.absolutePath.contains("spec/tests/rest/")
     testText.contains "public class TwitterAPITest extends ${RestApiMethods.simpleName}"
@@ -67,6 +105,12 @@ class RestApiTestsGeneratorSpec extends Specification {
     testText.contains "public void post_example_shouldFailWithOutBody"
     testText.contains "post/123?full=false"
     !testText.contains("public void post_example_example")
+
+    // post account/add
+    testText.contains "public void account_add_shouldFailWithOutBody"
+    testText.contains "public void account_add_example"
+    testText.contains "request.setEntity"
+    testText.contains '\\"email\\"' // check escaping
 
     // headers
     testText.contains 'request.addHeader("User-Agent", "Mozilla")'

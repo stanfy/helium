@@ -2,7 +2,7 @@ Tests Generation:
 
 - use examples for request bodies - implementing now
 - describe test scenario: run request A, use results for running request B...
-
+- content type checks and content type based parser selection
 
 Code generation:
 

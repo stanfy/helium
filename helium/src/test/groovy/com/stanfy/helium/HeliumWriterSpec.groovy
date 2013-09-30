@@ -1,7 +1,9 @@
 package com.stanfy.helium
 
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Note
+import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.tests.MethodTestInfo
 import com.stanfy.helium.model.tests.TestsInfo
 import spock.lang.Specification
@@ -27,14 +29,14 @@ class HeliumWriterSpec extends Specification {
 
   def "can write service test info"() {
     when:
-    writer.writeTestsInfo(new TestsInfo(useExamples: true, httpHeaders: ['a' : 'b']))
+    writer.writeTestsInfo(new TestsInfo(useExamples: true, httpHeaders: ['a"a' : 'b']))
 
     then:
     out.toString() == '''
 tests {
   useExamples true
   httpHeaders {
-    'a' 'b'
+    "a\\"a" "b"
   }
 }
 '''.trim() + '\n'
@@ -49,9 +51,23 @@ tests {
 tests {
   useExamples false
   pathExample {
-    'p1' 'v1'
-    'p2' 'v2'
+    "p1" "v1"
+    "p2" "v2"
   }
+}
+'''.trim() + '\n'
+  }
+
+  def "can write examples"() {
+    when:
+    writer.emitField(new Field(name : 'a', type : new Type(name : 'A'), examples: ['aaa']))
+
+    then:
+    out.toString() == '''
+a {
+  type 'A'
+  required true
+  examples ["aaa"]
 }
 '''.trim() + '\n'
   }
@@ -124,11 +140,11 @@ type 'A' message {
   }
 }
 service {
-  name 'Service name'
+  name "Service name"
   version '1'
   location 'http://host/'
   post '/user/@id' spec {
-    name 'Update user profile'
+    name "Update user profile"
     parameters {
       dob {
         type 'bool'
@@ -145,11 +161,11 @@ service {
     tests {
       useExamples true
       httpHeaders {
-        'h1' 'v1'
-        'h2' 'v2'
+        "h1" "v1"
+        "h2" "v2"
       }
       pathExample {
-        'id' '123'
+        "id" "123"
       }
     }
   }
