@@ -9,7 +9,7 @@ import com.stanfy.helium.model.TypeResolver
 class DefaultTypeResolver implements TypeResolver {
 
   /** Types map. */
-  private final HashMap<String, Type> types = new HashMap<>()
+  private final LinkedHashMap<String, Type> types = new LinkedHashMap<>()
 
   @Override
   Type byName(final String name) {

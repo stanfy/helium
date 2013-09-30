@@ -229,4 +229,39 @@ class ProjectDslSpec extends Specification {
     dsl.services[0].methods[0].testInfo.httpHeaders['header 2'] == 'value 2'
   }
 
+  def "can describe test scenarios"() {
+    when:
+    dsl.service {
+      tests {
+        scenario "log in and get stream" spec {
+          def loginResult = post "user/login/@type" with {
+            path {
+              type "facebook"
+            }
+            parameters {
+              fake false
+            }
+            body {
+              token "abc!!!234MLK"
+              email "john.doe@gmail.com"
+            }
+          }
+          assert loginResult != null : "Bad login result"
+          assert loginResult.resultCode == 0 : "Operation was not successful"
+          def streamResult = get "stream/get" with {
+            parameters {
+              userId loginResult.someId
+            }
+          }
+          assert streamResult != null : "Bad stream result"
+        }
+      }
+    }
+
+    then:
+    !dsl.services[0].testInfo.scenarios?.empty
+    dsl.services[0].testInfo.scenarios[0].name == "log in and get stream"
+    dsl.services[0].testInfo.scenarios[0].action != null
+  }
+
 }

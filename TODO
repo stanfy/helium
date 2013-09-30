@@ -4,6 +4,9 @@ Tests Generation:
 - describe test scenario: run request A, use results for running request B...
 - content type checks and content type based parser selection
 
+Docs generation:
+- Modify DSL to allow notes injection in any part of the code
+
 Code generation:
 
 - Java POJOs

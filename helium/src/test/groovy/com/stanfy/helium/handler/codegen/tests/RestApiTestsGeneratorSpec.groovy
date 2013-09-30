@@ -49,6 +49,7 @@ class RestApiTestsGeneratorSpec extends Specification {
     then:
     specFile != null
     specFile.text.contains "type 'UserProfile' message"
+    !specFile.text.contains("service")
   }
 
   def "generated spec must be able to be interpreted"() {

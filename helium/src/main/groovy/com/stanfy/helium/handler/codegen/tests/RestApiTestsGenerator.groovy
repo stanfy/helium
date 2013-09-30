@@ -7,6 +7,7 @@ import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
+import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.tests.MethodTestInfo
 import groovy.transform.CompileStatic
 import org.apache.http.HttpEntity
@@ -50,7 +51,9 @@ class RestApiTestsGenerator implements Handler {
     File specFile = new File(resourcesPackageDir, RestApiMethods.TEST_SPEC_NAME)
     HeliumWriter specWriter = new HeliumWriter(new OutputStreamWriter(new FileOutputStream(specFile), "UTF-8"))
     try {
-      specWriter.writeProject(project)
+      project.types.all().each { Type type ->
+        specWriter.writeType(type)
+      }
     } finally {
       specWriter.close()
     }
