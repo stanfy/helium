@@ -153,10 +153,10 @@ class HeliumWriter implements Closeable {
   void writeService(final Service service) throws IOException {
     startService()
     writeLine "name ${JavaWriter.stringLiteral(service.name)}"
-    writeLine "version '$service.version'"
-    writeLine "location '$service.location'"
+    writeLine "version ${JavaWriter.stringLiteral(service.version)}"
+    writeLine "location ${JavaWriter.stringLiteral(service.location)}"
     if (service.encoding) {
-      writeLine "encoding $service.encoding"
+      writeLine "encoding ${JavaWriter.stringLiteral(service.encoding)}"
     }
     service.methods.each { ServiceMethod m -> writeServiceMethod(m) }
     writeTestsInfo(service.testInfo)
@@ -177,7 +177,7 @@ class HeliumWriter implements Closeable {
     startServiceMethod(method.path, method.type)
     writeLine "name ${JavaWriter.stringLiteral(method.name)}"
     if (method.encoding) {
-      writeLine "encoding $method.encoding"
+      writeLine "encoding ${JavaWriter.stringLiteral(method.encoding)}"
     }
     if (method.parameters) {
       emitMethodInternalType("parameters", method.parameters)
@@ -196,7 +196,7 @@ class HeliumWriter implements Closeable {
   }
 
   void startServiceMethod(final String path, final MethodType type) {
-    writeLine "${type.toString().toLowerCase()} '$path' spec {"
+    writeLine "${type.toString().toLowerCase()} ${JavaWriter.stringLiteral(path)} spec {"
     incIndent()
   }
 

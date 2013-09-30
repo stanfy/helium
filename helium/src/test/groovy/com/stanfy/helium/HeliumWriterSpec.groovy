@@ -141,9 +141,9 @@ type 'A' message {
 }
 service {
   name "Service name"
-  version '1'
-  location 'http://host/'
-  post '/user/@id' spec {
+  version "1"
+  location "http://host/"
+  post "/user/@id" spec {
     name "Update user profile"
     parameters {
       dob {
