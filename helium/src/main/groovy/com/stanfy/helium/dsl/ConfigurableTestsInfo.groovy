@@ -5,7 +5,7 @@ import com.stanfy.helium.model.tests.TestsInfo
 /**
  * Proxy for TestsInfo.
  */
-class ConfigurableTestsInfo extends ConfigurableProxy<TestsInfo> {
+abstract class ConfigurableTestsInfo<T extends TestsInfo> extends ConfigurableProxy<T> {
 
   ConfigurableTestsInfo(TestsInfo core, ProjectDsl project) {
     super(core, project)

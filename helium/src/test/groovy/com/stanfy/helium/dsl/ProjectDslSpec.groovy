@@ -233,7 +233,7 @@ class ProjectDslSpec extends Specification {
     when:
     dsl.service {
       tests {
-        scenario "log in and get stream" spec {
+        scenario "log in and get stream", after: {}, before: {} spec {
           def loginResult = post "user/login/@type" with {
             path {
               type "facebook"
@@ -255,6 +255,8 @@ class ProjectDslSpec extends Specification {
           }
           assert streamResult != null : "Bad stream result"
         }
+
+        scenario "test" spec { }
       }
     }
 
@@ -262,6 +264,12 @@ class ProjectDslSpec extends Specification {
     !dsl.services[0].testInfo.scenarios?.empty
     dsl.services[0].testInfo.scenarios[0].name == "log in and get stream"
     dsl.services[0].testInfo.scenarios[0].action != null
+    dsl.services[0].testInfo.scenarios[0].before != null
+    dsl.services[0].testInfo.scenarios[0].after != null
+    dsl.services[0].testInfo.scenarios[1].name == "test"
+    dsl.services[0].testInfo.scenarios[1].action != null
+    dsl.services[0].testInfo.scenarios[1].before == null
+    dsl.services[0].testInfo.scenarios[1].after == null
   }
 
 }
