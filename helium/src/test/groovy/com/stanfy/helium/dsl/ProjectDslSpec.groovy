@@ -252,6 +252,9 @@ class ProjectDslSpec extends Specification {
             parameters {
               userId loginResult.someId
             }
+            httpHeaders {
+              "SESSION-ID" loginResult.session
+            }
           }
           assert streamResult != null : "Bad stream result"
         }
