@@ -7,7 +7,6 @@ import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
-import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.tests.MethodTestInfo
 import groovy.transform.CompileStatic
 import org.apache.http.HttpEntity
@@ -117,7 +116,7 @@ class RestApiTestsGenerator implements Handler {
       requestUriReady = requestUriReady | !uriQueryExample.empty
       parametrizedUri = "${parametrizedUri}$uriQueryExample"
 
-      if (requestUriReady && !method.type.hasBody) {
+      if (requestUriReady && !method.hasBody()) {
         // can make an example
         gen.method("_example", parametrizedUri) {
           gen.expectSuccess(encoding)
@@ -126,7 +125,7 @@ class RestApiTestsGenerator implements Handler {
 
     }
 
-    if (method.type.hasBody && requestUriReady) {
+    if (method.hasBody() && requestUriReady) {
 
       // make test without body - should fail
       gen.method("_shouldFailWithOutBody", parametrizedUri) {
@@ -184,7 +183,7 @@ class RestApiTestsGenerator implements Handler {
       out.emitStatement('request.setURI(new URI(%s))', JavaWriter.stringLiteral(uri))
       if (body) {
         out.emitStatement('HttpEntity requestEntity = new StringEntity(%s)', JavaWriter.stringLiteral(body))
-        out.emitStatement('request.setEntity(entity)')
+        out.emitStatement('request.setEntity(requestEntity)')
       }
       emitHeaders()
       out.emitStatement('HttpResponse response = send(request)')
