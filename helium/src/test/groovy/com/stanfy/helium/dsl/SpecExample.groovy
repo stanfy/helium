@@ -59,7 +59,9 @@ final class SpecExample {
         }
         response "UserProfile"
         tests {
-          pathExample example: 'HOP'
+          pathExample {
+            'example' 'HOP'
+          }
           httpHeaders {
             'Super-Header' 'A'
           }
@@ -72,6 +74,31 @@ final class SpecExample {
           id(type: 'int64', required: true, examples: ['23288'])
         }
         response "int32"
+      }
+
+      post "post/@example" spec {
+        name "Post example"
+        tests {
+          pathExample {
+            'example' '123'
+          }
+        }
+        parameters {
+          full(type: 'bool', required: false, examples: ['false'])
+        }
+        body 'UserProfile'
+        response 'int64'
+      }
+
+      post "account/add" spec {
+        name 'Registration'
+        description "Add new user"
+        body {
+          email(type: 'string', required: true, examples: ['john.doe@gmail.com'])
+          name(type: 'string', required: true, examples: ['John Doe'])
+          password(type: 'string', required: true, examples: ['123'])
+        }
+        response "UserProfile"
       }
 
       tests {

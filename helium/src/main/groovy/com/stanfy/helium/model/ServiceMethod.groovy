@@ -74,4 +74,8 @@ class ServiceMethod extends Descriptionable {
     return "?$res"
   }
 
+  boolean hasBody() {
+    return type.hasBody && body != null
+  }
+
 }

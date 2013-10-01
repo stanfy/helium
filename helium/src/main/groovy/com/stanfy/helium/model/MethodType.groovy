@@ -8,10 +8,17 @@ import groovy.transform.CompileStatic
 @CompileStatic
 enum MethodType {
 
-  GET,
-  POST,
-  PUT,
-  DELETE,
-  PATCH
+  GET(false),
+  POST(true),
+  PUT(true),
+  DELETE(false),
+  PATCH(true)
+
+  /** Whether request has body. */
+  final boolean hasBody
+
+  private MethodType(final boolean hasBody) {
+    this.hasBody = hasBody
+  }
 
 }

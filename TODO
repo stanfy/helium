@@ -1,8 +1,10 @@
 Tests Generation:
 
-- use examples for request bodies - implementing now
-- describe test scenario: run request A, use results for running request B...
+- describe test scenario: run request A, use results for running request B...  - implementing now
+- content type checks and content type based parser selection
 
+Docs generation:
+- Modify DSL to allow notes injection in any part of the code
 
 Code generation:
 

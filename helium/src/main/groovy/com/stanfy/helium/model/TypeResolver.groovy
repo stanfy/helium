@@ -1,7 +1,5 @@
 package com.stanfy.helium.model
 
-import com.stanfy.helium.model.Type
-
 /**
  * Operates with types.
  */
@@ -14,5 +12,7 @@ interface TypeResolver {
   void registerNewType(Type type)
 
   Iterable<Type> all()
+
+  Class<?> toGroovyClass(Type type)
 
 }

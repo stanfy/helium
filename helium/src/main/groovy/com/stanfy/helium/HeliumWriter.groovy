@@ -1,5 +1,6 @@
 package com.stanfy.helium
 
+import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
@@ -120,8 +121,14 @@ class HeliumWriter implements Closeable {
       writeLine "sequence $field.sequence"
     }
     if (field.examples) {
-      // TODO
-      writeLine "examples $field.examples"
+      StringBuilder examplesString = new StringBuilder()
+      examplesString << "["
+      field.examples.each { String example ->
+        examplesString << JavaWriter.stringLiteral(example) << ", "
+      }
+      examplesString.delete(examplesString.length() - 2, examplesString.length())
+      examplesString << "]"
+      writeLine "examples $examplesString"
     }
     decIndent()
     writeLine "}"
@@ -145,11 +152,11 @@ class HeliumWriter implements Closeable {
 
   void writeService(final Service service) throws IOException {
     startService()
-    writeLine "name '$service.name'"
-    writeLine "version '$service.version'"
-    writeLine "location '$service.location'"
+    writeLine "name ${JavaWriter.stringLiteral(service.name)}"
+    writeLine "version ${JavaWriter.stringLiteral(service.version)}"
+    writeLine "location ${JavaWriter.stringLiteral(service.location)}"
     if (service.encoding) {
-      writeLine "encoding $service.encoding"
+      writeLine "encoding ${JavaWriter.stringLiteral(service.encoding)}"
     }
     service.methods.each { ServiceMethod m -> writeServiceMethod(m) }
     writeTestsInfo(service.testInfo)
@@ -168,9 +175,9 @@ class HeliumWriter implements Closeable {
 
   void writeServiceMethod(final ServiceMethod method) throws IOException {
     startServiceMethod(method.path, method.type)
-    writeLine "name '$method.name'"
+    writeLine "name ${JavaWriter.stringLiteral(method.name)}"
     if (method.encoding) {
-      writeLine "encoding $method.encoding"
+      writeLine "encoding ${JavaWriter.stringLiteral(method.encoding)}"
     }
     if (method.parameters) {
       emitMethodInternalType("parameters", method.parameters)
@@ -189,7 +196,7 @@ class HeliumWriter implements Closeable {
   }
 
   void startServiceMethod(final String path, final MethodType type) {
-    writeLine "${type.toString().toLowerCase()} '$path' spec {"
+    writeLine "${type.toString().toLowerCase()} ${JavaWriter.stringLiteral(path)} spec {"
     incIndent()
   }
 
@@ -239,7 +246,7 @@ class HeliumWriter implements Closeable {
     writeLine "$name {"
     incIndent()
     map.each { String key, String value ->
-      writeLine "'$key' '$value'"
+      writeLine "${JavaWriter.stringLiteral(key)} ${JavaWriter.stringLiteral(value)}"
     }
     decIndent()
     writeLine "}"
