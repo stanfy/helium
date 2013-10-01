@@ -1,5 +1,6 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.DefaultTypesLoader
 import spock.lang.Specification
@@ -273,6 +274,43 @@ class ProjectDslSpec extends Specification {
     dsl.services[0].testInfo.scenarios[1].action != null
     dsl.services[0].testInfo.scenarios[1].before == null
     dsl.services[0].testInfo.scenarios[1].after == null
+  }
+
+  def "can use closures in type descriptions"() {
+    when:
+    dsl.type 'string'
+
+    def closureConstructor = { Closure<?> mainSpec = null ->
+      return {
+        field1 'string'
+        field2 'string'
+        if (mainSpec) {
+          println "----------"
+          println owner
+          println delegate
+          println owner.delegate
+          println "----------"
+          mainSpec.delegate = delegate
+          mainSpec.resolveStrategy = DELEGATE_FIRST
+          mainSpec()
+        }
+      }
+    }
+
+    dsl.type 'Type1' message closureConstructor({
+      println owner
+      println delegate
+      field3 'string'
+    })
+    dsl.type 'Type2' message closureConstructor()
+
+    then:
+    dsl.types.byName('Type1') instanceof Message
+    (dsl.types.byName('Type1') as Message).fields.size() == 3
+    (dsl.types.byName('Type2') as Message).fields.size() == 2
+    (dsl.types.byName('Type1') as Message).fields[2].name == 'field3'
+    (dsl.types.byName('Type2') as Message).fields[0].name == 'field1'
+
   }
 
 }
