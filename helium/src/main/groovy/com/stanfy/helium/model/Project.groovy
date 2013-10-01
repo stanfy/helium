@@ -1,7 +1,5 @@
 package com.stanfy.helium.model
 
-import com.stanfy.helium.model.tests.TestsInfo
-
 /**
  * Spec project.
  */

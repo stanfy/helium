@@ -73,6 +73,14 @@ public class RestApiMethods {
     String status = response.getStatusLine().getReasonPhrase();
     String reason = status != null && status.length() > 0 ? " Got '" + status + "'" : "";
 
+    assertThat(response.getStatusLine().getStatusCode())
+        .describedAs("Method not found... Maybe not implemented yet?" + reason)
+        .isNotEqualTo(HttpStatus.SC_NOT_FOUND);
+
+    assertThat(response.getStatusLine().getStatusCode())
+        .describedAs("Incorrect HTTP method" + reason)
+        .isNotEqualTo(HttpStatus.SC_METHOD_NOT_ALLOWED);
+
     if (success) {
       log("Validating successful status...");
       assertThat(response.getStatusLine().getStatusCode())

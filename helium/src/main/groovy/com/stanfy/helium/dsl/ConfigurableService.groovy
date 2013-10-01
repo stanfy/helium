@@ -3,7 +3,9 @@ package com.stanfy.helium.dsl
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
+import com.stanfy.helium.model.tests.ServiceTestInfo
 import com.stanfy.helium.model.tests.TestsInfo
+import groovy.transform.CompileStatic
 
 /**
  * Extended proxy for services configuration.
@@ -37,9 +39,9 @@ class ConfigurableService extends ConfigurableProxy<Service> {
     return method
   }
 
-  TestsInfo tests(final Closure<?> spec) {
+  ServiceTestInfo tests(final Closure<?> spec) {
     Service service = getCore()
-    ProjectDsl.callConfigurationSpec(new ConfigurableTestsInfo(service.testInfo, getProject()), spec)
+    ProjectDsl.callConfigurationSpec(new ConfigurableServiceTestInfo(service.testInfo, getProject()), spec)
     return service.testInfo
   }
 
