@@ -9,11 +9,11 @@ import spock.lang.Specification
 /**
  * Spec for TypesEntityBuilder.
  */
-class TypedEntityBuilderSpec extends Specification {
+class TypedEntityValueBuilderSpec extends Specification {
 
   def "uses plain object for primitives"() {
     when:
-    TypedEntityBuilder builder = new TypedEntityBuilder(new Type(name: 'int'))
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(new Type(name: 'int'))
     def value = builder.from(2)
 
     then:
@@ -22,7 +22,7 @@ class TypedEntityBuilderSpec extends Specification {
 
   def "does not allow plain object for messages"() {
     when:
-    TypedEntityBuilder builder = new TypedEntityBuilder(new Message(name: 'Msg'))
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(new Message(name: 'Msg'))
     builder.from(2)
 
     then:
@@ -34,7 +34,7 @@ class TypedEntityBuilderSpec extends Specification {
     Message msg = new Message(name: 'Msg')
     msg.addField(new Field(name: 'f1', type: new Type(name: 'string')))
     msg.addField(new Field(name: 'f2', type: new Type(name: 'int')))
-    TypedEntityBuilder builder = new TypedEntityBuilder(msg)
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(msg)
     def entity = builder.from {
       f1 'value'
       f2 3
@@ -49,7 +49,7 @@ class TypedEntityBuilderSpec extends Specification {
     when:
     Message msg = new Message(name: 'Msg')
     msg.addField(new Field(name: 'f1', type: new Type(name: 'string')))
-    TypedEntityBuilder builder = new TypedEntityBuilder(msg)
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(msg)
     builder.from {
       f1 'value'
       f2 3
@@ -67,7 +67,7 @@ class TypedEntityBuilderSpec extends Specification {
     Message msgParent = new Message(name: 'MsgParent')
     msgParent.addField(new Field(name: 'child', type: msgChild))
 
-    TypedEntityBuilder builder = new TypedEntityBuilder(msgParent)
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(msgParent)
     def value = builder.from {
       child {
         f1 'value'
@@ -83,7 +83,7 @@ class TypedEntityBuilderSpec extends Specification {
     Message msg = new Message(name: 'Msg')
     msg.addField(new Field(name: 'list', type: new Type(name: 'string'), sequence: true))
 
-    TypedEntityBuilder builder = new TypedEntityBuilder(msg)
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(msg)
     def value = builder.from {
       list (['a', 'b'])
     }
@@ -99,7 +99,7 @@ class TypedEntityBuilderSpec extends Specification {
     Message msgParent = new Message(name: 'MsgParent')
     msgParent.addField(new Field(name: 'child', type: msgChild, sequence: true))
 
-    TypedEntityBuilder builder = new TypedEntityBuilder(msgParent)
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(msgParent)
     def value = builder.from {
       child ([
           {
@@ -119,7 +119,7 @@ class TypedEntityBuilderSpec extends Specification {
   def "works with root primitive sequences"() {
     when:
     Sequence seq = new Sequence(name: 'Seq', itemsType: new Type(name: 'foo'))
-    def value = new TypedEntityBuilder(seq).from([1, 2])
+    def value = new TypedEntityValueBuilder(seq).from([1, 2])
     then:
     value == [1, 2]
   }
@@ -129,7 +129,7 @@ class TypedEntityBuilderSpec extends Specification {
     Message msgChild = new Message(name: 'MsgChild')
     msgChild.addField(new Field(name: 'f1', type: new Type(name: 'string')))
     Sequence seq = new Sequence(name: 'Seq', itemsType: msgChild)
-    def value = new TypedEntityBuilder(seq).from([
+    def value = new TypedEntityValueBuilder(seq).from([
         {
           f1 'a'
         },

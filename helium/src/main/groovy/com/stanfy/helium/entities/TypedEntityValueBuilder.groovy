@@ -16,12 +16,12 @@ import static com.stanfy.helium.utils.DslUtils.runWithProxy;
  *   <li>Primitive type entities are represented as passed objects.</li>
  * </ul>
  */
-class TypedEntityBuilder {
+class TypedEntityValueBuilder {
 
   /** Entity type. */
   final Type type
 
-  public TypedEntityBuilder(final Type type) {
+  public TypedEntityValueBuilder(final Type type) {
     this.type = type
   }
 
@@ -51,7 +51,7 @@ class TypedEntityBuilder {
 
   protected static def buildListValue(final Type itemType, final Collection<?> list) {
     def value = []
-    TypedEntityBuilder itemBuilder = new TypedEntityBuilder(itemType)
+    TypedEntityValueBuilder itemBuilder = new TypedEntityValueBuilder(itemType)
     list.each {
       value += itemBuilder.from(it)
     }
@@ -77,7 +77,7 @@ class TypedEntityBuilder {
         }
         return buildListValue(field.type, (Collection<?>)arg)
       }
-      return new TypedEntityBuilder(field.type).from(arg)
+      return new TypedEntityValueBuilder(field.type).from(arg)
     }
   }
 

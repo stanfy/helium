@@ -1,25 +1,26 @@
-package com.stanfy.helium.entities.validation.json;
+package com.stanfy.helium.entities.json;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
+import com.stanfy.helium.entities.ValuePuller;
 
 import java.io.IOException;
 
 /**
- * Gson wrapper that implements JsonValuePuller.
+ * Gson wrapper that implements ValuePuller.
  */
-public class DefaultGsonValuePuller implements JsonValuePuller {
+public class GsonValuePuller implements ValuePuller {
 
   /** Gson reader. */
   private final JsonReader reader;
 
-  public DefaultGsonValuePuller(final JsonReader reader) {
+  public GsonValuePuller(final JsonReader reader) {
     this.reader = reader;
   }
 
   @Override
-  public float expectFloat() throws IOException {
-    double doubleValue = expectDouble();
+  public float pullFloat() throws IOException {
+    double doubleValue = pullDouble();
     float floatValue = (float)doubleValue;
     if (floatValue != doubleValue) {
       throw new IllegalArgumentException("value " + doubleValue + " is too big for float");
@@ -28,22 +29,22 @@ public class DefaultGsonValuePuller implements JsonValuePuller {
   }
 
   @Override
-  public double expectDouble() throws IOException {
+  public double pullDouble() throws IOException {
     return reader.nextDouble();
   }
 
   @Override
-  public int expectInt() throws IOException {
+  public int pullInt() throws IOException {
     return reader.nextInt();
   }
 
   @Override
-  public long expectLong() throws IOException {
+  public long pullLong() throws IOException {
     return reader.nextLong();
   }
 
   @Override
-  public String expectString() throws IOException {
+  public String pullString() throws IOException {
     JsonToken nextToken = reader.peek();
     if (nextToken == JsonToken.NULL) {
       reader.nextNull();
@@ -56,7 +57,7 @@ public class DefaultGsonValuePuller implements JsonValuePuller {
   }
 
   @Override
-  public boolean expectBoolean() throws IOException {
+  public boolean pullBoolean() throws IOException {
     return reader.nextBoolean();
   }
 
@@ -65,9 +66,8 @@ public class DefaultGsonValuePuller implements JsonValuePuller {
   }
 
   @Override
-  public byte[] expectBytes() throws IOException {
-    String str = expectString();
-    return str.getBytes("UTF-8");
+  public byte[] pullBytes() throws IOException {
+    throw new UnsupportedOperationException();
   }
 
   @Override

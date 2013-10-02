@@ -2,6 +2,7 @@ package com.stanfy.helium.entities.validation.json;
 
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import com.stanfy.helium.entities.json.GsonValuePuller;
 import com.stanfy.helium.entities.validation.ValidationError;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
@@ -155,7 +156,7 @@ public class GsonValidator extends JsonValidator {
 
   private void validatePrimitive(final Field field, final JsonReader json, final List<ValidationError> errors) throws IOException {
     String explanation = new DefaultJsonTypeValidator()
-        .validateNextValue(new DefaultGsonValuePuller(json), field.getType(), field.isRequired());
+        .validateNextValue(new GsonValuePuller(json), field.getType(), field.isRequired());
     if (explanation == null) {
       return;
     }

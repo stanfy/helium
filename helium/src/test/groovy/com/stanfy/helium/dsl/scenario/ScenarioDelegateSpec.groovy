@@ -50,6 +50,9 @@ class ScenarioDelegateSpec extends Specification {
             path {
               id "222"
             }
+            httpHeaders {
+              "H1" "V1"
+            }
             parameters {
               testParam false
             }
@@ -73,11 +76,20 @@ class ScenarioDelegateSpec extends Specification {
     def action = service.testInfo.scenarios[0].action
     action.delegate = delegate
     action.resolveStrategy = Closure.DELEGATE_FIRST
-    action()
+    def res = action()
 
     then:
+    res == "ok"
+
+    !executor.executedMethods.empty
     executor.executedMethods[0].path == "some/resource/@id"
     executor.executedMethods[0].type == MethodType.POST
+
+    !executor.requests.empty
+    executor.requests[0].pathParameters['id'] == '222'
+    executor.requests[0].httpHeaders['H1'] == 'V1'
+    executor.requests[0].parameters.value.testParam == false
+    executor.requests[0].body.value.f1 == true
   }
 
   /** Executor instance. */
@@ -85,11 +97,19 @@ class ScenarioDelegateSpec extends Specification {
 
     /** List of executed methods. */
     List<ServiceMethod> executedMethods = []
+    /** List of executed requests. */
+    List<ServiceMethodRequestValues> requests = []
 
     @Override
-    Object performMethod(final Service service, final ServiceMethod method) {
+    Object performMethod(final Service service, final ServiceMethod method, final ServiceMethodRequestValues request) {
       assert service != null
-      executedMethods += method
+      if (method) {
+        executedMethods += method
+      }
+      if (request) {
+        requests += request
+      }
+      return "ok"
     }
 
   }
