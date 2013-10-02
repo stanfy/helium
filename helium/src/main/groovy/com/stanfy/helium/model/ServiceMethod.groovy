@@ -50,6 +50,18 @@ class ServiceMethod extends Descriptionable {
   }
 
   String getUriQueryWithExamples(final String encoding) {
+    return getUriQueryWithResolver(encoding, { Field f ->
+      if (!f.examples) { return null }
+      return f.examples[0]
+    })
+  }
+  String getUriQueryWithParameters(final String encoding, final Map<String, String> parameters) {
+    return getUriQueryWithResolver(encoding, { Field f ->
+      return parameters[f.name]
+    })
+  }
+
+  private String getUriQueryWithResolver(final String encoding, final Closure<?> resolver) {
     if (!parameters) { return "" }
     StringBuilder res = new StringBuilder()
     boolean noData = false
@@ -58,13 +70,12 @@ class ServiceMethod extends Descriptionable {
       if (field.type instanceof Message || field.type instanceof Sequence) {
         throw new IllegalStateException("Type $field.type is not allowed in parameters")
       }
-      if (!field.required && !field.examples) { return }
-      if (!field.examples) {
-        noData = true
+      String value = resolver(field)
+      if (!value) {
+        noData |= field.required
         return
       }
       String name = field.name
-      String value = field.examples[0]
       res << "$name=${URLEncoder.encode(value, encoding)}&"
     }
     if (noData) { return "" }
