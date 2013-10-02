@@ -2,7 +2,10 @@ package com.stanfy.helium.dsl
 
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.utils.ConfigurableProxy
 import spock.lang.Specification
+
+import static com.stanfy.helium.utils.DslUtils.runWithProxy
 
 /**
  * Spec for field.
@@ -19,7 +22,7 @@ class FieldSpec extends Specification {
 
   def "should be configurable"() {
     when:
-    ProjectDsl.callConfigurationSpec(new ConfigurableProxy<Field>(field, new ProjectDsl())) {
+    runWithProxy(new ConfigurableProxy<Field>(field, new ProjectDsl())) {
       name "id"
       description "Identifier"
       type new Type(name : "long")

@@ -1,10 +1,13 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 import groovy.transform.CompileStatic
+
+import static com.stanfy.helium.utils.DslUtils.runWithProxy
 
 /**
  * Builder for fields.
@@ -41,7 +44,7 @@ class FieldsBuilder {
     if (arg instanceof Closure) {
       // just configure
       Field f = new Field()
-      ProjectDsl.callConfigurationSpec(new ConfigurableProxy<Field>(f, project), (Closure<?>)arg)
+      runWithProxy(new ConfigurableProxy<Field>(f, project), (Closure<?>)arg)
       f.name = name
       message.addField(f)
       return f
@@ -74,29 +77,29 @@ class FieldsBuilder {
     return type
   }
 
-}
+  @CompileStatic
+  class OptionalFieldTrigger {
+    Field field
 
-@CompileStatic
-class OptionalFieldTrigger {
-  Field field
+    boolean getRequired() {
+      field.required = true
+    }
+    boolean getOptional() {
+      field.required = false
+    }
 
-  boolean getRequired() {
-    field.required = true
-  }
-  boolean getOptional() {
-    field.required = false
+    boolean getSequence() {
+      field.sequence = true
+      field.required = false
+    }
+
+    void setRequired(boolean value) {
+      field.required = value
+    }
+
+    void setSequence(boolean value) {
+      field.sequence = value
+    }
   }
 
-  boolean getSequence() {
-    field.sequence = true
-    field.required = false
-  }
-
-  void setRequired(boolean value) {
-    field.required = value
-  }
-
-  void setSequence(boolean value) {
-    field.sequence = value
-  }
 }

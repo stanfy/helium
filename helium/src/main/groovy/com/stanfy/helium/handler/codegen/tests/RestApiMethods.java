@@ -1,9 +1,9 @@
 package com.stanfy.helium.handler.codegen.tests;
 
 import com.stanfy.helium.Helium;
-import com.stanfy.helium.handler.validation.ValidationError;
-import com.stanfy.helium.handler.validation.json.GsonValidator;
-import com.stanfy.helium.handler.validation.json.JsonValidator;
+import com.stanfy.helium.entities.validation.ValidationError;
+import com.stanfy.helium.entities.validation.json.GsonValidator;
+import com.stanfy.helium.entities.validation.json.JsonValidator;
 import com.stanfy.helium.model.Project;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

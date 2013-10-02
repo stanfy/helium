@@ -32,4 +32,6 @@ class Message extends Type {
     return fields.any { Field f -> f.required }
   }
 
+  boolean isPrimitive() { return false }
+
 }

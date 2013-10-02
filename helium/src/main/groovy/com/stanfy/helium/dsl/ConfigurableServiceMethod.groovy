@@ -1,6 +1,9 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.model.ServiceMethod
+
+import static com.stanfy.helium.utils.DslUtils.runWithProxy
 
 /**
  * Extended proxy for ServiceMethod.
@@ -25,7 +28,7 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
 
   void defineMessageType(final String property, Closure<?> body) {
     ServiceMethod core = getCore()
-    core."$property" = getProject().createAndAddMessage("${core.canonicalName}_$property", body, false)
+    core."$property" = getProject().createAndAddMessage("${core.canonicalName}_${property}_${core.type}", body, false)
   }
 
   void defineMessageType(final String property, String messageType) {
@@ -34,7 +37,7 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
   }
 
   void tests(final Closure<?> spec) {
-    ProjectDsl.callConfigurationSpec(new ConfigurableMethodTestsInfo(getCore().testInfo, getProject()), spec)
+    runWithProxy(new ConfigurableMethodTestsInfo(getCore().testInfo, getProject()), spec)
   }
 
 }

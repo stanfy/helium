@@ -1,7 +1,10 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.model.*
 import groovy.transform.PackageScope
+
+import static com.stanfy.helium.utils.DslUtils.runWithProxy;
 
 /**
  * Entry point to Helium DSL.
@@ -66,7 +69,7 @@ class ProjectDsl implements Project {
 
   public Message createAndAddMessage(final String name, final Closure<?> spec, final boolean addToStructure) {
     Message m = new Message(name : name)
-    callConfigurationSpec(new FieldsBuilder(m, this, typeResolver), spec)
+    runWithProxy(new FieldsBuilder(m, this, typeResolver), spec)
     messages.add m
     updatePendingTypes(name, m, addToStructure)
     return m
@@ -91,13 +94,6 @@ class ProjectDsl implements Project {
     }
   }
 
-  @PackageScope static void callConfigurationSpec(final def proxy, final Closure<?> spec) {
-    Closure<?> body = spec.clone() as Closure<?>
-    body.resolveStrategy = Closure.DELEGATE_FIRST
-    body.delegate = proxy
-    body.call()
-  }
-
   private void applyPendingTypes() {
     pendingTypeDefinitions.values().each { Type type ->
       typeResolver.registerNewType type
@@ -110,7 +106,7 @@ class ProjectDsl implements Project {
   public void service(final Closure<?> description) {
     applyPendingTypes()
     Service service = new Service()
-    callConfigurationSpec(new ConfigurableService(service, this), description)
+    runWithProxy(new ConfigurableService(service, this), description)
     services.add service
     structure.add service
   }
@@ -123,7 +119,7 @@ class ProjectDsl implements Project {
     structure.add type
     return [
         "message" : { Closure<?> spec -> createAndAddMessage(name, spec, true) },
-        "spec" : { Closure<?> spec -> callConfigurationSpec(new ConfigurableProxy<Type>(type, owner), spec) },
+        "spec" : { Closure<?> spec -> runWithProxy(new ConfigurableProxy<Type>(type, owner), spec) },
         "sequence" : { String item -> createAndAddSequence(name, item) }
     ]
   }
