@@ -1,6 +1,6 @@
-package com.stanfy.helium.handler.validation.json;
+package com.stanfy.helium.entities.validation.json;
 
-import com.stanfy.helium.handler.validation.ValidationError;
+import com.stanfy.helium.entities.validation.ValidationError;
 import com.stanfy.helium.model.Type;
 
 import java.io.PrintWriter;

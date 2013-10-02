@@ -1,6 +1,7 @@
-package com.stanfy.helium.handler.validation.json;
+package com.stanfy.helium.entities.validation.json;
 
 import com.stanfy.helium.DefaultType;
+import com.stanfy.helium.entities.ValuePuller;
 import com.stanfy.helium.model.Type;
 
 import java.io.IOException;
@@ -12,7 +13,12 @@ import java.util.Locale;
 public class DefaultJsonTypeValidator implements JsonTypeValidator {
 
   @Override
-  public String validateNextValue(final JsonValuePuller json, final Type type) throws IOException {
+  public String validateNextValue(final ValuePuller puller, final Type type, final boolean required) throws IOException {
+
+    if (required && puller.checkNull()) {
+      puller.skipValue();
+      return "value of type " + type.getName() + " is required but got NULL";
+    }
 
     final DefaultType defType;
     try {
@@ -24,31 +30,34 @@ public class DefaultJsonTypeValidator implements JsonTypeValidator {
     try {
       switch (defType) {
         case FLOAT:
-          json.expectFloat();
+          puller.pullFloat();
           break;
         case DOUBLE:
-          json.expectDouble();
+          puller.pullDouble();
           break;
         case INT64:
-          json.expectLong();
+          puller.pullLong();
           break;
         case INT32:
-          json.expectInt();
+          puller.pullInt();
           break;
         case BOOL:
-          json.expectBoolean();
+          puller.pullBoolean();
           break;
         case STRING:
-          json.expectString();
+          puller.pullString();
           break;
         case BYTES:
-          json.expectBytes();
+          puller.pullBytes();
           break;
         default:
           throw new UnsupportedOperationException("Unknown type " + defType);
       }
+    } catch (IllegalStateException e) {
+      puller.skipValue();
+      return "bad format: " + e.getMessage();
     } catch (IllegalArgumentException e) {
-      json.skipValue();
+      puller.skipValue();
       return "bad format: " + e.getMessage();
     }
 

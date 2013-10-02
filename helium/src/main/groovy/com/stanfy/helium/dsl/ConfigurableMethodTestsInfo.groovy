@@ -1,6 +1,9 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.utils.ConfigurableStringMap
 import com.stanfy.helium.model.tests.MethodTestInfo
+
+import static com.stanfy.helium.utils.DslUtils.runWithProxy;
 
 /**
  * Extension of test info for service method. Provides pathExample syntax.
@@ -16,7 +19,7 @@ class ConfigurableMethodTestsInfo extends ConfigurableTestsInfo<MethodTestInfo> 
     if (info.pathExample == null) {
       info.pathExample = new LinkedHashMap<>()
     }
-    ProjectDsl.callConfigurationSpec(new ConfigurableStringMap(info.pathExample, "Path parameters example"), body)
+    runWithProxy(new ConfigurableStringMap(info.pathExample, "Path parameters example"), body)
   }
 
 

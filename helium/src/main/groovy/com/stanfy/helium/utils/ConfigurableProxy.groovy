@@ -1,5 +1,6 @@
-package com.stanfy.helium.dsl
+package com.stanfy.helium.utils
 
+import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.model.Type
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope

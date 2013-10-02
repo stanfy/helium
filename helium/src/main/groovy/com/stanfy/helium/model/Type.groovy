@@ -8,4 +8,6 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class Type extends Descriptionable implements StructureUnit {
 
+  boolean isPrimitive() { return true }
+
 }
