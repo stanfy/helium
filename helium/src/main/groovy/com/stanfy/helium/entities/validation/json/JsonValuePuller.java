@@ -21,6 +21,8 @@ public interface JsonValuePuller {
 
   byte[] expectBytes() throws IOException;
 
+  boolean checkNull() throws IOException;
+
   void skipValue() throws IOException;
 
 }

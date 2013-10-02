@@ -44,7 +44,12 @@ public class DefaultGsonValuePuller implements JsonValuePuller {
 
   @Override
   public String expectString() throws IOException {
-    if (reader.peek() != JsonToken.STRING) {
+    JsonToken nextToken = reader.peek();
+    if (nextToken == JsonToken.NULL) {
+      reader.nextNull();
+      return null;
+    }
+    if (nextToken != JsonToken.STRING) {
       throw new IllegalArgumentException("not a string");
     }
     return reader.nextString();
@@ -63,6 +68,11 @@ public class DefaultGsonValuePuller implements JsonValuePuller {
   public byte[] expectBytes() throws IOException {
     String str = expectString();
     return str.getBytes("UTF-8");
+  }
+
+  @Override
+  public boolean checkNull() throws IOException {
+    return reader.peek() == JsonToken.NULL;
   }
 
 }

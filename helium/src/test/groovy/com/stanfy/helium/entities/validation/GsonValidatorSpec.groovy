@@ -271,4 +271,22 @@ class GsonValidatorSpec extends Specification {
     deepErrors[0].children[0].field.name == 'f1'
   }
 
+  def "treats nulls"() {
+    given:
+    def errors = testValidator.validate '''
+      {
+        "f1" : null,
+        "f2" : null,
+        "f3" : null
+      }
+    '''
+
+    expect:
+    errors.size() == 2
+    errors[0].explanation.contains("required, but got NULL")
+    errors[0].field.name == "f1"
+    errors[1].explanation.contains("but was NULL")
+    errors[1].field.name == "f2"
+  }
+
 }

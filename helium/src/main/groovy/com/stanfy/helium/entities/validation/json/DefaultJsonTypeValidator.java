@@ -12,7 +12,12 @@ import java.util.Locale;
 public class DefaultJsonTypeValidator implements JsonTypeValidator {
 
   @Override
-  public String validateNextValue(final JsonValuePuller json, final Type type) throws IOException {
+  public String validateNextValue(final JsonValuePuller json, final Type type, final boolean required) throws IOException {
+
+    if (required && json.checkNull()) {
+      json.skipValue();
+      return "value of type " + type.getName() + " is required but got NULL";
+    }
 
     final DefaultType defType;
     try {
@@ -47,6 +52,9 @@ public class DefaultJsonTypeValidator implements JsonTypeValidator {
         default:
           throw new UnsupportedOperationException("Unknown type " + defType);
       }
+    } catch (IllegalStateException e) {
+      json.skipValue();
+      return "bad format: " + e.getMessage();
     } catch (IllegalArgumentException e) {
       json.skipValue();
       return "bad format: " + e.getMessage();

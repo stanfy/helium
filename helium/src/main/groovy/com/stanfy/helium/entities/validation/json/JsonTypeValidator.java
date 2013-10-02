@@ -9,6 +9,6 @@ import java.io.IOException;
  */
 public interface JsonTypeValidator {
 
-  String validateNextValue(JsonValuePuller json, Type type) throws IOException;
+  String validateNextValue(JsonValuePuller json, Type type, boolean required) throws IOException;
 
 }

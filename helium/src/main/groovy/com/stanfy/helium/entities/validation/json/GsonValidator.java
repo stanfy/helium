@@ -154,7 +154,8 @@ public class GsonValidator extends JsonValidator {
   }
 
   private void validatePrimitive(final Field field, final JsonReader json, final List<ValidationError> errors) throws IOException {
-    String explanation = new DefaultJsonTypeValidator().validateNextValue(new DefaultGsonValuePuller(json), field.getType());
+    String explanation = new DefaultJsonTypeValidator()
+        .validateNextValue(new DefaultGsonValuePuller(json), field.getType(), field.isRequired());
     if (explanation == null) {
       return;
     }
