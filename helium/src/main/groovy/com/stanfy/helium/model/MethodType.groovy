@@ -21,4 +21,8 @@ enum MethodType {
     this.hasBody = hasBody
   }
 
+  public String getName() {
+    return toString().toLowerCase(Locale.US)
+  }
+
 }

@@ -1,7 +1,7 @@
-package com.stanfy.helium.handler.validation
+package com.stanfy.helium.entities.validation
 
 import com.stanfy.helium.dsl.ProjectDsl
-import com.stanfy.helium.handler.validation.json.GsonValidator
+import com.stanfy.helium.entities.validation.json.GsonValidator
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type

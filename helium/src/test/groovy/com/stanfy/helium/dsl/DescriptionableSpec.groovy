@@ -1,7 +1,10 @@
 package com.stanfy.helium.dsl
 
 import com.stanfy.helium.model.Descriptionable
+import com.stanfy.helium.utils.ConfigurableProxy
 import spock.lang.Specification
+
+import static com.stanfy.helium.utils.DslUtils.runWithProxy
 
 /**
  * Spec for Service.
@@ -13,7 +16,7 @@ class DescriptionableSpec extends Specification {
 
   def "should be configurable"() {
     when:
-    ProjectDsl.callConfigurationSpec(new ConfigurableProxy<Descriptionable>(service, new ProjectDsl())) {
+    runWithProxy(new ConfigurableProxy<Descriptionable>(service, new ProjectDsl())) {
       name "abc"
       description "hey"
     }

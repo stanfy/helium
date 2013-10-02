@@ -1,8 +1,7 @@
-package com.stanfy.helium.handler.validation.json;
+package com.stanfy.helium.entities.validation.json;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-import com.stanfy.helium.handler.validation.json.JsonValuePuller;
 
 import java.io.IOException;
 

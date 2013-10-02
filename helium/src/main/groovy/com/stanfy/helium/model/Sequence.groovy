@@ -8,4 +8,6 @@ class Sequence extends Type {
   /** Items type. */
   Type itemsType
 
+  boolean isPrimitive() { return false }
+
 }

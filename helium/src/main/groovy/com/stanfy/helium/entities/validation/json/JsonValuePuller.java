@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.validation.json;
+package com.stanfy.helium.entities.validation.json;
 
 import java.io.IOException;
 

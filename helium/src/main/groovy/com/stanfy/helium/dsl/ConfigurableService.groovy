@@ -1,11 +1,12 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.tests.ServiceTestInfo
-import com.stanfy.helium.model.tests.TestsInfo
-import groovy.transform.CompileStatic
+
+import static com.stanfy.helium.utils.DslUtils.runWithProxy
 
 /**
  * Extended proxy for services configuration.
@@ -14,7 +15,7 @@ class ConfigurableService extends ConfigurableProxy<Service> {
 
   static {
     MethodType.values().each { MethodType type ->
-      ConfigurableService.metaClass."${type.toString().toLowerCase(Locale.US)}" << { Object arg ->
+      ConfigurableService.metaClass."${type.name}" << { Object arg ->
         String path = "$arg"
         return [
             "spec" : { Closure<?> spec -> delegate.addServiceMethod(path, type, spec) }
@@ -41,7 +42,7 @@ class ConfigurableService extends ConfigurableProxy<Service> {
 
   ServiceTestInfo tests(final Closure<?> spec) {
     Service service = getCore()
-    ProjectDsl.callConfigurationSpec(new ConfigurableServiceTestInfo(service.testInfo, getProject()), spec)
+    runWithProxy(new ConfigurableServiceTestInfo(service.testInfo, getProject()), spec)
     return service.testInfo
   }
 

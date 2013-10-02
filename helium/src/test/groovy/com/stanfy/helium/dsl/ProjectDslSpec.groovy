@@ -285,21 +285,14 @@ class ProjectDslSpec extends Specification {
         field1 'string'
         field2 'string'
         if (mainSpec) {
-          println "----------"
-          println owner
-          println delegate
-          println owner.delegate
-          println "----------"
+          // TODO: simplify it for a user
           mainSpec.delegate = delegate
-          mainSpec.resolveStrategy = DELEGATE_FIRST
           mainSpec()
         }
       }
     }
 
     dsl.type 'Type1' message closureConstructor({
-      println owner
-      println delegate
       field3 'string'
     })
     dsl.type 'Type2' message closureConstructor()
