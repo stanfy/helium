@@ -4,6 +4,7 @@ import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
+import com.stanfy.helium.utils.DslUtils
 import spock.lang.Specification
 
 /**
@@ -61,6 +62,24 @@ class ScenarioDelegateSpec extends Specification {
             }
           }
         }
+        scenario "get and assert 'ok'" spec {
+          def someRes = get "some/resource/@id" with {
+            path {
+              id '1'
+            }
+          }
+          assert someRes == "ok" : "Result is incorrect: $someRes"
+          return someRes
+        }
+        scenario "delete and assert 'hi'" spec {
+          def someRes = delete "some/resource/@id" with {
+            path {
+              id '2'
+            }
+          }
+          assert someRes == "hi" : "Result is incorrect: $someRes"
+          return someRes
+        }
       }
 
     }
@@ -71,12 +90,15 @@ class ScenarioDelegateSpec extends Specification {
 
   }
 
+  private def executeScenario(final String name, final def result) {
+    executor.scheduledExecutorResult = result
+    def action = service.testInfo.scenarioByName(name).action
+    return DslUtils.runWithProxy(delegate, action)
+  }
+
   def "can execute service methods"() {
     when:
-    def action = service.testInfo.scenarios[0].action
-    action.delegate = delegate
-    action.resolveStrategy = Closure.DELEGATE_FIRST
-    def res = action()
+    def res = executeScenario("simple post", "ok")
 
     then:
     res == "ok"
@@ -92,6 +114,22 @@ class ScenarioDelegateSpec extends Specification {
     executor.requests[0].body.value.f1 == true
   }
 
+  def "asserts work with executor results"() {
+    when:
+    def res1 = executeScenario("get and assert 'ok'", "ok")
+    def res2 = executeScenario("delete and assert 'hi'", "ok")
+
+    then:
+    def e = thrown(AssertionError)
+    e.message.contains("Result is incorrect")
+    res1 == "ok"
+    res2 == null
+    executor.executedMethods[0].type == MethodType.GET
+    executor.requests[0].pathParameters['id'] == '1'
+    executor.executedMethods[1].type == MethodType.DELETE
+    executor.requests[1].pathParameters['id'] == '2'
+  }
+
   /** Executor instance. */
   private static class Executor implements ScenarioExecutor {
 
@@ -99,6 +137,9 @@ class ScenarioDelegateSpec extends Specification {
     List<ServiceMethod> executedMethods = []
     /** List of executed requests. */
     List<ServiceMethodRequestValues> requests = []
+
+    def scheduledExecutorResult = null
+
 
     @Override
     Object performMethod(final Service service, final ServiceMethod method, final ServiceMethodRequestValues request) {
@@ -109,7 +150,7 @@ class ScenarioDelegateSpec extends Specification {
       if (request) {
         requests += request
       }
-      return "ok"
+      return scheduledExecutorResult
     }
 
   }
