@@ -22,7 +22,7 @@ import javax.lang.model.element.Modifier
  * Generates JUnit4 tests that invoke REST API methods.
  */
 @CompileStatic
-class RestApiTestsGenerator implements Handler {
+class RestApiPokeTestsGenerator implements Handler {
 
   // TODO: use examples
 
@@ -93,11 +93,8 @@ class RestApiTestsGenerator implements Handler {
   }
 
   private static void addTestMethods(final JavaWriter out, final Service service, ServiceMethod method, final JsonEntityExampleGenerator entitiesGenerator) {
-    String encoding = method.encoding
-    if (!encoding) { encoding = service.encoding }
-    if (!encoding) { encoding = 'UTF-8' }
-
     MethodTestInfo testInfo = method.testInfo.resolve(service.testInfo)
+    String encoding = HttpExecutor.resolveEncoding(service, method)
 
     MethodGenerator gen = new MethodGenerator(out: out, service: service, method: method, testInfo: testInfo)
 
@@ -157,23 +154,6 @@ class RestApiTestsGenerator implements Handler {
     Service service
     MethodTestInfo testInfo
 
-    private static String getRequestClass(final MethodType type) {
-      switch (type) {
-        case MethodType.GET:
-          return HttpGet.simpleName;
-        case MethodType.POST:
-          return HttpPost.simpleName;
-        case MethodType.PUT:
-          return HttpPut.simpleName;
-        case MethodType.DELETE:
-          return HttpDelete.simpleName;
-        case MethodType.PATCH:
-          return HttpPatch.simpleName;
-        default:
-          throw new UnsupportedOperationException("Unknown method type " + type)
-      }
-    }
-
     private void emitHeaders() {
       testInfo.httpHeaders.each { String key, String value ->
         out.emitStatement('request.addHeader(%s, %s)', JavaWriter.stringLiteral(key), JavaWriter.stringLiteral(value))
@@ -181,8 +161,7 @@ class RestApiTestsGenerator implements Handler {
     }
 
     private void sendRequestBody(final String uri, final String body) {
-      String requestClass = getRequestClass(method.type)
-      out.emitStatement("$requestClass request = new ${requestClass}()")
+      out.emitStatement("HttpRequestBase request = createHttpRequest(MethodType.%s)", method.type.toString())
       out.emitStatement('request.setURI(new URI(%s))', JavaWriter.stringLiteral(uri))
       if (body) {
         out.emitStatement('HttpEntity requestEntity = new StringEntity(%s)', JavaWriter.stringLiteral(body))

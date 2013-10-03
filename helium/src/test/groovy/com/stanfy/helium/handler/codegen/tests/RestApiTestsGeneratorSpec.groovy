@@ -13,7 +13,7 @@ import spock.lang.Specification
  */
 class RestApiTestsGeneratorSpec extends Specification {
 
-  RestApiTestsGenerator generator = new RestApiTestsGenerator()
+  RestApiPokeTestsGenerator generator = new RestApiPokeTestsGenerator()
 
   private void run() {
     new Helium().defaultTypes() from SpecExample.example processBy generator

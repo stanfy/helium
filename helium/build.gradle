@@ -9,6 +9,8 @@ dependencies {
   compile 'org.apache.httpcomponents:httpclient:4.3'
   compile 'com.google.code.gson:gson:2.2.4'
   compile 'org.easytesting:fest-assert-core:2.0M10'
+  compile 'org.slf4j:slf4j-api:1.7.5'
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+  testCompile 'com.google.mockwebserver:mockwebserver:20130403'
 }

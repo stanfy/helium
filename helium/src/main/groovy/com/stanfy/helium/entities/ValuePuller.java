@@ -12,6 +12,8 @@ import java.io.IOException;
  */
 public interface ValuePuller {
 
+  // TODO: refactor pullers, writers, readers
+
   float pullFloat() throws IOException;
 
   double pullDouble() throws IOException;

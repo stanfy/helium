@@ -4,10 +4,12 @@ import com.stanfy.helium.Helium;
 import com.stanfy.helium.entities.validation.ValidationError;
 import com.stanfy.helium.entities.validation.json.GsonValidator;
 import com.stanfy.helium.entities.validation.json.JsonValidator;
+import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
+import com.stanfy.helium.model.TypeResolver;
+import com.stanfy.helium.utils.AssertionUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.HttpClientBuilder;
@@ -31,19 +33,19 @@ public class RestApiMethods {
   /** HTTP client instance. */
   private final HttpClient client = httpClientBuilder().build();
 
-  /** Specification project. */
-  private Project project;
+  /** Types resolver from the specification project. */
+  private TypeResolver types;
 
   public RestApiMethods() {
-    this.project = loadDefaultTestSpec();
+    this.types = loadDefaultTestSpec().getTypes();
   }
 
-  public RestApiMethods(final Project project) {
-    this.project = project;
+  public RestApiMethods(final TypeResolver types) {
+    this.types = types;
   }
 
   protected HttpClientBuilder httpClientBuilder() {
-    return HttpClientBuilder.create();
+    return HttpExecutor.createHttpClientBuilder();
   }
 
   private Project loadDefaultTestSpec() {
@@ -60,40 +62,13 @@ public class RestApiMethods {
     }
   }
 
-  private static void log(final Object message) {
-    System.out.println(String.valueOf(message));
-  }
-
   /**
    * Assert either successful or client error response status code.
    * @param response HTTP response instance
    * @param success true for success, false for client error
    */
   protected static void validateStatus(final HttpResponse response, final boolean success) {
-    String status = response.getStatusLine().getReasonPhrase();
-    String reason = status != null && status.length() > 0 ? " Got '" + status + "'" : "";
-
-    assertThat(response.getStatusLine().getStatusCode())
-        .describedAs("Method not found... Maybe not implemented yet?" + reason)
-        .isNotEqualTo(HttpStatus.SC_NOT_FOUND);
-
-    assertThat(response.getStatusLine().getStatusCode())
-        .describedAs("Incorrect HTTP method" + reason)
-        .isNotEqualTo(HttpStatus.SC_METHOD_NOT_ALLOWED);
-
-    if (success) {
-      log("Validating successful status...");
-      assertThat(response.getStatusLine().getStatusCode())
-          .describedAs("Successful HTTP status code expected." + reason)
-          .isGreaterThanOrEqualTo(HttpStatus.SC_OK)
-          .isLessThan(HttpStatus.SC_MULTIPLE_CHOICES);
-    } else {
-      log("Validating error status...");
-      assertThat(response.getStatusLine().getStatusCode())
-          .describedAs("Client error expected." + reason)
-          .isGreaterThanOrEqualTo(HttpStatus.SC_BAD_REQUEST)
-          .isLessThan(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-    }
+    AssertionUtils.validateStatus(response, success);
   }
 
   /*
@@ -110,13 +85,13 @@ public class RestApiMethods {
    * @throws IOException in case of I/O errors
    */
   protected void validate(final HttpResponse response, final String encoding, final String typeName) throws IOException {
-    log("Validating response body...");
+    //log("Validating response body...");
     HttpEntity respEntity = response.getEntity();
     assertThat(respEntity).describedAs("HTTP entity should not be absent").isNotNull();
 
     InputStreamReader reader = new InputStreamReader(new BufferedInputStream(respEntity.getContent()), encoding);
     try {
-      JsonValidator validator = new GsonValidator(project.getTypes().byName(typeName));
+      JsonValidator validator = new GsonValidator(types.byName(typeName));
       List<ValidationError> errors =  validator.validate(reader);
       assertThat(errors).describedAs("Validation errors are present").isEmpty();
     } finally {
@@ -125,17 +100,22 @@ public class RestApiMethods {
   }
 
   /**
+   * Create HTTP request instance.
+   * @param type HTTP method
+   * @return instance of HTTP request
+   */
+  protected HttpRequestBase createHttpRequest(final MethodType type) {
+    return HttpExecutor.createRequest(type);
+  }
+
+  /**
    * Send a built HTTP request
    * @param request request instance
    * @return obtained HTTP response
-   * @throws Exception in case of any error
+   * @throws IOException in case of any error
    */
-  protected HttpResponse send(final HttpRequestBase request) throws Exception {
-    log("Send request " + request.getRequestLine());
-    long startTime = System.currentTimeMillis();
-    HttpResponse resp = client.execute(request);
-    log("Response loaded in " + (System.currentTimeMillis() - startTime) + " ms: " + resp.getStatusLine());
-    return resp;
+  protected HttpResponse send(final HttpRequestBase request) throws IOException {
+    return HttpExecutor.send(client, request);
   }
 
 }
