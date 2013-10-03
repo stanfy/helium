@@ -1,7 +1,7 @@
-package com.stanfy.helium.entities.validation.json;
+package com.stanfy.helium.entities.json;
 
 import com.stanfy.helium.DefaultType;
-import com.stanfy.helium.entities.ValuePuller;
+import com.stanfy.helium.entities.json.ValuePuller;
 import com.stanfy.helium.model.Type;
 
 import java.io.IOException;
@@ -10,14 +10,14 @@ import java.util.Locale;
 /**
  * Implements GsonValidator for DefaultTy
  */
-public class DefaultJsonTypeValidator implements JsonTypeValidator {
+class DefaultJsonTypeValidator implements JsonTypedValuePuller {
 
   @Override
-  public String validateNextValue(final ValuePuller puller, final Type type, final boolean required) throws IOException {
+  public Object validateNextValue(final ValuePuller puller, final Type type, final boolean required) throws IOException {
 
     if (required && puller.checkNull()) {
       puller.skipValue();
-      return "value of type " + type.getName() + " is required but got NULL";
+      throw new IllegalStateException("value of type " + type.getName() + " is required but got NULL");
     }
 
     final DefaultType defType;
@@ -30,38 +30,29 @@ public class DefaultJsonTypeValidator implements JsonTypeValidator {
     try {
       switch (defType) {
         case FLOAT:
-          puller.pullFloat();
-          break;
+          return puller.pullFloat();
         case DOUBLE:
-          puller.pullDouble();
-          break;
+          return puller.pullDouble();
         case INT64:
-          puller.pullLong();
-          break;
+          return puller.pullLong();
         case INT32:
-          puller.pullInt();
-          break;
+          return puller.pullInt();
         case BOOL:
-          puller.pullBoolean();
-          break;
+          return puller.pullBoolean();
         case STRING:
-          puller.pullString();
-          break;
+          return puller.pullString();
         case BYTES:
-          puller.pullBytes();
-          break;
+          return puller.pullBytes();
         default:
           throw new UnsupportedOperationException("Unknown type " + defType);
       }
     } catch (IllegalStateException e) {
       puller.skipValue();
-      return "bad format: " + e.getMessage();
+      throw e;
     } catch (IllegalArgumentException e) {
       puller.skipValue();
-      return "bad format: " + e.getMessage();
+      throw new IllegalStateException("bad format: " + e.getMessage());
     }
-
-    return null;
   }
 
 }

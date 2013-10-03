@@ -1,9 +1,8 @@
 package com.stanfy.helium.handler.codegen.tests;
 
 import com.stanfy.helium.Helium;
-import com.stanfy.helium.entities.validation.ValidationError;
-import com.stanfy.helium.entities.validation.json.GsonValidator;
-import com.stanfy.helium.entities.validation.json.JsonValidator;
+import com.stanfy.helium.entities.ValidationError;
+import com.stanfy.helium.entities.json.GsonEntityReader;
 import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.TypeResolver;
@@ -91,8 +90,7 @@ public class RestApiMethods {
 
     InputStreamReader reader = new InputStreamReader(new BufferedInputStream(respEntity.getContent()), encoding);
     try {
-      JsonValidator validator = new GsonValidator(types.byName(typeName));
-      List<ValidationError> errors =  validator.validate(reader);
+      List<ValidationError> errors = new GsonEntityReader(reader).read(types.byName(typeName)).getValidationErrors();
       assertThat(errors).describedAs("Validation errors are present").isEmpty();
     } finally {
       reader.close();

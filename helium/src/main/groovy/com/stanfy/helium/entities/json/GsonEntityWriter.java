@@ -1,6 +1,5 @@
 package com.stanfy.helium.entities.json;
 
-import com.google.gson.internal.bind.TypeAdapters;
 import com.google.gson.stream.JsonWriter;
 import com.stanfy.helium.entities.EntityWriter;
 import com.stanfy.helium.entities.TypedEntity;

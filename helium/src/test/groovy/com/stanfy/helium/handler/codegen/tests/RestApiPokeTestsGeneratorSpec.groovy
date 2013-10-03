@@ -4,6 +4,7 @@ import com.stanfy.helium.Helium
 import com.stanfy.helium.dsl.SpecExample
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.model.Message
+import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Type
 import spock.lang.Specification
@@ -11,7 +12,7 @@ import spock.lang.Specification
 /**
  * Spec for RestApiTestGenerator.
  */
-class RestApiTestsGeneratorSpec extends Specification {
+class RestApiPokeTestsGeneratorSpec extends Specification {
 
   RestApiPokeTestsGenerator generator = new RestApiPokeTestsGenerator()
 
@@ -86,6 +87,7 @@ class RestApiTestsGeneratorSpec extends Specification {
     testText.contains "@Test"
     testText.contains "send(request)"
     testText.contains "validate(response"
+    testText.contains MethodType.name
 
     // get users/show.json
     testText.contains "public void users_show_json_shouldFailWithOutParameters"
@@ -110,7 +112,7 @@ class RestApiTestsGeneratorSpec extends Specification {
     // post account/add
     testText.contains "public void account_add_shouldFailWithOutBody"
     testText.contains "public void account_add_example"
-    testText.contains "request.setEntity"
+    testText.contains ".setEntity"
     testText.contains '\\"email\\"' // check escaping
 
     // headers

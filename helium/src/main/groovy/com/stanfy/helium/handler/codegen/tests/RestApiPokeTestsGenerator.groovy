@@ -71,7 +71,9 @@ class RestApiPokeTestsGenerator implements Handler {
         writer
             .emitImports("org.junit.Test")
             .emitImports("org.apache.http.client.methods.*")
-            .emitImports(RestApiMethods.name, URI.name, HttpResponse.name, HttpEntity.name, StringEntity.name)
+            .emitImports("com.stanfy.helium.model.MethodType")
+            .emitImports(RestApiMethods.name, URI.name,
+                HttpResponse.name, HttpEntity.name, StringEntity.name, HttpEntityEnclosingRequestBase.name)
             .emitStaticImports("org.fest.assertions.api.Assertions.assertThat")
 
         writer.beginType(className, 'class', Collections.<Modifier>singleton(Modifier.PUBLIC), RestApiMethods.simpleName)
@@ -165,7 +167,7 @@ class RestApiPokeTestsGenerator implements Handler {
       out.emitStatement('request.setURI(new URI(%s))', JavaWriter.stringLiteral(uri))
       if (body) {
         out.emitStatement('HttpEntity requestEntity = new StringEntity(%s)', JavaWriter.stringLiteral(body))
-        out.emitStatement('request.setEntity(requestEntity)')
+        out.emitStatement('((HttpEntityEnclosingRequestBase)request).setEntity(requestEntity)')
       }
       emitHeaders()
       out.emitStatement('HttpResponse response = send(request)')

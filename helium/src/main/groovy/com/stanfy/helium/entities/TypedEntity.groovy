@@ -1,6 +1,5 @@
 package com.stanfy.helium.entities
 
-import com.stanfy.helium.entities.validation.ValidationError
 import com.stanfy.helium.model.Type
 import groovy.transform.CompileStatic
 
