@@ -49,7 +49,7 @@ class HeliumExtension {
     genTask.helium = heliumInstance
     genTask.output = new File(project.buildDir, "source/$TESTS_OUT_PATH")
     genTask.input = file
-    LOG.debug "genApiTests task: input=$genTask.input, output=$genTask.output"
+    LOG.debug "genApiTests task: json=$genTask.input, output=$genTask.output"
 
     runTask = project.tasks.create('runApiTests', GradleBuild)
     runTask.group = GROUP

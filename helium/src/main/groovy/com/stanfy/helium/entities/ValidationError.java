@@ -1,4 +1,4 @@
-package com.stanfy.helium.entities.validation;
+package com.stanfy.helium.entities;
 
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Type;

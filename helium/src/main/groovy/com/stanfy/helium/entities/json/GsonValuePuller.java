@@ -2,14 +2,13 @@ package com.stanfy.helium.entities.json;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
-import com.stanfy.helium.entities.ValuePuller;
 
 import java.io.IOException;
 
 /**
  * Gson wrapper that implements ValuePuller.
  */
-public class GsonValuePuller implements ValuePuller {
+class GsonValuePuller implements ValuePuller {
 
   /** Gson reader. */
   private final JsonReader reader;
