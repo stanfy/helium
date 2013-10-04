@@ -83,7 +83,7 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     testText.contains "public class TwitterAPIPokeTest extends ${RestApiMethods.simpleName}"
     testText.contains "@Test"
     testText.contains "send(request)"
-    testText.contains "validate(response"
+    testText.contains "validate(request, response"
     testText.contains MethodType.name
 
     // get users/show.json
@@ -112,7 +112,7 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     testText.contains ".setEntity"
     testText.contains '\\"email\\"' // check escaping
 
-    // headers
+    // httpHeaders
     testText.contains 'request.addHeader("User-Agent", "Mozilla")'
     testText.contains 'request.addHeader("Super-Header", "A")'
   }

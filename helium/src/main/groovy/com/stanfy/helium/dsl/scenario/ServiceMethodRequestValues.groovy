@@ -21,7 +21,7 @@ class ServiceMethodRequestValues {
   /** Request path parameters. */
   final Map<String, String> pathParameters
 
-  /** HTTP headers. */
+  /** HTTP httpHeaders. */
   final Map<String, String> httpHeaders
 
   ServiceMethodRequestValues(final TypedEntity body, final TypedEntity parameters,

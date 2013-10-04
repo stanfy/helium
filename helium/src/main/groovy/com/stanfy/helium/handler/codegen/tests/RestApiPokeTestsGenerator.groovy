@@ -164,7 +164,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
 
     private void validateBody(final String encoding) {
       if (!method.response) { throw new IllegalStateException("Method response is not defined") }
-      out.emitStatement('validate(response, "%s", %s)', encoding, JavaWriter.stringLiteral(method.response.name))
+      out.emitStatement('validate(request, response, "%s", %s)', encoding, JavaWriter.stringLiteral(method.response.name))
     }
 
   }

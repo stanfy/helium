@@ -21,11 +21,24 @@ class TypedEntityValueBuilder {
   /** Entity type. */
   final Type type
 
+  final Map<String, Object> scope;
+
   public TypedEntityValueBuilder(final Type type) {
+    this(type, Collections.emptyMap())
+  }
+  public TypedEntityValueBuilder(final Type type, final Map<String, Object> scope) {
     this.type = type
+    this.scope = scope
   }
 
   def from(final Object value) {
+    if (value instanceof Closure) {
+      return from((Closure<?>)value)
+    }
+    if (value instanceof Collection) {
+      return from((Collection<?>)value)
+    }
+
     if (!type.primitive) {
       throw new IllegalArgumentException("Value $value of type ${value.class} can be used to build a primitive type entity only, not the $type")
     }
@@ -37,7 +50,7 @@ class TypedEntityValueBuilder {
       throw new IllegalArgumentException("Can use closure to build messages only, not the $type")
     }
     def value = new LinkedHashMap<String, Object>()
-    runWithProxy(new MessageBuilder(value, type.name), spec)
+    runWithProxy(new MessageBuilder(value, type.name, scope), spec)
     return value
   }
 
@@ -49,9 +62,9 @@ class TypedEntityValueBuilder {
     return buildListValue(seq.itemsType, list)
   }
 
-  protected static def buildListValue(final Type itemType, final Collection<?> list) {
+  protected def buildListValue(final Type itemType, final Collection<?> list) {
     def value = []
-    TypedEntityValueBuilder itemBuilder = new TypedEntityValueBuilder(itemType)
+    TypedEntityValueBuilder itemBuilder = new TypedEntityValueBuilder(itemType, scope)
     list.each {
       value += itemBuilder.from(it)
     }
@@ -60,8 +73,8 @@ class TypedEntityValueBuilder {
 
   class MessageBuilder extends ConfigurableMap<Object> {
 
-    MessageBuilder(final Map<String, Object> map, final String name) {
-      super(map, name)
+    MessageBuilder(final Map<String, Object> map, final String name, final Map<String, Object> scope) {
+      super(map, name, scope)
     }
 
     @Override
@@ -77,7 +90,7 @@ class TypedEntityValueBuilder {
         }
         return buildListValue(field.type, (Collection<?>)arg)
       }
-      return new TypedEntityValueBuilder(field.type).from(arg)
+      return new TypedEntityValueBuilder(field.type, scope).from(arg)
     }
   }
 

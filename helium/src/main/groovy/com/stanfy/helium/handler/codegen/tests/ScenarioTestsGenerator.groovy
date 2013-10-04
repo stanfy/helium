@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
+import com.stanfy.helium.DefaultType
 import com.stanfy.helium.dsl.scenario.ScenarioDelegate
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor
 import com.stanfy.helium.model.Project
@@ -43,7 +44,12 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
   @Override
   public void handle(final Project project) {
     // copy scenarios file
-    specFile.withWriter(UTF_8) { Writer out -> out << scenariosFile.getText(UTF_8) }
+    specFile.withWriter(UTF_8) { Writer out ->
+      DefaultType.values().each { DefaultType type ->
+        out << "type '${type.name().toLowerCase()}'\n"
+      }
+      out << scenariosFile.getText(UTF_8)
+    }
 
     def toDelete = []
     eachService(project, { Service service, JavaWriter writer ->

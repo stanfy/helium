@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.tests;
 
 import com.stanfy.helium.Helium;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
+import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.ValidationError;
 import com.stanfy.helium.entities.json.GsonEntityReader;
 import com.stanfy.helium.model.MethodType;
@@ -9,6 +10,7 @@ import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.utils.AssertionUtils;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -88,15 +90,15 @@ public class RestApiMethods {
    * @param typeName expected response type name
    * @throws IOException in case of I/O errors
    */
-  protected void validate(final HttpResponse response, final String encoding, final String typeName) throws IOException {
+  protected void validate(final HttpRequest request, final HttpResponse response, final String encoding, final String typeName) throws IOException {
     //log("Validating response body...");
     HttpEntity respEntity = response.getEntity();
     assertThat(respEntity).describedAs("HTTP entity should not be absent").isNotNull();
 
     InputStreamReader reader = new InputStreamReader(new BufferedInputStream(respEntity.getContent()), encoding);
     try {
-      List<ValidationError> errors = new GsonEntityReader(reader).read(types.byName(typeName)).getValidationErrors();
-      assertThat(errors).describedAs("Validation errors are present").isEmpty();
+      TypedEntity entity = new GsonEntityReader(reader).read(types.byName(typeName));
+      AssertionUtils.assertCorrectEntity(entity, request);
     } finally {
       reader.close();
     }

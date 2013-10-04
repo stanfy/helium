@@ -9,7 +9,7 @@ import groovy.transform.PackageScope
  * Configurable wrapper.
  * @param <T> wrapped instance type.
  */
-class ConfigurableProxy<T extends GroovyObject> {
+class ConfigurableProxy<T extends GroovyObject> extends ScopedProxy {
 
   /** DSL instance. */
   final ProjectDsl project
@@ -19,6 +19,11 @@ class ConfigurableProxy<T extends GroovyObject> {
 
   @CompileStatic
   public ConfigurableProxy(final T core, final ProjectDsl project) {
+    this(core, project, Collections.<String, Object>emptyMap())
+  }
+  @CompileStatic
+  public ConfigurableProxy(final T core, final ProjectDsl project, final Map<String, Object> scope) {
+    super(scope)
     this.core = core
     this.project = project
   }
@@ -35,14 +40,14 @@ class ConfigurableProxy<T extends GroovyObject> {
   }
 
   @Override
-  def getProperty(final String name) {
+  protected Object doGetProperty(final String name) {
     return core.getProperty(name)
   }
 
   @Override
   Object invokeMethod(final String name, final Object args) {
     try {
-      return metaClass.invokeMethod(this, name, args)
+      return getMetaClass().invokeMethod(this, name, args)
     } catch (MissingMethodException e) {
       if (name == e.method && core.hasProperty(name)) {
 
