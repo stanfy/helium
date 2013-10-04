@@ -1,4 +1,4 @@
-package com.stanfy.helium.entities;
+package com.stanfy.helium.entities.json;
 
 import java.io.IOException;
 
@@ -10,7 +10,9 @@ import java.io.IOException;
  *   Methods correspond to {@link com.stanfy.helium.DefaultType} enum.
  * </p>
  */
-public interface ValuePuller {
+interface ValuePuller {
+
+  // TODO: refactor pullers, writers, readers
 
   float pullFloat() throws IOException;
 

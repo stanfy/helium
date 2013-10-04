@@ -1,7 +1,7 @@
-package com.stanfy.helium.entities.validation
+package com.stanfy.helium.entities.json
 
 import com.stanfy.helium.dsl.ProjectDsl
-import com.stanfy.helium.entities.validation.json.GsonValidator
+import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
@@ -10,13 +10,11 @@ import spock.lang.Specification
 /**
  * Spec for GsonValidator.
  */
-class GsonValidatorSpec extends Specification {
+class GsonEntityReaderSpec extends Specification {
   
   Message testMessage
   Sequence listMessage
   Message structMessage
-
-  GsonValidator testValidator
 
   void setup() {
     ProjectDsl dsl = new ProjectDsl()
@@ -40,7 +38,11 @@ class GsonValidatorSpec extends Specification {
     testMessage = dsl.messages[0]
     listMessage = dsl.sequences[0]
     structMessage = dsl.messages[2]
-    testValidator = new GsonValidator(testMessage)
+  }
+
+  private static TypedEntity read(final Type type, final String json) {
+    GsonEntityReader reader = new GsonEntityReader(new StringReader(json))
+    return reader.read(type)
   }
 
   def "fails on unsupported type"() {
@@ -50,8 +52,7 @@ class GsonValidatorSpec extends Specification {
     dsl.type 'C' message {
       field 'custom'
     }
-    def validator = new GsonValidator(dsl.messages[0])
-    validator.validate('{"field" : "custom value"}')
+    read(dsl.types.byName('C'), '{"field" : "custom value"}')
 
     then:
     def e = thrown(UnsupportedOperationException)
@@ -60,12 +61,14 @@ class GsonValidatorSpec extends Specification {
 
   def "checks objects vs arrays"() {
     given:
-    def errors = testValidator.validate('[]')
+    def res = read(testMessage, '[]')
 
     expect:
-    errors.size() == 1
-    errors[0].type == testMessage
-    errors[0].explanation.contains('is not')
+    res != null
+    res.value == null
+    res.validationErrors.size() == 1
+    res.validationErrors[0].type == testMessage
+    res.validationErrors[0].explanation.contains('is not')
   }
 
   def "accepts valid primitive types"() {
@@ -77,9 +80,15 @@ class GsonValidatorSpec extends Specification {
         "f3" : "abc"
       }
     '''
+    def res = read(testMessage, json)
 
     expect:
-    testValidator.validate(json).empty
+    res != null
+    res.validationErrors.empty
+    res.value.size() == 3
+    res.value.f1 == 2
+    res.value.f2 == 1.5
+    res.value.f3 == "abc"
   }
 
   def "tracks string instead of int"() {
@@ -90,7 +99,7 @@ class GsonValidatorSpec extends Specification {
         "f2" : 1.5
       }
     '''
-    def errors = testValidator.validate(json)
+    def errors = read(testMessage, json).validationErrors
 
     expect:
     errors.size() == 1
@@ -107,7 +116,7 @@ class GsonValidatorSpec extends Specification {
         "f1" : 2.3
       }
     '''
-    def errors = testValidator.validate(json)
+    def errors = read(testMessage, json).validationErrors
 
     expect:
     errors.size() == 1
@@ -124,7 +133,7 @@ class GsonValidatorSpec extends Specification {
         "f3" : 1
       }
     '''
-    def errors = testValidator.validate(json)
+    def errors = read(testMessage, json).validationErrors
 
     expect:
     errors.size() == 1
@@ -134,7 +143,7 @@ class GsonValidatorSpec extends Specification {
 
   def "reports unknown fields"() {
     given:
-    def errors = testValidator.validate('{"aha" : "value"}')
+    def errors = read(testMessage, '{"aha" : "value"}').validationErrors
 
     expect:
     !errors.empty
@@ -144,7 +153,7 @@ class GsonValidatorSpec extends Specification {
 
   def "checks required fields"() {
     given:
-    def errors = testValidator.validate('{}')
+    def errors = read(testMessage, '{}').validationErrors
 
     expect:
     errors.size() == 1
@@ -156,8 +165,7 @@ class GsonValidatorSpec extends Specification {
 
   def "accepts valid arrays"() {
     given:
-    testValidator = new GsonValidator(listMessage)
-    def errors = testValidator.validate('''
+    def res = read(listMessage, '''
       [
         {
           "f1" : 2,
@@ -168,28 +176,32 @@ class GsonValidatorSpec extends Specification {
     ''')
 
     expect:
-    errors.empty
+    res != null
+    res.validationErrors.empty
+    res.value.size() == 1
+    res.value[0].size() == 3
+    res.value[0].f3 == "abc"
   }
 
   def "accepts empty arrays"() {
     given:
-    testValidator = new GsonValidator(listMessage)
-    def errors = testValidator.validate('[]')
+    def res = read(listMessage, '[]')
 
     expect:
-    errors.empty
+    res != null
+    res.validationErrors.empty
+    res.value.empty
   }
 
   def "validates arrays"() {
     given:
-    testValidator = new GsonValidator(listMessage)
-    def errors = testValidator.validate('''
+    def errors = read(listMessage, '''
       [
         {
           "f3" : 2
         }
       ]
-    ''')
+    ''').validationErrors
 
     expect:
     errors.size() == 1
@@ -200,18 +212,20 @@ class GsonValidatorSpec extends Specification {
 
   def "validates primitives only"() {
     given:
-    def errors1 = new GsonValidator(new Type(name : 'int32')).validate('2')
-    def errors2 = new GsonValidator(new Type(name : 'int32')).validate('"aha"')
+    def res1 = read(new Type(name : 'int32'), '2')
+    def res2 = read(new Type(name : 'int32'), '"aha"')
 
     expect:
-    errors1.empty
-    !errors2.empty
+    res1 != null && res2 != null
+    res1.validationErrors.empty
+    !res2.validationErrors.empty
+    res1.value == 2
+    res2.value == null
   }
 
   def "some complex validations are also possible..."() {
     given:
-    testValidator = new GsonValidator(structMessage)
-    def errors = testValidator.validate('''
+    def res = read(structMessage, '''
       {
         "a" : {
           "f1" : 1
@@ -231,13 +245,16 @@ class GsonValidatorSpec extends Specification {
     ''')
 
     expect:
-    errors.empty
+    res != null
+    res.validationErrors.empty
+    res.value?.a?.f1 == 1
+    res.value?.b?.name == "test list"
+    res.value?.b?.items[1]?.f1 == 3
   }
 
   def "and validations works on these complex examples :)"() {
     given:
-    testValidator = new GsonValidator(structMessage)
-    def errors = testValidator.validate '''
+    def res = read structMessage, '''
       {
         "a" : {
           // "f1" : 1
@@ -255,8 +272,11 @@ class GsonValidatorSpec extends Specification {
         }
       }
     '''
+    def errors = res?.validationErrors
 
     expect:
+    res != null
+
     errors.size() == 2
     errors[0].field.name == "a"
     !errors[0].children.empty
@@ -269,17 +289,21 @@ class GsonValidatorSpec extends Specification {
     !deepErrors.empty
     !deepErrors[0].children?.empty
     deepErrors[0].children[0].field.name == 'f1'
+
+    res.value?.containsKey('a')
+    res.value?.containsKey('b')
+    res.value?.b?.items[0]?.f1 == 2
   }
 
   def "treats nulls"() {
     given:
-    def errors = testValidator.validate '''
+    def errors = read(testMessage, '''
       {
         "f1" : null,
         "f2" : null,
         "f3" : null
       }
-    '''
+    ''').validationErrors
 
     expect:
     errors.size() == 2

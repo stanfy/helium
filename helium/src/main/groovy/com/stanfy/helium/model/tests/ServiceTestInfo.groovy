@@ -14,4 +14,8 @@ class ServiceTestInfo extends TestsInfo {
     scenarios.add(scenario)
   }
 
+  Scenario scenarioByName(final String name) {
+    return scenarios.find { it.name == name }
+  }
+
 }
