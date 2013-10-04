@@ -1,9 +1,14 @@
 package com.stanfy.helium.utils;
 
+import com.stanfy.helium.entities.TypedEntity;
+import com.stanfy.helium.entities.ValidationError;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -43,4 +48,14 @@ public final class AssertionUtils {
           .isLessThan(HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
   }
+
+  private static String getRequestInfo(final HttpRequest request) {
+    return "TODO";
+  }
+
+  public static void assertCorrectEntity(final TypedEntity entity, final HttpRequest request) {
+    List<ValidationError> errors = entity.getValidationErrors();
+    assertThat(errors).describedAs("Validation errors are present. Request info: " + getRequestInfo(request)).isEmpty();
+  }
+
 }

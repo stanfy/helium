@@ -17,7 +17,7 @@ abstract class ConfigurableTestsInfo<T extends TestsInfo> extends ConfigurablePr
 
   void httpHeaders(final Closure<?> body) {
     TestsInfo info = getCore()
-    runWithProxy(new ConfigurableStringMap(info.httpHeaders, "HTTP headers"), body)
+    runWithProxy(new ConfigurableStringMap(info.httpHeaders, "HTTP httpHeaders"), body)
   }
 
 }

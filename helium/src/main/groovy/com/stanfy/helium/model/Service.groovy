@@ -30,10 +30,15 @@ class Service extends Descriptionable implements StructureUnit {
   }
 
   String getMethodUri(final MethodTestInfo testInfo, final ServiceMethod method) {
+    Map<String, String> parameters = testInfo?.useExamples ? testInfo?.pathExample : null
+    return getMethodUri(method, parameters)
+  }
+
+  String getMethodUri(final ServiceMethod method, final Map<String, String> parameters) {
     if (!method.path) { throw new IllegalStateException("Service method path is not specified") }
     String path = method.path
-    if (testInfo?.useExamples && testInfo?.pathExample) {
-      path = method.getPathWithParameters(method.testInfo.pathExample)
+    if (parameters) {
+      path = method.getPathWithParameters(parameters)
     }
     path = path.startsWith('/') ? path[1..-1] : path
 

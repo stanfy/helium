@@ -7,7 +7,7 @@ import groovy.transform.CompileStatic
  * @param <V> values type
  */
 @CompileStatic
-abstract class ConfigurableMap<V> {
+abstract class ConfigurableMap<V> extends ScopedProxy {
 
   /** Core map. */
   protected final Map<String, V> map
@@ -16,6 +16,10 @@ abstract class ConfigurableMap<V> {
   protected final String name
 
   public ConfigurableMap(final Map<String, V> map, final String name) {
+    this(map, name, Collections.<String, Object>emptyMap())
+  }
+  public ConfigurableMap(final Map<String, V> map, final String name, final Map<String, Object> scope) {
+    super(scope)
     this.map = map
     this.name = name
   }

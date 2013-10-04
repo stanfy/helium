@@ -15,6 +15,9 @@ class ConfigurableStringMap extends ConfigurableMap<String> {
   public ConfigurableStringMap(final Map<String, String> map, final String name) {
     super(map, name)
   }
+  public ConfigurableStringMap(final Map<String, String> map, final String name, final Map<String, Object> scope) {
+    super(map, name, scope)
+  }
 
   @Override
   protected String resolveValue(final String key, final Object arg) {

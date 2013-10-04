@@ -2,6 +2,7 @@ package com.stanfy.helium.gradle
 
 import com.stanfy.helium.Helium
 import com.stanfy.helium.handler.codegen.tests.RestApiPokeTestsGenerator
+import com.stanfy.helium.handler.codegen.tests.ScenarioTestsGenerator
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
@@ -29,7 +30,8 @@ class GenerateApiTestsTask extends DefaultTask {
     sourcesDir.mkdirs()
     File resDir = new File(output, "src/test/resources")
     resDir.mkdirs()
-    helium.processBy new RestApiPokeTestsGenerator(srcOutput: sourcesDir, resourcesOutput: resDir)
+    helium.processBy new RestApiPokeTestsGenerator(sourcesDir, resDir)
+    helium.processBy new ScenarioTestsGenerator(input, sourcesDir, resDir)
 
     File buildFile = new File(output, "build.gradle")
     buildFile.withWriter('UTF-8') {
