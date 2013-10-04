@@ -14,16 +14,13 @@ import spock.lang.Specification
  */
 class RestApiPokeTestsGeneratorSpec extends Specification {
 
-  RestApiPokeTestsGenerator generator = new RestApiPokeTestsGenerator()
-
-  private void run() {
-    new Helium().defaultTypes() from SpecExample.example processBy generator
-  }
+  RestApiPokeTestsGenerator generator
 
   private void runExampleGenerator() {
-    generator.srcOutput = File.createTempDir()
-    generator.srcOutput.deleteOnExit()
-    run()
+    File output = File.createTempDir()
+    output.deleteOnExit()
+    generator = new RestApiPokeTestsGenerator(output)
+    new Helium().defaultTypes() from SpecExample.example processBy generator
   }
 
   private File findFile(def filter) {
@@ -38,8 +35,8 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
   }
 
   def "should require output"() {
-    when: run()
-    then: thrown(IllegalStateException)
+    when: new RestApiPokeTestsGenerator(null)
+    then: thrown(IllegalArgumentException)
   }
 
   def "should rewrite spec for tests"() {
@@ -83,7 +80,7 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     then:
     testsCount == 1
     testFile.absolutePath.contains("spec/tests/rest/")
-    testText.contains "public class TwitterAPITest extends ${RestApiMethods.simpleName}"
+    testText.contains "public class TwitterAPIPokeTest extends ${RestApiMethods.simpleName}"
     testText.contains "@Test"
     testText.contains "send(request)"
     testText.contains "validate(response"

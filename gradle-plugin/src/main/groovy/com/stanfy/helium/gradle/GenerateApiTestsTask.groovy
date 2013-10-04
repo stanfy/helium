@@ -29,7 +29,7 @@ class GenerateApiTestsTask extends DefaultTask {
     sourcesDir.mkdirs()
     File resDir = new File(output, "src/test/resources")
     resDir.mkdirs()
-    helium.processBy new RestApiPokeTestsGenerator(srcOutput: sourcesDir, resourcesOutput: resDir)
+    helium.processBy new RestApiPokeTestsGenerator(sourcesDir, resDir)
 
     File buildFile = new File(output, "build.gradle")
     buildFile.withWriter('UTF-8') {

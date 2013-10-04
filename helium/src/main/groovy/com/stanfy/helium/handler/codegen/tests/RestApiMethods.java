@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.tests;
 
 import com.stanfy.helium.Helium;
+import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.entities.ValidationError;
 import com.stanfy.helium.entities.json.GsonEntityReader;
 import com.stanfy.helium.model.MethodType;
@@ -47,7 +48,7 @@ public class RestApiMethods {
     return HttpExecutor.createHttpClientBuilder();
   }
 
-  private Project loadDefaultTestSpec() {
+  protected Project loadDefaultTestSpec() {
     String path = getClass().getPackage().getName().replaceAll("\\.", "/") + "/" + TEST_SPEC_NAME;
     InputStream input = getClass().getClassLoader().getResourceAsStream(path);
     if (input == null) {
@@ -59,6 +60,10 @@ public class RestApiMethods {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  protected ScenarioExecutor createExecutor() {
+    return new HttpExecutor(types);
   }
 
   /**

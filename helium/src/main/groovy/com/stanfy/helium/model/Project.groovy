@@ -23,4 +23,6 @@ interface Project {
   /** @return sequences described in this project */
   List<Sequence> getSequences()
 
+  Service serviceByName(final String name)
+
 }
