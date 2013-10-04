@@ -2,18 +2,12 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.HeliumWriter
-import com.stanfy.helium.handler.Handler
-import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.tests.MethodTestInfo
 import groovy.transform.CompileStatic
-import org.apache.http.HttpEntity
-import org.apache.http.HttpResponse
-import org.apache.http.client.methods.*
-import org.apache.http.entity.StringEntity
 
 import javax.lang.model.element.Modifier
 
@@ -22,34 +16,26 @@ import javax.lang.model.element.Modifier
  * Generates JUnit4 tests that invoke REST API methods.
  */
 @CompileStatic
-class RestApiPokeTestsGenerator implements Handler {
+class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
 
-  // TODO: use examples
+  public RestApiPokeTestsGenerator(final File srcOutput) {
+    this(srcOutput, null);
+  }
+  public RestApiPokeTestsGenerator(final File srcOutput, final File resourcesOutput) {
+    this(srcOutput, resourcesOutput, null);
+  }
+  public RestApiPokeTestsGenerator(final File srcOutput, final File resourcesOutput, final String packageName) {
+    super(srcOutput, resourcesOutput, packageName);
+  }
 
-  /** Output directory. */
-  File srcOutput
-
-  /** Resources output. */
-  File resourcesOutput
-
-  /** Package name for tests. */
-  String packageName = "spec.tests.rest"
+  @Override
+  protected String getClassName(final Service service) {
+    return "${service.canonicalName}PokeTest"
+  }
 
   @Override
   void handle(final Project project) {
-    if (!srcOutput) { throw new IllegalStateException("Output is note defined") }
-    if (!srcOutput.directory) { throw new IllegalStateException("Output is not a directory") }
-
-    File sourcesPackageDir = new File(srcOutput, packageName.replaceAll(/\./, '/'))
-    if (!resourcesOutput) {
-      resourcesOutput = srcOutput
-    }
-    File resourcesPackageDir = new File(resourcesOutput, packageName.replaceAll(/\./, '/'))
-    sourcesPackageDir.mkdirs()
-    resourcesPackageDir.mkdirs()
-
-    File specFile = new File(resourcesPackageDir, RestApiMethods.TEST_SPEC_NAME)
-    HeliumWriter specWriter = new HeliumWriter(new OutputStreamWriter(new FileOutputStream(specFile), "UTF-8"))
+    HeliumWriter specWriter = new HeliumWriter(new OutputStreamWriter(new FileOutputStream(specFile), UTF_8))
     try {
       project.types.all().each { Type type ->
         specWriter.writeType(type)
@@ -60,38 +46,11 @@ class RestApiPokeTestsGenerator implements Handler {
 
     JsonEntityExampleGenerator entitiesGenerator = new JsonEntityExampleGenerator(project.getTypes())
 
-    project.services.each { Service service ->
-      String className = "${service.canonicalName}Test"
-      File destination = new File(sourcesPackageDir, "${className}.java")
-      def out = new OutputStreamWriter(new FileOutputStream(destination), "UTF-8")
-
-      JavaWriter writer = new JavaWriter(out).emitPackage(packageName)
-
-      try {
-        writer
-            .emitImports("org.junit.Test")
-            .emitImports("org.apache.http.client.methods.*")
-            .emitImports("com.stanfy.helium.model.MethodType")
-            .emitImports(RestApiMethods.name, URI.name,
-                HttpResponse.name, HttpEntity.name, StringEntity.name, HttpEntityEnclosingRequestBase.name)
-            .emitStaticImports("org.fest.assertions.api.Assertions.assertThat")
-
-        writer.beginType(className, 'class', Collections.<Modifier>singleton(Modifier.PUBLIC), RestApiMethods.simpleName)
-
-//        if (userAgent) {
-//          writer.beginMethod(HttpClientBuilder.name, "httpClientBuilder", Collections.singleton(Modifier.PROTECTED))
-//          writer.emitStatement('return super.httpClientBuilder().setUserAgent("%s")', userAgent)
-//          writer.endMethod()
-//        }
-
-        service.methods.each { ServiceMethod method -> addTestMethods writer, service, method, entitiesGenerator }
-
-        writer.endType()
-      } finally {
-        writer.close()
+    eachService(project, { final Service service, final JavaWriter writer ->
+      service.methods.each { ServiceMethod method ->
+        addTestMethods writer, service, method, entitiesGenerator
       }
-
-    }
+    } as BaseUnitTestsGenerator.ServiceHandler)
   }
 
   private static void addTestMethods(final JavaWriter out, final Service service, ServiceMethod method, final JsonEntityExampleGenerator entitiesGenerator) {
@@ -205,7 +164,7 @@ class RestApiPokeTestsGenerator implements Handler {
 
     private void validateBody(final String encoding) {
       if (!method.response) { throw new IllegalStateException("Method response is not defined") }
-      out.emitStatement('validate(response, "%s", %s)', encoding, JavaWriter.stringLiteral(method.response.name))
+      out.emitStatement('validate(request, response, "%s", %s)', encoding, JavaWriter.stringLiteral(method.response.name))
     }
 
   }

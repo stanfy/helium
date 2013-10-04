@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.tests;
 
+import com.stanfy.helium.dsl.scenario.HttpResponseWrapper;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
 import com.stanfy.helium.entities.json.GsonEntityWriter;
@@ -81,7 +82,7 @@ class HttpExecutor implements ScenarioExecutor {
   }
 
   @Override
-  public HttpResponse performMethod(final Service service, final ServiceMethod method, final ServiceMethodRequestValues request) {
+  public HttpResponseWrapper performMethod(final Service service, final ServiceMethod method, final ServiceMethodRequestValues request) {
     // merge service and test info
     MethodTestInfo testInfo = method.getTestInfo().resolve(service.getTestInfo());
     String encoding = resolveEncoding(service, method);
@@ -92,9 +93,19 @@ class HttpExecutor implements ScenarioExecutor {
     httpHeaders.putAll(request.getHttpHeaders());
 
     // prepare request URI
-    String requestPath = method.getPathWithParameters(request.getPathParameters());
-    // TODO: get request parameters
-    String requestUri = requestPath;
+    String requestPath = service.getMethodUri(method, request.getPathParameters());
+    String query = "";
+    if (request.getParameters() != null) {
+      StringWriter queryWriter = new StringWriter();
+      try {
+        new HttpParamsWriter(queryWriter, encoding).write(request.getParameters());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      query = queryWriter.toString();
+      if (query.length() > 0) { query = "?" + query; }
+    }
+    String requestUri = requestPath + query;
 
     HttpRequestBase httpRequest = createRequest(method.getType());
 
@@ -121,15 +132,17 @@ class HttpExecutor implements ScenarioExecutor {
       } catch (IOException e) {
         throw new RuntimeException("Cannot serialize request body", e);
       }
+      String body = json.toString();
+      LOG.debug("Body: " + body);
       try {
-        ((HttpEntityEnclosingRequestBase)httpRequest).setEntity(new StringEntity(json.toString(), encoding));
+        ((HttpEntityEnclosingRequestBase)httpRequest).setEntity(new StringEntity(body, encoding));
       } catch (UnsupportedEncodingException e) {
         throw new RuntimeException("Encoding " + encoding + " is not supported", e);
       }
     }
 
     try {
-      return send(httpClient, httpRequest);
+      return new HttpResponseWrapper(httpRequest, send(httpClient, httpRequest), encoding, method.getResponse());
     } catch (IOException e) {
       throw new RuntimeException("Cannot execute HTTP request", e);
     }

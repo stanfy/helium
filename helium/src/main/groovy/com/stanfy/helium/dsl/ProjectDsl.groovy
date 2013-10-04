@@ -30,6 +30,11 @@ class ProjectDsl implements Project {
   private TypeResolver typeResolver = new DefaultTypeResolver()
 
   @Override
+  Service serviceByName(final String name) {
+    return services.find() { it.name == name }
+  }
+
+  @Override
   List<Service> getServices() {
     return Collections.unmodifiableList(services)
   }

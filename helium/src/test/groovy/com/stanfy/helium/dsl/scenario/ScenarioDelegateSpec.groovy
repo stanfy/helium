@@ -4,6 +4,7 @@ import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
+import com.stanfy.helium.model.tests.Scenario
 import com.stanfy.helium.utils.DslUtils
 import spock.lang.Specification
 
@@ -46,6 +47,7 @@ class ScenarioDelegateSpec extends Specification {
       }
 
       tests {
+
         scenario "simple post" spec {
           post "some/resource/@id" with {
             path {
@@ -80,6 +82,30 @@ class ScenarioDelegateSpec extends Specification {
           assert someRes == "hi" : "Result is incorrect: $someRes"
           return someRes
         }
+
+        def someBefore = {
+          store "NAME", "VALUE"
+          store "T", true
+        }
+
+        scenario "check store", before: someBefore spec {
+          assert NAME == "VALUE"
+          post "some/resource/@id" with {
+            path {
+              id NAME
+            }
+            httpHeaders {
+              "H1" NAME
+            }
+            parameters {
+              testParam T
+            }
+            body {
+              f1 T
+            }
+          }
+        }
+
       }
 
     }
@@ -92,8 +118,11 @@ class ScenarioDelegateSpec extends Specification {
 
   private def executeScenario(final String name, final def result) {
     executor.scheduledExecutorResult = result
-    def action = service.testInfo.scenarioByName(name).action
-    return DslUtils.runWithProxy(delegate, action)
+    Scenario scenario = service.testInfo.scenarioByName(name)
+    if (scenario.before) {
+      DslUtils.runWithProxy(delegate, scenario.before)
+    }
+    return DslUtils.runWithProxy(delegate, scenario.action)
   }
 
   def "can execute service methods"() {
@@ -128,6 +157,19 @@ class ScenarioDelegateSpec extends Specification {
     executor.requests[0].pathParameters['id'] == '1'
     executor.executedMethods[1].type == MethodType.DELETE
     executor.requests[1].pathParameters['id'] == '2'
+  }
+
+  def "store works great"() {
+    when:
+    executeScenario("check store", "1")
+
+    then:
+    executor.executedMethods[0].type == MethodType.POST
+    !executor.requests.empty
+    executor.requests[0].pathParameters['id'] == 'VALUE'
+    executor.requests[0].httpHeaders['H1'] == 'VALUE'
+    executor.requests[0].parameters.value.testParam == true
+    executor.requests[0].body.value.f1 == true
   }
 
   /** Executor instance. */

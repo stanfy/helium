@@ -3,6 +3,11 @@ Helium
 
 Helium is a DSL for REST API specifications and also a Java API for processing descriptions written in this language.
 
+Documentation
+-------------
+Project is in ongoing development. JSON is currently the only supported format.
+Read out [wiki](https://github.com/stanfy/helium/wiki/Helium).
+
 Specification Example
 ---------------------
 
