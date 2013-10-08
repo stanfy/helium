@@ -30,6 +30,9 @@ class HeliumExtension {
   /** Specification location. */
   File specification
 
+  /** Ignore test failures. */
+  boolean ignoreFailures
+
   private Project project
 
   private GenerateApiTestsTask genTask

@@ -44,6 +44,10 @@ repositories {
   maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
 }
 
+test {
+  ignoreFailures = ${project.helium.ignoreFailures}
+}
+
 dependencies {
   testCompile '${HeliumExtension.HELIUM_DEP}:${HeliumExtension.VERSION}'
   testCompile 'junit:junit:4.11'
