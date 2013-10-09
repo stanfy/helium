@@ -313,4 +313,34 @@ class GsonEntityReaderSpec extends Specification {
     errors[1].field.name == "f2"
   }
 
+  def "treats nulls in complex fields"() {
+    given:
+    ((Message)structMessage.fieldByName('b').type).fieldByName('items').required = true
+    def errors = read(structMessage, '''
+      {
+        "a" : {
+          "f1" : null,
+          "f3" : null
+        },
+        "b" : {
+          "name" : "test list",
+          "items" : null
+        }
+      }
+    ''').validationErrors
+
+    expect:
+    errors.size() == 2
+
+    errors[0].field.name == "a"
+    errors[0].children.size() == 1
+    errors[0].children[0].field.name == "f1"
+    errors[0].children[0].explanation.contains("required but got NULL")
+
+    errors[1]?.field?.name == "b"
+    !errors[1].children.empty
+    errors[1].children[0]?.field?.name == "items"
+    errors[1].children[0].explanation.contains("required but got NULL")
+  }
+
 }

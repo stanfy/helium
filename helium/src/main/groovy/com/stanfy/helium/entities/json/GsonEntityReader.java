@@ -2,6 +2,7 @@ package com.stanfy.helium.entities.json;
 
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import com.stanfy.helium.entities.EntityReader;
 import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.json.GsonValuePuller;
@@ -141,6 +142,14 @@ public class GsonEntityReader implements EntityReader {
       Type fieldType = field.getType();
       if (fieldType instanceof Sequence) {
         throw new IllegalStateException("Sequences are accepted as roots only!");
+      }
+
+      if (json.peek() == JsonToken.NULL) {
+        json.skipValue();
+        if (field.isRequired()) {
+          errors.add(new ValidationError(message, field, "field is required but got NULL"));
+        }
+        continue;
       }
 
       LinkedList<ValidationError> childrenErrors = new LinkedList<ValidationError>();
