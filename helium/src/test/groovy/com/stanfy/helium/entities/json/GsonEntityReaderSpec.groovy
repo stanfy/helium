@@ -306,11 +306,9 @@ class GsonEntityReaderSpec extends Specification {
     ''').validationErrors
 
     expect:
-    errors.size() == 2
+    errors.size() == 1
     errors[0].explanation.contains("required but got NULL")
     errors[0].field.name == "f1"
-    errors[1].explanation.contains("but was NULL")
-    errors[1].field.name == "f2"
   }
 
   def "treats nulls in complex fields"() {
