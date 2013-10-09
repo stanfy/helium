@@ -1,7 +1,9 @@
 package com.stanfy.helium.entities.json
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.entities.TypedEntity
+import com.stanfy.helium.entities.TypedEntityValueBuilder
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
@@ -51,6 +53,25 @@ class GsonEntityWriterSpec extends Specification {
 
     then:
     out.toString() == '{"f1":2,"f2":[true,false]}'
+  }
+
+  def "can write some complex messages"() {
+    given:
+    def dsl = new Helium().defaultTypes().project
+    dsl.type 'SomeMessage' message {
+      id(type: long, required: true, examples: ['1'])
+      name(type: 'string', required: true, examples: ['My List'])
+      email(type: 'string', required: false, examples: ['myfriend@test.com'])
+    }
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(dsl.types.byName('SomeMessage'))
+    def msg = builder.from {
+      id 321
+      name 'some name'
+    }
+    writer.write(new TypedEntity(dsl.types.byName('SomeMessage'), msg))
+
+    expect:
+    out.toString() == '{"id":321,"name":"some name"}'
   }
 
 }

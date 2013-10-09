@@ -51,11 +51,18 @@ public class GsonEntityWriter implements EntityWriter {
   private void writeMessage(final Message type, final Map<String, ?> values) throws IOException {
     out.beginObject();
     for (Field f : type.getFields()) {
-      out.name(f.getName());
       Object value = values.get(f.getName());
       if (f.isSequence()) {
+        out.name(f.getName());
         writeSequence(f.getType(), (List<?>)value);
       } else {
+        if (value == null) {
+          if (f.isRequired()) {
+            throw new IllegalArgumentException("Field " + f.getName() + " in " + type + " is required. But null is provided");
+          }
+          continue;
+        }
+        out.name(f.getName());
         write(f.getType(), value);
       }
     }
@@ -77,10 +84,14 @@ public class GsonEntityWriter implements EntityWriter {
     } else if (clazz == Boolean.class || clazz == boolean.class) {
       out.value((Boolean)value);
     } else {
-      if (!clazz.isInstance(value)) {
-        throw new IllegalArgumentException("Cannot use value of type " + value.getClass() + " as " + clazz);
+      if (value == null) {
+        out.nullValue();
+      } else {
+        if (!clazz.isInstance(value)) {
+          throw new IllegalArgumentException("Cannot use value of type " + value.getClass() + " as " + clazz);
+        }
+        out.value(value.toString());
       }
-      out.value(value.toString());
     }
   }
 
