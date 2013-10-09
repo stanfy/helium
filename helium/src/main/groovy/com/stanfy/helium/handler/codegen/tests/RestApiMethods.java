@@ -15,6 +15,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.junit.Before;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -33,7 +34,7 @@ public class RestApiMethods {
   public static final String TEST_SPEC_NAME = "test.spec";
 
   /** HTTP client instance. */
-  private final HttpClient client = httpClientBuilder().build();
+  private HttpClient client;
 
   /** Types resolver from the specification project. */
   private TypeResolver types;
@@ -44,6 +45,11 @@ public class RestApiMethods {
 
   public RestApiMethods(final TypeResolver types) {
     this.types = types;
+  }
+
+  @Before
+  public void createHttpClient() {
+    client = httpClientBuilder().build();
   }
 
   protected HttpClientBuilder httpClientBuilder() {
@@ -73,8 +79,8 @@ public class RestApiMethods {
    * @param response HTTP response instance
    * @param success true for success, false for client error
    */
-  protected static void validateStatus(final HttpResponse response, final boolean success) {
-    AssertionUtils.validateStatus(response, success);
+  protected static void validateStatus(final HttpRequest request, final HttpResponse response, final boolean success) {
+    AssertionUtils.validateStatus(request, response, success);
   }
 
   /*

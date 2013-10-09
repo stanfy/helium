@@ -36,9 +36,6 @@ class HttpExecutor implements ScenarioExecutor {
   /** Default encoding. */
   private static final String DEFAULT_ENCODING = "UTF-8";
 
-  /** HTTP client instance. */
-  private final HttpClient httpClient = createHttpClientBuilder().build();
-
   /** Type resolver. */
   private final TypeResolver types;
 
@@ -141,8 +138,9 @@ class HttpExecutor implements ScenarioExecutor {
       }
     }
 
+    HttpClient client = createHttpClientBuilder().build();
     try {
-      return new HttpResponseWrapper(httpRequest, send(httpClient, httpRequest), encoding, method.getResponse());
+      return new HttpResponseWrapper(httpRequest, send(client, httpRequest), encoding, method.getResponse());
     } catch (IOException e) {
       throw new RuntimeException("Cannot execute HTTP request", e);
     }

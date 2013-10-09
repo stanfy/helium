@@ -8,6 +8,7 @@ dependencies {
   compile 'com.squareup:javawriter:2.1.2'
   compile 'org.apache.httpcomponents:httpclient:4.3'
   compile 'com.google.code.gson:gson:2.2.4'
+  compile 'junit:junit:4.11'
   compile 'org.easytesting:fest-assert-core:2.0M10'
   compile 'org.slf4j:slf4j-api:1.7.5'
   compile 'org.slf4j:slf4j-simple:1.7.5'

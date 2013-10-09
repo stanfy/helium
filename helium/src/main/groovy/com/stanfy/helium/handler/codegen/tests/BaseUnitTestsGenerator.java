@@ -10,6 +10,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.entity.StringEntity;
 import org.fest.assertions.api.Assertions;
+import org.junit.Test;
 
 import javax.lang.model.element.Modifier;
 import java.io.*;
@@ -95,8 +96,9 @@ abstract class BaseUnitTestsGenerator implements Handler {
 
   protected void startTest(final JavaWriter java, final Service service) throws IOException {
     java.emitPackage(getPackageName())
-        .emitImports(IMPORT_TEST, IMPORT_HTTP_METHODS)
+        .emitImports(IMPORT_HTTP_METHODS)
         .emitImports(
+            Test.class.getName(),
             MethodType.class.getName(), RestApiMethods.class.getName(), URI.class.getName(),
             HttpResponse.class.getName(), HttpEntity.class.getName(), StringEntity.class.getName(), HttpEntityEnclosingRequestBase.class.getName()
         )

@@ -22,7 +22,7 @@ public final class AssertionUtils {
 
   private AssertionUtils() { /* hidden */ }
 
-  public static void validateStatus(final HttpResponse response, final boolean success) {
+  public static void validateStatus(final HttpRequest request, final HttpResponse response, final boolean success) {
     String status = response.getStatusLine().getReasonPhrase();
     String reason = status != null && status.length() > 0 ? " Got '" + status + "'" : "";
 

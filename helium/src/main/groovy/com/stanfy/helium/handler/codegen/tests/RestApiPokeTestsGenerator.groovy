@@ -159,7 +159,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     }
 
     private void validateStatusCode(final boolean success) {
-      out.emitStatement('validateStatus(response, %s)', success ? "true" : "false")
+      out.emitStatement('validateStatus(request, response, %s)', success ? "true" : "false")
     }
 
     private void validateBody(final String encoding) {

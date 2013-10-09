@@ -67,10 +67,10 @@ public class HttpResponseWrapper {
   }
 
   public void mustSucceed() {
-    AssertionUtils.validateStatus(response, true);
+    AssertionUtils.validateStatus(request, response, true);
   }
   public void mustBeClientError() {
-    AssertionUtils.validateStatus(response, false);
+    AssertionUtils.validateStatus(request, response, false);
   }
 
 }
