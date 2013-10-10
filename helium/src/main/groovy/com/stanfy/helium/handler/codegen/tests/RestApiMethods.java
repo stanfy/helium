@@ -104,7 +104,7 @@ public class RestApiMethods {
     InputStreamReader reader = new InputStreamReader(new BufferedInputStream(respEntity.getContent()), encoding);
     try {
       TypedEntity entity = new GsonEntityReader(reader).read(types.byName(typeName));
-      AssertionUtils.assertCorrectEntity(entity, request);
+      AssertionUtils.assertCorrectEntity(entity, request, response);
     } finally {
       reader.close();
     }

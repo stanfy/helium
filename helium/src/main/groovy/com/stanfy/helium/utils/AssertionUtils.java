@@ -56,22 +56,13 @@ public final class AssertionUtils {
     }
   }
 
-  public static void assertCorrectEntity(final TypedEntity entity, final HttpRequest request) {
+  public static void assertCorrectEntity(final TypedEntity entity, final HttpRequest request, final HttpResponse response) {
     List<ValidationError> errors = entity.getValidationErrors();
-    assertThat(errors).describedAs("Validation errors are present. " + getRequestInfo(request, null)).isEmpty();
+    assertThat(errors).describedAs("Validation errors are present. " + getRequestInfo(request, response)).isEmpty();
   }
 
   private static String getRequestInfo(final HttpRequest request, final HttpResponse response) {
     final StringBuilder stringBuilder = new StringBuilder();
-    final String status;
-    if (response == null) {
-      status = null;
-    } else {
-      status = response.getStatusLine().getReasonPhrase();
-    }
-    if (status != null && status.length() > 0) {
-      stringBuilder.append("Got '").append(status).append("'. ");
-    }
     stringBuilder.append("Request info: ");
 
     final RequestLine requestLine = request.getRequestLine();
@@ -83,28 +74,57 @@ public final class AssertionUtils {
 
     if (request instanceof HttpEntityEnclosingRequestBase) {
       final HttpEntityEnclosingRequestBase requestWithEntity = (HttpEntityEnclosingRequestBase) request;
-      final HttpEntity entity = requestWithEntity.getEntity();
-      if (entity != null && !entity.isStreaming()) {
-        try {
-          final InputStream inputStream = entity.getContent();
-          if (inputStream != null && inputStream.markSupported()) {
-            //assume that InputStream implementation has marked 0 position by default
-            inputStream.reset();
-            final int kb = 1024;
-            if (inputStream.available() > kb * kb) {
-              stringBuilder.append('\n').append("Entity is too big to be logged here: ").append(inputStream.available()).append("bytes");
-            } else {
-              stringBuilder.append('\n').append("Entity: ").append(IOUtils.toString(inputStream));
-              inputStream.reset();
-            }
-          }
-        } catch (final IOException ioe) {
-          //ignore
-        }
+      final String loggedEntity = httpEntityToString(requestWithEntity.getEntity());
+      if (loggedEntity != null) {
+        stringBuilder.append('\n').append(loggedEntity);
+      }
+    }
+
+    stringBuilder.append('\n');
+    if (response == null) {
+      stringBuilder.append("Response info is not available.");
+    } else {
+      stringBuilder.append("Response info: ");
+      final String status = response.getStatusLine().getReasonPhrase();
+      if (status != null && status.length() > 0) {
+        stringBuilder.append("Got '").append(status).append("'.\n");
+      }
+
+      stringBuilder.append("Headers: ").append(Arrays.toString(response.getAllHeaders()));
+
+      final String loggedEntity = httpEntityToString(response.getEntity());
+      if (loggedEntity != null) {
+        stringBuilder.append('\n').append(loggedEntity);
       }
     }
 
     return stringBuilder.toString();
+  }
+
+
+  private static String httpEntityToString(final HttpEntity entity) {
+    if (entity != null && !entity.isStreaming()) {
+      try {
+        final InputStream inputStream = entity.getContent();
+        if (inputStream != null && inputStream.markSupported()) {
+          //assume that InputStream implementation has marked 0 position by default
+          inputStream.reset();
+          final int kb = 1024;
+          final String result;
+          if (inputStream.available() > kb * kb) {
+            result = "Entity is too big to be logged here: " + inputStream.available() + "bytes";
+          } else {
+            result = "Entity: " + IOUtils.toString(inputStream);
+            inputStream.reset();
+          }
+          return result;
+        }
+      } catch (final IOException ioe) {
+        //ignore
+      }
+    }
+
+    return null;
   }
 
 }
