@@ -10,11 +10,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.RequestLine;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpPost;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -33,36 +31,51 @@ public final class AssertionUtils {
   private AssertionUtils() { /* hidden */ }
 
   public static void validateStatus(final HttpRequest request, final HttpResponse response, final boolean success) {
-    String status = response.getStatusLine().getReasonPhrase();
-    String reason = (status != null && status.length() > 0 ? " Got '" + status + "'" : "") + " Request info: " + getRequestInfo(request);
+    final String requestInfo = getRequestInfo(request, response);
 
     assertThat(response.getStatusLine().getStatusCode())
-        .describedAs("Method not found... Maybe not implemented yet?" + reason)
+        .describedAs("Method not found... Maybe not implemented yet? " + requestInfo)
         .isNotEqualTo(HttpStatus.SC_NOT_FOUND);
 
     assertThat(response.getStatusLine().getStatusCode())
-        .describedAs("Incorrect HTTP method" + reason)
+        .describedAs("Incorrect HTTP method. " + requestInfo)
         .isNotEqualTo(HttpStatus.SC_METHOD_NOT_ALLOWED);
 
     if (success) {
       LOG.info("Validating successful status...");
       assertThat(response.getStatusLine().getStatusCode())
-          .describedAs("Successful HTTP status code expected." + reason)
+          .describedAs("Successful HTTP status code expected. " + requestInfo)
           .isGreaterThanOrEqualTo(HttpStatus.SC_OK)
           .isLessThan(HttpStatus.SC_MULTIPLE_CHOICES);
     } else {
       LOG.info("Validating error status...");
       assertThat(response.getStatusLine().getStatusCode())
-          .describedAs("Client error expected." + reason)
+          .describedAs("Client error expected. " + requestInfo)
           .isGreaterThanOrEqualTo(HttpStatus.SC_BAD_REQUEST)
           .isLessThan(HttpStatus.SC_INTERNAL_SERVER_ERROR);
     }
   }
 
-  private static String getRequestInfo(final HttpRequest request) {
+  public static void assertCorrectEntity(final TypedEntity entity, final HttpRequest request) {
+    List<ValidationError> errors = entity.getValidationErrors();
+    assertThat(errors).describedAs("Validation errors are present. " + getRequestInfo(request, null)).isEmpty();
+  }
+
+  private static String getRequestInfo(final HttpRequest request, final HttpResponse response) {
+    final StringBuilder stringBuilder = new StringBuilder();
+    final String status;
+    if (response == null) {
+      status = null;
+    } else {
+      status = response.getStatusLine().getReasonPhrase();
+    }
+    if (status != null && status.length() > 0) {
+      stringBuilder.append("Got '").append(status).append("'. ");
+    }
+    stringBuilder.append("Request info: ");
+
     final RequestLine requestLine = request.getRequestLine();
-    final StringBuilder sb = new StringBuilder()
-        .append(requestLine.getMethod())
+    stringBuilder.append(requestLine.getMethod())
         .append(' ')
         .append(requestLine.getUri())
         .append('\n')
@@ -79,9 +92,9 @@ public final class AssertionUtils {
             inputStream.reset();
             final int kb = 1024;
             if (inputStream.available() > kb * kb) {
-              sb.append('\n').append("Entity is too big to be logged here: ").append(inputStream.available()).append("bytes");
+              stringBuilder.append('\n').append("Entity is too big to be logged here: ").append(inputStream.available()).append("bytes");
             } else {
-              sb.append('\n').append("Entity: ").append(IOUtils.toString(inputStream));
+              stringBuilder.append('\n').append("Entity: ").append(IOUtils.toString(inputStream));
               inputStream.reset();
             }
           }
@@ -91,12 +104,7 @@ public final class AssertionUtils {
       }
     }
 
-    return sb.toString();
-  }
-
-  public static void assertCorrectEntity(final TypedEntity entity, final HttpRequest request) {
-    List<ValidationError> errors = entity.getValidationErrors();
-    assertThat(errors).describedAs("Validation errors are present. Request info: " + getRequestInfo(request)).isEmpty();
+    return stringBuilder.toString();
   }
 
 }
