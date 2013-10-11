@@ -61,7 +61,7 @@ public class HttpResponseWrapper {
       mustSucceed();
       EntityReader reader = new GsonEntityReader(new InputStreamReader(new BufferedInputStream(response.getEntity().getContent()), encoding));
       body = reader.read(type);
-      AssertionUtils.assertCorrectEntity(body, request);
+      AssertionUtils.assertCorrectEntity(body, request, response);
     }
     return body.getValue();
   }
