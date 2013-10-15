@@ -7,6 +7,6 @@ import java.io.IOException;
  */
 public interface EntityWriter {
 
-  void write(final TypedEntity entity) throws IOException;
+  void write(final TypedEntity<?> entity) throws IOException;
 
 }

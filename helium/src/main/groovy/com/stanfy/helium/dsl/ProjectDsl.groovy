@@ -1,5 +1,6 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.model.TypeResolver
 import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.model.*
 import groovy.transform.PackageScope

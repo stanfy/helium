@@ -3,8 +3,7 @@ package com.stanfy.helium.handler.codegen.tests;
 import com.stanfy.helium.Helium;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.entities.TypedEntity;
-import com.stanfy.helium.entities.ValidationError;
-import com.stanfy.helium.entities.json.GsonEntityReader;
+import com.stanfy.helium.entities.json.JsonEntityReader;
 import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.TypeResolver;
@@ -21,7 +20,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -103,7 +101,7 @@ public class RestApiMethods {
 
     InputStreamReader reader = new InputStreamReader(new BufferedInputStream(respEntity.getContent()), encoding);
     try {
-      TypedEntity entity = new GsonEntityReader(reader).read(types.byName(typeName));
+      TypedEntity entity = new JsonEntityReader(reader, null).read(types.byName(typeName));
       AssertionUtils.assertCorrectEntity(entity, request, response);
     } finally {
       reader.close();

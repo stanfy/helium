@@ -1,9 +1,12 @@
 package com.stanfy.helium.dsl.scenario;
 
-import com.stanfy.helium.entities.EntityReader;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import com.stanfy.helium.entities.TypedEntity;
-import com.stanfy.helium.entities.json.GsonEntityReader;
+import com.stanfy.helium.entities.json.JsonConverterFactory;
+import com.stanfy.helium.entities.json.JsonEntityReader;
 import com.stanfy.helium.model.Type;
+import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.utils.AssertionUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpRequest;
@@ -19,6 +22,9 @@ import java.util.Map;
  * HTTP response wrapper.
  */
 public class HttpResponseWrapper {
+
+  /** Types. */
+  private final TypeResolver typeResolver;
 
   /** Response instance. */
   private final HttpResponse response;
@@ -38,7 +44,8 @@ public class HttpResponseWrapper {
   /** Body. */
   private TypedEntity body;
 
-  public HttpResponseWrapper(final HttpRequest request, final HttpResponse response, final String encoding, final Type type) {
+  public HttpResponseWrapper(final TypeResolver typeResolver, final HttpRequest request, final HttpResponse response, final String encoding, final Type type) {
+    this.typeResolver = typeResolver;
     this.request = request;
     this.response = response;
     this.encoding = encoding;
@@ -59,7 +66,10 @@ public class HttpResponseWrapper {
   public Object getBody() throws IOException {
     if (body == null) {
       mustSucceed();
-      EntityReader reader = new GsonEntityReader(new InputStreamReader(new BufferedInputStream(response.getEntity().getContent()), encoding));
+      JsonEntityReader reader = new JsonEntityReader(
+          new InputStreamReader(new BufferedInputStream(response.getEntity().getContent()), encoding),
+          typeResolver.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)
+      );
       body = reader.read(type);
       AssertionUtils.assertCorrectEntity(body, request, response);
     }

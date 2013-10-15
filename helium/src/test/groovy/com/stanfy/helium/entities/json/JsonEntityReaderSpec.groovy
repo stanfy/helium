@@ -1,6 +1,8 @@
 package com.stanfy.helium.entities.json
 
+import com.google.gson.stream.JsonReader
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.entities.ConverterFactory
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -10,8 +12,10 @@ import spock.lang.Specification
 /**
  * Spec for GsonValidator.
  */
-class GsonEntityReaderSpec extends Specification {
-  
+class JsonEntityReaderSpec extends Specification {
+
+  ConverterFactory<JsonReader, ?> converters
+
   Message testMessage
   Sequence listMessage
   Message structMessage
@@ -38,10 +42,12 @@ class GsonEntityReaderSpec extends Specification {
     testMessage = dsl.messages[0]
     listMessage = dsl.sequences[0]
     structMessage = dsl.messages[2]
+
+    converters = dsl.types.findConverters(JsonConverterFactory.JSON)
   }
 
-  private static TypedEntity read(final Type type, final String json) {
-    GsonEntityReader reader = new GsonEntityReader(new StringReader(json))
+  private TypedEntity read(final Type type, final String json) {
+    JsonEntityReader reader = new JsonEntityReader(new StringReader(json), converters)
     return reader.read(type)
   }
 
@@ -68,7 +74,7 @@ class GsonEntityReaderSpec extends Specification {
     res.value == null
     res.validationErrors.size() == 1
     res.validationErrors[0].type == testMessage
-    res.validationErrors[0].explanation.contains('is not')
+    res.validationErrors[0].explanation.contains('not an object')
   }
 
   def "accepts valid primitive types"() {

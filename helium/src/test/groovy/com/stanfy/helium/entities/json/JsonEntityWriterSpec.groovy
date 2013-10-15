@@ -1,7 +1,6 @@
 package com.stanfy.helium.entities.json
 
 import com.stanfy.helium.Helium
-import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.entities.TypedEntityValueBuilder
 import com.stanfy.helium.model.Field
@@ -11,17 +10,17 @@ import com.stanfy.helium.model.TypeResolver
 import spock.lang.Specification
 
 /**
- * Spec for GsonEntityWriter.
+ * Spec for JsonEntityWriter.
  */
-class GsonEntityWriterSpec extends Specification {
+class JsonEntityWriterSpec extends Specification {
 
   StringWriter out = new StringWriter()
 
-  GsonEntityWriter writer
+  JsonEntityWriter writer
 
   def setup() {
     TypeResolver types = new Helium().defaultTypes().getProject().getTypes()
-    writer = new GsonEntityWriter(out, types)
+    writer = new JsonEntityWriter(out, types.findConverters("json"))
   }
 
   def "can write primitives"() {
