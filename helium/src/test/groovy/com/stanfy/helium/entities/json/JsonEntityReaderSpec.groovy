@@ -1,6 +1,8 @@
 package com.stanfy.helium.entities.json
 
+import com.google.gson.stream.JsonReader
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.entities.ConverterFactory
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -10,14 +12,18 @@ import spock.lang.Specification
 /**
  * Spec for GsonValidator.
  */
-class GsonEntityReaderSpec extends Specification {
-  
+class JsonEntityReaderSpec extends Specification {
+
+  ConverterFactory<JsonReader, ?> converters
+
+  ProjectDsl dsl
+
   Message testMessage
   Sequence listMessage
   Message structMessage
 
   void setup() {
-    ProjectDsl dsl = new ProjectDsl()
+    dsl = new ProjectDsl()
     dsl.type 'int32'
     dsl.type 'float'
     dsl.type 'string'
@@ -38,10 +44,12 @@ class GsonEntityReaderSpec extends Specification {
     testMessage = dsl.messages[0]
     listMessage = dsl.sequences[0]
     structMessage = dsl.messages[2]
+
+    converters = dsl.types.findConverters(JsonConverterFactory.JSON)
   }
 
-  private static TypedEntity read(final Type type, final String json) {
-    GsonEntityReader reader = new GsonEntityReader(new StringReader(json))
+  private TypedEntity read(final Type type, final String json) {
+    JsonEntityReader reader = new JsonEntityReader(new StringReader(json), converters)
     return reader.read(type)
   }
 
@@ -68,7 +76,7 @@ class GsonEntityReaderSpec extends Specification {
     res.value == null
     res.validationErrors.size() == 1
     res.validationErrors[0].type == testMessage
-    res.validationErrors[0].explanation.contains('is not')
+    res.validationErrors[0].explanation.contains('not an object')
   }
 
   def "accepts valid primitive types"() {
@@ -339,6 +347,45 @@ class GsonEntityReaderSpec extends Specification {
     !errors[1].children.empty
     errors[1].children[0]?.field?.name == "items"
     errors[1].children[0].explanation.contains("required but got NULL")
+  }
+
+  def "can read dates"() {
+    given:
+    dsl.type "foo" spec {
+      description "bar"
+      from("json") { asDate("yyyy-MM-dd") }
+    }
+    dsl.type "FooMsg" message {
+      bar 'foo'
+    }
+    def errors = read(dsl.types.byName('FooMsg'), '''
+      {
+        "bar" : "2013-07-11"
+      }
+    ''').validationErrors
+
+    expect:
+    errors.empty
+  }
+
+  def "can validate dates"() {
+    given:
+    dsl.type "foo" spec {
+      description "bar"
+      from("json") { asDate("yyyy-MM-dd") }
+    }
+    dsl.type "FooMsg" message {
+      bar 'foo'
+    }
+    def errors = read(dsl.types.byName('FooMsg'), '''
+      {
+        "bar" : "bad string"
+      }
+    ''').validationErrors
+
+    expect:
+    errors.size() == 1
+    errors[0].field.name == 'bar'
   }
 
 }

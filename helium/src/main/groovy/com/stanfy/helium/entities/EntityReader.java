@@ -9,6 +9,6 @@ import java.io.IOException;
  */
 public interface EntityReader {
 
-  TypedEntity read(final Type type) throws IOException;
+  TypedEntity<?> read(final Type type) throws IOException;
 
 }

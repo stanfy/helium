@@ -1,9 +1,12 @@
 package com.stanfy.helium.handler.codegen.tests;
 
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import com.stanfy.helium.dsl.scenario.HttpResponseWrapper;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
-import com.stanfy.helium.entities.json.GsonEntityWriter;
+import com.stanfy.helium.entities.json.JsonConverterFactory;
+import com.stanfy.helium.entities.json.JsonEntityWriter;
 import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
@@ -125,7 +128,7 @@ class HttpExecutor implements ScenarioExecutor {
     if (method.getType().isHasBody()) {
       StringWriter json = new StringWriter();
       try {
-        new GsonEntityWriter(json, types).write(request.getBody());
+        new JsonEntityWriter(json, types.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)).write(request.getBody());
       } catch (IOException e) {
         throw new RuntimeException("Cannot serialize request body", e);
       }
@@ -140,7 +143,7 @@ class HttpExecutor implements ScenarioExecutor {
 
     HttpClient client = createHttpClientBuilder().build();
     try {
-      return new HttpResponseWrapper(httpRequest, send(client, httpRequest), encoding, method.getResponse());
+      return new HttpResponseWrapper(types, httpRequest, send(client, httpRequest), encoding, method.getResponse());
     } catch (IOException e) {
       throw new RuntimeException("Cannot execute HTTP request", e);
     }
