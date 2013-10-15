@@ -5,9 +5,9 @@ import com.google.gson.stream.JsonWriter
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.utils.DslUtils
+import org.joda.time.format.DateTimeFormat
 
 import java.text.ParseException
-import java.text.SimpleDateFormat
 
 /**
  * Proxy for type.
@@ -37,7 +37,8 @@ class ConfigurableType extends ConfigurableProxy<Type> {
         String str = (String) DefaultTypeResolver.ClosureJsonConverter.AS_STRING_READER(input)
         if (str == null) { return null }
         try {
-          return new SimpleDateFormat(dateFormat).parse(str)
+          //TODO think more about configuration
+          return DateTimeFormat.forPattern(dateFormat).parseDateTime(str).toDate()
         } catch (ParseException e) {
           throw new IllegalArgumentException("Bad date '$str'; expected format: '$dateFormat'")
         }
@@ -56,11 +57,12 @@ class ConfigurableType extends ConfigurableProxy<Type> {
           return
         }
         if (value instanceof Date) {
-          input.value(value.format(dateFormat))
+          //TODO think more about configuration
+          input.value(DateTimeFormat.forPattern(dateFormat).print(value.time))
           return
         }
         if (value instanceof String) {
-          new SimpleDateFormat(dateFormat).parse((String)value) // try to parse
+          DateTimeFormat.forPattern(dateFormat).parseDateTime(value.toString()) // try to parse
           input.value((String)value)
           return
         }
