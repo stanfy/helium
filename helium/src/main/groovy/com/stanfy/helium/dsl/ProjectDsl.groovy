@@ -125,8 +125,22 @@ class ProjectDsl implements Project {
     structure.add type
     return [
         "message" : { Closure<?> spec -> createAndAddMessage(name, spec, true) },
-        "spec" : { Closure<?> spec -> runWithProxy(new ConfigurableProxy<Type>(type, owner), spec) },
-        "sequence" : { String item -> createAndAddSequence(name, item) }
+        "sequence" : { String item -> createAndAddSequence(name, item) },
+
+        "spec" : { Closure<?> spec ->
+          ConfigurableType proxy = new ConfigurableType(type, owner)
+          runWithProxy(proxy, spec)
+          Set<String> formats = new HashSet<>()
+          formats.addAll(proxy.@readers.keySet())
+          formats.addAll(proxy.@writers.keySet())
+          formats.each {
+            def reader = proxy.@readers[it], writer = proxy.@writers[it]
+            if (!reader) { reader = DefaultTypeResolver.ClosureJsonConverter.AS_STRING_READER }
+            if (!writer) { writer = DefaultTypeResolver.ClosureJsonConverter.AS_STRING_WRITER }
+            typeResolver.findConverters(it).addConverter(type.name, new DefaultTypeResolver.ClosureJsonConverter(type, reader, writer))
+          }
+        }
+
     ]
   }
 

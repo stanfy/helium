@@ -1,6 +1,7 @@
 package com.stanfy.helium.entities.json
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.entities.TypedEntityValueBuilder
 import com.stanfy.helium.model.Field
@@ -16,10 +17,13 @@ class JsonEntityWriterSpec extends Specification {
 
   StringWriter out = new StringWriter()
 
+  ProjectDsl dsl
+
   JsonEntityWriter writer
 
   def setup() {
-    TypeResolver types = new Helium().defaultTypes().getProject().getTypes()
+    dsl = new Helium().defaultTypes().getProject() as ProjectDsl
+    TypeResolver types = dsl.getTypes()
     writer = new JsonEntityWriter(out, types.findConverters("json"))
   }
 
@@ -56,7 +60,6 @@ class JsonEntityWriterSpec extends Specification {
 
   def "can write some complex messages"() {
     given:
-    def dsl = new Helium().defaultTypes().project
     dsl.type 'SomeMessage' message {
       id(type: long, required: true, examples: ['1'])
       name(type: 'string', required: true, examples: ['My List'])
@@ -72,5 +75,21 @@ class JsonEntityWriterSpec extends Specification {
     expect:
     out.toString() == '{"id":321,"name":"some name"}'
   }
+
+  def "can write dates"() {
+    given:
+    dsl.type "foo" spec {
+      description "bar"
+      to("json") { asDate("yyyy-MM-dd") }
+    }
+    dsl.type "FooMsg" message {
+      bar 'foo'
+    }
+    writer.write(new TypedEntity<Type>(dsl.types.byName('FooMsg'), ['bar' : Date.parse("yyyy-MM-dd", "2013-07-11")]))
+
+    expect:
+    out.toString() == '{"bar":"2013-07-11"}'
+  }
+
 
 }

@@ -115,20 +115,8 @@ class DefaultTypeResolver implements TypeResolver {
       case "string":
         json.addConverter(type.name, new ClosureJsonConverter(
             type,
-            { JsonReader reader ->
-              JsonToken nextToken = reader.peek();
-              if (nextToken != JsonToken.STRING) {
-                throw new IllegalArgumentException("not a string");
-              }
-              return reader.nextString()
-            },
-            { JsonWriter output, Object value ->
-              if (value == null) {
-                output.nullValue()
-              } else {
-                output.value((String)value)
-              }
-            }
+            ClosureJsonConverter.AS_STRING_READER,
+            ClosureJsonConverter.AS_STRING_WRITER
         ))
         break
     }
@@ -168,15 +156,30 @@ class DefaultTypeResolver implements TypeResolver {
 
   public static class ClosureJsonConverter extends JsonConverterFactory.JsonPrimitiveConverter {
 
+    public static final Closure<?> AS_STRING_READER = { JsonReader reader ->
+      JsonToken nextToken = reader.peek();
+      if (nextToken != JsonToken.STRING) {
+        throw new IllegalArgumentException("not a string");
+      }
+      return reader.nextString()
+    }
+    public static final Closure<?> AS_STRING_WRITER = { JsonWriter output, Object value ->
+      if (value == null) {
+        output.nullValue()
+      } else {
+        output.value((String)value)
+      }
+    }
+
     /** Closure. */
-    private final Closure<?> writer;
+    final Closure<?> writer;
     /** Reader. */
-    private final Closure<?> reader;
+    final Closure<?> reader;
 
     ClosureJsonConverter(final Type type, final Closure<?> reader, final Closure<?> writer) {
       super(type)
       this.writer = writer;
-      this.reader = reader;
+      this.reader = wrapWithOptionalNull(reader);
     }
 
     @Override
@@ -184,15 +187,23 @@ class DefaultTypeResolver implements TypeResolver {
       writer.call(output, value)
     }
 
+    private static boolean checkForEnd(final JsonReader input) {
+      return !input.hasNext() || input.peek() == JsonToken.END_DOCUMENT;
+    }
+
     @Override
     Object read(JsonReader input, List<ValidationError> errors) throws IOException {
       try {
-        return wrapWithOptionalNull(reader).call(input)
+        return reader.call(input)
       } catch (IllegalStateException e) {
-        input.skipValue();
+        if (!checkForEnd(input)) {
+          input.skipValue();
+        }
         throw e;
       } catch (IllegalArgumentException e) {
-        input.skipValue();
+        if (!checkForEnd(input)) {
+          input.skipValue();
+        }
         throw new IllegalStateException("bad format: " + e.getMessage());
       }
     }

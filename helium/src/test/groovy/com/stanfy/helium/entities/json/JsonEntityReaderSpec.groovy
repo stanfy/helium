@@ -16,12 +16,14 @@ class JsonEntityReaderSpec extends Specification {
 
   ConverterFactory<JsonReader, ?> converters
 
+  ProjectDsl dsl
+
   Message testMessage
   Sequence listMessage
   Message structMessage
 
   void setup() {
-    ProjectDsl dsl = new ProjectDsl()
+    dsl = new ProjectDsl()
     dsl.type 'int32'
     dsl.type 'float'
     dsl.type 'string'
@@ -345,6 +347,45 @@ class JsonEntityReaderSpec extends Specification {
     !errors[1].children.empty
     errors[1].children[0]?.field?.name == "items"
     errors[1].children[0].explanation.contains("required but got NULL")
+  }
+
+  def "can read dates"() {
+    given:
+    dsl.type "foo" spec {
+      description "bar"
+      from("json") { asDate("yyyy-MM-dd") }
+    }
+    dsl.type "FooMsg" message {
+      bar 'foo'
+    }
+    def errors = read(dsl.types.byName('FooMsg'), '''
+      {
+        "bar" : "2013-07-11"
+      }
+    ''').validationErrors
+
+    expect:
+    errors.empty
+  }
+
+  def "can validate dates"() {
+    given:
+    dsl.type "foo" spec {
+      description "bar"
+      from("json") { asDate("yyyy-MM-dd") }
+    }
+    dsl.type "FooMsg" message {
+      bar 'foo'
+    }
+    def errors = read(dsl.types.byName('FooMsg'), '''
+      {
+        "bar" : "bad string"
+      }
+    ''').validationErrors
+
+    expect:
+    errors.size() == 1
+    errors[0].field.name == 'bar'
   }
 
 }
