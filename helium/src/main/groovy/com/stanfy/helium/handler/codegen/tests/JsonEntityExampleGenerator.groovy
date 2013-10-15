@@ -58,7 +58,7 @@ class JsonEntityExampleGenerator {
   }
 
   private def cast(final String example, final Type type) {
-    Class<?> groovyClass = typeResolver.toGroovyClass(type)
+    Class<?> groovyClass = typeResolver.toJavaClass(type)
     return example.asType(groovyClass)
   }
 

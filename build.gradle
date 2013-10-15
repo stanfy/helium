@@ -20,7 +20,6 @@ subprojects {
   }
 
   afterEvaluate {
-    install.dependsOn check
 
     signing {
       sign configurations.archives

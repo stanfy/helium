@@ -306,4 +306,22 @@ class ProjectDslSpec extends Specification {
 
   }
 
+  def "can describe type converters"() {
+    given:
+    dsl.type "custom" spec {
+      description "Custom type"
+      from("json") { asString() }
+      to("json") { asDate("yyyy-MM-dd HH:mm:ss Z") }
+    }
+    def customType = dsl.types.byName("custom")
+    def converter = dsl.types.findConverters("json")?.getConverter(customType)
+
+    expect:
+    customType != null
+    converter instanceof DefaultTypeResolver.ClosureJsonConverter
+    converter.reader != null
+    converter.writer != null
+
+  }
+
 }
