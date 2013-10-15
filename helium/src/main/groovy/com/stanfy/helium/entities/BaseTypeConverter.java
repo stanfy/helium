@@ -33,7 +33,7 @@ abstract class BaseTypeConverter<I, O> {
     try {
       return converter.read(input, errors);
     } catch (IllegalStateException e) {
-      errors.add(new ValidationError(type, "Cannot parse " + getFormat() + " input for value of type " + type));
+      errors.add(new ValidationError(type, "Cannot parse " + getFormat() + " input for value of type " + type + ". " + e.getMessage()));
       return null;
     }
   }

@@ -4,11 +4,7 @@ import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.ValidationError;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.RequestLine;
+import org.apache.http.*;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -63,20 +60,23 @@ public final class AssertionUtils {
 
   private static String getRequestInfo(final HttpRequest request, final HttpResponse response) {
     final StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append("Request info: ");
+    stringBuilder.append("\nRequest info: ");
 
     final RequestLine requestLine = request.getRequestLine();
     stringBuilder.append(requestLine.getMethod())
         .append(' ')
         .append(requestLine.getUri())
         .append('\n')
-        .append("Headers: ").append(Arrays.toString(request.getAllHeaders()));
+        .append("Headers:\n");
+    for (Header header : request.getAllHeaders()) {
+      stringBuilder.append(header).append("\n");
+    }
 
     if (request instanceof HttpEntityEnclosingRequestBase) {
       final HttpEntityEnclosingRequestBase requestWithEntity = (HttpEntityEnclosingRequestBase) request;
       final String loggedEntity = httpEntityToString(requestWithEntity.getEntity());
       if (loggedEntity != null) {
-        stringBuilder.append('\n').append(loggedEntity);
+        stringBuilder.append('\n').append(loggedEntity).append('\n');
       }
     }
 
@@ -90,11 +90,14 @@ public final class AssertionUtils {
         stringBuilder.append("Got '").append(status).append("'.\n");
       }
 
-      stringBuilder.append("Headers: ").append(Arrays.toString(response.getAllHeaders()));
+      stringBuilder.append("Headers:\n");
+      for (Header header : response.getAllHeaders()) {
+        stringBuilder.append(header).append("\n");
+      }
 
       final String loggedEntity = httpEntityToString(response.getEntity());
       if (loggedEntity != null) {
-        stringBuilder.append('\n').append(loggedEntity);
+        stringBuilder.append('\n').append(loggedEntity).append('\n');
       }
     }
 
