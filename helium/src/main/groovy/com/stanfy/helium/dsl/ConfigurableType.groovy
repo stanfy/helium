@@ -37,7 +37,6 @@ class ConfigurableType extends ConfigurableProxy<Type> {
         String str = (String) DefaultTypeResolver.ClosureJsonConverter.AS_STRING_READER(input)
         if (str == null) { return null }
         try {
-          //TODO think more about configuration
           return DateTimeFormat.forPattern(dateFormat).parseDateTime(str).toDate()
         } catch (ParseException e) {
           throw new IllegalArgumentException("Bad date '$str'; expected format: '$dateFormat'")
@@ -57,7 +56,6 @@ class ConfigurableType extends ConfigurableProxy<Type> {
           return
         }
         if (value instanceof Date) {
-          //TODO think more about configuration
           input.value(DateTimeFormat.forPattern(dateFormat).print(value.time))
           return
         }
