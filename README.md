@@ -75,3 +75,37 @@ new Helium().from {
   println p.services
 } as Handler)
 ```
+
+Gradle plugin usage
+-------------------
+Add Helium gradle plugin dependency to your build script.
+```groovy
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath 'com.stanfy.helium:gradle-plugin:0.1'
+  }
+}
+```
+
+Apply Helium plugin.
+```groovy
+apply plugin:'helium'
+```
+
+Point out where your specification is located.
+```groovy
+helium {
+  specification file('my.api')
+}
+```
+
+Optionally specify whether to ignore test failures.
+```groovy
+helium {
+  specification file('my.api')
+  ignoreFailures true
+}
+```
