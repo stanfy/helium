@@ -3,10 +3,12 @@ Helium
 
 Helium is a DSL for REST API specifications and also a Java API for processing descriptions written in this language.
 
+
 Documentation
 -------------
 Project is in ongoing development. JSON is currently the only supported format.
 Read out [wiki](https://github.com/stanfy/helium/wiki/Helium).
+
 
 Specification Example
 ---------------------
@@ -44,6 +46,7 @@ service {
 
 ```
 
+
 Java API Examples
 -----------------
 
@@ -75,6 +78,7 @@ new Helium().from {
   println p.services
 } as Handler)
 ```
+
 
 Gradle plugin usage
 -------------------
@@ -109,3 +113,21 @@ helium {
   ignoreFailures true
 }
 ```
+
+
+License
+-------
+
+     Copyright 2013 Stanfy Corp.
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
