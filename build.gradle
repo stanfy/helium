@@ -21,6 +21,21 @@ subprojects {
 
   afterEvaluate {
 
+    task groovydocJar(type: Jar, dependsOn: groovydoc) {
+      classifier = 'javadoc'
+      from 'build/docs/groovydoc'
+    }
+
+    task sourcesJar(type: Jar) {
+      from sourceSets.main.allSource
+      classifier = 'sources'
+    }
+
+    artifacts {
+      archives groovydocJar
+      archives sourcesJar
+    }
+
     signing {
       sign configurations.archives
     }
@@ -43,7 +58,7 @@ subprojects {
 
           pom.project {
             name 'Helium'
-            description 'Helium'
+            description 'DSL and Java API for REST API specification'
             url 'https://github.com/stanfy/helium'
             inceptionYear '2013'
 

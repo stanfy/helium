@@ -10,3 +10,15 @@ dependencies {
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
 }
+
+afterEvaluate {
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+        pom.project {
+          name 'Helium Gradle plugin'
+        }
+      }
+    }
+  }
+}
