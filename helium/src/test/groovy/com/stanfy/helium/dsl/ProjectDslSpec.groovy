@@ -137,6 +137,7 @@ class ProjectDslSpec extends Specification {
       post "/person/@id" spec {
         name "Edit Person Profile"
         body "PersonProfile"
+        response "bool"
       }
     }
 
@@ -202,8 +203,10 @@ class ProjectDslSpec extends Specification {
 
   def "can describe method test info"() {
     when:
+    dsl.type "123"
     dsl.service {
       get "/a/@param1/@param2" spec {
+        response "123"
         tests {
           useExamples true
           pathExample {
@@ -322,6 +325,18 @@ class ProjectDslSpec extends Specification {
     converter.reader != null
     converter.writer != null
 
+  }
+
+  def "should throw illegal state exception if method response type is not defined"() {
+    when:
+    dsl.service {
+      get '/aaa' spec { }
+    }
+
+    then:
+    def e = thrown(IllegalStateException)
+    e.message.contains("GET /aaa")
+    e.message.contains("not defined")
   }
 
 }
