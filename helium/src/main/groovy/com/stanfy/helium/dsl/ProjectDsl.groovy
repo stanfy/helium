@@ -24,7 +24,7 @@ class ProjectDsl implements Project {
   /** Structure. */
   private final List<StructureUnit> structure = new ArrayList<>()
 
-  /** Pending type defenitions. */
+  /** Pending type definitions. */
   private final LinkedHashMap<String, Type> pendingTypeDefinitions = new LinkedHashMap<>()
 
   /** Types resolver. */

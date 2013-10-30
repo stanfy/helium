@@ -89,4 +89,8 @@ class ServiceMethod extends Descriptionable {
     return type.hasBody && body != null
   }
 
+  String toString() {
+    return name ? "\"$name\"($type $path)" : "\"$type $path\""
+  }
+
 }

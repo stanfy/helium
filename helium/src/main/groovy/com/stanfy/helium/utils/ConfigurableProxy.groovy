@@ -12,10 +12,10 @@ import groovy.transform.PackageScope
 class ConfigurableProxy<T extends GroovyObject> extends ScopedProxy {
 
   /** DSL instance. */
-  final ProjectDsl project
+  private final ProjectDsl project
 
   /** Core object. */
-  final T core
+  private final T core
 
   @CompileStatic
   public ConfigurableProxy(final T core, final ProjectDsl project) {
@@ -37,6 +37,16 @@ class ConfigurableProxy<T extends GroovyObject> extends ScopedProxy {
       return argArray[0]
     }
     return args
+  }
+
+  @CompileStatic
+  T getCore() {
+    return core;
+  }
+
+  @CompileStatic
+  ProjectDsl getProject() {
+    return project;
   }
 
   @Override
