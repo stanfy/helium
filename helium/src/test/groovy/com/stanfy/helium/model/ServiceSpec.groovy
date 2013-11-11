@@ -14,7 +14,7 @@ class ServiceSpec extends Specification {
     given:
     service.name = "Super API"
     expect:
-    service.canonicalName == "SuperAPI"
+    service.canonicalName == "Super_API"
   }
 
   def "can generate service method uri"() {

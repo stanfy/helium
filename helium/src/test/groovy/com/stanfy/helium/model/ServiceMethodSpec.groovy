@@ -11,6 +11,7 @@ class ServiceMethodSpec extends Specification {
 
   def "canonical name is based on path"() {
     when:
+    method.name = "ababagalamaga"
     method.path = "/statuses/public.json"
 
     then:

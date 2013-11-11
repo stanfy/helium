@@ -80,7 +80,7 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     then:
     testsCount == 1
     testFile.absolutePath.contains("spec/tests/rest/")
-    testText.contains "public class TwitterAPIPokeTest extends ${RestApiMethods.simpleName}"
+    testText.contains "public class Twitter_APIPokeTest extends ${RestApiMethods.simpleName}"
     testText.contains "@Test"
     testText.contains "send(request)"
     testText.contains "validate(request, response"

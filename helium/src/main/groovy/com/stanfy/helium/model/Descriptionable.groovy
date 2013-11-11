@@ -1,5 +1,6 @@
 package com.stanfy.helium.model
 
+import com.stanfy.helium.utils.Names
 import groovy.transform.CompileStatic
 
 /**
@@ -14,8 +15,13 @@ class Descriptionable {
   /** Description. */
   String description;
 
+  String getCanonicalName() {
+    return Names.canonicalName(name)
+  }
+
   @Override
   String toString() {
     return "${getClass().simpleName}($name)"
   }
+
 }

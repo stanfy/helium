@@ -1,6 +1,7 @@
 package com.stanfy.helium.model
 
 import com.stanfy.helium.model.tests.MethodTestInfo
+import com.stanfy.helium.utils.Names
 import groovy.transform.CompileStatic
 
 import java.util.regex.Pattern
@@ -32,9 +33,9 @@ class ServiceMethod extends Descriptionable {
   /** Test information. */
   final MethodTestInfo testInfo = new MethodTestInfo()
 
+  @Override
   String getCanonicalName() {
-    String res = path.replaceAll(/[\/.]+/, '_').replaceAll(/\W+/, '')
-    return res[0] == '_' ? res[1..-1] : res
+    return Names.canonicalName(path)
   }
 
   String getPathWithParameters(Map<String, String> parameters) {
