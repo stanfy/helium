@@ -1,5 +1,7 @@
 package com.stanfy.helium;
 
+import java.util.Locale;
+
 /**
  * Default type.
  */
@@ -11,6 +13,10 @@ public enum DefaultType {
   INT64,
   BOOL,
   STRING,
-  BYTES
+  BYTES;
+
+  public String getLangName() {
+    return this.name().toLowerCase(Locale.US);
+  }
 
 }

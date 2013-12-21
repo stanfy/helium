@@ -54,28 +54,6 @@ class DefaultTypeResolver implements TypeResolver {
   }
 
   @Override
-  Class<?> toJavaClass(final Type type) {
-    switch (type.name) {
-      case "double":
-        return double.class
-      case "float":
-        return float.class
-      case "int32":
-        return int.class
-      case "int64":
-        return long.class
-      case "string":
-        return String.class
-      case "bytes":
-        return byte[].class
-      case "bool":
-        return boolean.class
-      default:
-        throw new IllegalArgumentException("Cannot convert $type to Groovy class")
-    }
-  }
-
-  @Override
   void registerNewType(final Type type) {
     if (types[type.name]) {
       throw new IllegalArgumentException("Cannot register type $type. Type $type.name is already defined: ${types[type.name]}")

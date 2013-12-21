@@ -58,12 +58,12 @@ new Helium().from("service {name 'Example Service'}").processBy(new Handler() {
   }
 });
 
-// read from file
-new Helium().from(new File("twitter.spec")).processBy(new Handler() {
-  public void process(Project p) {
-    System.out.println(p.getServices());
-  }
-});
+// read from file and generate POJOs
+new Helium().from(new File("twitter.spec"))
+  .processBy(new PojoGenerator(
+      new File("/build/gen"),
+      PojoGeneratorOptions.defaultOptions("com.example.twitter")
+  ));
 ```
 
 *With Groovy :)*

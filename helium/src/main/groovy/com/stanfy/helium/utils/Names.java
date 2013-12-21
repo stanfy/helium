@@ -26,4 +26,11 @@ public class Names {
     return result.length() > 0 && result.charAt(0) == '_' ? result.substring(1) : result;
   }
 
+  public static String packageNameToPath(final String name) {
+    if (name == null) {
+      throw new IllegalArgumentException("package name is not defined");
+    }
+    return name.replaceAll("\\.", "/");
+  }
+
 }
