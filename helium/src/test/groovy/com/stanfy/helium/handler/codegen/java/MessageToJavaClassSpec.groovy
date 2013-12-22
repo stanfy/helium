@@ -18,10 +18,12 @@ class MessageToJavaClassSpec extends Specification {
   MessageToJavaClass converter
   /** Output. */
   StringWriter output
+  /** Options. */
+  PojoGeneratorOptions options
 
   def setup() {
     output = new StringWriter()
-    PojoGeneratorOptions options = new PojoGeneratorOptions()
+    options = new PojoGeneratorOptions()
     options.fieldModifiers = [Modifier.PRIVATE] as Set
     options.addGetters = true
     options.addSetters = true
@@ -98,6 +100,38 @@ public class MyMsg {
 
 }
 """.trim() + '\n'
+  }
+
+
+  def "should handle custom primitive mapping"() {
+    given:
+    options.addGetters = false;
+    options.addSetters = false;
+    options.customPrimitivesMapping = [
+        date: Date.class.canonicalName
+    ]
+    Message msg = new Message(name: "DateMsg")
+    msg.addField(new Field(name: "date", type: new Type(name: "date")))
+    msg.addField(new Field(name: "dateList", type: new Type(name: "date"), sequence: true))
+
+    when:
+    converter.write(msg)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+import java.util.Date;
+import java.util.List;
+
+public class DateMsg {
+
+  private Date date;
+  private List<Date> dateList;
+
+}
+""".trim() + '\n'
+
   }
 
 }

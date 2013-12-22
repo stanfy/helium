@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -20,6 +21,7 @@ public class PojoGeneratorOptions {
     return options;
   }
 
+
   /** Field modifiers. */
   private Set<Modifier> fieldModifiers = Collections.emptySet();
 
@@ -34,6 +36,10 @@ public class PojoGeneratorOptions {
 
   /** Package name for generated classes. */
   private String packageName;
+
+  /** Mapping for custom primitives. */
+  private Map<String, String> customPrimitivesMapping = Collections.emptyMap();
+
 
   public Set<Modifier> getFieldModifiers() {
     return fieldModifiers;
@@ -63,7 +69,7 @@ public class PojoGeneratorOptions {
     return sequenceCollectionName;
   }
 
-  public void setSequenceCollectionName(String sequenceCollectionName) {
+  public void setSequenceCollectionName(final String sequenceCollectionName) {
     this.sequenceCollectionName = sequenceCollectionName;
   }
 
@@ -71,8 +77,16 @@ public class PojoGeneratorOptions {
     return packageName;
   }
 
-  public void setPackageName(String packageName) {
+  public void setPackageName(final String packageName) {
     this.packageName = packageName;
+  }
+
+  public Map<String, String> getCustomPrimitivesMapping() {
+    return customPrimitivesMapping;
+  }
+
+  public void setCustomPrimitivesMapping(final Map<String, String> customPrimitivesMapping) {
+    this.customPrimitivesMapping = customPrimitivesMapping;
   }
 
 }

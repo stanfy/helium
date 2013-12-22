@@ -4,7 +4,6 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
-import org.codehaus.groovy.runtime.DefaultGroovyStaticMethods;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
@@ -51,14 +50,8 @@ class MessageToJavaClass {
       }
 
       if (type.isPrimitive()) {
-        Class<?> clazz = JavaPrimitiveTypes.javaClass(type);
-        if (clazz == null) {
-          throw new IllegalArgumentException("cannot map " + type + " to Java class");
-        }
-        if (clazz.isPrimitive()) {
-          continue;
-        }
-        if (!"java.lang".equals(clazz.getPackage().getName())) {
+        Class<?> clazz = getJavaClass(type);
+        if (!clazz.isPrimitive() && !"java.lang".equals(clazz.getPackage().getName())) {
           imports.add(clazz.getCanonicalName());
         }
       }
@@ -106,6 +99,22 @@ class MessageToJavaClass {
     output.endType();
   }
 
+  private Class<?> getJavaClass(final Type type) {
+    Class<?> result = JavaPrimitiveTypes.javaClass(type);
+    if (result == null) {
+      String className = options.getCustomPrimitivesMapping().get(type.getName());
+      if (className == null) {
+        throw new IllegalStateException("Mapping for " + type + " is not defined");
+      }
+      try {
+        result = Class.forName(className);
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return result;
+  }
+
   private String getAccessMethodName(final String type, final Field field) {
     StringBuilder result = new StringBuilder().append(type).append(field.getCanonicalName());
     result.setCharAt(type.length(), Character.toUpperCase(result.charAt(type.length())));
@@ -123,11 +132,11 @@ class MessageToJavaClass {
         typeName = type.getCanonicalName();
       }
     } else if (type.isPrimitive()) {
-      Class<?> clazz = JavaPrimitiveTypes.javaClass(type);
+      Class<?> clazz = getJavaClass(type);
       if (field.isSequence()) {
         typeName = output.compressType(collectionName + "<" + JavaPrimitiveTypes.box(clazz).getCanonicalName() + ">");
       } else {
-        typeName = output.compressType(JavaPrimitiveTypes.javaClass(type).getCanonicalName());
+        typeName = output.compressType(clazz.getCanonicalName());
       }
     } else {
       throw new UnsupportedOperationException("Cannot write field " + field);
