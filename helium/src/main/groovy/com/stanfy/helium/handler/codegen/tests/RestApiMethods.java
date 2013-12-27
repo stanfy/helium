@@ -1,8 +1,11 @@
 package com.stanfy.helium.handler.codegen.tests;
 
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import com.stanfy.helium.Helium;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.entities.TypedEntity;
+import com.stanfy.helium.entities.json.JsonConverterFactory;
 import com.stanfy.helium.entities.json.JsonEntityReader;
 import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
@@ -101,7 +104,10 @@ public class RestApiMethods {
 
     InputStreamReader reader = new InputStreamReader(new BufferedInputStream(respEntity.getContent()), encoding);
     try {
-      TypedEntity entity = new JsonEntityReader(reader, null).read(types.byName(typeName));
+      TypedEntity entity = new JsonEntityReader(
+          reader,
+          types.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)
+      ).read(types.byName(typeName));
       AssertionUtils.assertCorrectEntity(entity, request, response);
     } finally {
       reader.close();

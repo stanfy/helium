@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static com.stanfy.helium.handler.codegen.java.Writers.WriterFactory;
+
 /**
  * Options for POJO generator.
  */
@@ -40,12 +42,18 @@ public class PojoGeneratorOptions {
   /** Mapping for custom primitives. */
   private Map<String, String> customPrimitivesMapping = Collections.emptyMap();
 
+  /** Writer  */
+  private WriterFactory writerFactory = Writers.pojoWriter();
+
 
   public Set<Modifier> getFieldModifiers() {
     return fieldModifiers;
   }
 
   public void setFieldModifiers(final Set<Modifier> fieldModifiers) {
+    if (fieldModifiers == null) {
+      throw new IllegalArgumentException("Field modifiers cannot be null. Provide empty set instead.");
+    }
     this.fieldModifiers = fieldModifiers;
   }
 
@@ -87,6 +95,15 @@ public class PojoGeneratorOptions {
 
   public void setCustomPrimitivesMapping(final Map<String, String> customPrimitivesMapping) {
     this.customPrimitivesMapping = customPrimitivesMapping;
+  }
+
+  public WriterFactory getWriterFactory() { return writerFactory; }
+
+  public void setWriterFactory(final WriterFactory writerFactory) {
+    if (writerFactory == null) {
+      throw new IllegalArgumentException("Writer factory cannot be null");
+    }
+    this.writerFactory = writerFactory;
   }
 
 }

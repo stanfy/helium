@@ -10,11 +10,12 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Writes type as a Java class.
  */
-class MessageToJavaClass {
+public class MessageToJavaClass {
 
   /** Output. */
   private final JavaWriter output;
@@ -26,6 +27,39 @@ class MessageToJavaClass {
     this.output = new JavaWriter(output);
     this.options = options;
   }
+
+
+  protected void writeImports(final Set<String> imports) throws IOException {
+    if (!imports.isEmpty()) {
+      output.emitImports(imports);
+      output.emitEmptyLine();
+    }
+  }
+
+  protected void writeClassBegin(final Message message) throws IOException {
+    output.beginType(message.getCanonicalName(), "class", Collections.singleton(Modifier.PUBLIC));
+  }
+
+  protected void writeField(final Field field) throws IOException {
+    output.emitField(getFieldTypeName(field), field.getCanonicalName(), options.getFieldModifiers());
+  }
+
+  protected void writeSetterMethod(final Field field) throws IOException {
+    output.beginMethod("void", getAccessMethodName("set", field), Collections.singleton(Modifier.PUBLIC), getFieldTypeName(field), "value");
+    output.emitStatement("%s = value", field.getCanonicalName());
+    output.endMethod();
+  }
+
+  protected void writeGetterMethod(final Field field) throws IOException {
+    output.beginMethod(getFieldTypeName(field), getAccessMethodName("get", field), Collections.singleton(Modifier.PUBLIC));
+    output.emitStatement("return %s", field.getCanonicalName());
+    output.endMethod();
+  }
+
+  protected JavaWriter getOutput() {
+    return output;
+  }
+
 
   public void write(final Message message) throws IOException {
     String collectionName = options.getSequenceCollectionName();
@@ -57,20 +91,16 @@ class MessageToJavaClass {
       }
 
     }
-    if (!imports.isEmpty()) {
-      output.emitImports(imports);
-      output.emitEmptyLine();
-    }
+    writeImports(imports);
 
     // class name
-    output.beginType(message.getCanonicalName(), "class", Collections.singleton(Modifier.PUBLIC));
+    writeClassBegin(message);
     output.emitEmptyLine();
-
 
     // fields
     for (Field field : message.getFields()) {
-      output.emitField(getFieldTypeName(field), field.getCanonicalName(), options.getFieldModifiers());
-
+      writeField(field);
+      output.emitEmptyLine();
     }
     output.emitEmptyLine();
 
@@ -79,17 +109,12 @@ class MessageToJavaClass {
     boolean setters = options.isAddSetters();
     if (getters || setters) {
       for (Field field : message.getFields()) {
-        String typeName = getFieldTypeName(field);
         if (getters) {
-          output.beginMethod(typeName, getAccessMethodName("get", field), Collections.singleton(Modifier.PUBLIC));
-          output.emitStatement("return %s", field.getCanonicalName());
-          output.endMethod();
+          writeGetterMethod(field);
           output.emitEmptyLine();
         }
         if (setters) {
-          output.beginMethod("void", getAccessMethodName("set", field), Collections.singleton(Modifier.PUBLIC), typeName, "value");
-          output.emitStatement("%s = value", field.getCanonicalName());
-          output.endMethod();
+          writeSetterMethod(field);
           output.emitEmptyLine();
         }
       }

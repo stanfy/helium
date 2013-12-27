@@ -52,7 +52,7 @@ public class PojoGenerator implements Handler {
     OutputStreamWriter output = null;
     try {
       output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
-      MessageToJavaClass gen = new MessageToJavaClass(output, options);
+      MessageToJavaClass gen = options.getWriterFactory().createWriter(output, options);
       gen.write(type);
     } catch (IOException e) {
       throw new RuntimeException(e);

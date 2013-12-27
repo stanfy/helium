@@ -12,7 +12,7 @@ import javax.lang.model.element.Modifier
  */
 class MessageToJavaClassSpec extends Specification {
 
-  private static final String TEST_PACKAGE = "com.stanfy.helium.test"
+  protected static final String TEST_PACKAGE = "com.stanfy.helium.test"
 
   /** Instance under tests. */
   MessageToJavaClass converter
@@ -53,10 +53,15 @@ import java.util.List;
 public class MyMsg {
 
   private String fieldStr;
+
   private int fieldInt32;
+
   private boolean fieldBool;
+
   private List<Float> fieldFloatList;
+
   private Child fieldChild;
+
 
   public String getFieldStr() {
     return fieldStr;
@@ -127,7 +132,9 @@ import java.util.List;
 public class DateMsg {
 
   private Date date;
+
   private List<Date> dateList;
+
 
 }
 """.trim() + '\n'
