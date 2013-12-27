@@ -114,6 +114,19 @@ helium {
 }
 ```
 
+Add POJO generation task:
+```groovy
+helium {
+  specification file('my.api')
+  pojo {
+    output file("$buildDir/source/rest-api")
+    options {
+      prettifyNames = true
+    }
+  }
+}
+```
+
 
 License
 -------
