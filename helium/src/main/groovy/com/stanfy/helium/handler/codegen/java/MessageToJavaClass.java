@@ -4,6 +4,7 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
+import com.stanfy.helium.utils.Names;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
@@ -41,18 +42,18 @@ public class MessageToJavaClass {
   }
 
   protected void writeField(final Field field) throws IOException {
-    output.emitField(getFieldTypeName(field), field.getCanonicalName(), options.getFieldModifiers());
+    output.emitField(getFieldTypeName(field), getFieldName(field), options.getFieldModifiers());
   }
 
   protected void writeSetterMethod(final Field field) throws IOException {
     output.beginMethod("void", getAccessMethodName("set", field), Collections.singleton(Modifier.PUBLIC), getFieldTypeName(field), "value");
-    output.emitStatement("%s = value", field.getCanonicalName());
+    output.emitStatement("%s = value", getFieldName(field));
     output.endMethod();
   }
 
   protected void writeGetterMethod(final Field field) throws IOException {
     output.beginMethod(getFieldTypeName(field), getAccessMethodName("get", field), Collections.singleton(Modifier.PUBLIC));
-    output.emitStatement("return %s", field.getCanonicalName());
+    output.emitStatement("return %s", getFieldName(field));
     output.endMethod();
   }
 
@@ -141,7 +142,7 @@ public class MessageToJavaClass {
   }
 
   private String getAccessMethodName(final String type, final Field field) {
-    StringBuilder result = new StringBuilder().append(type).append(field.getCanonicalName());
+    StringBuilder result = new StringBuilder().append(type).append(getFieldName(field));
     result.setCharAt(type.length(), Character.toUpperCase(result.charAt(type.length())));
     return result.toString();
   }
@@ -167,6 +168,11 @@ public class MessageToJavaClass {
       throw new UnsupportedOperationException("Cannot write field " + field);
     }
     return typeName;
+  }
+
+  private String getFieldName(final Field field) {
+    String name = field.getCanonicalName();
+    return options.isPrettifyNames() ? Names.prettifiedName(name) : name;
   }
 
 }

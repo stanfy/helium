@@ -32,4 +32,19 @@ class NamesSpec extends Specification {
     "com.another_example" | "com/another_example"
   }
 
+  def "should camelize underscored text"() {
+    expect:
+    Names.prettifiedName(name) == prettyName
+
+    where:
+    name                                    | prettyName
+    " "                                     | " "
+    "_"                                     | ""
+    "abcD"                                  | "abcD"
+    "A_b"                                   | "AB"
+    "a_b"                                   | "aB"
+    "something_real_and_funny"              | "somethingRealAndFunny"
+    "aha____h"                              | "ahaH"
+  }
+
 }

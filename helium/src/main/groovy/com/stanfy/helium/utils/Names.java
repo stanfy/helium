@@ -33,4 +33,19 @@ public class Names {
     return name.replaceAll("\\.", "/");
   }
 
+  public static String prettifiedName(final String s) {
+    StringBuilder result = new StringBuilder(s);
+    for (int i = 0; i < result.length(); i++) {
+      boolean shouldCap = false;
+      while (i < result.length() && result.charAt(i) == '_') {
+        result.delete(i, i + 1);
+        shouldCap = true;
+      }
+      if (shouldCap && i < result.length()) {
+        result.setCharAt(i, Character.toUpperCase(result.charAt(i)));
+      }
+    }
+    return result.toString();
+  }
+
 }

@@ -45,6 +45,8 @@ public class PojoGeneratorOptions {
   /** Writer  */
   private WriterFactory writerFactory = Writers.pojoWriter();
 
+  /** Whether to prettify field names. */
+  private boolean prettifyNames;
 
   public Set<Modifier> getFieldModifiers() {
     return fieldModifiers;
@@ -104,6 +106,14 @@ public class PojoGeneratorOptions {
       throw new IllegalArgumentException("Writer factory cannot be null");
     }
     this.writerFactory = writerFactory;
+  }
+
+  public boolean isPrettifyNames() {
+    return prettifyNames;
+  }
+
+  public void setPrettifyNames(final boolean prettifyNames) {
+    this.prettifyNames = prettifyNames;
   }
 
 }

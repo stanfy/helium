@@ -141,4 +141,37 @@ public class DateMsg {
 
   }
 
+
+  def "should prettify names"() {
+    given:
+    options.prettifyNames = true;
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "test_field", type: new Type(name: "string")))
+
+    when:
+    converter.write(msg)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+public class Test {
+
+  private String testField;
+
+
+  public String getTestField() {
+    return testField;
+  }
+
+  public void setTestField(String value) {
+    testField = value;
+  }
+
+}
+""".trim() + '\n'
+
+  }
+
+
 }
