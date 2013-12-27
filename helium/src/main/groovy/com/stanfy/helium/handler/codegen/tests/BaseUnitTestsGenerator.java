@@ -5,6 +5,7 @@ import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Service;
+import com.stanfy.helium.utils.Names;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -81,7 +82,7 @@ abstract class BaseUnitTestsGenerator implements Handler {
   }
 
   private File withPackage(final File dir) {
-    File result = new File(dir, packageName.replaceAll("\\.", "/"));
+    File result = new File(dir, Names.packageNameToPath(packageName));
     if (!result.mkdirs() && !result.exists()) {
       throw new IllegalStateException("Cannot create dir " + result);
     }

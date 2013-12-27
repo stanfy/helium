@@ -15,8 +15,6 @@ public interface TypeResolver {
 
   Iterable<Type> all();
 
-  Class<?> toJavaClass(Type type);
-
   <I, O> ConverterFactory<I, O> findConverters(final String format);
 
 }

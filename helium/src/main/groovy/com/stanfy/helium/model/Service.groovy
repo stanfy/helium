@@ -2,6 +2,7 @@ package com.stanfy.helium.model
 
 import com.stanfy.helium.model.tests.MethodTestInfo
 import com.stanfy.helium.model.tests.ServiceTestInfo
+import com.stanfy.helium.utils.Names
 import groovy.transform.CompileStatic
 
 /**
@@ -26,7 +27,10 @@ class Service extends Descriptionable implements StructureUnit {
   final ServiceTestInfo testInfo = new ServiceTestInfo()
 
   String getCanonicalName() {
-    return name?.replaceAll(/\W+/, '')
+    if (!name) {
+      return null;
+    }
+    return super.getCanonicalName();
   }
 
   String getMethodUri(final MethodTestInfo testInfo, final ServiceMethod method) {

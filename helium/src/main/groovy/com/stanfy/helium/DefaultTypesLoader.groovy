@@ -12,7 +12,7 @@ class DefaultTypesLoader {
 
   private static def spec = {
     DefaultType.values().each {
-      type it.toString().toLowerCase(Locale.US)
+      type it.langName
     }
   }
 

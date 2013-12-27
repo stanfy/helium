@@ -1,6 +1,9 @@
 package com.stanfy.helium.gradle
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.gradle.tasks.GenerateApiTestsTask
+import com.stanfy.helium.gradle.tasks.GenerateJavaPojoTask
+import com.stanfy.helium.handler.codegen.java.PojoGeneratorOptions
 import org.gradle.api.Project
 import org.gradle.api.tasks.GradleBuild
 import org.slf4j.Logger
@@ -35,32 +38,59 @@ class HeliumExtension {
 
   private Project project
 
-  private GenerateApiTestsTask genTask
-  private GradleBuild runTask
+  private def genTasks = []
+  private GradleBuild runTestsTask
 
   void attach(final Project project) {
     this.project = project
   }
 
+  private void initHelium() {
+    Helium helium = new Helium().defaultTypes() from this.specification
+    this.heliumInstance = helium
+    genTasks.each {
+      it.helium = helium
+    }
+  }
+
   void setSpecification(final File file) {
     this.@specification = file
 
-    heliumInstance = new Helium().defaultTypes() from file
+    GenerateApiTestsTask genTestsTask = project.tasks.create("genApiTests", GenerateApiTestsTask)
+    genTestsTask.group = GROUP
+    genTestsTask.output = new File(project.buildDir, "source/$TESTS_OUT_PATH")
+    genTestsTask.input = file
+    genTasks += genTestsTask
+    LOG.debug "genApiTests task: json=$genTestsTask.input, output=$genTestsTask.output"
 
-    genTask = project.tasks.create("genApiTests", GenerateApiTestsTask)
-    genTask.group = GROUP
-    genTask.helium = heliumInstance
-    genTask.output = new File(project.buildDir, "source/$TESTS_OUT_PATH")
-    genTask.input = file
-    LOG.debug "genApiTests task: json=$genTask.input, output=$genTask.output"
+    runTestsTask = project.tasks.create('runApiTests', GradleBuild)
+    runTestsTask.group = GROUP
+    runTestsTask.buildFile = new File(genTestsTask.output, "build.gradle")
+    runTestsTask.dir = genTestsTask.output
+    runTestsTask.tasks = ['check']
+    runTestsTask.dependsOn genTestsTask
+    LOG.debug "runApiTests task: dir=$runTestsTask.dir"
 
-    runTask = project.tasks.create('runApiTests', GradleBuild)
-    runTask.group = GROUP
-    runTask.buildFile = new File(genTask.output, "build.gradle")
-    runTask.dir = genTask.output
-    runTask.tasks = ['check']
-    runTask.dependsOn genTask
-    LOG.debug "runApiTests task: dir=$runTask.dir"
+    initHelium()
+  }
+
+  void pojo(Closure<?> config) {
+    PojoDslDelegate configDelegate = new PojoDslDelegate()
+    Closure<?> configAction = config.clone() as Closure<?>
+    configAction.delegate = configDelegate
+    config.resolveStrategy = Closure.DELEGATE_FIRST
+    configAction()
+
+    if (!configDelegate.output) {
+      configDelegate.output = new File(project.buildDir, "source/gen/rest-api")
+    }
+
+    GenerateJavaPojoTask task = project.tasks.create("generatePojo", GenerateJavaPojoTask)
+    task.output = configDelegate.output
+    task.options = configDelegate.genOptions
+    task.input = specification
+    task.helium = heliumInstance
   }
 
 }
+

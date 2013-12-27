@@ -46,7 +46,7 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
     // copy scenarios file
     specFile.withWriter(UTF_8) { Writer out ->
       DefaultType.values().each { DefaultType type ->
-        out << "type '${type.name().toLowerCase()}'\n"
+        out << "type '${type.langName}'\n"
       }
       out << scenariosFile.getText(UTF_8)
     }

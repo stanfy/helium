@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.tests
 
+import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -58,7 +59,7 @@ class JsonEntityExampleGenerator {
   }
 
   private def cast(final String example, final Type type) {
-    Class<?> groovyClass = typeResolver.toJavaClass(type)
+    Class<?> groovyClass = JavaPrimitiveTypes.javaClass(type)
     return example.asType(groovyClass)
   }
 
