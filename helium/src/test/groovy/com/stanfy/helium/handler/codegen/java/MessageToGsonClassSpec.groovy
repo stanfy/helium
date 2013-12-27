@@ -38,10 +38,10 @@ import com.google.gson.annotations.SerializedName;
 public class MyMsg {
 
   @SerializedName("device_id")
-  public final String device_id;
+  public String device_id;
 
   @SerializedName("another_id")
-  public final int another_id;
+  public int another_id;
 
 
 }

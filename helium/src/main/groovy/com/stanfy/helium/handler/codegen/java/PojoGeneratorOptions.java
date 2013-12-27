@@ -18,7 +18,7 @@ public class PojoGeneratorOptions {
   /** Default options. */
   public static PojoGeneratorOptions defaultOptions(final String packageName) {
     PojoGeneratorOptions options = new PojoGeneratorOptions();
-    options.setFieldModifiers(new HashSet<Modifier>(Arrays.asList(Modifier.PUBLIC, Modifier.FINAL)));
+    options.setFieldModifiers(new HashSet<Modifier>(Arrays.asList(Modifier.PUBLIC)));
     options.setPackageName(packageName);
     return options;
   }
