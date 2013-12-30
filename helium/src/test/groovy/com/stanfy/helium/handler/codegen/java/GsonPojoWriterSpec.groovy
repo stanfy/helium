@@ -6,18 +6,18 @@ import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
 /**
- * Tests for MessageToGsonClass.
+ * Tests for GsonPojoWriter.
  */
-class MessageToGsonClassSpec extends Specification {
+class GsonPojoWriterSpec extends Specification {
 
   /** Instance under tests. */
-  MessageToGsonClass converter
+  GsonPojoWriter writer
   /** Output. */
   StringWriter output
 
   def setup() {
     output = new StringWriter()
-    converter = new MessageToGsonClass(output, PojoGeneratorOptions.defaultOptions("test"))
+    writer = new GsonPojoWriter(new PojoWriter(output))
   }
 
   def "should write class file"() {
@@ -27,7 +27,7 @@ class MessageToGsonClassSpec extends Specification {
     msg.addField(new Field(name: "another_id", type: new Type(name: "int32")))
 
     when:
-    converter.write(msg)
+    new MessageToJavaClass(writer, PojoGeneratorOptions.defaultOptions("test")).write(msg)
 
     then:
     output.toString() == """

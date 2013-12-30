@@ -8,14 +8,14 @@ import spock.lang.Specification
 import javax.lang.model.element.Modifier
 
 /**
- * Tests for MessageToJavaClass.
+ * Tests for PojoWriter.
  */
-class MessageToJavaClassSpec extends Specification {
+class PojoWriterSpec extends Specification {
 
   protected static final String TEST_PACKAGE = "com.stanfy.helium.test"
 
   /** Instance under tests. */
-  MessageToJavaClass converter
+  PojoWriter writer
   /** Output. */
   StringWriter output
   /** Options. */
@@ -28,7 +28,7 @@ class MessageToJavaClassSpec extends Specification {
     options.addGetters = true
     options.addSetters = true
     options.packageName = TEST_PACKAGE;
-    converter = new MessageToJavaClass(output, options)
+    writer = new PojoWriter(output)
   }
 
   def "should write class file"() {
@@ -42,7 +42,7 @@ class MessageToJavaClassSpec extends Specification {
     msg.addField(new Field(name: "fieldChild", type: childMessage))
 
     when:
-    converter.write(msg)
+    new MessageToJavaClass(writer, options).write(msg)
 
     then:
     output.toString() == """
@@ -120,7 +120,7 @@ public class MyMsg {
     msg.addField(new Field(name: "dateList", type: new Type(name: "date"), sequence: true))
 
     when:
-    converter.write(msg)
+    new MessageToJavaClass(writer, options).write(msg)
 
     then:
     output.toString() == """
@@ -149,7 +149,7 @@ public class DateMsg {
     msg.addField(new Field(name: "test_field", type: new Type(name: "string")))
 
     when:
-    converter.write(msg)
+    new MessageToJavaClass(writer, options).write(msg)
 
     then:
     output.toString() == """

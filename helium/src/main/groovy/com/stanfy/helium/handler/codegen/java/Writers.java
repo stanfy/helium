@@ -7,22 +7,27 @@ import java.io.Writer;
  */
 public final class Writers {
 
+  public interface WriterWrapper {
+    JavaClassWriter wrapWriter(JavaClassWriter delegate, PojoGeneratorOptions options);
+  }
+
   public interface WriterFactory {
-    MessageToJavaClass createWriter(Writer output, PojoGeneratorOptions options);
+    JavaClassWriter create(Writer output);
   }
 
   private Writers() {
     throw new UnsupportedOperationException("no instances");
   }
 
+
   /**
-   * @return POJO writer
+   * @return POJO writer factory
    */
-  public static WriterFactory pojoWriter() {
+  public static WriterFactory pojo() {
     return new WriterFactory() {
       @Override
-      public MessageToJavaClass createWriter(final Writer output, final PojoGeneratorOptions options) {
-        return new MessageToJavaClass(output, options);
+      public JavaClassWriter create(final Writer output) {
+        return new PojoWriter(output);
       }
     };
   }
@@ -31,14 +36,42 @@ public final class Writers {
   /**
    * @return writer for object with Google Gson's {@code SerializedName} annotations.
    */
-  public static WriterFactory gsonWriter() {
-    return new WriterFactory() {
+  public static WriterWrapper gson() {
+    return new WriterWrapper() {
       @Override
-      public MessageToJavaClass createWriter(final Writer output, final PojoGeneratorOptions options) {
-        return new MessageToGsonClass(output, options);
+      public JavaClassWriter wrapWriter(final JavaClassWriter output, final PojoGeneratorOptions options) {
+        return new GsonPojoWriter(output);
       }
     };
   }
 
+  /**
+   * @return writer for object that implements android.os.Parcelable
+   */
+  public static WriterWrapper androidParcelable() {
+    return new WriterWrapper() {
+      @Override
+      public JavaClassWriter wrapWriter(final JavaClassWriter output, final PojoGeneratorOptions options) {
+        return new AndroidParcelableWriter(output, options);
+      }
+    };
+  }
+
+  /**
+   * @param wrappers wrappers sequence
+   * @return chained wrapper
+   */
+  public static WriterWrapper chain(final WriterWrapper... wrappers) {
+    return new WriterWrapper() {
+      @Override
+      public JavaClassWriter wrapWriter(final JavaClassWriter delegate, final PojoGeneratorOptions options) {
+        JavaClassWriter result = delegate;
+        for (WriterWrapper wrapper : wrappers) {
+          result = wrapper.wrapWriter(result, options);
+        }
+        return result;
+      }
+    };
+  }
 
 }

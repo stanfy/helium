@@ -1,5 +1,9 @@
 package com.stanfy.helium.handler.codegen.java;
 
+import com.stanfy.helium.model.Field;
+import com.stanfy.helium.model.Type;
+import com.stanfy.helium.utils.Names;
+
 import javax.lang.model.element.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
@@ -8,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.stanfy.helium.handler.codegen.java.Writers.WriterFactory;
+import static com.stanfy.helium.handler.codegen.java.Writers.WriterWrapper;
 
 /**
  * Options for POJO generator.
@@ -43,7 +47,7 @@ public class PojoGeneratorOptions {
   private Map<String, String> customPrimitivesMapping = Collections.emptyMap();
 
   /** Writer  */
-  private WriterFactory writerFactory = Writers.pojoWriter();
+  private WriterWrapper writerWrapper = Writers.chain();
 
   /** Whether to prettify field names. */
   private boolean prettifyNames;
@@ -83,6 +87,10 @@ public class PojoGeneratorOptions {
     this.sequenceCollectionName = sequenceCollectionName;
   }
 
+  public void useArraysForSequences() {
+    setSequenceCollectionName(null);
+  }
+
   public String getPackageName() {
     return packageName;
   }
@@ -99,13 +107,13 @@ public class PojoGeneratorOptions {
     this.customPrimitivesMapping = customPrimitivesMapping;
   }
 
-  public WriterFactory getWriterFactory() { return writerFactory; }
+  public WriterWrapper getWriterWrapper() { return writerWrapper; }
 
-  public void setWriterFactory(final WriterFactory writerFactory) {
-    if (writerFactory == null) {
-      throw new IllegalArgumentException("Writer factory cannot be null");
+  public void setWriterWrapper(final WriterWrapper writerWrapper) {
+    if (writerWrapper == null) {
+      throw new IllegalArgumentException("Writer wrapper cannot be null");
     }
-    this.writerFactory = writerFactory;
+    this.writerWrapper = writerWrapper;
   }
 
   public boolean isPrettifyNames() {
@@ -114,6 +122,35 @@ public class PojoGeneratorOptions {
 
   public void setPrettifyNames(final boolean prettifyNames) {
     this.prettifyNames = prettifyNames;
+  }
+
+  public String getFieldName(final Field field) {
+    String name = field.getCanonicalName();
+    return isPrettifyNames() ? Names.prettifiedName(name) : name;
+  }
+
+  public Class<?> getJavaClass(final Type type) {
+    Class<?> result = JavaPrimitiveTypes.javaClass(type);
+    if (result == null) {
+      String className = getCustomPrimitivesMapping().get(type.getName());
+      if (className == null) {
+        throw new IllegalStateException("Mapping for " + type + " is not defined");
+      }
+      try {
+        result = Class.forName(className);
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return result;
+  }
+
+  public String getSequenceTypeName(final String itemJavaClass) {
+    String collectionName = getSequenceCollectionName();
+    if (collectionName != null) {
+      return collectionName + "<" + itemJavaClass + ">";
+    }
+    return itemJavaClass + "[]";
   }
 
 }
