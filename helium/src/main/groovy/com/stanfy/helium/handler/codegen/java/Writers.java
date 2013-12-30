@@ -8,7 +8,7 @@ import java.io.Writer;
 public final class Writers {
 
   public interface WriterFactory {
-    MessageToJavaClass createWriter(Writer output, PojoGeneratorOptions options);
+    JavaClassWriter createWriter(Writer output);
   }
 
   private Writers() {
@@ -21,8 +21,8 @@ public final class Writers {
   public static WriterFactory pojoWriter() {
     return new WriterFactory() {
       @Override
-      public MessageToJavaClass createWriter(final Writer output, final PojoGeneratorOptions options) {
-        return new MessageToJavaClass(output, options);
+      public JavaClassWriter createWriter(final Writer output) {
+        return new PojoWriter(output);
       }
     };
   }
@@ -34,8 +34,8 @@ public final class Writers {
   public static WriterFactory gsonWriter() {
     return new WriterFactory() {
       @Override
-      public MessageToJavaClass createWriter(final Writer output, final PojoGeneratorOptions options) {
-        return new MessageToGsonClass(output, options);
+      public JavaClassWriter createWriter(final Writer output) {
+        return new GsonPojoWriter(pojoWriter().createWriter(output));
       }
     };
   }
