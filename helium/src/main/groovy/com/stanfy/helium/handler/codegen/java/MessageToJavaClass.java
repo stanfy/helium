@@ -24,10 +24,6 @@ public class MessageToJavaClass {
   }
 
   public void write(final Message message) throws IOException {
-    String collectionName = options.getSequenceCollectionName();
-    if (collectionName == null) {
-      throw new IllegalStateException("collection name for sequences is not defined");
-    }
     String packageName = options.getPackageName();
     if (packageName == null) {
       throw new IllegalStateException("Package is not defined");
@@ -42,7 +38,10 @@ public class MessageToJavaClass {
       Type type = field.getType();
 
       if (field.isSequence()) {
-        imports.add(collectionName);
+        String collectionName = options.getSequenceCollectionName();
+        if (collectionName != null) {
+          imports.add(collectionName);
+        }
       }
 
       if (type.isPrimitive()) {
@@ -98,19 +97,19 @@ public class MessageToJavaClass {
   }
 
   private String getFieldTypeName(final Field field) {
-    String collectionName = options.getSequenceCollectionName();
     Type type = field.getType();
     final String typeName;
     if (type instanceof Message) {
       if (field.isSequence()) {
-        typeName = writer.getOutput().compressType(collectionName + "<" + type.getCanonicalName() + ">");
+        typeName = writer.getOutput().compressType(options.getSequenceTypeName(type.getCanonicalName()));
       } else {
         typeName = type.getCanonicalName();
       }
     } else if (type.isPrimitive()) {
       Class<?> clazz = options.getJavaClass(type);
       if (field.isSequence()) {
-        typeName = writer.getOutput().compressType(collectionName + "<" + JavaPrimitiveTypes.box(clazz).getCanonicalName() + ">");
+        String itemClassName = JavaPrimitiveTypes.box(clazz).getCanonicalName();
+        typeName = writer.getOutput().compressType(options.getSequenceTypeName(itemClassName));
       } else {
         typeName = writer.getOutput().compressType(clazz.getCanonicalName());
       }

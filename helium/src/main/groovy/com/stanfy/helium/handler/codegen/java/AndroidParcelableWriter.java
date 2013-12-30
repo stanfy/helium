@@ -121,6 +121,9 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
     String simpleMethod = getSupportedMethod("read", field);
     if (simpleMethod != null) {
+      if (field.isSequence()) {
+        simpleMethod = simpleMethod.concat("Array").replace("read", "create");
+      }
       output.emitStatement("this.%1$s = source.%2$s()", fieldName, simpleMethod);
       return;
     }
@@ -141,6 +144,9 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     String fieldName = options.getFieldName(field);
 
     if (simpleMethod != null) {
+      if (field.isSequence()) {
+        simpleMethod = simpleMethod.concat("Array");
+      }
       output.emitStatement("dest.%s(this.%s)", simpleMethod, fieldName);
       return;
     }

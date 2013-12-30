@@ -140,4 +140,64 @@ class MyMsg {
 """.trim() + '\n'
   }
 
+
+  def "should read sequences as arrays"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "arrayField", type: new Type(name: "int32"), sequence: true))
+    options.useArraysForSequences()
+
+    when:
+    writer.getOutput().emitPackage("test")
+    writer.getOutput().beginType("MyMsg", "class");
+    writer.writeConstructors(msg)
+    writer.getOutput().endType();
+
+    then:
+    output.toString() == """
+package test;
+
+class MyMsg {
+  public MyMsg() {
+  }
+
+  MyMsg(android.os.Parcel source) {
+    this.arrayField = source.createIntArray();
+  }
+
+}
+""".trim() + '\n'
+  }
+
+  def "should write sequences as arrays"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "arrayField", type: new Type(name: "int32"), sequence: true))
+    options.useArraysForSequences()
+
+    when:
+    writer.getOutput().emitPackage("test")
+    writer.getOutput().beginType("MyMsg", "class");
+    writer.writeClassEnd(msg)
+
+    then:
+    output.toString() == """
+package test;
+
+class MyMsg {
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(android.os.Parcel dest, int options) {
+    dest.writeIntArray(this.arrayField);
+  }
+
+}
+""".trim() + '\n'
+  }
+
 }

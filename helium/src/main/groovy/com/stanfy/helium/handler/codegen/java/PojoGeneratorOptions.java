@@ -87,6 +87,10 @@ public class PojoGeneratorOptions {
     this.sequenceCollectionName = sequenceCollectionName;
   }
 
+  public void useArraysForSequences() {
+    setSequenceCollectionName(null);
+  }
+
   public String getPackageName() {
     return packageName;
   }
@@ -139,6 +143,14 @@ public class PojoGeneratorOptions {
       }
     }
     return result;
+  }
+
+  public String getSequenceTypeName(final String itemJavaClass) {
+    String collectionName = getSequenceCollectionName();
+    if (collectionName != null) {
+      return collectionName + "<" + itemJavaClass + ">";
+    }
+    return itemJavaClass + "[]";
   }
 
 }
