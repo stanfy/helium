@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.java;
 
 import com.stanfy.helium.model.Field;
+import com.stanfy.helium.model.Type;
 import com.stanfy.helium.utils.Names;
 
 import javax.lang.model.element.Modifier;
@@ -122,6 +123,22 @@ public class PojoGeneratorOptions {
   public String getFieldName(final Field field) {
     String name = field.getCanonicalName();
     return isPrettifyNames() ? Names.prettifiedName(name) : name;
+  }
+
+  public Class<?> getJavaClass(final Type type) {
+    Class<?> result = JavaPrimitiveTypes.javaClass(type);
+    if (result == null) {
+      String className = getCustomPrimitivesMapping().get(type.getName());
+      if (className == null) {
+        throw new IllegalStateException("Mapping for " + type + " is not defined");
+      }
+      try {
+        result = Class.forName(className);
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return result;
   }
 
 }

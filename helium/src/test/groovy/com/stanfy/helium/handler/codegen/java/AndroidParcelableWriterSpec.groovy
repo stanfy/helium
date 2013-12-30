@@ -79,4 +79,65 @@ public class MyMsg
 """.trim() + '\n'
   }
 
+
+  def "should be able to read dates"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "dateField", type: new Type(name: "date")))
+    options.customPrimitivesMapping = [date: Date.class.name]
+
+    when:
+    writer.getOutput().emitPackage("test")
+    writer.getOutput().beginType("MyMsg", "class");
+    writer.writeConstructors(msg)
+    writer.getOutput().endType();
+
+    then:
+    output.toString() == """
+package test;
+
+class MyMsg {
+  public MyMsg() {
+  }
+
+  MyMsg(android.os.Parcel source) {
+    long dateFieldValue = source.readLong();
+    this.dateField = dateFieldValue != -1 ? new Date(dateFieldValue) : null;
+  }
+
+}
+""".trim() + '\n'
+  }
+
+  def "should be able to write dates"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "dateField", type: new Type(name: "date")))
+    options.customPrimitivesMapping = [date: Date.class.name]
+
+    when:
+    writer.getOutput().emitPackage("test")
+    writer.getOutput().beginType("MyMsg", "class");
+    writer.writeClassEnd(msg);
+
+    then:
+    output.toString() == """
+package test;
+
+class MyMsg {
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(android.os.Parcel dest, int options) {
+    dest.writeLong(this.dateField != null ? this.dateField.getTime() : -1L);
+  }
+
+}
+""".trim() + '\n'
+  }
+
 }

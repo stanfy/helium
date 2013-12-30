@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.java;
 
+import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 
@@ -7,6 +8,7 @@ import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -60,56 +62,81 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
   @Override
   public void writeConstructors(final Message message) throws IOException {
-    getOutput().beginConstructor(Collections.singleton(Modifier.PUBLIC));
-    getOutput().endConstructor();
-    getOutput().emitEmptyLine();
+    JavaWriter output = getOutput();
+    output.beginConstructor(Collections.singleton(Modifier.PUBLIC));
+    output.endConstructor();
+    output.emitEmptyLine();
 
-    getOutput().beginConstructor(EnumSet.noneOf(Modifier.class), ANDROID_OS_PARCEL, "source");
+    output.beginConstructor(EnumSet.noneOf(Modifier.class), ANDROID_OS_PARCEL, "source");
 
     for (Field field : message.getFields()) {
-      getOutput().emitStatement("this.%s = %s", options.getFieldName(field), getReadingStmt(field));
+      emitReadingStmt(field);
     }
 
-    getOutput().endConstructor();
-    getOutput().emitEmptyLine();
+    output.endConstructor();
+    output.emitEmptyLine();
 
     super.writeConstructors(message);
   }
 
   @Override
   public void writeClassEnd(Message message) throws IOException {
-    getOutput().emitEmptyLine();
-    getOutput().emitAnnotation(Override.class);
-    getOutput().beginMethod("int", "describeContents", EnumSet.of(Modifier.PUBLIC));
-    getOutput().emitStatement("return 0");
-    getOutput().endMethod();
+    JavaWriter output = getOutput();
+    output.emitEmptyLine();
+    output.emitAnnotation(Override.class);
+    output.beginMethod("int", "describeContents", EnumSet.of(Modifier.PUBLIC));
+    output.emitStatement("return 0");
+    output.endMethod();
 
-    getOutput().emitEmptyLine();
-    getOutput().emitAnnotation(Override.class);
-    getOutput().beginMethod("void", "writeToParcel", EnumSet.of(Modifier.PUBLIC), ANDROID_OS_PARCEL, "dest", "int", "options");
+    output.emitEmptyLine();
+    output.emitAnnotation(Override.class);
+    output.beginMethod("void", "writeToParcel", EnumSet.of(Modifier.PUBLIC), ANDROID_OS_PARCEL, "dest", "int", "options");
     for (Field field : message.getFields()) {
-      getOutput().emitStatement(getWritingStmt(field));
+      emitWritingStmt(field);
     }
-    getOutput().endMethod();
+    output.endMethod();
 
-    getOutput().emitEmptyLine();
+    output.emitEmptyLine();
     super.writeClassEnd(message);
   }
 
-  private String getReadingStmt(final Field field) {
+  private void emitReadingStmt(final Field field) throws IOException {
+    String fieldName = options.getFieldName(field);
+    JavaWriter output = getOutput();
+
     String simpleMethod = getReadingMethod(field);
     if (simpleMethod != null) {
-      return "source." + simpleMethod + "()";
+      output.emitStatement("this.%1$s = source.%2$s()", fieldName, simpleMethod);
+      return;
     }
-    throw new UnsupportedOperationException("cannot get reading statement for " + field);
+
+    Class<?> clazz = options.getJavaClass(field.getType());
+    if (clazz == Date.class) {
+      output.emitStatement("long %sValue = source.readLong()", fieldName);
+      output.emitStatement("this.%1$s = %1$sValue != -1 ? new Date(%1$sValue) : null", fieldName);
+      return;
+    }
+
+    output.emitStatement("this.%s = source.readValue(getClass().getClassLoader())", fieldName);
   }
 
-  private String getWritingStmt(final Field field) {
+  private void emitWritingStmt(final Field field) throws IOException {
     String simpleMethod = getWritingMethod(field);
+    JavaWriter output = getOutput();
+    String fieldName = options.getFieldName(field);
+
     if (simpleMethod != null) {
-      return "dest." + simpleMethod + "(this." + options.getFieldName(field) + ")";
+      output.emitStatement("dest.%s(this.%s)", simpleMethod, fieldName);
+      return;
     }
-    throw new UnsupportedOperationException("cannot get writing statement for " + field);
+
+    Class<?> clazz = options.getJavaClass(field.getType());
+    if (clazz == Date.class) {
+      output.emitStatement("dest.writeLong(this.%1$s != null ? this.%1$s.getTime() : -1L)", fieldName);
+      return;
+    }
+
+    output.emitStatement("dest.writeValue(this.%s)", fieldName);
   }
 
   private String getReadingMethod(final Field field) {

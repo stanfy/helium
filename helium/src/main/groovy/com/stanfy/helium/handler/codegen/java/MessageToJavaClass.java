@@ -3,7 +3,6 @@ package com.stanfy.helium.handler.codegen.java;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
-import com.stanfy.helium.utils.Names;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -22,22 +21,6 @@ public class MessageToJavaClass {
   public MessageToJavaClass(final JavaClassWriter writer, final PojoGeneratorOptions options) {
     this.writer = writer;
     this.options = options;
-  }
-
-  private Class<?> getJavaClass(final Type type) {
-    Class<?> result = JavaPrimitiveTypes.javaClass(type);
-    if (result == null) {
-      String className = options.getCustomPrimitivesMapping().get(type.getName());
-      if (className == null) {
-        throw new IllegalStateException("Mapping for " + type + " is not defined");
-      }
-      try {
-        result = Class.forName(className);
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
-    }
-    return result;
   }
 
   public void write(final Message message) throws IOException {
@@ -63,7 +46,7 @@ public class MessageToJavaClass {
       }
 
       if (type.isPrimitive()) {
-        Class<?> clazz = getJavaClass(type);
+        Class<?> clazz = options.getJavaClass(type);
         if (!clazz.isPrimitive() && !"java.lang".equals(clazz.getPackage().getName())) {
           imports.add(clazz.getCanonicalName());
         }
@@ -125,7 +108,7 @@ public class MessageToJavaClass {
         typeName = type.getCanonicalName();
       }
     } else if (type.isPrimitive()) {
-      Class<?> clazz = getJavaClass(type);
+      Class<?> clazz = options.getJavaClass(type);
       if (field.isSequence()) {
         typeName = writer.getOutput().compressType(collectionName + "<" + JavaPrimitiveTypes.box(clazz).getCanonicalName() + ">");
       } else {
