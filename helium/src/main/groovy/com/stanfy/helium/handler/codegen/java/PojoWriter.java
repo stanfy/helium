@@ -9,6 +9,7 @@ import com.stanfy.helium.utils.Names;
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,8 +35,8 @@ public class PojoWriter implements JavaClassWriter {
   }
 
   @Override
-  public void writeClassBegin(final Message message) throws IOException {
-    output.beginType(message.getCanonicalName(), "class", Collections.singleton(Modifier.PUBLIC));
+  public void writeClassBegin(final Message message, final String extending, final String... implementing) throws IOException {
+    output.beginType(message.getCanonicalName(), "class", Collections.singleton(Modifier.PUBLIC), extending, implementing);
   }
 
   @Override
@@ -65,6 +66,11 @@ public class PojoWriter implements JavaClassWriter {
   @Override
   public JavaWriter getOutput() {
     return output;
+  }
+
+  @Override
+  public void writeConstructors(final Message message) {
+    // nothing
   }
 
 }

@@ -73,15 +73,18 @@ public class MessageToJavaClass {
     writer.writeImports(imports);
 
     // class name
-    writer.writeClassBegin(message);
+    writer.writeClassBegin(message, null);
     writer.getOutput().emitEmptyLine();
 
     // fields
     for (Field field : message.getFields()) {
-      writer.writeField(field, getFieldTypeName(field), getFieldName(field), options.getFieldModifiers());
+      writer.writeField(field, getFieldTypeName(field), options.getFieldName(field), options.getFieldModifiers());
       writer.getOutput().emitEmptyLine();
     }
     writer.getOutput().emitEmptyLine();
+
+    // constructors
+    writer.writeConstructors(message);
 
     // access methods
     boolean getters = options.isAddGetters();
@@ -89,7 +92,7 @@ public class MessageToJavaClass {
     if (getters || setters) {
       for (Field field : message.getFields()) {
         String fieldTypeName = getFieldTypeName(field);
-        String fieldName = getFieldName(field);
+        String fieldName = options.getFieldName(field);
         if (getters) {
           writer.writeGetterMethod(field, fieldTypeName, getAccessMethodName("get", field), fieldName);
           writer.getOutput().emitEmptyLine();
@@ -106,7 +109,7 @@ public class MessageToJavaClass {
   }
 
   private String getAccessMethodName(final String type, final Field field) {
-    StringBuilder result = new StringBuilder().append(type).append(getFieldName(field));
+    StringBuilder result = new StringBuilder().append(type).append(options.getFieldName(field));
     result.setCharAt(type.length(), Character.toUpperCase(result.charAt(type.length())));
     return result.toString();
   }
@@ -132,11 +135,6 @@ public class MessageToJavaClass {
       throw new UnsupportedOperationException("Cannot write field " + field);
     }
     return typeName;
-  }
-
-  private String getFieldName(final Field field) {
-    String name = field.getCanonicalName();
-    return options.isPrettifyNames() ? Names.prettifiedName(name) : name;
   }
 
 }

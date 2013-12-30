@@ -6,6 +6,7 @@ import com.stanfy.helium.model.Message;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -15,7 +16,7 @@ public interface JavaClassWriter {
 
   void writeImports(final Set<String> imports) throws IOException;
 
-  void writeClassBegin(final Message message) throws IOException;
+  void writeClassBegin(final Message message, final String extending, final String... implementing) throws IOException;
 
   void writeClassEnd(final Message message) throws IOException;
 
@@ -26,5 +27,7 @@ public interface JavaClassWriter {
   void writeGetterMethod(final Field field, final String fieldTypeName, final String accessorName, final String fieldName) throws IOException;
 
   JavaWriter getOutput();
+
+  void writeConstructors(final Message message) throws IOException;
 
 }

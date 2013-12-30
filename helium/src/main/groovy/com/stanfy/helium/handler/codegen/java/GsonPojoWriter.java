@@ -20,6 +20,7 @@ public class GsonPojoWriter extends DelegateJavaClassWriter {
   @Override
   public void writeImports(final Set<String> imports) throws IOException {
     HashSet<String> newImports = new HashSet<String>(imports.size() + 1);
+    newImports.addAll(imports);
     newImports.add(SerializedName.class.getCanonicalName());
     super.writeImports(newImports);
   }
