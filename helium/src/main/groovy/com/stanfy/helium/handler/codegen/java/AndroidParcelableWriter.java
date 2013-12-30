@@ -10,13 +10,28 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
  * Writer for Android parcelables.
  */
 public class AndroidParcelableWriter extends DelegateJavaClassWriter {
+
+  /** Types supported by Parcel. */
+  private static final Map<Class<?>, String> SUPPORTED_TYPES_BY_ANDROID = new HashMap<Class<?>, String>();
+  static {
+    SUPPORTED_TYPES_BY_ANDROID.put(String.class, String.class.getSimpleName());
+    SUPPORTED_TYPES_BY_ANDROID.put(CharSequence.class, CharSequence.class.getSimpleName());
+    SUPPORTED_TYPES_BY_ANDROID.put(int.class, "Int");
+    SUPPORTED_TYPES_BY_ANDROID.put(long.class, "Long");
+    SUPPORTED_TYPES_BY_ANDROID.put(float.class, "Float");
+    SUPPORTED_TYPES_BY_ANDROID.put(double.class, "Double");
+    SUPPORTED_TYPES_BY_ANDROID.put(byte.class, "Byte");
+    SUPPORTED_TYPES_BY_ANDROID.put(short.class, "Short");
+  }
 
   private static final String ANDROID_OS_PARCEL = "android.os.Parcel";
   private static final String ANDROID_OS_PARCELABLE = "android.os.Parcelable";
@@ -104,7 +119,7 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     String fieldName = options.getFieldName(field);
     JavaWriter output = getOutput();
 
-    String simpleMethod = getReadingMethod(field);
+    String simpleMethod = getSupportedMethod("read", field);
     if (simpleMethod != null) {
       output.emitStatement("this.%1$s = source.%2$s()", fieldName, simpleMethod);
       return;
@@ -121,7 +136,7 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
   }
 
   private void emitWritingStmt(final Field field) throws IOException {
-    String simpleMethod = getWritingMethod(field);
+    String simpleMethod = getSupportedMethod("write", field);
     JavaWriter output = getOutput();
     String fieldName = options.getFieldName(field);
 
@@ -139,44 +154,13 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     output.emitStatement("dest.writeValue(this.%s)", fieldName);
   }
 
-  private String getReadingMethod(final Field field) {
+  private String getSupportedMethod(final String prefix, final Field field) {
     Class<?> clazz = JavaPrimitiveTypes.javaClass(field.getType());
-    if (clazz == String.class) {
-      return "readString";
+    if (clazz == null) {
+      return null;
     }
-    if (clazz == int.class) {
-      return "readInt";
-    }
-    if (clazz == long.class) {
-      return "readLong";
-    }
-    if (clazz == float.class) {
-      return "readFloat";
-    }
-    if (clazz == double.class) {
-      return "readDouble";
-    }
-    return null;
-  }
-
-  private String getWritingMethod(final Field field) {
-    Class<?> clazz = JavaPrimitiveTypes.javaClass(field.getType());
-    if (clazz == String.class) {
-      return "writeString";
-    }
-    if (clazz == int.class) {
-      return "writeInt";
-    }
-    if (clazz == long.class) {
-      return "writeLong";
-    }
-    if (clazz == float.class) {
-      return "writeFloat";
-    }
-    if (clazz == double.class) {
-      return "writeDouble";
-    }
-    return null;
+    String namePart = SUPPORTED_TYPES_BY_ANDROID.get(clazz);
+    return namePart != null ? prefix.concat(namePart) : null;
   }
 
 }
