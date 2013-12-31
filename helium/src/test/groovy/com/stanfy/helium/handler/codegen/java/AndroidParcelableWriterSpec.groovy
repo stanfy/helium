@@ -200,4 +200,44 @@ class MyMsg {
 """.trim() + '\n'
   }
 
+
+  def "should be able to treat other messages"() {
+    given:
+    Message child = new Message(name: "ChildMsg")
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "msg", type: child))
+
+    when:
+    writer.getOutput().emitPackage("test")
+    writer.getOutput().beginType("MyMsg", "class");
+    writer.writeConstructors(msg)
+    writer.writeClassEnd(msg)
+
+    then:
+    output.toString() == """
+package test;
+
+class MyMsg {
+  public MyMsg() {
+  }
+
+  MyMsg(android.os.Parcel source) {
+    this.msg = (ChildMsg) source.readValue(getClass().getClassLoader());
+  }
+
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(android.os.Parcel dest, int options) {
+    dest.writeValue(this.msg);
+  }
+
+}
+""".trim() + '\n'
+  }
+
 }

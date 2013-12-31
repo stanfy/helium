@@ -128,14 +128,15 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
-    Class<?> clazz = options.getJavaClass(field.getType());
+    Class<?> clazz = getJavaClass(field);
     if (clazz == Date.class) {
       output.emitStatement("long %sValue = source.readLong()", fieldName);
       output.emitStatement("this.%1$s = %1$sValue != -1 ? new Date(%1$sValue) : null", fieldName);
       return;
     }
 
-    output.emitStatement("this.%s = source.readValue(getClass().getClassLoader())", fieldName);
+    output.emitStatement("this.%1$s = (%2$s) source.readValue(getClass().getClassLoader())", fieldName,
+        clazz != null ? clazz.getCanonicalName() : field.getType().getCanonicalName());
   }
 
   private void emitWritingStmt(final Field field) throws IOException {
@@ -151,7 +152,7 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
-    Class<?> clazz = options.getJavaClass(field.getType());
+    Class<?> clazz = getJavaClass(field);
     if (clazz == Date.class) {
       output.emitStatement("dest.writeLong(this.%1$s != null ? this.%1$s.getTime() : -1L)", fieldName);
       return;
@@ -160,7 +161,14 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     output.emitStatement("dest.writeValue(this.%s)", fieldName);
   }
 
+  private Class<?> getJavaClass(final Field field) {
+    return field.getType().isPrimitive() ? options.getJavaClass(field.getType()) : null;
+  }
+
   private String getSupportedMethod(final String prefix, final Field field) {
+    if (!field.getType().isPrimitive()) {
+      return null;
+    }
     Class<?> clazz = JavaPrimitiveTypes.javaClass(field.getType());
     if (clazz == null) {
       return null;
