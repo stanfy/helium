@@ -12,8 +12,8 @@ public class DslUtils {
   public static <T> T runWithProxy(final Object proxy, final Closure<T> closure) {
     @SuppressWarnings("unchecked")
     Closure<T> body = (Closure<T>) closure.clone();
-    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.setDelegate(proxy);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     return body.call();
   }
 

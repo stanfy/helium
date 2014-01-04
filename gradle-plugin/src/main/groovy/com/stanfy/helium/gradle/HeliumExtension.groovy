@@ -1,8 +1,13 @@
 package com.stanfy.helium.gradle
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.gradle.SourceGenDslDelegate.ConstantsDslDelegate
+import com.stanfy.helium.gradle.SourceGenDslDelegate.EntitiesDslDelegate
+import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import com.stanfy.helium.gradle.tasks.GenerateApiTestsTask
-import com.stanfy.helium.gradle.tasks.GenerateJavaPojoTask
+import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
+import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
+import com.stanfy.helium.utils.DslUtils
 import org.gradle.api.Project
 import org.gradle.api.tasks.GradleBuild
 import org.slf4j.Logger
@@ -73,23 +78,46 @@ class HeliumExtension {
     initHelium()
   }
 
-  void pojo(Closure<?> config) {
-    PojoDslDelegate configDelegate = new PojoDslDelegate()
-    Closure<?> configAction = config.clone() as Closure<?>
-    configAction.delegate = configDelegate
-    config.resolveStrategy = Closure.DELEGATE_FIRST
-    configAction()
+  void sourceGen(Closure<?> config) {
+    SourceGenDslDelegate delegate = new SourceGenDslDelegate(config.owner)
+    DslUtils.runWithProxy(delegate, config)
+    processEntities(delegate.entities)
+    processConstants(delegate.constants)
+  }
 
-    if (!configDelegate.output) {
-      configDelegate.output = new File(project.buildDir, "source/gen/rest-api")
+  private void processEntities(EntitiesDslDelegate entities) {
+    if (!entities) {
+      return
     }
 
-    GenerateJavaPojoTask task = project.tasks.create("generatePojo", GenerateJavaPojoTask)
-    task.output = configDelegate.output
-    task.options = configDelegate.genOptions
+    if (!entities.output) {
+      entities.output = new File(project.buildDir, "source/gen/rest-api")
+    }
+    GenerateJavaEntitiesTask task = project.tasks.create("generateEntities", GenerateJavaEntitiesTask)
+    genTasks += task
+    configureGenTask(task, entities.output)
+    task.options = entities.genOptions
+  }
+
+  private void configureGenTask(BaseHeliumTask task, File output) {
+    task.output = output
     task.input = specification
     task.helium = heliumInstance
   }
 
-}
+  private void processConstants(ConstantsDslDelegate constants) {
+    if (!constants) {
+      return
+    }
 
+    if (!constants.output) {
+      constants.output = new File(project.buildDir, "source/gen/constants")
+    }
+    GenerateJavaConstantsTask task = project.tasks.create("generateConstants", GenerateJavaConstantsTask)
+    genTasks += task
+    configureGenTask(task, constants.output)
+    task.options = constants.genOptions
+
+  }
+
+}
