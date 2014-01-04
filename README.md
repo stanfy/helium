@@ -2,6 +2,7 @@ Helium
 ======
 
 Helium is a DSL for REST API specifications and also a Java API for processing descriptions written in this language.
+[![Build Status](https://travis-ci.org/stanfy/helium.png?branch=master)](https://travis-ci.org/stanfy/helium)
 
 
 Documentation
