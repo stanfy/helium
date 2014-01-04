@@ -1,5 +1,7 @@
-package com.stanfy.helium.handler.codegen.java;
+package com.stanfy.helium.handler.codegen.java.entity;
 
+import com.stanfy.helium.handler.codegen.JavaGeneratorOptions;
+import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.utils.Names;
@@ -12,16 +14,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.stanfy.helium.handler.codegen.java.Writers.WriterWrapper;
+import static com.stanfy.helium.handler.codegen.java.entity.Writers.WriterWrapper;
 
 /**
  * Options for POJO generator.
  */
-public class PojoGeneratorOptions {
+public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
 
   /** Default options. */
-  public static PojoGeneratorOptions defaultOptions(final String packageName) {
-    PojoGeneratorOptions options = new PojoGeneratorOptions();
+  public static EntitiesGeneratorOptions defaultOptions(final String packageName) {
+    EntitiesGeneratorOptions options = new EntitiesGeneratorOptions();
     options.setFieldModifiers(new HashSet<Modifier>(Arrays.asList(Modifier.PUBLIC)));
     options.setPackageName(packageName);
     return options;
@@ -39,9 +41,6 @@ public class PojoGeneratorOptions {
 
   /** Collection class name for sequences. */
   private String sequenceCollectionName = List.class.getCanonicalName();
-
-  /** Package name for generated classes. */
-  private String packageName;
 
   /** Mapping for custom primitives. */
   private Map<String, String> customPrimitivesMapping = Collections.emptyMap();
@@ -89,14 +88,6 @@ public class PojoGeneratorOptions {
 
   public void useArraysForSequences() {
     setSequenceCollectionName(null);
-  }
-
-  public String getPackageName() {
-    return packageName;
-  }
-
-  public void setPackageName(final String packageName) {
-    this.packageName = packageName;
   }
 
   public Map<String, String> getCustomPrimitivesMapping() {

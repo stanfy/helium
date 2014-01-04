@@ -1,6 +1,7 @@
-package com.stanfy.helium.handler.codegen.java;
+package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.squareup.javawriter.JavaWriter;
+import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 
@@ -36,9 +37,9 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
   private static final String ANDROID_OS_PARCEL = "android.os.Parcel";
   private static final String ANDROID_OS_PARCELABLE = "android.os.Parcelable";
 
-  private final PojoGeneratorOptions options;
+  private final EntitiesGeneratorOptions options;
 
-  public AndroidParcelableWriter(final JavaClassWriter core, final PojoGeneratorOptions options) {
+  public AndroidParcelableWriter(final JavaClassWriter core, final EntitiesGeneratorOptions options) {
     super(core);
     this.options = options;
   }

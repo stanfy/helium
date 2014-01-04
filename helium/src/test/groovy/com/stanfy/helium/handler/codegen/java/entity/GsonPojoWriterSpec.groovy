@@ -1,5 +1,9 @@
-package com.stanfy.helium.handler.codegen.java
+package com.stanfy.helium.handler.codegen.java.entity
 
+import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
+import com.stanfy.helium.handler.codegen.java.entity.GsonPojoWriter
+import com.stanfy.helium.handler.codegen.java.entity.MessageToJavaClass
+import com.stanfy.helium.handler.codegen.java.entity.PojoWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
@@ -27,7 +31,7 @@ class GsonPojoWriterSpec extends Specification {
     msg.addField(new Field(name: "another_id", type: new Type(name: "int32")))
 
     when:
-    new MessageToJavaClass(writer, PojoGeneratorOptions.defaultOptions("test")).write(msg)
+    new MessageToJavaClass(writer, EntitiesGeneratorOptions.defaultOptions("test")).write(msg)
 
     then:
     output.toString() == """

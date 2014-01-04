@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.java;
+package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.google.gson.annotations.SerializedName;
 import com.stanfy.helium.model.Field;

@@ -1,38 +1,17 @@
-package com.stanfy.helium.handler.codegen.java
+package com.stanfy.helium.handler.codegen.java.entity
 
-import com.stanfy.helium.dsl.ProjectDsl
-import spock.lang.Specification
+import com.stanfy.helium.handler.codegen.java.BaseGeneratorSpec
 
 /**
- * Tests for PojoGenerator.
+ * Tests for EntitiesGenerator.
  */
-class PojoGeneratorSpec extends Specification {
+class EntitiesGeneratorSpec extends BaseGeneratorSpec<EntitiesGenerator> {
 
-  PojoGenerator generator
-  ProjectDsl project
-  File output
-  PojoGeneratorOptions options
+  EntitiesGeneratorOptions options
 
   def setup() {
-    project = new ProjectDsl()
-    project.type "A" message { }
-    project.type "B" message { }
-    project.type "C" message { }
-
-    output = File.createTempDir()
-
-    options = PojoGeneratorOptions.defaultOptions("com.stanfy.helium")
-    generator = new PojoGenerator(output, options)
-  }
-
-  def "should generate files"() {
-    when:
-    generator.handle(project)
-
-    then:
-    new File("$output/com/stanfy/helium/A.java").exists()
-    new File("$output/com/stanfy/helium/B.java").exists()
-    new File("$output/com/stanfy/helium/C.java").exists()
+    options = EntitiesGeneratorOptions.defaultOptions("com.stanfy.helium")
+    generator = new EntitiesGenerator(output, options)
   }
 
   def "should be able to chain writers"() {

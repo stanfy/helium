@@ -119,10 +119,18 @@ Add POJO generation task:
 ```groovy
 helium {
   specification file('my.api')
-  pojo {
-    output file("$buildDir/source/rest-api")
-    options {
-      prettifyNames = true
+  sourceGen {
+    entities {
+      output file("$buildDir/source/rest-api")
+      options {
+        prettifyNames = true
+      }
+    }
+    constants {
+      output file("$buildDir/source/constants")
+      options {
+        packageName = "com.example"
+      }
     }
   }
 }
