@@ -62,9 +62,9 @@ new Helium().from("service {name 'Example Service'}").processBy(new Handler() {
 
 // read from file and generate POJOs
 new Helium().from(new File("twitter.spec"))
-  .processBy(new PojoGenerator(
+  .processBy(new EntitiesGenerator(
       new File("/build/gen"),
-      PojoGeneratorOptions.defaultOptions("com.example.twitter")
+      EntitiesGeneratorOptions.defaultOptions("com.example.twitter")
   ));
 ```
 
@@ -116,7 +116,7 @@ helium {
 }
 ```
 
-Add POJO generation task:
+Add Java source generation:
 ```groovy
 helium {
   specification file('my.api')
