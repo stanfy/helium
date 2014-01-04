@@ -9,13 +9,18 @@ class ServiceMethodSpec extends Specification {
 
   ServiceMethod method = new ServiceMethod()
 
-  def "canonical name is based on path"() {
+  def setup() {
+    method.name = "test method"
+  }
+
+  def "canonical name is based on path and method type"() {
     when:
     method.name = "ababagalamaga"
     method.path = "/statuses/public.json"
+    method.type = MethodType.DELETE
 
     then:
-    method.canonicalName == "statuses_public_json"
+    method.canonicalName == "delete_statuses_public_json"
   }
 
   def "getPathWithParameters substitutes provided values"() {
@@ -61,6 +66,23 @@ class ServiceMethodSpec extends Specification {
     q2 == ''
     q3 == ''
 
+  }
+
+  def "hasRequiredParameters should respect path parameters"() {
+    given:
+    method.path = "something/@param/test"
+    expect:
+    method.hasRequiredParameters()
+  }
+
+  def "hasRequiredParameters should respect required fields in params message"() {
+    given:
+    Message testType = new Message(name: 'TestType')
+    testType.addField(new Field(name : 'a', type: new Type(name: 'string'), required: true))
+    method.parameters = testType
+
+    expect:
+    method.hasRequiredParameters()
   }
 
 }
