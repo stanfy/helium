@@ -13,6 +13,8 @@ abstract class BaseGeneratorSpec<T extends Handler> extends Specification {
   File output
   T generator
 
+  String genFilesPrefix = ""
+
   def setup() {
     project = new ProjectDsl()
     project.type "A" message { }
@@ -27,9 +29,9 @@ abstract class BaseGeneratorSpec<T extends Handler> extends Specification {
     generator.handle(project)
 
     then:
-    new File("$output/com/stanfy/helium/A.java").exists()
-    new File("$output/com/stanfy/helium/B.java").exists()
-    new File("$output/com/stanfy/helium/C.java").exists()
+    new File("$output/com/stanfy/helium/A${genFilesPrefix}.java").exists()
+    new File("$output/com/stanfy/helium/B${genFilesPrefix}.java").exists()
+    new File("$output/com/stanfy/helium/C${genFilesPrefix}.java").exists()
   }
 
 }

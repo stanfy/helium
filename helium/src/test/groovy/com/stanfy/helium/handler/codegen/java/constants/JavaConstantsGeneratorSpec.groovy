@@ -13,6 +13,7 @@ class JavaConstantsGeneratorSpec extends BaseGeneratorSpec<JavaConstantsGenerato
   def setup() {
     options = ConstantsGeneratorOptions.defaultOptions("com.stanfy.helium")
     generator = new JavaConstantsGenerator(output, options)
+    genFilesPrefix = "Constants"
   }
 
 }

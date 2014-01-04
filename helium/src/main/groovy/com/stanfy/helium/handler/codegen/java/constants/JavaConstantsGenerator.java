@@ -44,7 +44,7 @@ public class JavaConstantsGenerator implements Handler {
 
     for (Type type : project.getTypes().all()) {
       if (type instanceof Message) {
-        File classFile = new File(targetDirectory, type.getCanonicalName() + ".java");
+        File classFile = new File(targetDirectory, type.getCanonicalName() + "Constants.java");
         Writer output = null;
         try {
           output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");

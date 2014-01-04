@@ -29,7 +29,7 @@ public class MessageToConstants {
 
   public void write(final Message message) throws IOException {
     output.emitPackage(options.getPackageName());
-    output.beginType(message.getCanonicalName(), "class", Collections.singleton(Modifier.PUBLIC));
+    output.beginType(message.getCanonicalName() + "Constants", "class", Collections.singleton(Modifier.PUBLIC));
     for (Field field : message.getFields()) {
       String name = options.getNameConverter().constantFrom(field);
       output.emitField(

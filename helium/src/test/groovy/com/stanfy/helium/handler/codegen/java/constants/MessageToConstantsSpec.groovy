@@ -38,7 +38,7 @@ class MessageToConstantsSpec extends Specification {
     output.toString() == """
 package com.stanfy.helium;
 
-public class Test {
+public class TestConstants {
   public static final String A = "a";
   public static final String B = "b";
 }
