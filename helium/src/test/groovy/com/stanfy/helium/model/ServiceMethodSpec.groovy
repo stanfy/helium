@@ -9,13 +9,14 @@ class ServiceMethodSpec extends Specification {
 
   ServiceMethod method = new ServiceMethod()
 
-  def "canonical name is based on path"() {
+  def "canonical name is based on path and method type"() {
     when:
     method.name = "ababagalamaga"
     method.path = "/statuses/public.json"
+    method.type = MethodType.DELETE
 
     then:
-    method.canonicalName == "statuses_public_json"
+    method.canonicalName == "delete_statuses_public_json"
   }
 
   def "getPathWithParameters substitutes provided values"() {

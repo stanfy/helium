@@ -35,7 +35,7 @@ class ServiceMethod extends Descriptionable {
 
   @Override
   String getCanonicalName() {
-    return Names.canonicalName(path)
+    return Names.canonicalName(type.toString().toLowerCase(Locale.US) + " " + path)
   }
 
   String getPathWithParameters(Map<String, String> parameters) {
