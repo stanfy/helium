@@ -46,6 +46,7 @@ subprojects {
     }
 
     signing {
+      required !version.contains("SNAPSHOT")
       sign configurations.archives
     }
 
