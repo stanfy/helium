@@ -1,5 +1,6 @@
 language: java
 env:
+  secure: GGE5qrW0OdoKUUFEWwnzKPLvUGF0TaNEAvQqVIrGWo6VmoywIzadOYvpQhS7jpktkSAXsuW80x1pIFac0cJp0kXxp8ilLg5P+/QsmU7KyZCzw2aG7UHLXugQvdFvJdBgfBOnh0kFAG5yVenbUvutMEFQoqg9gglS7qlb8hYrub8=
   secure: Da+XzBDGpK2nKRoOGapNus/nm/5fj58vL8bT0O25T/jMDgBlKTTUmRHiCg+cn7bs93uv6CWj3LhRV99vy7x1bgaVwW1PpKqGtcDB3jM0E/5rE/URBreHNaA4aKBbXHRAJxZQtvY7XlT1Pyzmbr1KWXG7WyCFyiYFz4MvuQdxEuY=
 
 install:
