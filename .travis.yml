@@ -1,7 +1,8 @@
 language: java
 env:
-  secure: GGE5qrW0OdoKUUFEWwnzKPLvUGF0TaNEAvQqVIrGWo6VmoywIzadOYvpQhS7jpktkSAXsuW80x1pIFac0cJp0kXxp8ilLg5P+/QsmU7KyZCzw2aG7UHLXugQvdFvJdBgfBOnh0kFAG5yVenbUvutMEFQoqg9gglS7qlb8hYrub8=
-  secure: Da+XzBDGpK2nKRoOGapNus/nm/5fj58vL8bT0O25T/jMDgBlKTTUmRHiCg+cn7bs93uv6CWj3LhRV99vy7x1bgaVwW1PpKqGtcDB3jM0E/5rE/URBreHNaA4aKBbXHRAJxZQtvY7XlT1Pyzmbr1KWXG7WyCFyiYFz4MvuQdxEuY=
+  global:
+  - secure: "N65Gr043MKcOCsRGTaG4Agk+MxTV/QXUU753Z7jgLqaz6oGugtb25oh7fuQ5OrSuF/XV2AXJaM03++2Wa3Xadp4CCA/ciJUMFhmy5KY/PLzpnNtFO0HY0B1IPS79fvsLKNnMaQTW46hnQWIvsXCfTjqzXIZ612ZcQxFdYZEUpns="
+  - secure: "W6QGZAbSdKkLJQ53hDs5LXRNNCQnv18W40/h2vkEdoImIJ3pZX/gTbycmS0D3x7Ev8BsgjH0/jaK+BeTRmABBs2U7jld7XN690O3dkHTSONRVcRk9litCpvBDnzlt6EaMjvYZSzJ4YPBefG1MFtw+dJkZ5sO6k1J81zaOAXSI90="
 
 install:
 - TERM=dumb ./gradlew -q assemble
