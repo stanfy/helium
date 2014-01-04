@@ -1,4 +1,9 @@
 
+task wrapper(type: Wrapper) {
+  gradleVersion = '1.10'
+}
+
+
 boolean hasCredentials = hasProperty('nexusUsername') && hasProperty('nexusPassword')
 
 subprojects {
