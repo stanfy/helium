@@ -112,6 +112,9 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     testText.contains ".setEntity"
     testText.contains '\\"email\\"' // check escaping
 
+    // should not contain test for path parameters without examples
+    !testText.contains("testNoExamples")
+
     // httpHeaders
     testText.contains 'request.addHeader("User-Agent", "Mozilla")'
     testText.contains 'request.addHeader("Super-Header", "A")'

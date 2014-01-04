@@ -44,6 +44,11 @@ final class SpecExample {
         }
       }
 
+      get "/testNoExamples/@param.json" spec {
+        name "Test method without path examples"
+        response "UserProfile"
+      }
+
       get "/simple/request" spec {
         name "Simple request without required parameters"
         parameters {

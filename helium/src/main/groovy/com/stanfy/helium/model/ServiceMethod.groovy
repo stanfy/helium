@@ -90,8 +90,20 @@ class ServiceMethod extends Descriptionable {
     return type.hasBody && body != null
   }
 
+  boolean hasRequiredParametersInPath() {
+    return path?.contains("@")
+  }
+
+  boolean hasRequiredParameterFields() {
+    return parameters?.hasRequiredFields()
+  }
+
+  boolean hasRequiredParameters() {
+    return hasRequiredParametersInPath() || hasRequiredParameterFields()
+  }
+
   String toString() {
-    return name ? "\"$name\"($type $path)" : "\"$type $path\""
+    return name ? "\"$name\"(type: $type path: $path)" : "\"type: $type path: $path\""
   }
 
 }

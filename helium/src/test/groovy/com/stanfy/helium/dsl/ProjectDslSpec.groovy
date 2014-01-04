@@ -335,7 +335,8 @@ class ProjectDslSpec extends Specification {
 
     then:
     def e = thrown(IllegalStateException)
-    e.message.contains("GET /aaa")
+    e.message.contains("GET")
+    e.message.contains("/aaa")
     e.message.contains("not defined")
   }
 
