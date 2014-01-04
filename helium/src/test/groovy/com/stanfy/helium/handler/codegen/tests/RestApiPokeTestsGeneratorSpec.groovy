@@ -79,7 +79,7 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
 
     then:
     testsCount == 1
-    testFile.absolutePath.contains("spec/tests/rest/")
+    testFile.absolutePath.contains("spec${File.separatorChar}tests${File.separatorChar}rest")
     testText.contains "public class Twitter_APIPokeTest extends ${RestApiMethods.simpleName}"
     testText.contains "@Test"
     testText.contains "send(request)"
@@ -87,30 +87,33 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     testText.contains MethodType.name
 
     // get users/show.json
-    testText.contains "public void users_show_json_shouldFailWithOutParameters"
+    testText.contains "public void get_users_show_json_shouldFailWithOutParameters"
     // get test/@param.json
-    testText.contains "public void test_param_json_example()"
+    testText.contains "public void get_test_param_json_example()"
     testText.contains "test/value.json"
     // get simple/request
-    testText.contains "public void simple_request_example()"
+    testText.contains "public void get_simple_request_example()"
     // get required/@example
-    testText.contains "public void required_example_example()"
+    testText.contains "public void get_required_example_example()"
     testText.contains "required/HOP?param1=2"
     // get product/get
-    testText.contains "public void product_get_shouldFailWithOutParameters"
-    testText.contains "public void product_get_example()"
+    testText.contains "public void get_product_get_shouldFailWithOutParameters"
+    testText.contains "public void get_product_get_example()"
     testText.contains "product/get?id=23288"
 
     // post post/example
-    testText.contains "public void post_example_shouldFailWithOutBody"
+    testText.contains "public void post_post_example_shouldFailWithOutBody"
     testText.contains "post/123?full=false"
-    !testText.contains("public void post_example_example")
+    !testText.contains("public void post_post_example_example")
 
     // post account/add
-    testText.contains "public void account_add_shouldFailWithOutBody"
-    testText.contains "public void account_add_example"
+    testText.contains "public void post_account_add_shouldFailWithOutBody"
+    testText.contains "public void post_account_add_example"
     testText.contains ".setEntity"
     testText.contains '\\"email\\"' // check escaping
+
+    // should not contain test for path parameters without examples
+    !testText.contains("testNoExamples")
 
     // httpHeaders
     testText.contains 'request.addHeader("User-Agent", "Mozilla")'

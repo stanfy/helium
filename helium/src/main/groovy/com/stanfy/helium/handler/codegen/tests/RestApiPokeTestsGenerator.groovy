@@ -59,22 +59,32 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
 
     MethodGenerator gen = new MethodGenerator(out: out, service: service, method: method, testInfo: testInfo)
 
-    if (method.parameters?.hasRequiredFields()) {
+    boolean pathExamplesPresent = testInfo.pathExample && !testInfo.pathExample.empty
 
-      // make test without required parameters - should fail
-      gen.method("_shouldFailWithOutParameters", service.getMethodUri(testInfo, method)) {
-        gen.expectClientError()
+    if (method.hasRequiredParameters()) {
+
+      if (!method.hasRequiredParametersInPath() || pathExamplesPresent) {
+        // make test without required parameters - method should fail
+        gen.method("_shouldFailWithOutParameters", service.getMethodUri(testInfo, method)) {
+          gen.expectClientError()
+        }
       }
 
     }
 
-    boolean requestUriReady = !method.parameters?.hasRequiredFields()
+    boolean requestUriReady = !method.hasRequiredParameters()
     String parametrizedUri = service.getMethodUri(testInfo, method)
 
     if (testInfo.useExamples) {
 
       final String uriQueryExample = method.getUriQueryWithExamples(encoding)
-      requestUriReady = requestUriReady | !uriQueryExample.empty
+      if (method.hasRequiredParameterFields()) {
+        requestUriReady |= !uriQueryExample.empty
+      }
+      if (method.hasRequiredParametersInPath()) {
+        requestUriReady |= pathExamplesPresent
+      }
+
       parametrizedUri = "${parametrizedUri}$uriQueryExample"
 
       if (requestUriReady && !method.hasBody()) {
