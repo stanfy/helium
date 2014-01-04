@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.java;
+package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.model.Field;

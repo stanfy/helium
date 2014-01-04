@@ -1,5 +1,8 @@
-package com.stanfy.helium.handler.codegen.java
+package com.stanfy.helium.handler.codegen.java.entity
 
+import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
+import com.stanfy.helium.handler.codegen.java.entity.MessageToJavaClass
+import com.stanfy.helium.handler.codegen.java.entity.PojoWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
@@ -10,7 +13,7 @@ import javax.lang.model.element.Modifier
 /**
  * Tests for PojoWriter.
  */
-class PojoWriterSpec extends Specification {
+class EntityWriterSpec extends Specification {
 
   protected static final String TEST_PACKAGE = "com.stanfy.helium.test"
 
@@ -19,11 +22,11 @@ class PojoWriterSpec extends Specification {
   /** Output. */
   StringWriter output
   /** Options. */
-  PojoGeneratorOptions options
+  EntitiesGeneratorOptions options
 
   def setup() {
     output = new StringWriter()
-    options = new PojoGeneratorOptions()
+    options = new EntitiesGeneratorOptions()
     options.fieldModifiers = [Modifier.PRIVATE] as Set
     options.addGetters = true
     options.addSetters = true

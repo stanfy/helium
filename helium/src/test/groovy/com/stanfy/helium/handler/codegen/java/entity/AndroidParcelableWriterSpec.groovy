@@ -1,5 +1,9 @@
-package com.stanfy.helium.handler.codegen.java
+package com.stanfy.helium.handler.codegen.java.entity
 
+import com.stanfy.helium.handler.codegen.java.entity.AndroidParcelableWriter
+import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
+import com.stanfy.helium.handler.codegen.java.entity.MessageToJavaClass
+import com.stanfy.helium.handler.codegen.java.entity.PojoWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
@@ -14,11 +18,11 @@ class AndroidParcelableWriterSpec extends Specification {
   /** Output. */
   StringWriter output
   /** Options. */
-  PojoGeneratorOptions options
+  EntitiesGeneratorOptions options
 
   def setup() {
     output = new StringWriter()
-    options = PojoGeneratorOptions.defaultOptions("test")
+    options = EntitiesGeneratorOptions.defaultOptions("test")
     writer = new AndroidParcelableWriter(new PojoWriter(output), options)
   }
 

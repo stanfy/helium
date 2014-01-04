@@ -1,4 +1,10 @@
-package com.stanfy.helium.handler.codegen.java;
+package com.stanfy.helium.handler.codegen.java.entity;
+
+import com.stanfy.helium.handler.codegen.java.entity.AndroidParcelableWriter;
+import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions;
+import com.stanfy.helium.handler.codegen.java.entity.GsonPojoWriter;
+import com.stanfy.helium.handler.codegen.java.entity.JavaClassWriter;
+import com.stanfy.helium.handler.codegen.java.entity.PojoWriter;
 
 import java.io.Writer;
 
@@ -8,7 +14,7 @@ import java.io.Writer;
 public final class Writers {
 
   public interface WriterWrapper {
-    JavaClassWriter wrapWriter(JavaClassWriter delegate, PojoGeneratorOptions options);
+    JavaClassWriter wrapWriter(JavaClassWriter delegate, EntitiesGeneratorOptions options);
   }
 
   public interface WriterFactory {
@@ -39,7 +45,7 @@ public final class Writers {
   public static WriterWrapper gson() {
     return new WriterWrapper() {
       @Override
-      public JavaClassWriter wrapWriter(final JavaClassWriter output, final PojoGeneratorOptions options) {
+      public JavaClassWriter wrapWriter(final JavaClassWriter output, final EntitiesGeneratorOptions options) {
         return new GsonPojoWriter(output);
       }
     };
@@ -51,7 +57,7 @@ public final class Writers {
   public static WriterWrapper androidParcelable() {
     return new WriterWrapper() {
       @Override
-      public JavaClassWriter wrapWriter(final JavaClassWriter output, final PojoGeneratorOptions options) {
+      public JavaClassWriter wrapWriter(final JavaClassWriter output, final EntitiesGeneratorOptions options) {
         return new AndroidParcelableWriter(output, options);
       }
     };
@@ -64,7 +70,7 @@ public final class Writers {
   public static WriterWrapper chain(final WriterWrapper... wrappers) {
     return new WriterWrapper() {
       @Override
-      public JavaClassWriter wrapWriter(final JavaClassWriter delegate, final PojoGeneratorOptions options) {
+      public JavaClassWriter wrapWriter(final JavaClassWriter delegate, final EntitiesGeneratorOptions options) {
         JavaClassWriter result = delegate;
         for (WriterWrapper wrapper : wrappers) {
           result = wrapper.wrapWriter(result, options);

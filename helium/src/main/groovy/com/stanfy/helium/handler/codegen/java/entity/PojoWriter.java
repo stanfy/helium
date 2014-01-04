@@ -1,17 +1,14 @@
-package com.stanfy.helium.handler.codegen.java;
+package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.squareup.javawriter.JavaWriter;
+import com.stanfy.helium.handler.codegen.java.entity.JavaClassWriter;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
-import com.stanfy.helium.model.Type;
-import com.stanfy.helium.utils.Names;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 /**

@@ -1,5 +1,8 @@
-package com.stanfy.helium.handler.codegen.java;
+package com.stanfy.helium.handler.codegen.java.entity;
 
+import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
+import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions;
+import com.stanfy.helium.handler.codegen.java.entity.JavaClassWriter;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
@@ -16,9 +19,9 @@ public class MessageToJavaClass {
   private final JavaClassWriter writer;
 
   /** Generation options. */
-  private final PojoGeneratorOptions options;
+  private final EntitiesGeneratorOptions options;
 
-  public MessageToJavaClass(final JavaClassWriter writer, final PojoGeneratorOptions options) {
+  public MessageToJavaClass(final JavaClassWriter writer, final EntitiesGeneratorOptions options) {
     this.writer = writer;
     this.options = options;
   }

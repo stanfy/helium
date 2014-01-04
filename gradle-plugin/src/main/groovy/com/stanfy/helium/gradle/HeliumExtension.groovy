@@ -3,7 +3,6 @@ package com.stanfy.helium.gradle
 import com.stanfy.helium.Helium
 import com.stanfy.helium.gradle.tasks.GenerateApiTestsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaPojoTask
-import com.stanfy.helium.handler.codegen.java.PojoGeneratorOptions
 import org.gradle.api.Project
 import org.gradle.api.tasks.GradleBuild
 import org.slf4j.Logger

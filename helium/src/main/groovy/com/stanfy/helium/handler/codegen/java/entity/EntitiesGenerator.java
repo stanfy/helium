@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.java;
+package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.model.Message;
@@ -15,22 +15,22 @@ import java.io.OutputStreamWriter;
 /**
  * POJO generator.
  */
-public class PojoGenerator implements Handler {
+public class EntitiesGenerator implements Handler {
 
   /** Output directory. */
   private final File outputDirectory;
 
   /** Options. */
-  private final PojoGeneratorOptions options;
+  private final EntitiesGeneratorOptions options;
 
-  public PojoGenerator(final File outputDirectory, final PojoGeneratorOptions options) {
+  public EntitiesGenerator(final File outputDirectory, final EntitiesGeneratorOptions options) {
     this.outputDirectory = outputDirectory;
     this.options = options;
   }
 
-  public PojoGenerator(final File outputDirectory, final String packageName) {
+  public EntitiesGenerator(final File outputDirectory, final String packageName) {
     this.outputDirectory = outputDirectory;
-    this.options = PojoGeneratorOptions.defaultOptions(packageName);
+    this.options = EntitiesGeneratorOptions.defaultOptions(packageName);
   }
 
   @Override

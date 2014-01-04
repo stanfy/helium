@@ -1,7 +1,7 @@
 package com.stanfy.helium.gradle.tasks
 
-import com.stanfy.helium.handler.codegen.java.PojoGenerator
-import com.stanfy.helium.handler.codegen.java.PojoGeneratorOptions
+import com.stanfy.helium.handler.codegen.java.entity.EntitiesGenerator
+import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskAction
 
@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 class GenerateJavaPojoTask extends BaseHeliumTask {
 
   /** Generator options. */
-  PojoGeneratorOptions options;
+  EntitiesGeneratorOptions options;
 
   @TaskAction
   void generate() {
@@ -19,7 +19,7 @@ class GenerateJavaPojoTask extends BaseHeliumTask {
       throw new GradleException("Generation options are not defined");
     }
 
-    helium.processBy new PojoGenerator(output, options)
+    helium.processBy new EntitiesGenerator(output, options)
   }
 
 }

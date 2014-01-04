@@ -2,7 +2,7 @@ package com.stanfy.helium.gradle
 
 import groovy.transform.PackageScope
 
-import com.stanfy.helium.handler.codegen.java.PojoGeneratorOptions
+import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 
 /**
  * Delegate for DSL
@@ -16,7 +16,7 @@ class PojoDslDelegate {
 
   @PackageScope File output
 
-  @PackageScope PojoGeneratorOptions genOptions = PojoGeneratorOptions.defaultOptions("api")
+  @PackageScope EntitiesGeneratorOptions genOptions = EntitiesGeneratorOptions.defaultOptions("api")
 
   void output(File output) {
     this.output = output;
