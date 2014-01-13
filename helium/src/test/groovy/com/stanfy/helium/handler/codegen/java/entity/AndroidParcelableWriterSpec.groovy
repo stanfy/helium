@@ -204,6 +204,36 @@ class MyMsg {
 """.trim() + '\n'
   }
 
+  private String buildClassCode(Map paramsMap) {
+    if (!paramsMap.className) {
+      throw new IllegalArgumentException("className is required")
+    }
+
+    return """
+package ${paramsMap.containsKey('package') ? paramsMap.package : 'test'};
+
+class ${paramsMap.className} {
+  public ${paramsMap.className}() {
+  }
+
+  ${paramsMap.className}(android.os.Parcel source) {
+    ${paramsMap.readBody.trim()}
+  }
+
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(android.os.Parcel dest, int options) {
+    ${paramsMap.writeBody.trim()}
+  }
+
+}
+""".trim() + '\n'
+  }
 
   def "should be able to treat other messages"() {
     given:
@@ -218,30 +248,45 @@ class MyMsg {
     writer.writeClassEnd(msg)
 
     then:
-    output.toString() == """
-package test;
+    output.toString() == buildClassCode(
+        className: 'MyMsg',
+        readBody: """
+    this.msg = (ChildMsg) source.readParcelable(getClass().getClassLoader());
+""",
+        writeBody: """
+    dest.writeParcelable(this.msg, options);
+""")
 
-class MyMsg {
-  public MyMsg() {
   }
 
-  MyMsg(android.os.Parcel source) {
-    this.msg = (ChildMsg) source.readValue(getClass().getClassLoader());
-  }
+  def "should be able to treat other message sequences"() {
+    given:
+    Message child = new Message(name: "ChildMsg")
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "msg", type: child, sequence: true))
 
+    when:
+    writer.getOutput().emitPackage("test")
+    writer.getOutput().beginType("MyMsg", "class");
+    writer.writeConstructors(msg)
+    writer.writeClassEnd(msg)
 
-  @Override
-  public int describeContents() {
-    return 0;
-  }
+    then:
+    output.toString() == buildClassCode(
+        className: 'MyMsg',
+        readBody: """
+    Parcelable[] msgParcelables = source.readParcelableArray(getClass().getClassLoader());
+    if (msgParcelables != null) {
+      this.msg = new ChildMsg[msgParcelables.length];
+      for (int i = 0; i < msgParcelables.length; i++) {
+        this.msg[i] = (ChildMsg) msgParcelables[i];
+      }
+    }
+""",
+        writeBody: """
+    dest.writeParcelableArray(this.msg, options);
+""")
 
-  @Override
-  public void writeToParcel(android.os.Parcel dest, int options) {
-    dest.writeValue(this.msg);
-  }
-
-}
-""".trim() + '\n'
   }
 
 }

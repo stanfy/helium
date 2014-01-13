@@ -131,13 +131,39 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
     Class<?> clazz = getJavaClass(field);
     if (clazz == Date.class) {
-      output.emitStatement("long %sValue = source.readLong()", fieldName);
+      output.emitStatement("long %1$sValue = source.readLong()", fieldName);
       output.emitStatement("this.%1$s = %1$sValue != -1 ? new Date(%1$sValue) : null", fieldName);
       return;
     }
 
-    output.emitStatement("this.%1$s = (%2$s) source.readValue(getClass().getClassLoader())", fieldName,
-        clazz != null ? clazz.getCanonicalName() : field.getType().getCanonicalName());
+    String classLoader = "getClass().getClassLoader()";
+
+    if (field.getType() instanceof Message) {
+      // read Parcelable
+      String className = field.getType().getCanonicalName();
+      if (field.isSequence()) {
+        output.emitStatement("Parcelable[] %1$sParcelables = source.readParcelableArray(%2$s)",
+            fieldName,
+            classLoader);
+        output.beginControlFlow("if (" + fieldName + "Parcelables != null)");
+        output.emitStatement("this.%1$s = new %2$s[%1$sParcelables.length]", fieldName, className);
+        output.beginControlFlow("for (int i = 0; i < " + fieldName + "Parcelables.length; i++)");
+        output.emitStatement("this.%1$s[i] = (%2$s) %1$sParcelables[i]", fieldName, className);
+        output.endControlFlow();
+        output.endControlFlow();
+      } else {
+        output.emitStatement("this.%1$s = (%2$s) source.readParcelable(%3$s)",
+            fieldName,
+            className,
+            classLoader);
+      }
+      return;
+    }
+
+    output.emitStatement("this.%1$s = (%2$s) source.readValue(%3$s)",
+        fieldName,
+        clazz != null ? clazz.getCanonicalName() : field.getType().getCanonicalName(),
+        classLoader);
   }
 
   private void emitWritingStmt(final Field field) throws IOException {
@@ -156,6 +182,14 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     Class<?> clazz = getJavaClass(field);
     if (clazz == Date.class) {
       output.emitStatement("dest.writeLong(this.%1$s != null ? this.%1$s.getTime() : -1L)", fieldName);
+      return;
+    }
+
+    if (field.getType() instanceof Message) {
+      // turn it into Parcelable
+      output.emitStatement("dest.writeParcelable%1$s(this.%2$s, options)",
+          field.isSequence() ? "Array" : "",
+          fieldName);
       return;
     }
 
