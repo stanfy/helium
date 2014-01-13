@@ -34,4 +34,17 @@ abstract class BaseGeneratorSpec<T extends Handler> extends Specification {
     new File("$output/com/stanfy/helium/C${genFilesPrefix}.java").exists()
   }
 
+  def "should skip anonymous types"() {
+    given:
+    project.types.byName("B").anonymous = true
+
+    when:
+    generator.handle(project)
+
+    then:
+    new File("$output/com/stanfy/helium/A${genFilesPrefix}.java").exists()
+    !new File("$output/com/stanfy/helium/B${genFilesPrefix}.java").exists()
+    new File("$output/com/stanfy/helium/C${genFilesPrefix}.java").exists()
+  }
+
 }

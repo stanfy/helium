@@ -41,7 +41,7 @@ public class EntitiesGenerator implements Handler {
     }
 
     for (Type type : project.getTypes().all()) {
-      if (type instanceof Message) {
+      if (!type.isAnonymous() && type instanceof Message) {
         File classFile = new File(targetDirectory, type.getCanonicalName() + ".java");
         write((Message) type, classFile);
       }
