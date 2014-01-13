@@ -1,5 +1,6 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.model.Message
 import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.model.ServiceMethod
 
@@ -28,7 +29,9 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
 
   void defineMessageType(final String property, Closure<?> body) {
     ServiceMethod core = getCore()
-    core."$property" = getProject().createAndAddMessage("${core.canonicalName}_${property}_${core.type}", body, false)
+    Message message = getProject().createAndAddMessage("${core.canonicalName}_${property}_${core.type}", body, false)
+    message.anonymous = true
+    core."$property" = message
   }
 
   void defineMessageType(final String property, String messageType) {
