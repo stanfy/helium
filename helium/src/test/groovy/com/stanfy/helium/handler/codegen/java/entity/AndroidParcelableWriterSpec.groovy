@@ -204,7 +204,7 @@ class MyMsg {
 """.trim() + '\n'
   }
 
-  private String buildClassCode(Map paramsMap) {
+  private static String buildClassCode(Map paramsMap) {
     if (!paramsMap.className) {
       throw new IllegalArgumentException("className is required")
     }
@@ -235,6 +235,13 @@ class ${paramsMap.className} {
 """.trim() + '\n'
   }
 
+  private void outReadAndWrite(final Message msg) {
+    writer.getOutput().emitPackage("test")
+    writer.getOutput().beginType(msg.name, "class");
+    writer.writeConstructors(msg)
+    writer.writeClassEnd(msg)
+  }
+
   def "should be able to treat other messages"() {
     given:
     Message child = new Message(name: "ChildMsg")
@@ -242,10 +249,7 @@ class ${paramsMap.className} {
     msg.addField(new Field(name: "msg", type: child))
 
     when:
-    writer.getOutput().emitPackage("test")
-    writer.getOutput().beginType("MyMsg", "class");
-    writer.writeConstructors(msg)
-    writer.writeClassEnd(msg)
+    outReadAndWrite(msg)
 
     then:
     output.toString() == buildClassCode(
@@ -266,10 +270,7 @@ class ${paramsMap.className} {
     msg.addField(new Field(name: "msg", type: child, sequence: true))
 
     when:
-    writer.getOutput().emitPackage("test")
-    writer.getOutput().beginType("MyMsg", "class");
-    writer.writeConstructors(msg)
-    writer.writeClassEnd(msg)
+    outReadAndWrite(msg)
 
     then:
     output.toString() == buildClassCode(
@@ -287,6 +288,59 @@ class ${paramsMap.className} {
     dest.writeParcelableArray(this.msg, options);
 """)
 
+  }
+
+
+  def "should handle booleans"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    Type boolType = new Type(name: "bool")
+    msg.addField(new Field(name: "boolF", type: boolType))
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "MyMsg",
+        readBody: """
+    this.boolF = source.readInt() == 1;
+""",
+        writeBody: """
+    dest.writeInt(this.boolF ? 1 : 0);
+"""
+    )
+  }
+
+  def "should handle boolean sequences"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    Type boolType = new Type(name: "bool")
+    msg.addField(new Field(name: "boolF", type: boolType, sequence: true))
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "MyMsg",
+        readBody: """
+    int boolFCount = source.readInt();
+    if (boolFCount > 0) {
+      this.boolF = new boolean[boolFCount];
+      for (int i = 0; i < boolFCount; i++) {
+        this.boolF[i] = source.readInt() == 1;
+      }
+    }
+""",
+        writeBody: """
+    int boolFCount = this.boolF != null ? this.boolF.length : 0;
+    dest.writeInt(boolFCount);
+    for (int i = 0; i < boolFCount; i++) {
+      dest.writeInt(this.boolF[i] ? 1 : 0);
+    }
+"""
+    )
   }
 
 }
