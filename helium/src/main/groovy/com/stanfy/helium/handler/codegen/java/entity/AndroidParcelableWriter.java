@@ -136,27 +136,17 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
+    // boolean?
+    if (clazz == boolean.class) {
+      readBoolean(field, fieldName, output);
+      return;
+    }
+
     String classLoader = "getClass().getClassLoader()";
 
     if (field.getType() instanceof Message) {
       // read Parcelable
-      String className = field.getType().getCanonicalName();
-      if (field.isSequence()) {
-        output.emitStatement("Parcelable[] %1$sParcelables = source.readParcelableArray(%2$s)",
-            fieldName,
-            classLoader);
-        output.beginControlFlow("if (" + fieldName + "Parcelables != null)");
-        output.emitStatement("this.%1$s = new %2$s[%1$sParcelables.length]", fieldName, className);
-        output.beginControlFlow("for (int i = 0; i < " + fieldName + "Parcelables.length; i++)");
-        output.emitStatement("this.%1$s[i] = (%2$s) %1$sParcelables[i]", fieldName, className);
-        output.endControlFlow();
-        output.endControlFlow();
-      } else {
-        output.emitStatement("this.%1$s = (%2$s) source.readParcelable(%3$s)",
-            fieldName,
-            className,
-            classLoader);
-      }
+      readParcelable(field, fieldName, output, classLoader);
       return;
     }
 
@@ -164,6 +154,40 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
         fieldName,
         clazz != null ? clazz.getCanonicalName() : field.getType().getCanonicalName(),
         classLoader);
+  }
+
+  private void readBoolean(Field field, String fieldName, JavaWriter output) throws IOException {
+    if (field.isSequence()) {
+      output.emitStatement("int %1$sCount = source.readInt()", fieldName);
+      output.beginControlFlow("if (" + fieldName + "Count > 0)");
+      output.emitStatement("this.%1$s = new boolean[%1$sCount]", fieldName);
+      output.beginControlFlow("for (int i = 0; i < " + fieldName + "Count; i++)");
+      output.emitStatement("this.%1$s[i] = source.readInt() == 1", fieldName);
+      output.endControlFlow();
+      output.endControlFlow();
+    } else {
+      output.emitStatement("this.%1$s = source.readInt() == 1", fieldName);
+    }
+  }
+
+  private void readParcelable(Field field, String fieldName, JavaWriter output, String classLoader) throws IOException {
+    String className = field.getType().getCanonicalName();
+    if (field.isSequence()) {
+      output.emitStatement("Parcelable[] %1$sParcelables = source.readParcelableArray(%2$s)",
+          fieldName,
+          classLoader);
+      output.beginControlFlow("if (" + fieldName + "Parcelables != null)");
+      output.emitStatement("this.%1$s = new %2$s[%1$sParcelables.length]", fieldName, className);
+      output.beginControlFlow("for (int i = 0; i < " + fieldName + "Parcelables.length; i++)");
+      output.emitStatement("this.%1$s[i] = (%2$s) %1$sParcelables[i]", fieldName, className);
+      output.endControlFlow();
+      output.endControlFlow();
+    } else {
+      output.emitStatement("this.%1$s = (%2$s) source.readParcelable(%3$s)",
+          fieldName,
+          className,
+          classLoader);
+    }
   }
 
   private void emitWritingStmt(final Field field) throws IOException {
@@ -185,6 +209,11 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
+    if (clazz == boolean.class) {
+      writeBoolean(field, output, fieldName);
+      return;
+    }
+
     if (field.getType() instanceof Message) {
       // turn it into Parcelable
       output.emitStatement("dest.writeParcelable%1$s(this.%2$s, options)",
@@ -194,6 +223,18 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     }
 
     output.emitStatement("dest.writeValue(this.%s)", fieldName);
+  }
+
+  private void writeBoolean(Field field, JavaWriter output, String fieldName) throws IOException {
+    if (field.isSequence()) {
+      output.emitStatement("int %1$sCount = this.%1$s != null ? this.%1$s.length : 0", fieldName);
+      output.emitStatement("dest.writeInt(%1$sCount)", fieldName);
+      output.beginControlFlow("for (int i = 0; i < " + fieldName + "Count; i++)");
+      output.emitStatement("dest.writeInt(this.%1$s[i] ? 1 : 0)", fieldName);
+      output.endControlFlow();
+    }  else {
+      output.emitStatement("dest.writeInt(this.%1$s ? 1 : 0)", fieldName);
+    }
   }
 
   private Class<?> getJavaClass(final Field field) {
