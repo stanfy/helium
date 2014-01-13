@@ -43,7 +43,7 @@ public class JavaConstantsGenerator implements Handler {
     }
 
     for (Type type : project.getTypes().all()) {
-      if (type instanceof Message) {
+      if (!type.isAnonymous() && type instanceof Message) {
         File classFile = new File(targetDirectory, type.getCanonicalName() + "Constants.java");
         Writer output = null;
         try {

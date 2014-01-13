@@ -8,6 +8,9 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class Type extends Descriptionable implements StructureUnit {
 
+  /** True if this type was not defined directly with 'type' declaration. */
+  boolean anonymous
+
   boolean isPrimitive() { return true }
 
 }
