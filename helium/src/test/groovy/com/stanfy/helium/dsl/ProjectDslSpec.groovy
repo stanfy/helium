@@ -57,6 +57,7 @@ class ProjectDslSpec extends Specification {
     int defaultTypesCount = dsl.types.all().collect { it }.size()
     dsl.type "A" message {
       data(description : 'Data bytes', type : "bytes")
+      SomeField(description : 'Some field', type : "string")
     }
     dsl.type "B" message {
       id {
@@ -68,11 +69,15 @@ class ProjectDslSpec extends Specification {
         required true
         sequence true
       }
+      'Date' {
+        type 'int64'
+      }
     }
     dsl.type "C" message {
       id long optional
       name String required
       list int sequence
+      "Data" boolean optional
     }
 
     then:
@@ -82,13 +87,14 @@ class ProjectDslSpec extends Specification {
     dsl.messages[1].name == "B"
     dsl.messages[2].name == "C"
 
-    dsl.messages[0].fields.size() == 1
+    dsl.messages[0].fields.size() == 2
     dsl.messages[0].fields[0].name == "data"
     dsl.messages[0].fields[0].required
     dsl.messages[0].fields[0].description == 'Data bytes'
     dsl.messages[0].fields[0].type.name == 'bytes'
+    dsl.messages[0].fields[1].name == 'SomeField'
 
-    dsl.messages[1].fields.size() == 2
+    dsl.messages[1].fields.size() == 3
     dsl.messages[1].fields[0].name == "id"
     dsl.messages[1].fields[0].type.name == "int64"
     !dsl.messages[1].fields[0].required
@@ -96,8 +102,9 @@ class ProjectDslSpec extends Specification {
     dsl.messages[1].fields[1].type.name == "string"
     dsl.messages[1].fields[1].required
     dsl.messages[1].fields[1].sequence
+    dsl.messages[1].fields[2].name == "Date"
 
-    dsl.messages[2].fields.size() == 3
+    dsl.messages[2].fields.size() == 4
     dsl.messages[2].fields[0].name == "id"
     !dsl.messages[2].fields[0].required
     dsl.messages[2].fields[0].type.name == "int64"
@@ -108,6 +115,7 @@ class ProjectDslSpec extends Specification {
     dsl.messages[2].fields[2].type.name == "int32"
     dsl.messages[2].fields[2].sequence
     !dsl.messages[2].fields[2].required
+    dsl.messages[2].fields[3].name == "Data"
   }
 
   def "can describe sequences"() {

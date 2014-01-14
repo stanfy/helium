@@ -52,7 +52,7 @@ final class SpecExample {
       get "/simple/request" spec {
         name "Simple request without required parameters"
         parameters {
-          A 'string' optional
+          a 'string' optional
         }
         response "UserProfile"
       }
