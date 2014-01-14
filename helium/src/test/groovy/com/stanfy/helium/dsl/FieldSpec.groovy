@@ -36,4 +36,20 @@ class FieldSpec extends Specification {
     !field.required
   }
 
+  def "should allow any case"() {
+    when:
+    runWithProxy(new ConfigurableProxy<Field>(field, new ProjectDsl())) {
+      name "Upper_Case_Id"
+      description "First letter is in upper-case"
+      type new Type(name : "long")
+      required false
+    }
+
+    then:
+    field.name == "Upper_Case_Id"
+    field.description == "First letter is in upper-case"
+    field.type.name == "long"
+    !field.required
+  }
+
 }
