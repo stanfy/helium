@@ -1,8 +1,5 @@
 package com.stanfy.helium.handler.codegen.java.entity
 
-import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
-import com.stanfy.helium.handler.codegen.java.entity.MessageToJavaClass
-import com.stanfy.helium.handler.codegen.java.entity.PojoWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
@@ -174,6 +171,25 @@ public class Test {
 }
 """.trim() + '\n'
 
+  }
+
+  def "ignores skipped fields"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "test_field", type: new Type(name: "string"), skip: true))
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+public class Test {
+
+
+}
+""".trim() + '\n'
   }
 
 

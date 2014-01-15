@@ -38,6 +38,10 @@ public class MessageToJavaClass {
     // imports
     HashSet<String> imports = new HashSet<String>();
     for (Field field : message.getFields()) {
+      if (field.isSkip()) {
+        continue;
+      }
+
       Type type = field.getType();
 
       if (field.isSequence()) {
@@ -63,6 +67,10 @@ public class MessageToJavaClass {
 
     // fields
     for (Field field : message.getFields()) {
+      if (field.isSkip()) {
+        continue;
+      }
+
       writer.writeField(field, getFieldTypeName(field), options.getFieldName(field), options.getFieldModifiers());
       writer.getOutput().emitEmptyLine();
     }
@@ -76,6 +84,10 @@ public class MessageToJavaClass {
     boolean setters = options.isAddSetters();
     if (getters || setters) {
       for (Field field : message.getFields()) {
+        if (field.isSkip()) {
+          continue;
+        }
+
         String fieldTypeName = getFieldTypeName(field);
         String fieldName = options.getFieldName(field);
         if (getters) {

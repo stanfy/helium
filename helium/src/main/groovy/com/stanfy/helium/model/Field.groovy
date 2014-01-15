@@ -20,10 +20,13 @@ class Field extends Descriptionable {
   boolean required = true
 
   /** Sequence option. */
-  boolean sequence;
+  boolean sequence
 
   /** Value examples. */
   private List<String> examples
+
+  /** Marks this field as ignorable. */
+  boolean skip
 
   @Override
   void setName(final String name) {
@@ -42,6 +45,10 @@ class Field extends Descriptionable {
 
   List<String> getExamples() {
     return this.@examples ? Collections.unmodifiableList(this.@examples) : Collections.emptyList()
+  }
+
+  boolean isRequired() {
+    return this.@required && !this.@skip
   }
 
 }
