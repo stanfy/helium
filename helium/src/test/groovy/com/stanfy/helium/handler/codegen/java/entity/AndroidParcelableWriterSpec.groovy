@@ -343,4 +343,39 @@ class ${paramsMap.className} {
     )
   }
 
+  def "ignores skipped fields"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    Type type = new Type(name: "any Type")
+    msg.addField(new Field(name: "field", type: type, skip: true))
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == '''
+package test;
+
+class MyMsg {
+  public MyMsg() {
+  }
+
+  MyMsg(android.os.Parcel source) {
+  }
+
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(android.os.Parcel dest, int options) {
+  }
+
+}
+'''.trim() + '\n'
+  }
+
+
 }

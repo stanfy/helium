@@ -176,7 +176,7 @@ public class Test {
   def "ignores skipped fields"() {
     given:
     Message msg = new Message(name: "Test")
-    msg.addField(new Field(name: "test_field", type: new Type(name: "string"), skip: true))
+    msg.addField(new Field(name: "test_field", type: new Type(name: "any type"), skip: true))
 
     when:
     new MessageToJavaClass(writer, options).write(msg)
