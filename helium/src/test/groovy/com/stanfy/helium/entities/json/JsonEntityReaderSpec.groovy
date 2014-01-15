@@ -388,4 +388,22 @@ class JsonEntityReaderSpec extends Specification {
     errors[0].field.name == 'bar'
   }
 
+  def "ignores skipped fields"() {
+    given:
+    dsl.type "FooMsg" message {
+      normal 'int32'
+      ignored1(skip: true)
+      ignored2(skip: true)
+    }
+    def errors = read(dsl.types.byName('FooMsg'), '''
+      {
+        "normal": 23,
+        "ignored1": 'any value'
+      }
+    ''').validationErrors
+
+    expect:
+    errors.empty
+  }
+
 }

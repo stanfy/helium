@@ -30,6 +30,10 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
     Map<String, Object> values = (Map<String, Object>) value;
 
     for (Field f : getType().getFields()) {
+      if (f.isSkip()) {
+        continue;
+      }
+
       Object v = values.get(f.getName());
       if (f.isSequence()) {
         writeSequenceField(f.getName(), f.getType(), (List<?>) v, output);
@@ -64,6 +68,11 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
       Type fieldType = field.getType();
       if (fieldType instanceof Sequence) {
         throw new IllegalStateException("Sequences are accepted as roots only!");
+      }
+
+      if (field.isSkip()) {
+        skip(input);
+        continue;
       }
 
       if (checkNextNull(input)) {

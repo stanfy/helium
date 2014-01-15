@@ -91,5 +91,21 @@ class JsonEntityWriterSpec extends Specification {
     out.toString() == '{"bar":"2013-07-11"}'
   }
 
+  def "does not write skipped fields"() {
+    given:
+    dsl.type 'SomeMessage' message {
+      id(type: long, required: true, examples: ['1'])
+      name(skip: true)
+    }
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(dsl.types.byName('SomeMessage'))
+    def msg = builder.from {
+      id 321
+      name 'some name'
+    }
+    writer.write(new TypedEntity(dsl.types.byName('SomeMessage'), msg))
+
+    expect:
+    out.toString() == '{"id":321}'
+  }
 
 }

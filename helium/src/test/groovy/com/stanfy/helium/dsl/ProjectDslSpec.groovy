@@ -118,6 +118,23 @@ class ProjectDslSpec extends Specification {
     dsl.messages[2].fields[3].name == "Data"
   }
 
+  def "can describe ignorable fields in messages"() {
+    when:
+    DefaultTypesLoader.loadFor dsl
+    dsl.type 'A' message {
+      normal 'string'
+      ignore(skip: true)
+    }
+
+    then:
+    dsl.messages[0].fields.size() == 2
+    dsl.messages[0].fields[0].name == "normal"
+    !dsl.messages[0].fields[0].skip
+    dsl.messages[0].fields[1].name == "ignore"
+    dsl.messages[0].fields[1].skip
+    dsl.messages[0].fields[1].type != null
+  }
+
   def "can describe sequences"() {
     when:
     dsl.type "bool"

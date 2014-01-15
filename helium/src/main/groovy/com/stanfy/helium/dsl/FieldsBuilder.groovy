@@ -14,6 +14,9 @@ import static com.stanfy.helium.utils.DslUtils.runWithProxy
  */
 class FieldsBuilder {
 
+  /** Type for skipped fields. */
+  private static final Type IGNORABLE_TYPE = new Type(name: "_helium_ignorable_")
+
   /** Result message. */
   private final Message message
 
@@ -51,6 +54,11 @@ class FieldsBuilder {
     }
 
     if (arg instanceof Map) {
+      if (arg.skip) {
+        Field f = new Field(name: name, type: IGNORABLE_TYPE, skip: true)
+        message.addField(f)
+        return f
+      }
       Type type = resolveType(arg['type'])
       arg.type = type
       Field f = new Field(arg)
