@@ -91,7 +91,7 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath 'com.stanfy.helium:gradle-plugin:0.2.+'
+    classpath 'com.stanfy.helium:gradle-plugin:0.3.+'
   }
 }
 ```
