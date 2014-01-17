@@ -54,9 +54,14 @@ public final class AssertionUtils {
   }
 
   public static void assertCorrectEntity(final TypedEntity entity, final HttpRequest request, final HttpResponse response) {
-    assertThat(entity.getValidationError())
-        .describedAs("Validation errors are present. " + getRequestInfo(request, response))
-        .isNull();
+    if (entity.getValidationError() != null) {
+      throw new AssertionError("\n\n"
+          + "--------- Validation problems ---------\n"
+          + entity.getValidationError() + "\n\n"
+          + "------------- HTTP details ------------\n"
+          + getRequestInfo(request, response) + "\n\n"
+      );
+    }
   }
 
   private static String getRequestInfo(final HttpRequest request, final HttpResponse response) {

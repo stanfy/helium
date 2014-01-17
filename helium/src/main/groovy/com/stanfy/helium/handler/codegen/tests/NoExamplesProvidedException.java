@@ -3,7 +3,7 @@ package com.stanfy.helium.handler.codegen.tests;
 import com.stanfy.helium.model.Field;
 
 /**
- * Exception thrown when there are no required examples for processing som type.
+ * Exception thrown when there are no required examples for processing some type.
  */
 public class NoExamplesProvidedException extends Exception {
 

@@ -35,8 +35,7 @@ abstract class BaseUnitTestsGenerator implements Handler {
   /** Protected method. */
   protected static final Set<Modifier> PROTECTED = Collections.singleton(Modifier.PROTECTED);
 
-  private static final String IMPORT_TEST = "org.junit.Test",
-                              IMPORT_HTTP_METHODS = "org.apache.http.client.methods.*";
+  private static final String IMPORT_HTTP_METHODS = "org.apache.http.client.methods.*";
 
   /** Output directory. */
   private final File srcOutput;
