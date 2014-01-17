@@ -8,6 +8,7 @@ import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.RequestLine;
+import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,9 +92,10 @@ public final class AssertionUtils {
       stringBuilder.append("Response info is not available.");
     } else {
       stringBuilder.append("Response info: ");
-      final String status = response.getStatusLine().getReasonPhrase();
+      StatusLine statusLine = response.getStatusLine();
+      final String status = statusLine.getReasonPhrase();
       if (status != null && status.length() > 0) {
-        stringBuilder.append("Got '").append(status).append("'.\n");
+        stringBuilder.append("Got '").append(status).append("', ").append(statusLine.getStatusCode()).append(".\n");
       }
 
       stringBuilder.append("Headers:\n");
