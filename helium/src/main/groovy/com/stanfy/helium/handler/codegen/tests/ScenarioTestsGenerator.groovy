@@ -3,11 +3,10 @@ package com.stanfy.helium.handler.codegen.tests
 import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.DefaultType
 import com.stanfy.helium.dsl.scenario.ScenarioDelegate
-import com.stanfy.helium.dsl.scenario.ScenarioExecutor
+import com.stanfy.helium.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.tests.Scenario
-import com.stanfy.helium.utils.DslUtils
 import groovy.transform.CompileStatic
 
 import javax.lang.model.element.Modifier
@@ -70,11 +69,11 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
   protected void startTest(final JavaWriter writer, final Service service) throws IOException {
     super.startTest(writer, service)
     writer.emitField(Service.name, "service")
-    writer.emitField("Object", "proxy")
+    writer.emitField(ScenarioDelegate.canonicalName, "proxy", EnumSet.of(Modifier.PRIVATE))
 
     writer.beginMethod(null, getClassName(service), PUBLIC)
     writer.emitStatement("super()")
-    writer.emitStatement("this.proxy = new ${ScenarioDelegate.name}(service, createExecutor())")
+    writer.emitStatement("this.proxy = new ${ScenarioDelegate.canonicalName}(service, createExecutor())")
     writer.endMethod()
     writer.emitEmptyLine()
 
@@ -93,15 +92,9 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
     writer.emitAnnotation("Test")
     writer.beginMethod("void", scenario.canonicalName, Collections.<Modifier>singleton(Modifier.PUBLIC))
 
-    writer.emitStatement("${Scenario.name} scenario = service.getTestInfo().scenarioByName(%s)", JavaWriter.stringLiteral(scenario.name))
-
-    if (scenario.before) {
-      writer.emitStatement("${DslUtils.name}.runWithProxy(proxy, scenario.getBefore())")
-    }
-    writer.emitStatement("${DslUtils.name}.runWithProxy(proxy, scenario.getAction())")
-    if (scenario.after) {
-      writer.emitStatement("${DslUtils.name}.runWithProxy(proxy, scenario.getAfter())")
-    }
+    writer.emitStatement("${Scenario.canonicalName} scenario = service.getTestInfo().scenarioByName(%s)",
+        JavaWriter.stringLiteral(scenario.name))
+    writer.emitStatement("${ScenarioInvoker.canonicalName}.invokeScenario(proxy, scenario)")
 
     writer.endMethod()
     writer.emitEmptyLine()

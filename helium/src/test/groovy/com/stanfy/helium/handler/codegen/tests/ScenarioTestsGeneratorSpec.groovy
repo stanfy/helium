@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.tests
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.dsl.scenario.ScenarioInvoker
 import spock.lang.Specification
 
 /**
@@ -78,7 +79,17 @@ class ScenarioTestsGeneratorSpec extends Specification {
     text.contains "@Test"
 
     text.contains "Service service" // check field
-    text.contains "Object proxy" // check field
+    text.contains "ScenarioDelegate proxy" // check field
+  }
+
+  def "uses ScenarioInvoker"() {
+    when:
+    run()
+    def text = (findFiles { it.name == 'MainScenariosTest.java' })[0]?.text
+
+    then:
+    text != null
+    text.contains "${ScenarioInvoker.class.name}.invokeScenario(proxy"
   }
 
 }

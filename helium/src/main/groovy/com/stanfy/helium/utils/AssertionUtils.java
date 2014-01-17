@@ -57,7 +57,9 @@ public final class AssertionUtils {
                                          final HttpResponse response) {
     if (entity.getValidationError() != null) {
       throw failure(
-          "--------- Validation problems ---------\n" + entity.getValidationError(),
+          request.getRequestLine().getUri() + "\n"
+              + "--------- Validation problems ---------\n"
+              + entity.getValidationError(),
           request, response
       );
     }
