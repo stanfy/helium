@@ -74,9 +74,9 @@ class JsonEntityReaderSpec extends Specification {
     expect:
     res != null
     res.value == null
-    res.validationErrors.size() == 1
-    res.validationErrors[0].type == testMessage
-    res.validationErrors[0].explanation.contains('not an object')
+    res.validationError.type == testMessage
+    !res.validationError.children.empty
+    res.validationError.children[0].explanation.contains('not an object')
   }
 
   def "accepts valid primitive types"() {
@@ -92,7 +92,7 @@ class JsonEntityReaderSpec extends Specification {
 
     expect:
     res != null
-    res.validationErrors.empty
+    res.validationError == null
     res.value.size() == 3
     res.value.f1 == 2
     res.value.f2 == 1.5
@@ -107,13 +107,13 @@ class JsonEntityReaderSpec extends Specification {
         "f2" : 1.5
       }
     '''
-    def errors = read(testMessage, json).validationErrors
+    def error = read(testMessage, json).validationError
 
     expect:
-    errors.size() == 1
-    errors[0].type == testMessage
-    errors[0].field != null
-    errors[0].field.name == 'f1'
+    error.type == testMessage
+    !error.children.empty
+    error.children[0].field != null
+    error.children[0].field.name == 'f1'
   }
 
   def "tracks float instead of int"() {
@@ -124,13 +124,13 @@ class JsonEntityReaderSpec extends Specification {
         "f1" : 2.3
       }
     '''
-    def errors = read(testMessage, json).validationErrors
+    def error = read(testMessage, json).validationError
 
     expect:
-    errors.size() == 1
-    errors[0].type == testMessage
-    errors[0].field != null
-    errors[0].field.name == 'f1'
+    error.type == testMessage
+    !error.children.empty
+    error.children[0].field != null
+    error.children[0].field.name == 'f1'
   }
 
   def "tracks int instead of string"() {
@@ -141,34 +141,36 @@ class JsonEntityReaderSpec extends Specification {
         "f3" : 1
       }
     '''
-    def errors = read(testMessage, json).validationErrors
+    def error = read(testMessage, json).validationError
 
     expect:
-    errors.size() == 1
-    errors[0].type == testMessage
-    errors[0].field.name == 'f3'
+    error.type == testMessage
+    !error.children.empty
+    error.children[0].field != null
+    error.children[0].field.name == 'f3'
   }
 
   def "reports unknown fields"() {
     given:
-    def errors = read(testMessage, '{"aha" : "value"}').validationErrors
+    def error = read(testMessage, '{"aha" : "value"}').validationError
 
     expect:
-    !errors.empty
-    errors[0].type == testMessage
-    errors[0].explanation.contains("aha")
+    error.type == testMessage
+    error.children.size() == 2
+    error.children[0].explanation.contains("aha")
+    error.children[1].field.name == 'f1'
   }
 
   def "checks required fields"() {
     given:
-    def errors = read(testMessage, '{}').validationErrors
+    def error = read(testMessage, '{}').validationError
 
     expect:
-    errors.size() == 1
-    errors[0].type == testMessage
-    errors[0].field != null
-    errors[0].field.name == 'f1'
-    errors[0].explanation.contains("not provided")
+    error.type == testMessage
+    error.children.empty != null
+    error.children[0].field != null
+    error.children[0].field.name == 'f1'
+    error.children[0].explanation.contains("not provided")
   }
 
   def "accepts valid arrays"() {
@@ -185,7 +187,7 @@ class JsonEntityReaderSpec extends Specification {
 
     expect:
     res != null
-    res.validationErrors.empty
+    res.validationError == null
     res.value.size() == 1
     res.value[0].size() == 3
     res.value[0].f3 == "abc"
@@ -197,25 +199,28 @@ class JsonEntityReaderSpec extends Specification {
 
     expect:
     res != null
-    res.validationErrors.empty
+    res.validationError == null
     res.value.empty
   }
 
   def "validates arrays"() {
     given:
-    def errors = read(listMessage, '''
+    def error = read(listMessage, '''
       [
         {
           "f3" : 2
         }
       ]
-    ''').validationErrors
+    ''').validationError
 
     expect:
-    errors.size() == 1
-    !errors[0].children?.empty
-    errors[0].children[0].type == testMessage
-    errors[0].children[1].type == testMessage
+    !error.explanation.empty
+    error.children.size() == 1
+    error.children[0].index == 0
+    error.children[0].children[0].field != null
+    error.children[0].children[0].field.name == 'f3'
+    error.children[0].children[1].field != null
+    error.children[0].children[1].field.name == 'f1'
   }
 
   def "validates primitives only"() {
@@ -225,8 +230,12 @@ class JsonEntityReaderSpec extends Specification {
 
     expect:
     res1 != null && res2 != null
-    res1.validationErrors.empty
-    !res2.validationErrors.empty
+
+    res1.validationError == null
+    res2.validationError != null
+    res2.validationError.children == null
+    !res2.validationError.explanation.empty
+
     res1.value == 2
     res2.value == null
   }
@@ -254,7 +263,7 @@ class JsonEntityReaderSpec extends Specification {
 
     expect:
     res != null
-    res.validationErrors.empty
+    res.validationError == null
     res.value?.a?.f1 == 1
     res.value?.b?.name == "test list"
     res.value?.b?.items[1]?.f1 == 3
@@ -280,23 +289,23 @@ class JsonEntityReaderSpec extends Specification {
         }
       }
     '''
-    def errors = res?.validationErrors
+    def error = res?.validationError
 
     expect:
     res != null
+    !error.explanation.empty
 
-    errors.size() == 2
-    errors[0].field.name == "a"
-    !errors[0].children.empty
-    errors[0].children[0].field.name == "f1"
+    error.children.size() == 2
+    error.children[0].field.name == "a"
+    !error.children[0].children.empty
+    error.children[0].children[0].field.name == "f1"
 
-    errors[1].field.name == "b"
-    !errors[1].children.empty
-    errors[1].children[1].field.name == "name"
-    def deepErrors = errors[1].children[0].children
-    !deepErrors.empty
-    !deepErrors[0].children?.empty
-    deepErrors[0].children[0].field.name == 'f1'
+    error.children[1].field.name == "b"
+    !error.children[1].children.empty
+    error.children[1].children[0].field.name == "items"
+    !error.children[1].children[0].children.empty
+    error.children[1].children[0].children[0].index == 1
+    error.children[1].children[1].field.name == "name"
 
     res.value?.containsKey('a')
     res.value?.containsKey('b')
@@ -305,15 +314,17 @@ class JsonEntityReaderSpec extends Specification {
 
   def "treats nulls"() {
     given:
-    def errors = read(testMessage, '''
+    def error = read(testMessage, '''
       {
         "f1" : null,
         "f2" : null,
         "f3" : null
       }
-    ''').validationErrors
+    ''').validationError
+    def errors = error.children
 
     expect:
+    !error.explanation.empty
     errors.size() == 1
     errors[0].explanation.contains("required but got NULL")
     errors[0].field.name == "f1"
@@ -322,7 +333,7 @@ class JsonEntityReaderSpec extends Specification {
   def "treats nulls in complex fields"() {
     given:
     ((Message)structMessage.fieldByName('b').type).fieldByName('items').required = true
-    def errors = read(structMessage, '''
+    def error = read(structMessage, '''
       {
         "a" : {
           "f1" : null,
@@ -333,9 +344,11 @@ class JsonEntityReaderSpec extends Specification {
           "items" : null
         }
       }
-    ''').validationErrors
+    ''').validationError
+    def errors = error.children
 
     expect:
+    !error.explanation.empty
     errors.size() == 2
 
     errors[0].field.name == "a"
@@ -358,14 +371,16 @@ class JsonEntityReaderSpec extends Specification {
     dsl.type "FooMsg" message {
       bar 'foo'
     }
-    def errors = read(dsl.types.byName('FooMsg'), '''
+    def res = read(dsl.types.byName('FooMsg'), '''
       {
         "bar" : "2013-07-11"
       }
-    ''').validationErrors
+    ''')
 
     expect:
-    errors.empty
+    res.value.bar instanceof Date
+    ((Date) res.value.bar).format("dd-MM-yyyy") == '11-07-2013'
+    res.validationError == null
   }
 
   def "can validate dates"() {
@@ -377,15 +392,16 @@ class JsonEntityReaderSpec extends Specification {
     dsl.type "FooMsg" message {
       bar 'foo'
     }
-    def errors = read(dsl.types.byName('FooMsg'), '''
+    def error = read(dsl.types.byName('FooMsg'), '''
       {
         "bar" : "bad string"
       }
-    ''').validationErrors
+    ''').validationError
 
     expect:
-    errors.size() == 1
-    errors[0].field.name == 'bar'
+    !error.explanation.empty
+    error.children.size() == 1
+    error.children[0].field.name == 'bar'
   }
 
   def "ignores skipped fields"() {
@@ -395,15 +411,15 @@ class JsonEntityReaderSpec extends Specification {
       ignored1(skip: true)
       ignored2(skip: true)
     }
-    def errors = read(dsl.types.byName('FooMsg'), '''
+    def error = read(dsl.types.byName('FooMsg'), '''
       {
         "normal": 23,
         "ignored1": 'any value'
       }
-    ''').validationErrors
+    ''').validationError
 
     expect:
-    errors.empty
+    error == null
   }
 
 }

@@ -2,7 +2,12 @@ package com.stanfy.helium.entities.json;
 
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
-import com.stanfy.helium.entities.*;
+import com.stanfy.helium.entities.Converter;
+import com.stanfy.helium.entities.ConverterFactory;
+import com.stanfy.helium.entities.EntityReader;
+import com.stanfy.helium.entities.TypedEntity;
+import com.stanfy.helium.entities.ValidationError;
+import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Type;
 
 import java.io.IOException;
@@ -49,7 +54,7 @@ public class JsonEntityReader implements EntityReader {
     }
 
     TypedEntity<?> res = new TypedEntity<Type>(type, value);
-    res.setValidationErrors(errors);
+    res.setValidationError(ValidationError.wrap(type, errors, type.isPrimitive()));
     return res;
   }
 

@@ -58,7 +58,7 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
       Field field = type.fieldByName(fieldName);
 
       if (field == null) {
-        errors.add(new ValidationError(type, "Unexpected field " + fieldName));
+        errors.add(new ValidationError("Unexpected field '" + fieldName + "'"));
         skip(input);
         continue;
       }
@@ -85,18 +85,23 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
 
       LinkedList<ValidationError> childrenErrors = new LinkedList<ValidationError>();
       if (field.isSequence()) {
-
         values.put(fieldName, readSequenceField(field, input, childrenErrors));
-
       } else {
-        // primitive type
-        values.put(fieldName, readValue(fieldType, input, childrenErrors));
+        values.put(fieldName, readValue(fieldType, field, input, childrenErrors));
       }
 
       if (!childrenErrors.isEmpty()) {
-        ValidationError fieldError = new ValidationError(type, field, "there are some errors inside");
-        fieldError.setChildren(childrenErrors);
-        errors.add(fieldError);
+        if (field.isSequence()) {
+          ValidationError error = new ValidationError(type, field, "array contains errors");
+          error.setChildren(childrenErrors);
+          errors.add(error);
+        } else if (!fieldType.isPrimitive()) {
+          ValidationError error = new ValidationError(type, field, "object contains errors");
+          error.setChildren(childrenErrors);
+          errors.add(error);
+        } else {
+          errors.addAll(childrenErrors);
+        }
       }
 
     }

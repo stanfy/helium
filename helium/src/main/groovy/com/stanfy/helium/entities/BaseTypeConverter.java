@@ -1,5 +1,6 @@
 package com.stanfy.helium.entities;
 
+import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Type;
 
 import java.io.IOException;
@@ -28,12 +29,14 @@ abstract class BaseTypeConverter<I, O> {
     converter.write(output, value);
   }
 
-  protected Object readValue(final Type type, final I input, final List<ValidationError> errors) throws IOException {
+  protected Object readValue(final Type type, final Field field, final I input,
+                             final List<ValidationError> errors) throws IOException {
     Converter<Type, I, O> converter = getTypeConverter(type);
     try {
       return converter.read(input, errors);
     } catch (IllegalStateException e) {
-      errors.add(new ValidationError(type, "Cannot parse " + getFormat() + " input for value of type " + type + ". " + e.getMessage()));
+      errors.add(new ValidationError(type, field,
+          "Cannot parse " + getFormat() + " input for value of type " + type + ". " + e.getMessage()));
       return null;
     }
   }

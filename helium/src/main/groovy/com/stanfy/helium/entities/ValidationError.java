@@ -29,22 +29,35 @@ public class ValidationError {
     this(null, null, explanation);
   }
 
-  public ValidationError(final Type msg, final String explanation) {
-    this(msg, null, explanation);
+  public ValidationError(final Type type, final String explanation) {
+    this(type, null, explanation);
   }
 
-  public ValidationError(final Type msg, final Field field, final String explanation) {
+  public ValidationError(final Type type, final Field field, final String explanation) {
+    this(type, field, -1, explanation);
+  }
+
+  public ValidationError(final Type type, final int index, final String explanation) {
+    this(type, null, index, explanation);
+  }
+
+  public ValidationError(final Type msg, final Field field, final int index, final String explanation) {
     this.type = msg;
     this.field = field;
     this.explanation = explanation;
-    this.index = -1;
+    this.index = index;
   }
 
-  public ValidationError(final Type msg, final int index, final String explanation) {
-    this.type = msg;
-    this.field = null;
-    this.explanation = explanation;
-    this.index = index;
+  public static ValidationError wrap(final Type type, final List<ValidationError> errors, final boolean canMerge) {
+    if (errors.isEmpty()) {
+      return null;
+    }
+    if (canMerge && errors.size() == 1) {
+      return errors.get(0);
+    }
+    ValidationError error = new ValidationError(type, "entity got errors");
+    error.setChildren(errors);
+    return error;
   }
 
   public Type getType() {
@@ -63,6 +76,10 @@ public class ValidationError {
     return children;
   }
 
+  public int getIndex() {
+    return index;
+  }
+
   public void setChildren(final List<ValidationError> children) {
     this.children = children;
   }
@@ -73,7 +90,7 @@ public class ValidationError {
 
   private void dump(final int size, final StringBuilder res) {
     StringBuilder spaces = new StringBuilder();
-    for (int i = 0; i < size + (index == -1 ? 2 : 4); i++) {
+    for (int i = 0; i < size; i++) {
       spaces.append(' ');
     }
 
@@ -94,7 +111,7 @@ public class ValidationError {
           child.dump(size + 2, res);
         } else {
           res.append("[").append(child.index).append("] ");
-          child.dump(size + 2, res);
+          child.dump(size + 4, res);
         }
       }
     }
@@ -103,7 +120,7 @@ public class ValidationError {
   @Override
   public String toString() {
     StringBuilder res = new StringBuilder();
-    dump(0, res);
+    dump(2, res);
     return res.toString();
   }
 

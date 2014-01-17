@@ -1,19 +1,19 @@
 package com.stanfy.helium.utils;
 
 import com.stanfy.helium.entities.TypedEntity;
-import com.stanfy.helium.entities.ValidationError;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.http.*;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.RequestLine;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -54,8 +54,9 @@ public final class AssertionUtils {
   }
 
   public static void assertCorrectEntity(final TypedEntity entity, final HttpRequest request, final HttpResponse response) {
-    List<ValidationError> errors = entity.getValidationErrors();
-    assertThat(errors).describedAs("Validation errors are present. " + getRequestInfo(request, response)).isEmpty();
+    assertThat(entity.getValidationError())
+        .describedAs("Validation errors are present. " + getRequestInfo(request, response))
+        .isNull();
   }
 
   private static String getRequestInfo(final HttpRequest request, final HttpResponse response) {

@@ -14,20 +14,16 @@ public class TypedEntity<T extends Type> {
   private final T type;
   /** Value. */
   private final Object value;
-  /** Validation errors that may occur during creating entity value. */
-  private List<ValidationError> validationErrors;
+  /** Validation error that may occur during creating entity value. */
+  private ValidationError error;
 
   public TypedEntity(final T type, final Object value) {
     this.type = type;
     this.value = value;
   }
 
-  public List<ValidationError> getValidationErrors() {
-    if (this.validationErrors == null) {
-      return Collections.emptyList();
-    }
-
-    return Collections.unmodifiableList(this.validationErrors);
+  public ValidationError getValidationError() {
+    return error;
   }
 
   public T getType() {
@@ -38,8 +34,8 @@ public class TypedEntity<T extends Type> {
     return value;
   }
 
-  public void setValidationErrors(final List<ValidationError> validationErrors) {
-    this.validationErrors = validationErrors;
+  public void setValidationError(final ValidationError validationError) {
+    this.error = validationError;
   }
 
 }

@@ -69,9 +69,14 @@ Type1: parent explain
         e1,
         new ValidationError(type2, 1, "e2")
     ])
+    def e2 = new ValidationError(type2, type2.fields[0], "e3")
     e1.setChildren([
-        new ValidationError(type2, type2.fields[0], "e3"),
+        e2,
         new ValidationError(type1, type1.fields[0], "e4")
+    ])
+    e2.setChildren([
+        new ValidationError(type1, type1.fields[0], "e5"),
+        new ValidationError(type1, type1.fields[0], "e6")
     ])
 
     expect:
@@ -79,6 +84,8 @@ Type1: parent explain
 Type1: parent explain
   [0] Type2: e1
       - 'f1': e3
+        - 'f1': e5
+        - 'f1': e6
       - 'f1': e4
   [1] Type2: e2
 '''.trim()

@@ -5,6 +5,7 @@ import com.stanfy.helium.model.Type;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,10 +41,10 @@ public abstract class SequenceConverter<I, O> extends BaseTypeConverter<I, O> im
     int index = 0;
     while (hasNext(input)) {
       LinkedList<ValidationError> children = new LinkedList<ValidationError>();
-      result.add(readValue(type.getItemsType(), input, children));
+      result.add(readValue(type.getItemsType(), null, input, children));
 
       if (!children.isEmpty()) {
-        ValidationError error = new ValidationError(type.getItemsType(), "Item " + index + " contains errors");
+        ValidationError error = new ValidationError(type.getItemsType(), index, "item contains errors");
         error.setChildren(children);
         errors.add(error);
       }
