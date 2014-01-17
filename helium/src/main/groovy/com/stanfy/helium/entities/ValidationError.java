@@ -19,6 +19,9 @@ public class ValidationError {
   /** Explanation. */
   private final String explanation;
 
+  /** Index. */
+  private final int index;
+
   /** Children errors. */
   private List<ValidationError> children;
 
@@ -34,6 +37,14 @@ public class ValidationError {
     this.type = msg;
     this.field = field;
     this.explanation = explanation;
+    this.index = -1;
+  }
+
+  public ValidationError(final Type msg, final int index, final String explanation) {
+    this.type = msg;
+    this.field = null;
+    this.explanation = explanation;
+    this.index = index;
   }
 
   public Type getType() {
@@ -61,28 +72,32 @@ public class ValidationError {
   }
 
   private void dump(final int size, final StringBuilder res) {
-    StringBuilder indent = new StringBuilder();
-    for (int i = 0; i < size; i++) { indent.append(' '); }
-
-    indent(indent, res).append("[");
-    if (type != null) {
-      indent(indent, res).append("type=").append(type);
+    StringBuilder spaces = new StringBuilder();
+    for (int i = 0; i < size + (index == -1 ? 2 : 4); i++) {
+      spaces.append(' ');
     }
+
     if (field != null) {
-      if (res.length() > 1) { res.append(","); }
-      indent(indent, res).append("field=").append(field);
+      res.append("'").append(field.getName()).append("': ");
+    } else if (type != null) {
+      res.append(type.getName()).append(": ");
     }
     if (explanation != null) {
-      if (res.length() > 1) { res.append(","); }
-      indent(indent, res).append("explanation=").append(explanation);
+      res.append(explanation);
     }
+
     if (children != null && !children.isEmpty()) {
-      if (res.length() > 1) { res.append(","); }
       for (ValidationError child : children) {
-        child.dump(size + 2, res);
+        indent(spaces, res);
+        if (child.index == -1) {
+          res.append("- ");
+          child.dump(size + 2, res);
+        } else {
+          res.append("[").append(child.index).append("] ");
+          child.dump(size + 2, res);
+        }
       }
     }
-    indent(indent, res).append("]");
   }
 
   @Override
