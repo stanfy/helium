@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
-import com.stanfy.helium.handler.codegen.JavaGeneratorOptions;
+import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions;
 import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Type;

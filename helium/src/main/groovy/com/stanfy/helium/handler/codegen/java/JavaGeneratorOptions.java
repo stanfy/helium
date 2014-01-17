@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen;
+package com.stanfy.helium.handler.codegen.java;
 
 /**
  * Base class for Java generator options.

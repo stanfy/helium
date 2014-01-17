@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.constants;
 
-import com.stanfy.helium.handler.codegen.JavaGeneratorOptions;
+import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions;
 import com.stanfy.helium.model.Field;
 
 import java.util.Locale;
