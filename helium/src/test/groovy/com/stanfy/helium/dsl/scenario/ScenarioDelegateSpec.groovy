@@ -70,7 +70,7 @@ class ScenarioDelegateSpec extends Specification {
               id '1'
             }
           }
-          assert someRes == "ok" : "Result is incorrect: $someRes"
+          assert someRes.value == "ok" : "Result is incorrect: $someRes"
           return someRes
         }
         scenario "delete and assert 'hi'" spec {
@@ -79,7 +79,7 @@ class ScenarioDelegateSpec extends Specification {
               id '2'
             }
           }
-          assert someRes == "hi" : "Result is incorrect: $someRes"
+          assert someRes.value == "hi" : "Result is incorrect: $someRes"
           return someRes
         }
 
@@ -116,21 +116,18 @@ class ScenarioDelegateSpec extends Specification {
 
   }
 
-  private def executeScenario(final String name, final def result) {
-    executor.scheduledExecutorResult = result
+  private def executeScenario(final String name, final def result, final def errors) {
+    executor.scheduledExecutorResult = new ExecResult(value: result, interactionErrors: errors ? errors : [])
     Scenario scenario = service.testInfo.scenarioByName(name)
-    if (scenario.before) {
-      DslUtils.runWithProxy(delegate, scenario.before)
-    }
-    return DslUtils.runWithProxy(delegate, scenario.action)
+    return ScenarioInvoker.invokeScenario(delegate, scenario)
   }
 
   def "can execute service methods"() {
     when:
-    def res = executeScenario("simple post", "ok")
+    def res = executeScenario("simple post", "ok", null)
 
     then:
-    res == "ok"
+    res.value == "ok"
 
     !executor.executedMethods.empty
     executor.executedMethods[0].path == "some/resource/@id"
@@ -145,13 +142,14 @@ class ScenarioDelegateSpec extends Specification {
 
   def "asserts work with executor results"() {
     when:
-    def res1 = executeScenario("get and assert 'ok'", "ok")
-    def res2 = executeScenario("delete and assert 'hi'", "ok")
+    def res1 = executeScenario("get and assert 'ok'", "ok", null)
+    def res2 = executeScenario("delete and assert 'hi'", "ok", null)
 
     then:
     def e = thrown(AssertionError)
     e.message.contains("Result is incorrect")
-    res1 == "ok"
+    res1 != null
+    res1.value == "ok"
     res2 == null
     executor.executedMethods[0].type == MethodType.GET
     executor.requests[0].pathParameters['id'] == '1'
@@ -161,7 +159,7 @@ class ScenarioDelegateSpec extends Specification {
 
   def "store works great"() {
     when:
-    executeScenario("check store", "1")
+    executeScenario("check store", "1", null)
 
     then:
     executor.executedMethods[0].type == MethodType.POST
@@ -172,6 +170,15 @@ class ScenarioDelegateSpec extends Specification {
     executor.requests[0].body.value.f1 == true
   }
 
+  def "caught result interaction errors are reported"() {
+    when:
+    executeScenario("check store", "1", [new AssertionError("bla bla bla")])
+
+    then:
+    def e = thrown(AssertionError)
+    e.message.contains("bla bla bla")
+  }
+
   /** Executor instance. */
   private static class Executor implements ScenarioExecutor {
 
@@ -180,11 +187,10 @@ class ScenarioDelegateSpec extends Specification {
     /** List of executed requests. */
     List<ServiceMethodRequestValues> requests = []
 
-    def scheduledExecutorResult = null
-
+    ExecResult scheduledExecutorResult = null
 
     @Override
-    Object performMethod(final Service service, final ServiceMethod method, final ServiceMethodRequestValues request) {
+    ExecResult performMethod(final Service service, final ServiceMethod method, final ServiceMethodRequestValues request) {
       assert service != null
       if (method) {
         executedMethods += method
@@ -195,6 +201,12 @@ class ScenarioDelegateSpec extends Specification {
       return scheduledExecutorResult
     }
 
+  }
+
+  /** Test result. */
+  private static class ExecResult implements MethodExecutionResult {
+    def value
+    List<AssertionError> interactionErrors
   }
 
 }

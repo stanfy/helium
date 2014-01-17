@@ -2,7 +2,6 @@ package com.stanfy.helium.handler.codegen.tests;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.stanfy.helium.dsl.scenario.HttpResponseWrapper;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
 import com.stanfy.helium.entities.json.JsonConverterFactory;

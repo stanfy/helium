@@ -8,6 +8,6 @@ import com.stanfy.helium.model.ServiceMethod;
  */
 public interface ScenarioExecutor {
 
-  Object performMethod(Service service, ServiceMethod method, ServiceMethodRequestValues request);
+  MethodExecutionResult performMethod(Service service, ServiceMethod method, ServiceMethodRequestValues request);
 
 }

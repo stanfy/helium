@@ -36,6 +36,10 @@ class ScenarioDelegate {
   // TODO: tests for scopes
   private final LinkedHashMap<String, Object> scope = new LinkedHashMap<>()
 
+  /** Intermediate results collection. */
+  @PackageScope
+  final LinkedList<MethodExecutionResult> intermediateResults = new LinkedList<>()
+
   public ScenarioDelegate(final Service service, final ScenarioExecutor executor) {
     this.service = service
     this.executor = executor
@@ -86,7 +90,10 @@ class ScenarioDelegate {
 
     def with(final Closure<?> methodSpec) {
       runWithProxy(new RequestConfiguration(), methodSpec)
-      return executor.performMethod(service, method, new ServiceMethodRequestValues(body, params, pathParams, headers))
+      MethodExecutionResult res = executor.performMethod(service, method,
+          new ServiceMethodRequestValues(body, params, pathParams, headers))
+      intermediateResults.add(res)
+      return res
     }
 
     class RequestConfiguration {

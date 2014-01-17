@@ -1,7 +1,8 @@
-package com.stanfy.helium.dsl.scenario;
+package com.stanfy.helium.handler.codegen.tests;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.stanfy.helium.dsl.scenario.MethodExecutionResult;
 import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.json.JsonConverterFactory;
 import com.stanfy.helium.entities.json.JsonEntityReader;
@@ -22,12 +23,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
  * HTTP response wrapper.
  */
-public class HttpResponseWrapper {
+public class HttpResponseWrapper implements MethodExecutionResult {
 
   /** Types. */
   private final TypeResolver typeResolver;
@@ -50,7 +53,11 @@ public class HttpResponseWrapper {
   /** Body. */
   private TypedEntity body;
 
-  public HttpResponseWrapper(final TypeResolver typeResolver, final HttpRequest request, final HttpResponse response, final String encoding, final Type type) {
+  /** Errors. */
+  private final List<AssertionError> errors = new LinkedList<AssertionError>();
+
+  HttpResponseWrapper(final TypeResolver typeResolver, final HttpRequest request, final HttpResponse response,
+                      final String encoding, final Type type) {
     this.typeResolver = typeResolver;
     this.request = request;
     this.encoding = encoding;
@@ -100,16 +107,34 @@ public class HttpResponseWrapper {
           typeResolver.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)
       );
       body = reader.read(type);
-      AssertionUtils.assertCorrectEntity(body, request, response);
+      try {
+        AssertionUtils.assertCorrectEntity(body, request, response);
+      } catch (AssertionError e) {
+        errors.add(e);
+      }
     }
     return body.getValue();
   }
 
   public void mustSucceed() {
-    AssertionUtils.validateStatus(request, response, true);
+    assertHttpExecution(true);
   }
+
   public void mustBeClientError() {
-    AssertionUtils.validateStatus(request, response, false);
+    assertHttpExecution(false);
+  }
+
+  private void assertHttpExecution(final boolean success) {
+    try {
+      AssertionUtils.validateStatus(request, response, success);
+    } catch (AssertionError e) {
+      errors.add(e);
+    }
+  }
+
+  @Override
+  public List<AssertionError> getInteractionErrors() {
+    return errors;
   }
 
 }
