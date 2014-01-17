@@ -75,7 +75,14 @@ class FieldsBuilder {
 
   @CompileStatic
   private Type resolveType(final Object arg) {
-    if (arg instanceof Type) { return (Type)arg }
+    if (arg == null) {
+      throw new IllegalArgumentException("Type is not specified");
+    }
+
+    if (arg instanceof Type) {
+      return (Type)arg
+    }
+
     final Type type
     if (arg instanceof Class) {
       type = typeResolver.byGroovyClass((Class<?>)arg)

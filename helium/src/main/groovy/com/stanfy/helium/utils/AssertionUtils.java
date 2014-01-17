@@ -16,8 +16,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-
 /**
  * Assertion utils.
  */
@@ -29,40 +27,48 @@ public final class AssertionUtils {
   private AssertionUtils() { /* hidden */ }
 
   public static void validateStatus(final HttpRequest request, final HttpResponse response, final boolean success) {
-    final String requestInfo = getRequestInfo(request, response);
+    int statusCode = response.getStatusLine().getStatusCode();
 
-    assertThat(response.getStatusLine().getStatusCode())
-        .describedAs("Method not found... Maybe not implemented yet? " + requestInfo)
-        .isNotEqualTo(HttpStatus.SC_NOT_FOUND);
-
-    assertThat(response.getStatusLine().getStatusCode())
-        .describedAs("Incorrect HTTP method. " + requestInfo)
-        .isNotEqualTo(HttpStatus.SC_METHOD_NOT_ALLOWED);
+    if (statusCode == HttpStatus.SC_NOT_FOUND) {
+      throw failure("Method not found... Maybe not implemented yet?", request, response);
+    }
 
     if (success) {
       LOG.info("Validating successful status...");
-      assertThat(response.getStatusLine().getStatusCode())
-          .describedAs("Successful HTTP status code expected. " + requestInfo)
-          .isGreaterThanOrEqualTo(HttpStatus.SC_OK)
-          .isLessThan(HttpStatus.SC_MULTIPLE_CHOICES);
+
+      if (statusCode == HttpStatus.SC_METHOD_NOT_ALLOWED) {
+        throw failure("HTTP method is not allowed", request, response);
+      }
+
+      if (statusCode < HttpStatus.SC_OK || statusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
+        throw failure("Successful HTTP status code expected.", request, response);
+      }
+
     } else {
       LOG.info("Validating error status...");
-      assertThat(response.getStatusLine().getStatusCode())
-          .describedAs("Client error expected. " + requestInfo)
-          .isGreaterThanOrEqualTo(HttpStatus.SC_BAD_REQUEST)
-          .isLessThan(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+
+      if (statusCode < HttpStatus.SC_BAD_REQUEST || statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
+        throw failure("Client error expected.", request, response);
+      }
     }
   }
 
-  public static void assertCorrectEntity(final TypedEntity entity, final HttpRequest request, final HttpResponse response) {
+  public static void assertCorrectEntity(final TypedEntity entity, final HttpRequest request,
+                                         final HttpResponse response) {
     if (entity.getValidationError() != null) {
-      throw new AssertionError("\n\n"
-          + "--------- Validation problems ---------\n"
-          + entity.getValidationError() + "\n\n"
-          + "------------- HTTP details ------------\n"
-          + getRequestInfo(request, response) + "\n\n"
+      throw failure(
+          "--------- Validation problems ---------\n" + entity.getValidationError(),
+          request, response
       );
     }
+  }
+
+  private static AssertionError failure(final String message, final HttpRequest request, final HttpResponse response) {
+    return  new AssertionError("\n\n"
+        + message + "\n\n"
+        + "------------- HTTP details ------------\n"
+        + getRequestInfo(request, response) + "\n\n"
+    );
   }
 
   private static String getRequestInfo(final HttpRequest request, final HttpResponse response) {
