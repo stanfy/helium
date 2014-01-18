@@ -39,9 +39,10 @@ class ConfigurableType extends ConfigurableProxy<Type> {
         String str = (String) ClosureJsonConverter.AS_STRING_READER(input)
         if (str == null) { return null }
         try {
-          return DateTimeFormat.forPattern(dateFormat).parseDateTime(str).toDate()
-        } catch (ParseException e) {
-          throw new ConvertValueSyntaxException(str, "Expected format: $dateFormat")
+          return DateTimeFormat.forPattern(dateFormat)
+              .withLocale(Locale.US)
+              .parseDateTime(str)
+              .toDate()
         } catch (IllegalArgumentException e) {
           throw new ConvertValueSyntaxException(str, "Expected format: $dateFormat")
         }
@@ -60,7 +61,9 @@ class ConfigurableType extends ConfigurableProxy<Type> {
           return
         }
         if (value instanceof Date) {
-          input.value(DateTimeFormat.forPattern(dateFormat).print(value.time))
+          input.value(DateTimeFormat.forPattern(dateFormat)
+              .withLocale(Locale.US)
+              .print(value.time))
           return
         }
         if (value instanceof String) {
