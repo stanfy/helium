@@ -13,7 +13,7 @@ type "timestamp" spec {
 }
 
 type 'User' message {
-  id 'int64'
+//  id 'int64'
   id_str 'string'
   name 'string'
   profile_image_url 'string'
