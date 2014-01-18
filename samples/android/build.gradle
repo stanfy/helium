@@ -5,8 +5,12 @@ buildscript {
   }
   dependencies {
     classpath 'com.android.tools.build:gradle:0.7.+'
+    classpath 'com.stanfy.helium:gradle-plugin:0.3.4-SNAPSHOT'
   }
 }
+
+apply plugin: 'android'
+apply plugin: 'helium'
 
 android {
   compileSdkVersion 19
@@ -20,4 +24,90 @@ android {
     sourceCompatibility JavaVersion.VERSION_1_7
     targetCompatibility JavaVersion.VERSION_1_7
   }
+}
+
+// import some classes to be able to customize source generation
+import javax.lang.model.element.Modifier
+import static com.stanfy.helium.handler.codegen.java.entity.Writers.*
+import com.stanfy.helium.handler.codegen.java.constants.ConstantNameConverter
+
+helium {
+  specification file('src/api/twitter.api')
+
+  sourceGen {
+    def sourceOut = file("$buildDir/source")
+
+    // generate entity classes based on messages defined in the spec
+    entities {
+
+      // set output directory
+      output = file("$sourceOut/entities")
+
+      options {
+        packageName = "com.stanfy.helium.sample.api"
+
+        // replace some_field with someField
+        prettifyNames = true
+
+        // make fields be private
+        fieldModifiers = [Modifier.PRIVATE] as Set
+
+        // and generate accessor
+        addGetters = true
+        addSetters = true
+
+        // add more code to POJOs
+        writerWrapper = chain(
+            // @SerializedName annotation for Gson
+            gson(),
+            // implement Parcelable
+            androidParcelable()
+        )
+
+        // map custom types to Java classes
+        customPrimitivesMapping = [
+            timestamp: "java.util.Date"
+        ]
+
+        // Force using Java arrays instead of collections for sequences:
+        // currently the only option supported by androidParcelable() feature.
+        useArraysForSequences()
+
+        // Without making entities implement Parcelable, it's possible to customize
+        // collection class used for representing sequences.
+        // sequenceCollectionName = 'java.util.ArrayList'
+      }
+    }
+
+    // generate constants from field names: may be useful for injecting SQL-code e.g.
+    constants {
+
+      // set output directory
+      output = file("$sourceOut/constants")
+
+      options {
+        packageName = "com.stanfy.helium.sample.constants"
+
+        // process only User type
+        include << 'User'
+
+        // customize how constant name is built (constant value is equal to field name)
+        nameConverter = {
+          // 'it' is an instance of com.stanfy.helium.model.Field
+          "COLUMN_${it.canonicalName.toUpperCase(Locale.US)}".toString()
+        } as ConstantNameConverter
+      }
+    }
+
+  }
+}
+
+// For each source generation declaration helium creates a corresponding task
+def constantsGenerationTask = helium.sourceGen.constants['com.stanfy.helium.sample.constants']
+def entitiesGenerationTask = helium.sourceGen.constants['com.stanfy.helium.sample.api']
+
+// Use Android plugin api to register generated sources
+android.applicationVariants.all {
+  variant.registerJavaGeneratingTask(constantsGenerationTask, constantsGenerationTask.output)
+  variant.registerJavaGeneratingTask(entitiesGenerationTask, entitiesGenerationTask.output)
 }
