@@ -42,9 +42,6 @@ class ConfigurableService extends ConfigurableProxy<Service> {
     if (!method.type) {
       throw new IllegalStateException("Type is not defined for service method $method in '${getCore().name}'")
     }
-    if (!method.response) {
-      throw new IllegalStateException("Response type of service method $method in '${getCore().name}' is not defined.")
-    }
 
     getCore().methods.add method
     return method

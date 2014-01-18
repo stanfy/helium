@@ -30,7 +30,10 @@ import java.util.Map;
 /**
  * HTTP response wrapper.
  */
-public class HttpResponseWrapper implements MethodExecutionResult {
+class HttpResponseWrapper implements MethodExecutionResult {
+
+  /** Empty response object. */
+  private static TypedEntity<?> EMPTY_RESPONSE = new TypedEntity<Type>(null, null);
 
   /** Types. */
   private final TypeResolver typeResolver;
@@ -51,7 +54,7 @@ public class HttpResponseWrapper implements MethodExecutionResult {
   private Map<String, String> httpHeaders;
 
   /** Body. */
-  private TypedEntity body;
+  private TypedEntity<?> body;
 
   /** Errors. */
   private final List<AssertionError> errors = new LinkedList<AssertionError>();
@@ -75,7 +78,10 @@ public class HttpResponseWrapper implements MethodExecutionResult {
           final HttpResponse result = new BasicHttpResponse(response.getStatusLine());
           result.setHeaders(response.getAllHeaders());
           // TODO: support different content types
-          result.setEntity(new StringEntity(IOUtils.toString(response.getEntity().getContent(), encoding), ContentType.create(ContentType.APPLICATION_JSON.getMimeType(), encoding)));
+          result.setEntity(new StringEntity(
+              IOUtils.toString(response.getEntity().getContent(), encoding),
+              ContentType.create(ContentType.APPLICATION_JSON.getMimeType(), encoding)
+          ));
           IOUtils.closeQuietly(content);
           return result;
         }
@@ -101,17 +107,28 @@ public class HttpResponseWrapper implements MethodExecutionResult {
   public Object getBody() throws IOException {
     if (body == null) {
       mustSucceed();
-      // TODO: support different content types
-      JsonEntityReader reader = new JsonEntityReader(
-          new InputStreamReader(new BufferedInputStream(response.getEntity().getContent()), encoding),
-          typeResolver.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)
-      );
-      body = reader.read(type);
-      try {
-        AssertionUtils.assertCorrectEntity(body, request, response);
-      } catch (AssertionError e) {
-        errors.add(e);
+
+      if (type != null) {
+        // TODO: support different content types
+        JsonEntityReader reader = new JsonEntityReader(
+            new InputStreamReader(new BufferedInputStream(
+                response.getEntity().getContent()), encoding
+            ),
+            typeResolver.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)
+        );
+
+        body = reader.read(type);
+
+        try {
+          AssertionUtils.assertCorrectEntity(body, request, response);
+        } catch (AssertionError e) {
+          errors.add(e);
+        }
+
+      } else {
+        body = EMPTY_RESPONSE;
       }
+
     }
     return body.getValue();
   }

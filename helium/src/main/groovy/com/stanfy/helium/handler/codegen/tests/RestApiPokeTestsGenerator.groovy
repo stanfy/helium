@@ -53,7 +53,8 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     } as BaseUnitTestsGenerator.ServiceHandler)
   }
 
-  private static void addTestMethods(final JavaWriter out, final Service service, ServiceMethod method, final JsonEntityExampleGenerator entitiesGenerator) {
+  private static void addTestMethods(final JavaWriter out, final Service service, ServiceMethod method,
+                                     final JsonEntityExampleGenerator entitiesGenerator) {
     MethodTestInfo testInfo = method.testInfo.resolve(service.testInfo)
     String encoding = HttpExecutor.resolveEncoding(service, method)
 
@@ -145,7 +146,8 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     private void startTestMethod(String nameSuffix) {
       String name = method.canonicalName
       out.emitAnnotation('Test')
-      out.beginMethod('void', name + nameSuffix, Collections.<Modifier>singleton(Modifier.PUBLIC), null, [Exception.simpleName])
+      out.beginMethod('void', name + nameSuffix, Collections.<Modifier>singleton(Modifier.PUBLIC), null,
+          [Exception.simpleName])
     }
 
     void method(final String suffix, final String url, final Closure<?> methodBody) {
@@ -173,8 +175,10 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     }
 
     private void validateBody(final String encoding) {
-      if (!method.response) { throw new IllegalStateException("Method response is not defined") }
-      out.emitStatement('validate(request, response, "%s", %s)', encoding, JavaWriter.stringLiteral(method.response.name))
+      if (method.response) {
+        out.emitStatement('validate(request, response, "%s", %s)', encoding,
+            JavaWriter.stringLiteral(method.response.name))
+      }
     }
 
   }

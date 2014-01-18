@@ -164,6 +164,10 @@ class ProjectDslSpec extends Specification {
         body "PersonProfile"
         response "bool"
       }
+
+      delete "/person/@id" spec {
+        // nothing
+      }
     }
 
     then:
@@ -179,6 +183,10 @@ class ProjectDslSpec extends Specification {
     dsl.services[0].methods[1].name == "Edit Person Profile"
     dsl.services[0].methods[1].body == dsl.services[0].methods[0].response
     !dsl.services[0].methods[1].body.anonymous
+    dsl.services[0].methods[2].type == MethodType.DELETE
+    dsl.services[0].methods[2].body == null
+    dsl.services[0].methods[2].response == null
+    dsl.services[0].methods[2].parameters == null
 
   }
 
@@ -354,17 +362,14 @@ class ProjectDslSpec extends Specification {
 
   }
 
-  def "should throw illegal state exception if method response type is not defined"() {
+  def "should allow empty response type"() {
     when:
     dsl.service {
       get '/aaa' spec { }
     }
 
     then:
-    def e = thrown(IllegalStateException)
-    e.message.contains("GET")
-    e.message.contains("/aaa")
-    e.message.contains("not defined")
+    dsl.services[0].methods[0].response == null
   }
 
 }

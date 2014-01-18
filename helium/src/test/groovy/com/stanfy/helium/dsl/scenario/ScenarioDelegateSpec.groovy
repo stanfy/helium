@@ -5,7 +5,6 @@ import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.tests.Scenario
-import com.stanfy.helium.utils.DslUtils
 import spock.lang.Specification
 
 /**
@@ -70,7 +69,7 @@ class ScenarioDelegateSpec extends Specification {
               id '1'
             }
           }
-          assert someRes.value == "ok" : "Result is incorrect: $someRes"
+          assert someRes.body == "ok" : "Result is incorrect: $someRes"
           return someRes
         }
         scenario "delete and assert 'hi'" spec {
@@ -79,7 +78,7 @@ class ScenarioDelegateSpec extends Specification {
               id '2'
             }
           }
-          assert someRes.value == "hi" : "Result is incorrect: $someRes"
+          assert someRes.body == "hi" : "Result is incorrect: $someRes"
           return someRes
         }
 
@@ -116,8 +115,12 @@ class ScenarioDelegateSpec extends Specification {
 
   }
 
-  private def executeScenario(final String name, final def result, final def errors) {
-    executor.scheduledExecutorResult = new ExecResult(value: result, interactionErrors: errors ? errors : [])
+  private Object executeScenario(final String name, final def result, final def errors) {
+    executor.scheduledExecutorResult = new ExecResult(
+        body: result,
+        interactionErrors: errors ? errors : [],
+        willSucceed: true
+    )
     Scenario scenario = service.testInfo.scenarioByName(name)
     return ScenarioInvoker.invokeScenario(delegate, scenario)
   }
@@ -127,7 +130,7 @@ class ScenarioDelegateSpec extends Specification {
     def res = executeScenario("simple post", "ok", null)
 
     then:
-    res.value == "ok"
+    res.body == "ok"
 
     !executor.executedMethods.empty
     executor.executedMethods[0].path == "some/resource/@id"
@@ -149,7 +152,7 @@ class ScenarioDelegateSpec extends Specification {
     def e = thrown(AssertionError)
     e.message.contains("Result is incorrect")
     res1 != null
-    res1.value == "ok"
+    res1.body == "ok"
     res2 == null
     executor.executedMethods[0].type == MethodType.GET
     executor.requests[0].pathParameters['id'] == '1'
@@ -205,8 +208,31 @@ class ScenarioDelegateSpec extends Specification {
 
   /** Test result. */
   private static class ExecResult implements MethodExecutionResult {
-    def value
+    def body
     List<AssertionError> interactionErrors
+
+    boolean willSucceed
+
+    def headers = [:]
+
+    @Override
+    Map<String, String> getHttpHeaders() {
+      return headers
+    }
+
+    @Override
+    void mustSucceed() {
+      if (!willSucceed) {
+        throw new AssertionError("test")
+      }
+    }
+
+    @Override
+    void mustBeClientError() {
+      if (!willSucceed) {
+        throw new AssertionError("test")
+      }
+    }
   }
 
 }
