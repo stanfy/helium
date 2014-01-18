@@ -1,10 +1,9 @@
 package com.stanfy.helium.dsl
 
 import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import com.stanfy.helium.entities.ConverterFactory
-import com.stanfy.helium.entities.ValidationError
+import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.entities.json.JsonConverterFactory
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
@@ -107,15 +106,6 @@ class DefaultTypeResolver implements TypeResolver {
 
   }
 
-  private static Closure<?> wrapWithOptionalNull(Closure<?> converter) {
-    return { JsonReader reader ->
-      if (reader.peek() == JsonToken.NULL) {
-        return null
-      }
-      return converter(reader)
-    }
-  }
-
   Iterable<Type> all() {
     return Collections.unmodifiableCollection(types.values())
   }
@@ -126,62 +116,6 @@ class DefaultTypeResolver implements TypeResolver {
       return json as ConverterFactory<I, O>;
     }
     throw new UnsupportedOperationException("Format " + format + " is not supported")
-  }
-
-  public static class ClosureJsonConverter extends JsonConverterFactory.JsonPrimitiveConverter {
-
-    public static final Closure<?> AS_STRING_READER = { JsonReader reader ->
-      JsonToken nextToken = reader.peek();
-      if (nextToken != JsonToken.STRING) {
-        throw new IllegalArgumentException("not a string");
-      }
-      return reader.nextString()
-    }
-    public static final Closure<?> AS_STRING_WRITER = { JsonWriter output, Object value ->
-      if (value == null) {
-        output.nullValue()
-      } else {
-        output.value((String)value)
-      }
-    }
-
-    /** Closure. */
-    final Closure<?> writer;
-    /** Reader. */
-    final Closure<?> reader;
-
-    ClosureJsonConverter(final Type type, final Closure<?> reader, final Closure<?> writer) {
-      super(type)
-      this.writer = writer;
-      this.reader = wrapWithOptionalNull(reader);
-    }
-
-    @Override
-    void write(final JsonWriter output, final Object value) throws IOException {
-      writer.call(output, value)
-    }
-
-    private static boolean checkForEnd(final JsonReader input) {
-      return !input.hasNext() || input.peek() == JsonToken.END_DOCUMENT;
-    }
-
-    @Override
-    Object read(JsonReader input, List<ValidationError> errors) throws IOException {
-      try {
-        return reader.call(input)
-      } catch (IllegalStateException e) {
-        if (!checkForEnd(input)) {
-          input.skipValue();
-        }
-        throw e;
-      } catch (IllegalArgumentException e) {
-        if (!checkForEnd(input)) {
-          input.skipValue();
-        }
-        throw new IllegalStateException("bad format: " + e.getMessage());
-      }
-    }
-
   }
 
 }

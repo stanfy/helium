@@ -2,6 +2,8 @@ package com.stanfy.helium.dsl
 
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import com.stanfy.helium.entities.ConvertValueSyntaxException
+import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.utils.DslUtils
@@ -30,16 +32,18 @@ class ConfigurableType extends ConfigurableProxy<Type> {
 
   public class From {
     public Closure<?> asString() {
-      return DefaultTypeResolver.ClosureJsonConverter.AS_STRING_READER
+      return ClosureJsonConverter.AS_STRING_READER
     }
     public Closure<?> asDate(final String dateFormat) {
       return { JsonReader input ->
-        String str = (String) DefaultTypeResolver.ClosureJsonConverter.AS_STRING_READER(input)
+        String str = (String) ClosureJsonConverter.AS_STRING_READER(input)
         if (str == null) { return null }
         try {
           return DateTimeFormat.forPattern(dateFormat).parseDateTime(str).toDate()
         } catch (ParseException e) {
-          throw new IllegalArgumentException("Bad date '$str'; expected format: '$dateFormat'")
+          throw new ConvertValueSyntaxException(str, "Expected format: $dateFormat")
+        } catch (IllegalArgumentException e) {
+          throw new ConvertValueSyntaxException(str, "Expected format: $dateFormat")
         }
       }
     }
@@ -47,7 +51,7 @@ class ConfigurableType extends ConfigurableProxy<Type> {
 
   public class To {
     public Closure<?> asString() {
-      return DefaultTypeResolver.ClosureJsonConverter.AS_STRING_WRITER
+      return ClosureJsonConverter.AS_STRING_WRITER
     }
     public Closure<?> asDate(final String dateFormat) {
       return { JsonWriter input, Object value ->

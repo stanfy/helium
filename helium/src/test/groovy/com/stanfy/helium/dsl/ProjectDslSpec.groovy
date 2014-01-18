@@ -1,5 +1,6 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.DefaultTypesLoader
@@ -356,7 +357,7 @@ class ProjectDslSpec extends Specification {
 
     expect:
     customType != null
-    converter instanceof DefaultTypeResolver.ClosureJsonConverter
+    converter instanceof ClosureJsonConverter
     converter.reader != null
     converter.writer != null
 

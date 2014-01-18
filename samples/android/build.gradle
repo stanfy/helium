@@ -26,6 +26,14 @@ android {
   }
 }
 
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile 'com.google.code.gson:gson:2.2.4'
+}
+
 // import some classes to be able to customize source generation
 import javax.lang.model.element.Modifier
 import static com.stanfy.helium.handler.codegen.java.entity.Writers.*
@@ -104,10 +112,10 @@ helium {
 
 // For each source generation declaration helium creates a corresponding task
 def constantsGenerationTask = helium.sourceGen.constants['com.stanfy.helium.sample.constants']
-def entitiesGenerationTask = helium.sourceGen.constants['com.stanfy.helium.sample.api']
+def entitiesGenerationTask = helium.sourceGen.entities['com.stanfy.helium.sample.api']
 
 // Use Android plugin api to register generated sources
-android.applicationVariants.all {
+android.applicationVariants.all { variant ->
   variant.registerJavaGeneratingTask(constantsGenerationTask, constantsGenerationTask.output)
   variant.registerJavaGeneratingTask(entitiesGenerationTask, entitiesGenerationTask.output)
 }

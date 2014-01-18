@@ -1,5 +1,6 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.TypeResolver
 import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.model.*
@@ -135,9 +136,9 @@ class ProjectDsl implements Project {
           formats.addAll(proxy.@writers.keySet())
           formats.each {
             def reader = proxy.@readers[it], writer = proxy.@writers[it]
-            if (!reader) { reader = DefaultTypeResolver.ClosureJsonConverter.AS_STRING_READER }
-            if (!writer) { writer = DefaultTypeResolver.ClosureJsonConverter.AS_STRING_WRITER }
-            typeResolver.findConverters(it).addConverter(type.name, new DefaultTypeResolver.ClosureJsonConverter(type, reader, writer))
+            if (!reader) { reader = ClosureJsonConverter.AS_STRING_READER }
+            if (!writer) { writer = ClosureJsonConverter.AS_STRING_WRITER }
+            typeResolver.findConverters(it).addConverter(type.name, new ClosureJsonConverter(type, reader, writer))
           }
         }
 

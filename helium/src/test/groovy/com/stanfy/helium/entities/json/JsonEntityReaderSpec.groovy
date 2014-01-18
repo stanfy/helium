@@ -1,6 +1,7 @@
 package com.stanfy.helium.entities.json
 
 import com.google.gson.stream.JsonReader
+import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.entities.ConverterFactory
 import com.stanfy.helium.entities.TypedEntity
@@ -419,17 +420,26 @@ class JsonEntityReaderSpec extends Specification {
     }
     dsl.type "FooMsg" message {
       bar 'foo'
+      field 'string'
+      field2 'int32'
     }
-    def error = read(dsl.types.byName('FooMsg'), '''
+    dsl.type "Container" message {
+      items 'FooMsg' sequence
+    }
+    def error = read(dsl.types.byName('Container'), '''
       {
-        "bar" : "bad string"
+        "items" : [
+          {"bar" : "bad string", "field" : "abc", "field2" : '2'},
+          {"bar" : "2013-07-11", "field2" : '3'}
+        ]
       }
     ''').validationError
 
     expect:
     !error.explanation.empty
     error.children.size() == 1
-    error.children[0].field.name == 'bar'
+    error.children[0].children[0]?.children[0]?.explanation?.contains("bad string")
+    error.children[0].children.size() > 1
   }
 
   def "ignores skipped fields"() {

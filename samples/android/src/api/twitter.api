@@ -1,7 +1,15 @@
 note "Twitter API"
 
-type 'timestamp' spec {
+def TIMESTAMP_FORMAT = "EEE MMM dd HH:mm:ss ZZZZZ yyyy"
 
+type "timestamp" spec {
+  description "Date and time"
+  from("json") {
+    asDate(TIMESTAMP_FORMAT)
+  }
+  to("json") {
+    asDate(TIMESTAMP_FORMAT)
+  }
 }
 
 type 'User' message {
@@ -66,12 +74,14 @@ type "Tweet" message {
   }
 }
 
-type "SearchResponse" messages {
+type "SearchResponse" message {
   statuses 'Tweet' sequence
   search_metadata(skip: true)
 }
 
-service "Twitter" {
+service {
+
+  name "Twitter"
 
   version "1.1"
   location "https://api.twitter.com/$version"
@@ -82,13 +92,31 @@ service "Twitter" {
       count 'int32' optional
       include_entities 'bool' optional
     }
+    response 'SearchResponse'
   }
 
   tests {
     httpHeaders {
-      Authorization "Bearer AAAAAAAAAAAAAAAAAAAAAJ3PVgAAAAAA%2BPcuieQDv6hOE9SyWM2AOWjIloc%3DU2fCluURs5dnG5A3WaaVhNgiBjXKkV5lynvoquGu7ediOCRWiF"
+      'Authorization' "Bearer AAAAAAAAAAAAAAAAAAAAAJ3PVgAAAAAA%2BPcuieQDv6hOE9SyWM2AOWjIloc%3DU2fCluURs5dnG5A3WaaVhNgiBjXKkV5lynvoquGu7ediOCRWiF"
     }
     useExamples true
+
+    scenario "search for tweets" spec {
+      def searchResponse = get "search/tweets.json" with {
+        parameters {
+          q '#androiddev'
+          count 2
+          include_entities false
+        }
+      }
+
+      assert searchResponse.body != null
+
+      def size = searchResponse.body?.statuses?.size()
+      assert size == 2 : "Expected 2 statuses, got $size"
+      assert searchResponse.body?.statuses?.every { it.user != null }
+    }
+
   }
 
 }
