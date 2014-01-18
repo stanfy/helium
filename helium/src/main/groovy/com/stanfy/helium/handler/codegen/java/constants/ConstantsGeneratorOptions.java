@@ -10,6 +10,8 @@ import java.util.Locale;
  */
 public class ConstantsGeneratorOptions extends JavaGeneratorOptions {
 
+  private static final long serialVersionUID = 1;
+
   public static ConstantsGeneratorOptions defaultOptions(final String packageName) {
     ConstantsGeneratorOptions converter = new ConstantsGeneratorOptions();
     converter.setPackageName(packageName);

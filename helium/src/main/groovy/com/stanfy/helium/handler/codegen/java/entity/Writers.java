@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
+import java.io.Serializable;
 import java.io.Writer;
 
 /**
@@ -7,11 +8,11 @@ import java.io.Writer;
  */
 public final class Writers {
 
-  public interface WriterWrapper {
+  public interface WriterWrapper extends Serializable {
     JavaClassWriter wrapWriter(JavaClassWriter delegate, EntitiesGeneratorOptions options);
   }
 
-  public interface WriterFactory {
+  public interface WriterFactory extends Serializable {
     JavaClassWriter create(Writer output);
   }
 

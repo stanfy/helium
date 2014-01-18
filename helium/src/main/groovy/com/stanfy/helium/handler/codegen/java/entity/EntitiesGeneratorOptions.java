@@ -21,6 +21,8 @@ import static com.stanfy.helium.handler.codegen.java.entity.Writers.WriterWrappe
  */
 public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
 
+  private static final long serialVersionUID = 1;
+
   /** Default options. */
   public static EntitiesGeneratorOptions defaultOptions(final String packageName) {
     EntitiesGeneratorOptions options = new EntitiesGeneratorOptions();
