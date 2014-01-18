@@ -1,5 +1,7 @@
 package com.stanfy.helium.gradle
 
+import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
+import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
 import com.stanfy.helium.handler.codegen.java.constants.ConstantNameConverter
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
@@ -37,7 +39,7 @@ class HeliumExtensionSpec extends Specification {
       }
     }
 
-    def task = project.tasks['generateEntities']
+    def task = project.tasks['generateEntitiesSomePackage']
 
     expect:
     task != null
@@ -62,13 +64,35 @@ class HeliumExtensionSpec extends Specification {
       }
     }
 
-    def task = project.tasks['generateConstants']
+    def task = project.tasks['generateConstantsSomeConsts']
 
     expect:
     task != null
     task.output == project.file("../ccc")
     task.options.packageName == "some.consts"
     task.options.nameConverter.class.name.contains("Proxy")
+  }
+
+  def "source generation tasks should be accessible by package name"() {
+    given:
+    project.helium {
+      sourceGen {
+        entities {
+          options {
+            packageName = "p1"
+          }
+        }
+        constants {
+          options {
+            packageName = "p2"
+          }
+        }
+      }
+    }
+
+    expect:
+    project.helium.sourceGen.entities['p1'] instanceof GenerateJavaEntitiesTask
+    project.helium.sourceGen.constants['p2'] instanceof GenerateJavaConstantsTask
   }
 
 }
