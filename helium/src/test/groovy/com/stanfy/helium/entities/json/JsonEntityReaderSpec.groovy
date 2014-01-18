@@ -20,6 +20,7 @@ class JsonEntityReaderSpec extends Specification {
 
   Message testMessage
   Sequence listMessage
+  Message listWithName
   Message structMessage
 
   void setup() {
@@ -44,6 +45,7 @@ class JsonEntityReaderSpec extends Specification {
     testMessage = dsl.messages[0]
     listMessage = dsl.sequences[0]
     structMessage = dsl.messages[2]
+    listWithName = dsl.messages[1]
 
     converters = dsl.types.findConverters(JsonConverterFactory.JSON)
   }
@@ -148,6 +150,32 @@ class JsonEntityReaderSpec extends Specification {
     !error.children.empty
     error.children[0].field != null
     error.children[0].field.name == 'f3'
+  }
+
+  def "reads required floats in arrays"() {
+    given:
+    ((Message)dsl.typeResolver.byName('A')).fieldByName('f2').required = true
+    def error = read(listWithName, '''
+      {
+        "name" : "name",
+        "items" : [
+          {
+            "f1" : 1,
+            "f2" : 4.99
+          },
+          {
+            "f1" : 2
+          }
+        ]
+      }
+    ''').validationError
+
+    expect:
+    error != null
+    error.children[0].children[0] != null
+    error.children[0].children[0].index == 1
+    error.children[0].children[0].field == null
+    error.children[0].children[0].children[0]?.field?.name == 'f2'
   }
 
   def "reports unknown fields"() {

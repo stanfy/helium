@@ -85,10 +85,8 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
     output.beginConstructor(EnumSet.noneOf(Modifier.class), ANDROID_OS_PARCEL, "source");
 
-    for (Field field : message.getFields()) {
-      if (!field.isSkip()) {
-        emitReadingStmt(field);
-      }
+    for (Field field : message.getActiveFields()) {
+      emitReadingStmt(field);
     }
 
     output.endConstructor();
@@ -109,10 +107,8 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     output.emitEmptyLine();
     output.emitAnnotation(Override.class);
     output.beginMethod("void", "writeToParcel", EnumSet.of(Modifier.PUBLIC), ANDROID_OS_PARCEL, "dest", "int", "options");
-    for (Field field : message.getFields()) {
-      if (!field.isSkip()) {
-        emitWritingStmt(field);
-      }
+    for (Field field : message.getActiveFields()) {
+      emitWritingStmt(field);
     }
     output.endMethod();
 

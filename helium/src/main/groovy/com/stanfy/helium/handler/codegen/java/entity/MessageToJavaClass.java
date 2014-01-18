@@ -37,10 +37,7 @@ public class MessageToJavaClass {
 
     // imports
     HashSet<String> imports = new HashSet<String>();
-    for (Field field : message.getFields()) {
-      if (field.isSkip()) {
-        continue;
-      }
+    for (Field field : message.getActiveFields()) {
 
       Type type = field.getType();
 
@@ -66,11 +63,7 @@ public class MessageToJavaClass {
     writer.getOutput().emitEmptyLine();
 
     // fields
-    for (Field field : message.getFields()) {
-      if (field.isSkip()) {
-        continue;
-      }
-
+    for (Field field : message.getActiveFields()) {
       writer.writeField(field, getFieldTypeName(field), options.getFieldName(field), options.getFieldModifiers());
       writer.getOutput().emitEmptyLine();
     }
@@ -83,11 +76,7 @@ public class MessageToJavaClass {
     boolean getters = options.isAddGetters();
     boolean setters = options.isAddSetters();
     if (getters || setters) {
-      for (Field field : message.getFields()) {
-        if (field.isSkip()) {
-          continue;
-        }
-
+      for (Field field : message.getActiveFields()) {
         String fieldTypeName = getFieldTypeName(field);
         String fieldName = options.getFieldName(field);
         if (getters) {

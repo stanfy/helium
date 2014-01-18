@@ -68,11 +68,7 @@ class DefaultTypeResolver implements TypeResolver {
       case "float":
         numReader = { JsonReader reader ->
           double doubleValue = reader.nextDouble()
-          float floatValue = (float)doubleValue;
-          if (floatValue != doubleValue) {
-            throw new IllegalArgumentException("value " + doubleValue + " is too big for float");
-          }
-          return floatValue;
+          return (float)doubleValue;
         }
         break
       case "int32":

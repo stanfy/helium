@@ -29,10 +29,7 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
     @SuppressWarnings("unchecked")
     Map<String, Object> values = (Map<String, Object>) value;
 
-    for (Field f : getType().getFields()) {
-      if (f.isSkip()) {
-        continue;
-      }
+    for (Field f : getType().getActiveFields()) {
 
       Object v = values.get(f.getName());
       if (f.isSequence()) {
@@ -46,6 +43,7 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
         }
         writeField(f.getName(), f.getType(), v, output);
       }
+
     }
   }
 

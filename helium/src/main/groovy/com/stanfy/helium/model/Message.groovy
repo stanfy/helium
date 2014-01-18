@@ -13,6 +13,11 @@ class Message extends Type {
 
   List<Field> getFields() { return Collections.unmodifiableList(fields) }
 
+  List<Field> getActiveFields() {
+    List<Field> active = (List<Field>) fields.findAll() { Field f -> !f.skip }
+    return Collections.unmodifiableList(active)
+  }
+
   Field fieldByName(final String name) {
     return fields.find { Field field -> field.name == name }
   }

@@ -7,17 +7,34 @@ import spock.lang.Specification
  */
 class MessageSpec extends Specification {
 
+  def Message message
+  def Type type
+
+  def setup() {
+    message = new Message(name: 'Test')
+    type = new Type(name: 'test')
+  }
+
   def "required fields should not include skipped ones"() {
     given:
-    Message m = new Message(name: 'Test')
-    def type = new Type(name: 'test')
-    m.addField(new Field(name: 'a', type: type))
-    m.addField(new Field(name: 'b', type: type, skip: true))
-    m.addField(new Field(name: 'c', type: type, skip: true))
+    message.addField(new Field(name: 'a', type: type))
+    message.addField(new Field(name: 'b', type: type, skip: true))
+    message.addField(new Field(name: 'c', type: type, skip: true))
 
     expect:
-    m.requiredFields.size() == 1
-    m.requiredFields[0].name == 'a'
+    message.requiredFields.size() == 1
+    message.requiredFields[0].name == 'a'
+  }
+
+  def "active fields do not include skipped ones"() {
+    given:
+    message.addField(new Field(name: 'a', type: type))
+    message.addField(new Field(name: 'b', type: type, skip: true))
+    message.addField(new Field(name: 'c', type: type, skip: true))
+    message.addField(new Field(name: 'd', type: type, required: false))
+
+    expect:
+    message.activeFields.collect { it.name } == ['a', 'd']
   }
 
 }
