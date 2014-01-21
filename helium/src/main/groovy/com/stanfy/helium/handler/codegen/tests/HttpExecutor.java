@@ -124,7 +124,7 @@ class HttpExecutor implements ScenarioExecutor {
 
     // set body
     // TODO: support different content types
-    if (method.getType().isHasBody()) {
+    if (method.getType().isHasBody() && method.getBody() != null) {
       StringWriter json = new StringWriter();
       try {
         new JsonEntityWriter(json, types.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)).write(request.getBody());
