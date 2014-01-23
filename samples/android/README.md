@@ -1,3 +1,6 @@
+Helium Android Sample
+=====================
+
 This project uses 'android' and 'helium' plugins for gradle.
 
 In [`SampleActivity`](https://github.com/stanfy/helium/blob/master/samples/android/src/main/java/com/stanfy/helium/sample/android/SampleActivity.java#L8)
