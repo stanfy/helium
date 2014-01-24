@@ -10,7 +10,7 @@ import javax.lang.model.element.Modifier
 /**
  * Tests for PojoWriter.
  */
-class EntityWriterSpec extends Specification {
+class PojoWriterSpec extends Specification {
 
   protected static final String TEST_PACKAGE = "com.stanfy.helium.test"
 
@@ -64,43 +64,43 @@ public class MyMsg {
 
 
   public String getFieldStr() {
-    return fieldStr;
+    return this.fieldStr;
   }
 
   public void setFieldStr(String value) {
-    fieldStr = value;
+    this.fieldStr = value;
   }
 
   public int getFieldInt32() {
-    return fieldInt32;
+    return this.fieldInt32;
   }
 
   public void setFieldInt32(int value) {
-    fieldInt32 = value;
+    this.fieldInt32 = value;
   }
 
   public boolean getFieldBool() {
-    return fieldBool;
+    return this.fieldBool;
   }
 
   public void setFieldBool(boolean value) {
-    fieldBool = value;
+    this.fieldBool = value;
   }
 
   public List<Float> getFieldFloatList() {
-    return fieldFloatList;
+    return this.fieldFloatList;
   }
 
   public void setFieldFloatList(List<Float> value) {
-    fieldFloatList = value;
+    this.fieldFloatList = value;
   }
 
   public Child getFieldChild() {
-    return fieldChild;
+    return this.fieldChild;
   }
 
   public void setFieldChild(Child value) {
-    fieldChild = value;
+    this.fieldChild = value;
   }
 
 }
@@ -161,11 +161,11 @@ public class Test {
 
 
   public String getTestField() {
-    return testField;
+    return this.testField;
   }
 
   public void setTestField(String value) {
-    testField = value;
+    this.testField = value;
   }
 
 }

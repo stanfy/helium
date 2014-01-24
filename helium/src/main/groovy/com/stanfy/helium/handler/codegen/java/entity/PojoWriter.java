@@ -44,14 +44,14 @@ public class PojoWriter implements JavaClassWriter {
   @Override
   public void writeSetterMethod(final Field field, final String fieldTypeName, final String accessorName, final String fieldName) throws IOException {
     output.beginMethod("void", accessorName, Collections.singleton(Modifier.PUBLIC), fieldTypeName, "value");
-    output.emitStatement("%s = value", fieldName);
+    output.emitStatement("this.%s = value", fieldName);
     output.endMethod();
   }
 
   @Override
   public void writeGetterMethod(final Field field, final String fieldTypeName, final String accessorName, final String fieldName) throws IOException {
     output.beginMethod(fieldTypeName, accessorName, Collections.singleton(Modifier.PUBLIC));
-    output.emitStatement("return %s", fieldName);
+    output.emitStatement("return this.%s", fieldName);
     output.endMethod();
   }
 
