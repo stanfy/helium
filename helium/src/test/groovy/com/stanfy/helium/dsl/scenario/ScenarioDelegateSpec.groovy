@@ -133,7 +133,7 @@ class ScenarioDelegateSpec extends Specification {
     res.body == "ok"
 
     !executor.executedMethods.empty
-    executor.executedMethods[0].path == "some/resource/@id"
+    executor.executedMethods[0].path == "/some/resource/@id"
     executor.executedMethods[0].type == MethodType.POST
 
     !executor.requests.empty

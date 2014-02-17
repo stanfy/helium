@@ -7,6 +7,7 @@ import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.utils.ConfigurableStringMap
+import com.stanfy.helium.utils.Names
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 
@@ -50,11 +51,12 @@ class ScenarioDelegate {
   }
 
   @CompileStatic
-  private Object prepareMethodExecution(final MethodType type, final String path) {
+  private Object prepareMethodExecution(final MethodType type, final String p) {
+    String path = Names.rootPath(p)
     ServiceMethod method = service.methods.find { ServiceMethod method -> method.type == type && method.path == path }
     if (!method) {
-      if (scope.containsKey(path)) {
-        return scope.get(path)
+      if (scope.containsKey(p)) {
+        return scope.get(p)
       }
       throw new IllegalArgumentException("Method not found {$type.name $path}")
     }
