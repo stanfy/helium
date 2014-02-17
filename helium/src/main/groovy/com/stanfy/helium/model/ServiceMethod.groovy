@@ -38,12 +38,16 @@ class ServiceMethod extends Descriptionable {
     return Names.canonicalName(type.toString().toLowerCase(Locale.US) + " " + path)
   }
 
+  void setPath(final String path) {
+    this.@path = Names.rootPath(path)
+  }
+
   String getPathWithParameters(Map<String, String> parameters) {
     String res = path
     parameters.each { String name, String value ->
       res = res.replaceAll("@${Pattern.quote(name)}", value)
     }
-    return res
+    return new URI("http", "host.com", res, null).toURL().getPath()
   }
 
   boolean hasParametrizedPath() {

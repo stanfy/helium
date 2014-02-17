@@ -23,12 +23,24 @@ class ServiceMethodSpec extends Specification {
     method.canonicalName == "delete_statuses_public_json"
   }
 
+  def "path should be prepended with '/'"() {
+    given:
+    method.path = "test"
+    expect:
+    method.path == '/test'
+  }
+
   def "getPathWithParameters substitutes provided values"() {
     given:
-    method.path = "/@param1/@param2/a/@param3/@param1-@param2"
+    method.path = "/@param1/@param2/a/@param3/@param1-@param2/@encoded"
 
     expect:
-    method.getPathWithParameters(param1: 'alpha', param2: 'beta', param3: 'Yulenka') == "/alpha/beta/a/Yulenka/alpha-beta"
+    method.getPathWithParameters(
+        param1: 'alpha',
+        param2: 'beta',
+        param3: 'Yulenka',
+        encoded: 'encoded value'
+    ) == "/alpha/beta/a/Yulenka/alpha-beta/encoded%20value"
   }
 
   def "hasParametrizedPath checks for @"() {

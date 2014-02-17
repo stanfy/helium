@@ -48,4 +48,11 @@ public class Names {
     return result.toString();
   }
 
+  public static String rootPath(final String path) {
+    if (path == null || path.trim().length() == 0) {
+      throw new IllegalArgumentException("Path cannot be null or empty");
+    }
+    return path.charAt(0) == '/' ? path : "/".concat(path);
+  }
+
 }
