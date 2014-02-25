@@ -26,7 +26,6 @@ class FieldsBuilder {
   /** Type resolver. */
   private final TypeResolver typeResolver
 
-  @CompileStatic
   FieldsBuilder(final Message message, final ProjectDsl project, final TypeResolver typeResolver) {
     this.message = message
     this.project = project

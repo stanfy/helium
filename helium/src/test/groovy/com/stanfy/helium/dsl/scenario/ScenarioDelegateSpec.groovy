@@ -105,6 +105,15 @@ class ScenarioDelegateSpec extends Specification {
           }
         }
 
+        scenario "inside closures" spec {
+          ['1', '2', '3'].each { idValue ->
+            def result = get "some/resource/@id" with {
+              path { id idValue }
+            }
+            assert result.body == "passed"
+          }
+        }
+
       }
 
     }
@@ -180,6 +189,15 @@ class ScenarioDelegateSpec extends Specification {
     then:
     def e = thrown(AssertionError)
     e.message.contains("bla bla bla")
+  }
+
+  def "we can call methods inside closures"() {
+    when:
+    println "-------------------------"
+    executeScenario("inside closures", "passed", null)
+    then:
+    println "-------------------------"
+    executor.executedMethods.last().type == MethodType.GET
   }
 
   /** Executor instance. */

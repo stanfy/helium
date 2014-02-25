@@ -2,16 +2,26 @@ package com.stanfy.helium.dsl.scenario
 
 import com.stanfy.helium.model.tests.Scenario
 import com.stanfy.helium.utils.DslUtils
+import groovy.transform.CompileStatic
 
 /**
  * Helper methods for invoking scenario.
  */
 class ScenarioInvoker {
 
+  /** Current scenario delegate. */
+  private static ThreadLocal<ScenarioDelegate> currentDelegate = new ThreadLocal<>();
+
+  @CompileStatic
+  public static ScenarioDelegate getDelegate() {
+    return currentDelegate.get()
+  }
+
   public static Object invokeScenario(final ScenarioDelegate delegate, final Scenario scenario) {
     AssertionError crucialError = null
     Object result = null
     try {
+      currentDelegate.set(delegate)
       if (scenario.before) {
         DslUtils.runWithProxy(delegate, scenario.before)
       }
@@ -23,6 +33,8 @@ class ScenarioInvoker {
       }
     } catch (AssertionError e) {
       crucialError = e
+    } finally {
+      currentDelegate.set(null)
     }
 
     def errors = delegate.intermediateResults.collect() { MethodExecutionResult r ->

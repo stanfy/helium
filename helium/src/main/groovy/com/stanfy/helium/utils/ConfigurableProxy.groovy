@@ -17,11 +17,10 @@ class ConfigurableProxy<T extends GroovyObject> extends ScopedProxy {
   /** Core object. */
   private final T core
 
-  @CompileStatic
   public ConfigurableProxy(final T core, final ProjectDsl project) {
     this(core, project, Collections.<String, Object>emptyMap())
   }
-  @CompileStatic
+
   public ConfigurableProxy(final T core, final ProjectDsl project, final Map<String, Object> scope) {
     super(scope)
     this.core = core
