@@ -114,6 +114,12 @@ class ScenarioDelegateSpec extends Specification {
           }
         }
 
+        scenario "report problems" spec {
+          report "start"
+          5.times { report it }
+          report new IllegalStateException("end")
+        }
+
       }
 
     }
@@ -193,11 +199,20 @@ class ScenarioDelegateSpec extends Specification {
 
   def "we can call methods inside closures"() {
     when:
-    println "-------------------------"
     executeScenario("inside closures", "passed", null)
     then:
-    println "-------------------------"
     executor.executedMethods.last().type == MethodType.GET
+  }
+
+  def "we can report about problems"() {
+    when:
+    executeScenario("report problems", null, null)
+    then:
+    def e = thrown(AssertionError)
+    e.message.contains("start")
+    e.message.contains("end")
+    e.message.contains("2")
+    e.message.contains("3")
   }
 
   /** Executor instance. */

@@ -41,13 +41,29 @@ class ScenarioDelegate {
   @PackageScope
   final LinkedList<MethodExecutionResult> intermediateResults = new LinkedList<>()
 
+  /** Reported problems. */
+  @PackageScope
+  final LinkedList<Throwable> reportedProblems = new LinkedList<>()
+
   public ScenarioDelegate(final Service service, final ScenarioExecutor executor) {
     this.service = service
     this.executor = executor
   }
 
+  /** Make a variable with some name and value. */
+  @CompileStatic
   public void store(final String name, final Object value) {
     scope.put(name, value)
+  }
+
+  /** Report about some error but do not fail. */
+  @CompileStatic
+  public void report(final Object arg) {
+    if (arg instanceof Throwable) {
+      reportedProblems.add((Throwable) arg)
+    } else {
+      reportedProblems.add(new RuntimeException(String.valueOf(arg)))
+    }
   }
 
   @CompileStatic

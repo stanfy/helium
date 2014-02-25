@@ -39,7 +39,8 @@ class ScenarioInvoker {
 
     def errors = delegate.intermediateResults.collect() { MethodExecutionResult r ->
       r.interactionErrors
-    }.flatten().collect() { AssertionError e -> e.message }
+    }.flatten().collect { AssertionError e -> e.message }
+    errors += delegate.reportedProblems.collect { it.message }
     if (crucialError) {
       errors += crucialError.message
     }
