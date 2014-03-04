@@ -192,5 +192,35 @@ public class Test {
 """.trim() + '\n'
   }
 
+  def "safe field names for reserved words"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "new", type: new Type(name: "string")))
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+public class Test {
+
+  private String newField;
+
+
+  public String getNew() {
+    return this.newField;
+  }
+
+  public void setNew(String value) {
+    this.newField = value;
+  }
+
+}
+""".trim() + '\n'
+
+  }
+
 
 }
