@@ -117,7 +117,7 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
   }
 
   private void emitReadingStmt(final Field field) throws IOException {
-    String fieldName = options.getFieldName(field);
+    String fieldName = options.getSafeFieldName(field);
     JavaWriter output = getOutput();
 
     String simpleMethod = getSupportedMethod("read", field);
@@ -193,7 +193,7 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
   private void emitWritingStmt(final Field field) throws IOException {
     String simpleMethod = getSupportedMethod("write", field);
     JavaWriter output = getOutput();
-    String fieldName = options.getFieldName(field);
+    String fieldName = options.getSafeFieldName(field);
 
     if (simpleMethod != null) {
       if (field.isSequence()) {

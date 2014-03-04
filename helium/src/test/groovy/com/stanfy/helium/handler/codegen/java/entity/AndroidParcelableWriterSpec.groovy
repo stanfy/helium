@@ -1,14 +1,9 @@
 package com.stanfy.helium.handler.codegen.java.entity
 
-import com.stanfy.helium.handler.codegen.java.entity.AndroidParcelableWriter
-import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
-import com.stanfy.helium.handler.codegen.java.entity.MessageToJavaClass
-import com.stanfy.helium.handler.codegen.java.entity.PojoWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
 import spock.lang.Specification
-
 /**
  * Created by roman on 12/30/13.
  */
@@ -375,6 +370,27 @@ class MyMsg {
 
 }
 '''.trim() + '\n'
+  }
+
+  def "safe field names for reserved words"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "new", type: new Type(name: "bool")))
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    this.newField = source.readInt() == 1;
+""",
+        writeBody: """
+    dest.writeInt(this.newField ? 1 : 0);
+"""
+    )
+
   }
 
 

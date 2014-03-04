@@ -1,8 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
-import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions;
-import com.stanfy.helium.handler.codegen.java.entity.JavaClassWriter;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
@@ -64,7 +62,7 @@ public class MessageToJavaClass {
 
     // fields
     for (Field field : message.getActiveFields()) {
-      writer.writeField(field, getFieldTypeName(field), options.getFieldName(field), options.getFieldModifiers());
+      writer.writeField(field, getFieldTypeName(field), options.getSafeFieldName(field), options.getFieldModifiers());
       writer.getOutput().emitEmptyLine();
     }
     writer.getOutput().emitEmptyLine();
@@ -78,7 +76,7 @@ public class MessageToJavaClass {
     if (getters || setters) {
       for (Field field : message.getActiveFields()) {
         String fieldTypeName = getFieldTypeName(field);
-        String fieldName = options.getFieldName(field);
+        String fieldName = options.getSafeFieldName(field);
         if (getters) {
           writer.writeGetterMethod(field, fieldTypeName, getAccessMethodName("get", field), fieldName);
           writer.getOutput().emitEmptyLine();
