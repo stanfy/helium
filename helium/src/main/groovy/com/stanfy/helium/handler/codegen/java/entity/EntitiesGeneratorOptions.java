@@ -122,6 +122,14 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
     return isPrettifyNames() ? Names.prettifiedName(name) : name;
   }
 
+  public String getSafeFieldName(final Field field) {
+    final String fieldName = getFieldName(field);
+    if (JAVA_KEYWORDS.contains(fieldName)) {
+      return fieldName.concat("Field");
+    }
+    return fieldName;
+  }
+
   public Class<?> getJavaClass(final Type type) {
     Class<?> result = JavaPrimitiveTypes.javaClass(type);
     if (result == null) {
@@ -145,5 +153,16 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
     }
     return itemJavaClass + "[]";
   }
+
+
+  /** Reserved java keywords. */
+  private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(Arrays.asList(
+      "abstract",  "continue",  "for",  "new",  "switch",  "assert",  "default",  "goto",
+      "package",  "synchronized",  "boolean",  "do",  "if",  "private",  "this",  "break",
+      "double",  "implements",  "protected",  "throw",  "byte",  "else",  "import",  "public",
+      "throws",  "case",  "enum",  "instanceof",  "return",  "transient",  "catch",  "extends",
+      "int",  "short",  "try",  "char",  "final",  "interface",  "static",  "void",  "class",
+      "finally",  "long",  "strictfp",  "volatile",  "const",  "float",  "native",  "super",  "while"
+  ));
 
 }
