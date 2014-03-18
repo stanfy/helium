@@ -106,8 +106,19 @@ final class SpecExample {
         response "UserProfile"
       }
 
+      get "test/no/bad/input" spec {
+        parameters {
+          param 'string' required
+        }
+        response "UserProfile"
+        tests {
+          generateBadInputTests false
+        }
+      }
+
       tests {
         useExamples true
+        generateBadInputTests true
         httpHeaders {
           'User-Agent' 'Mozilla'
         }

@@ -224,6 +224,7 @@ class ProjectDslSpec extends Specification {
     dsl.service {
       tests {
         useExamples true
+        generateBadInputTests true
         httpHeaders {
           'header 1' 'value 1'
           'header 2' 'value 2'
@@ -233,6 +234,7 @@ class ProjectDslSpec extends Specification {
 
     then:
     dsl.services[0].testInfo.useExamples
+    dsl.services[0].testInfo.generateBadInputTests
     dsl.services[0].testInfo.httpHeaders['header 1'] == 'value 1'
     dsl.services[0].testInfo.httpHeaders['header 2'] == 'value 2'
   }

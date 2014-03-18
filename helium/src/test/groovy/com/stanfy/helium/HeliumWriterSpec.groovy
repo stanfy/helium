@@ -29,12 +29,13 @@ class HeliumWriterSpec extends Specification {
 
   def "can write service test info"() {
     when:
-    writer.writeTestsInfo(new TestsInfo(useExamples: true, httpHeaders: ['a"a' : 'b']))
+    writer.writeTestsInfo(new TestsInfo(useExamples: true, generateBadInputTests: true, httpHeaders: ['a"a' : 'b']))
 
     then:
     out.toString() == '''
 tests {
   useExamples true
+  generateBadInputTests true
   httpHeaders {
     "a\\"a" "b"
   }
@@ -50,6 +51,7 @@ tests {
     out.toString() == '''
 tests {
   useExamples false
+  generateBadInputTests false
   pathExample {
     "p1" "v1"
     "p2" "v2"
@@ -160,6 +162,7 @@ service {
     }
     tests {
       useExamples true
+      generateBadInputTests false
       httpHeaders {
         "h1" "v1"
         "h2" "v2"
@@ -171,6 +174,7 @@ service {
   }
   tests {
     useExamples false
+    generateBadInputTests false
   }
 }
 """.trim() + '\n'

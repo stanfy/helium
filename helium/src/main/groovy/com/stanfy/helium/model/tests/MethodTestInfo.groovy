@@ -18,6 +18,8 @@ class MethodTestInfo extends TestsInfo {
 
     return new MethodTestInfo(
       useExamples: this.useExamples == null ? !!globalInfo.useExamples : this.useExamples,
+      generateBadInputTests: this.generateBadInputTests == null
+          ? !!globalInfo.generateBadInputTests : this.generateBadInputTests,
       pathExample: pathExample,
       httpHeaders: headersMap
     )

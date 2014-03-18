@@ -62,7 +62,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
 
     boolean pathExamplesPresent = testInfo.pathExample && !testInfo.pathExample.empty
 
-    if (method.hasRequiredParameters()) {
+    if (testInfo.generateBadInputTests && method.hasRequiredParameters()) {
 
       if (!method.hasRequiredParametersInPath() || pathExamplesPresent) {
         // make test without required parameters - method should fail
@@ -100,8 +100,10 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     if (method.hasBody() && requestUriReady) {
 
       // make test without body - should fail
-      gen.method("_shouldFailWithOutBody", parametrizedUri) {
-        gen.expectClientError()
+      if (testInfo.generateBadInputTests) {
+        gen.method("_shouldFailWithOutBody", parametrizedUri) {
+          gen.expectClientError()
+        }
       }
 
       if (testInfo.useExamples) {

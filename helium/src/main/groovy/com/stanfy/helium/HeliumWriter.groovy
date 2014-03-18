@@ -254,6 +254,7 @@ class HeliumWriter implements Closeable {
 
   private void emitTestsInfoDetails(final TestsInfo testsInfo) {
     writeLine "useExamples ${!!testsInfo.useExamples}"
+    writeLine "generateBadInputTests ${!!testsInfo.generateBadInputTests}"
     if (!testsInfo.httpHeaders.isEmpty()) {
       writeStringsMap "httpHeaders", testsInfo.httpHeaders
     }

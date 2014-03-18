@@ -63,7 +63,7 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     userProfile != null
     userProfile instanceof Message
   }
-  
+
   def "should generate JUnit tests"() {
     when:
     runExampleGenerator()
@@ -118,6 +118,9 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     // httpHeaders
     testText.contains 'request.addHeader("User-Agent", "Mozilla")'
     testText.contains 'request.addHeader("Super-Header", "A")'
+
+    // no bad inputs
+    !testText.contains('public void get_test_no_bad_input_shouldFail')
   }
 
 }
