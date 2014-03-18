@@ -19,4 +19,6 @@ public interface MethodExecutionResult {
 
   void mustBeClientError();
 
+  boolean isSuccessful();
+
 }

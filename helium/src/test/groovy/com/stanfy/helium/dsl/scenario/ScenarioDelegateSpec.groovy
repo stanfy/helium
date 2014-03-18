@@ -266,6 +266,11 @@ class ScenarioDelegateSpec extends Specification {
         throw new AssertionError("test")
       }
     }
+
+    @Override
+    boolean isSuccessful() {
+      return willSucceed
+    }
   }
 
 }

@@ -14,6 +14,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHttpResponse;
@@ -139,6 +140,11 @@ class HttpResponseWrapper implements MethodExecutionResult {
 
   public void mustBeClientError() {
     assertHttpExecution(false);
+  }
+
+  public boolean isSuccessful() {
+    int statusCode = response.getStatusLine().getStatusCode();
+    return statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_MULTIPLE_CHOICES;
   }
 
   private void assertHttpExecution(final boolean success) {
