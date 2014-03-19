@@ -222,5 +222,35 @@ public class Test {
 
   }
 
+  def "primitive type arrays"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "a", type: new Type(name: "int32"), required: false, sequence: true))
+    options.useArraysForSequences()
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+public class Test {
+
+  private int[] a;
+
+
+  public int[] getA() {
+    return this.a;
+  }
+
+  public void setA(int[] value) {
+    this.a = value;
+  }
+
+}
+""".trim() + '\n'
+
+  }
 
 }

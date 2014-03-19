@@ -110,7 +110,7 @@ public class MessageToJavaClass {
     } else if (type.isPrimitive()) {
       Class<?> clazz = options.getJavaClass(type);
       if (field.isSequence()) {
-        String itemClassName = JavaPrimitiveTypes.box(clazz).getCanonicalName();
+        String itemClassName = options.getSequenceItemClassName(clazz);
         typeName = writer.getOutput().compressType(options.getSequenceTypeName(itemClassName));
       } else {
         typeName = writer.getOutput().compressType(clazz.getCanonicalName());

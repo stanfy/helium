@@ -154,6 +154,11 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
     return itemJavaClass + "[]";
   }
 
+  public String getSequenceItemClassName(final Class<?> javaType) {
+    return getSequenceCollectionName() != null
+        ? JavaPrimitiveTypes.box(javaType).getCanonicalName()
+        : javaType.getCanonicalName();
+  }
 
   /** Reserved java keywords. */
   private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(Arrays.asList(
