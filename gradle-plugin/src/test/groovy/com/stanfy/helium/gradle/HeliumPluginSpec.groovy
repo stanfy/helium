@@ -20,6 +20,8 @@ class HeliumPluginSpec extends Specification {
       specification f
     }
 
+    (p.plugins.withType(HeliumPlugin).collect() as List)[0].createTasks(p)
+
     expect:
     p.tasks.findByName('genApiTests') != null
     p.tasks.findByName('runApiTests') != null

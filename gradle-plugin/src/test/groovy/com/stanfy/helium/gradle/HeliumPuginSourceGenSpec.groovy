@@ -12,14 +12,17 @@ import javax.lang.model.element.Modifier
 /**
  * Tests for HeliumExtension.
  */
-class HeliumExtensionSpec extends Specification {
+class HeliumPuginSourceGenSpec extends Specification {
 
   Project project
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    project.extensions.add("helium", HeliumExtension.class)
-    project.helium.attach project
+    project.apply plugin: 'helium'
+  }
+
+  private void createTasks() {
+    (project.plugins.withType(HeliumPlugin).collect() as List)[0].createTasks(project)
   }
 
   def "source generation should support entities generator"() {
@@ -38,6 +41,8 @@ class HeliumExtensionSpec extends Specification {
         }
       }
     }
+
+    createTasks()
 
     def task = project.tasks['generateEntitiesSomePackage']
 
@@ -64,6 +69,8 @@ class HeliumExtensionSpec extends Specification {
       }
     }
 
+    createTasks()
+
     def task = project.tasks['generateConstantsSomeConsts']
 
     expect:
@@ -89,6 +96,8 @@ class HeliumExtensionSpec extends Specification {
         }
       }
     }
+
+    createTasks()
 
     expect:
     project.helium.sourceGen.entities['p1'] instanceof GenerateJavaEntitiesTask
