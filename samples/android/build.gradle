@@ -5,7 +5,7 @@ buildscript {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:0.7.+'
+    classpath 'com.android.tools.build:gradle:0.9.+'
     classpath 'com.stanfy.helium:gradle-plugin:0.3.5-SNAPSHOT'
   }
 }
@@ -111,12 +111,14 @@ helium {
   }
 }
 
-// For each source generation declaration helium creates a corresponding task
-def constantsGenerationTask = helium.sourceGen.constants['com.stanfy.helium.sample.constants']
-def entitiesGenerationTask = helium.sourceGen.entities['com.stanfy.helium.sample.api']
+afterEvaluate {
+  // For each source generation declaration helium creates a corresponding task
+  def constantsGenerationTask = helium.sourceGen.constants['com.stanfy.helium.sample.constants']
+  def entitiesGenerationTask = helium.sourceGen.entities['com.stanfy.helium.sample.api']
 
-// Use Android plugin api to register generated sources
-android.applicationVariants.all { variant ->
-  variant.registerJavaGeneratingTask(constantsGenerationTask, constantsGenerationTask.output)
-  variant.registerJavaGeneratingTask(entitiesGenerationTask, entitiesGenerationTask.output)
+  // Use Android plugin api to register generated sources
+  android.applicationVariants.all { variant ->
+    variant.registerJavaGeneratingTask(constantsGenerationTask, constantsGenerationTask.output)
+    variant.registerJavaGeneratingTask(entitiesGenerationTask, entitiesGenerationTask.output)
+  }
 }
