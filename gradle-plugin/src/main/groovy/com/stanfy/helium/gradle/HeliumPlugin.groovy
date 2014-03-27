@@ -1,10 +1,8 @@
 package com.stanfy.helium.gradle
 
+import com.stanfy.helium.dsl.HeliumScript
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.file.FileCollection
-
-import java.lang.reflect.Constructor
 
 /**
  * Gradle plugin for Helium.
@@ -27,18 +25,12 @@ class HeliumPlugin implements Plugin<Project> {
 
   void createTasks(final Project project) {
     HeliumExtension extension = project.helium
-    createInitializer(
-        extension.classpath ? extension.classpath : project.files(), extension
-    ).createTasks()
-  }
 
-  private TasksCreator createInitializer(final FileCollection classpath, final HeliumExtension ext) {
+    def classpath = extension.classpath ? extension.classpath : project.files()
     URL[] urls = classpath.collect() { it.toURI().toURL() } as URL[]
-    URLClassLoader classLoader = new URLClassLoader(urls, HeliumPlugin.classLoader)
-    Class<?> creatorClass = classLoader.loadClass(HeliumPlugin.package.name + ".HeliumInitializer")
-    Constructor<?> constructor = creatorClass.getDeclaredConstructor(HeliumExtension.class, Config.class)
-    constructor.setAccessible(true)
-    return constructor.newInstance(ext, config) as TasksCreator
+    URLClassLoader classLoader = new URLClassLoader(urls, HeliumScript.classLoader)
+
+    new HeliumInitializer(extension, config).createTasks(classLoader)
   }
 
 }

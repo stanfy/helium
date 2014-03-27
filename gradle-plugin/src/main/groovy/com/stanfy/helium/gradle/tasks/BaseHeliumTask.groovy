@@ -4,14 +4,12 @@ import com.stanfy.helium.Helium
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.TaskAction
 
 /**
  * Created by roman on 12/27/13.
  */
-class BaseHeliumTask extends DefaultTask {
-
-  /** Helium instance. */
-  Helium helium
+abstract class BaseHeliumTask extends DefaultTask {
 
   /** Input specification file. */
   @InputFile
@@ -20,5 +18,32 @@ class BaseHeliumTask extends DefaultTask {
   /** Output directory. */
   @OutputDirectory
   File output
+
+  ClassLoader classLoader
+
+  private Helium heliumInstance
+
+  protected Helium getHelium() {
+    if (!heliumInstance) {
+      heliumInstance = new Helium().defaultTypes()
+      if (input) {
+        heliumInstance.from input
+      }
+    }
+    return heliumInstance
+  }
+
+  protected abstract void doIt();
+
+  @TaskAction
+  final void runWithClassLoader() {
+    ClassLoader oldClassLoader = Thread.currentThread().contextClassLoader
+    Thread.currentThread().setContextClassLoader(classLoader)
+    try {
+      doIt()
+    } finally {
+      Thread.currentThread().setContextClassLoader(oldClassLoader)
+    }
+  }
 
 }

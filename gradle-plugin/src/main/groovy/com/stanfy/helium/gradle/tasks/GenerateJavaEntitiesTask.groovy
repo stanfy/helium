@@ -13,8 +13,8 @@ class GenerateJavaEntitiesTask extends BaseHeliumTask {
   /** Generator options. */
   EntitiesGeneratorOptions options;
 
-  @TaskAction
-  void generate() {
+  @Override
+  protected void doIt() {
     helium.processBy new EntitiesGenerator(output, options)
   }
 

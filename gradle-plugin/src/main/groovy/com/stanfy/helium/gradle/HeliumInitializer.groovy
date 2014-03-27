@@ -1,6 +1,5 @@
 package com.stanfy.helium.gradle
 
-import com.stanfy.helium.Helium
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import com.stanfy.helium.gradle.tasks.GenerateApiTestsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
@@ -29,7 +28,6 @@ final class HeliumInitializer implements TasksCreator {
   private final Config userConfig;
 
   private File specification
-  private Helium heliumInstance
 
   public HeliumInitializer(final HeliumExtension config, final Config userConfig) {
     this.config = config
@@ -37,20 +35,15 @@ final class HeliumInitializer implements TasksCreator {
   }
 
   @Override
-  void createTasks() {
+  void createTasks(ClassLoader classLoader) {
     Project project = userConfig.project
-    heliumInstance = new Helium().defaultTypes()
     specification = config.specification
-    if (specification) {
-      heliumInstance.from specification
-    }
 
     if (specification) {
       // tests generation task
       GenerateApiTestsTask genTestsTask = project.tasks.create("genApiTests", GenerateApiTestsTask)
       genTestsTask.group = GROUP
-      genTestsTask.output = new File(project.buildDir, "source/$TESTS_OUT_PATH")
-      genTestsTask.input = specification
+      configureHeliumTask(genTestsTask, new File(project.buildDir, "source/$TESTS_OUT_PATH"), classLoader)
       LOG.debug "genApiTests task: json=$genTestsTask.input, output=$genTestsTask.output"
 
       // tests run task
@@ -65,18 +58,18 @@ final class HeliumInitializer implements TasksCreator {
 
     // source generation
     if (userConfig.sourceGeneration) {
-      processEntities(userConfig.sourceGeneration.entities)
-      processConstants(userConfig.sourceGeneration.constants)
+      processEntities(userConfig.sourceGeneration.entities, classLoader)
+      processConstants(userConfig.sourceGeneration.constants, classLoader)
     }
   }
 
-  private void configureGenTask(BaseHeliumTask task, File output) {
+  private void configureHeliumTask(BaseHeliumTask task, File output, ClassLoader classLoader) {
     task.output = output
     task.input = specification
-    task.helium = heliumInstance
+    task.classLoader = classLoader
   }
 
-  private void processEntities(SourceGenDslDelegate.EntitiesDslDelegate entities) {
+  private void processEntities(SourceGenDslDelegate.EntitiesDslDelegate entities, ClassLoader classLoader) {
     if (!entities) {
       return
     }
@@ -88,12 +81,12 @@ final class HeliumInitializer implements TasksCreator {
         taskName("generateEntities", entities.genOptions),
         GenerateJavaEntitiesTask
     )
-    configureGenTask(task, entities.output)
+    configureHeliumTask(task, entities.output, classLoader)
     task.options = entities.genOptions
     config.sourceGen.entities[entities.genOptions.packageName] = task
   }
 
-  private void processConstants(SourceGenDslDelegate.ConstantsDslDelegate constants) {
+  private void processConstants(SourceGenDslDelegate.ConstantsDslDelegate constants, ClassLoader classLoader) {
     if (!constants) {
       return
     }
@@ -105,7 +98,7 @@ final class HeliumInitializer implements TasksCreator {
         taskName("generateConstants", constants.genOptions),
         GenerateJavaConstantsTask
     )
-    configureGenTask(task, constants.output)
+    configureHeliumTask(task, constants.output, classLoader)
     task.options = constants.genOptions
     config.sourceGen.constants[constants.genOptions.packageName] = task
   }

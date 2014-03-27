@@ -13,8 +13,8 @@ class GenerateJavaConstantsTask extends BaseHeliumTask {
   /** Generator options. */
   ConstantsGeneratorOptions options
 
-  @TaskAction
-  void generate() {
+  @Override
+  protected void doIt() {
     helium.processBy(new JavaConstantsGenerator(output, options))
   }
 

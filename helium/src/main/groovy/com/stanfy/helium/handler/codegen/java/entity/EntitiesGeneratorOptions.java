@@ -138,7 +138,7 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
         throw new IllegalStateException("Mapping for " + type + " is not defined");
       }
       try {
-        result = Class.forName(className);
+        result = Thread.currentThread().getContextClassLoader().loadClass(className);
       } catch (ClassNotFoundException e) {
         throw new RuntimeException(e);
       }

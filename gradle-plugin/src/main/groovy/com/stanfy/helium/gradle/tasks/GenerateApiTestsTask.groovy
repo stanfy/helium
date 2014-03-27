@@ -3,6 +3,7 @@ package com.stanfy.helium.gradle.tasks
 import com.stanfy.helium.gradle.HeliumExtension
 import com.stanfy.helium.handler.codegen.tests.RestApiPokeTestsGenerator
 import com.stanfy.helium.handler.codegen.tests.ScenarioTestsGenerator
+import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -10,14 +11,21 @@ import org.gradle.api.tasks.TaskAction
  */
 class GenerateApiTestsTask extends BaseHeliumTask {
 
-  @TaskAction
-  void generate() {
+  @Override
+  protected void doIt() {
     File sourcesDir = new File(output, "src/test/java")
     sourcesDir.mkdirs()
     File resDir = new File(output, "src/test/resources")
     resDir.mkdirs()
     helium.processBy new RestApiPokeTestsGenerator(sourcesDir, resDir)
     helium.processBy new ScenarioTestsGenerator(input, sourcesDir, resDir)
+
+    FileCollection classpath = project.helium.classpath
+    def classpathString = ""
+    if (classpath) {
+      String all = classpath.inject("[]", { String acc, File f -> acc + ", '" + f.absolutePath + "'" })
+      classpathString = "classpath += files($all)"
+    }
 
     File buildFile = new File(output, "build.gradle")
     buildFile.withWriter('UTF-8') {
@@ -32,6 +40,7 @@ repositories {
 
 test {
   ignoreFailures = ${project.helium.ignoreFailures}
+  ${classpathString}
 }
 
 dependencies {

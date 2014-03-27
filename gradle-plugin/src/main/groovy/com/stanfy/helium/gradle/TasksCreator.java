@@ -2,6 +2,6 @@ package com.stanfy.helium.gradle;
 
 interface TasksCreator {
 
-  void createTasks();
+  void createTasks(ClassLoader classLoader);
 
 }
