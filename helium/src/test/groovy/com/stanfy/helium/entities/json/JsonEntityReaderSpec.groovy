@@ -460,4 +460,22 @@ class JsonEntityReaderSpec extends Specification {
     error == null
   }
 
+  def "respects skipUnknown option in messages"() {
+    given:
+    dsl.type "FooMsg" message(skipUnknownFields: true) {
+      normal 'int32'
+    }
+    def error = read(dsl.types.byName('FooMsg'), '''
+      {
+        "normal": 23,
+        "ignored1": 'any value',
+        "foo": "bar",
+        "blabla": false
+      }
+    ''').validationError
+
+    expect:
+    error == null
+  }
+
 }

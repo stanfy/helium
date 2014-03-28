@@ -375,4 +375,12 @@ class ProjectDslSpec extends Specification {
     dsl.services[0].methods[0].response == null
   }
 
+  def "can set skipping all unknown fields in message"() {
+    when:
+    dsl.type "MyType" message(skipUnknownFields: true) { }
+
+    then:
+    dsl.messages[0].skipUnknownFields
+  }
+
 }

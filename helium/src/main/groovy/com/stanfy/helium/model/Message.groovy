@@ -8,6 +8,9 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class Message extends Type {
 
+  /** Flag that allows to skip (ignore) all unknown fields met in response during validation in generated tests. */
+  boolean skipUnknownFields
+
   /** Message fields. */
   private final List<Field> fields = new ArrayList<>()
 

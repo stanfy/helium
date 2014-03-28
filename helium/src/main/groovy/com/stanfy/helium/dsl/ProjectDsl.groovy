@@ -1,12 +1,9 @@
 package com.stanfy.helium.dsl
 
-import com.stanfy.helium.entities.json.ClosureJsonConverter
-import com.stanfy.helium.model.TypeResolver
-import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.model.*
 import groovy.transform.PackageScope
 
-import static com.stanfy.helium.utils.DslUtils.runWithProxy;
+import static com.stanfy.helium.utils.DslUtils.runWithProxy
 
 /**
  * Entry point to Helium DSL.
@@ -124,25 +121,7 @@ class ProjectDsl implements Project {
     Type type = new Type(name : name)
     pendingTypeDefinitions[name] = type
     structure.add type
-    return [
-        "message" : { Closure<?> spec -> createAndAddMessage(name, spec, true) },
-        "sequence" : { String item -> createAndAddSequence(name, item) },
-
-        "spec" : { Closure<?> spec ->
-          ConfigurableType proxy = new ConfigurableType(type, owner)
-          runWithProxy(proxy, spec)
-          Set<String> formats = new HashSet<>()
-          formats.addAll(proxy.@readers.keySet())
-          formats.addAll(proxy.@writers.keySet())
-          formats.each {
-            def reader = proxy.@readers[it], writer = proxy.@writers[it]
-            if (!reader) { reader = ClosureJsonConverter.AS_STRING_READER }
-            if (!writer) { writer = ClosureJsonConverter.AS_STRING_WRITER }
-            typeResolver.findConverters(it).addConverter(type.name, new ClosureJsonConverter(type, reader, writer))
-          }
-        }
-
-    ]
+    return TypeDsl.create(type, this)
   }
 
   public void note(final String text) {

@@ -56,7 +56,9 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
       Field field = type.fieldByName(fieldName);
 
       if (field == null) {
-        errors.add(new ValidationError("Unexpected field '" + fieldName + "'"));
+        if (!type.isSkipUnknownFields()) {
+          errors.add(new ValidationError("Unexpected field '" + fieldName + "'"));
+        }
         skip(input);
         continue;
       }
