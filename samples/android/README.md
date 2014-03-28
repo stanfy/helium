@@ -20,6 +20,6 @@ To launch these tests run
 
 After running gradle build you should see a message about failed test.
 If you open the tests report file, you'll see that there are complains about
-unexpected field `id` for `User` objects in received response.
+bad format of field `favourites_count` for `User` objects in received response.
 This is an example how Helium validates received data structures, and tests can be easily
-fixed with uncommenting [line that describes the field in the spec](https://github.com/stanfy/helium/blob/master/samples/android/src/api/twitter.api#L16).
+fixed with correcting [the corresponding line](https://github.com/stanfy/helium/blob/master/samples/android/src/api/twitter.api#L22).

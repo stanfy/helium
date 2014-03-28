@@ -12,51 +12,20 @@ type "timestamp" spec {
   }
 }
 
-type 'User' message {
-//  id 'int64'
+type 'User' message(skipUnknownFields: true) {
   id_str 'string'
   name 'string'
   profile_image_url 'string'
   is_translator 'bool'
   location 'string'
   created_at 'timestamp'
-  favourites_count 'int32'
+  favourites_count 'string' // must be 'int32' or int
   url 'string' optional
   utc_offset 'int32' optional
   screen_name 'string'
-
-  entities(skip: true)
-  profile_link_color(skip: true)
-  follow_request_sent(skip: true)
-  profile_background_tile(skip: true)
-  profile_sidebar_border_color(skip: true)
-  profile_sidebar_fill_color(skip: true)
-  default_profile(skip: true)
-  contributors_enabled(skip: true)
-  profile_image_url_https(skip: true)
-  profile_use_background_image(skip: true)
-  listed_count(skip: true)
-  profile_text_color(skip: true)
-  lang(skip: true)
-  followers_count(skip: true)
-  'protected'(skip: true)
-  notifications(skip: true)
-  profile_background_image_url_https(skip: true)
-  profile_background_color(skip: true)
-  verified(skip: true)
-  geo_enabled(skip: true)
-  time_zone(skip: true)
-  description(skip: true)
-  default_profile_image(skip: true)
-  profile_background_image_url(skip: true)
-  statuses_count(skip: true)
-  friends_count(skip: true)
-  following(skip: true)
-  show_all_inline_media(skip: true)
-  profile_banner_url(skip: true)
 }
 
-type "Tweet" message {
+type "Tweet" message(skipUnknownFields: true) {
   id 'int64'
   text 'string'
   created_at 'timestamp'
@@ -70,14 +39,6 @@ type "Tweet" message {
   in_reply_to_status_id 'int64' optional
   in_reply_to_screen_name 'string' optional
   user 'User'
-
-  [
-      'id_str', 'entities', 'in_reply_to_user_id_str', 'in_reply_to_status_id_str',
-      'contributors', 'metadata', 'geo', 'place', 'source', 'coordinates', 'lang',
-      'retweeted_status'
-  ].each {
-    "$it"(skip: true)
-  }
 }
 
 type "SearchResponse" message {
