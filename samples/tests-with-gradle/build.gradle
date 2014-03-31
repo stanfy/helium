@@ -14,3 +14,8 @@ apply plugin: 'helium'
 helium {
   specification file('twitter.api')
 }
+
+task check()
+afterEvaluate {
+  check.dependsOn 'genApiTests'
+}
