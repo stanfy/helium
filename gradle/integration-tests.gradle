@@ -1,0 +1,21 @@
+task integrationTests() {
+  description = "Run integration tests"
+}
+
+tasks.addRule("integrationTestFor-<SampleName>") { String taskName ->
+  if (taskName.startsWith("integrationTestFor-")) {
+    String sample = taskName - "integrationTestFor-"
+    File projectDir = file("$rootDir/samples/$sample")
+    tasks.create(taskName, GradleBuild) {
+      dir = projectDir
+      buildFile = new File(projectDir, "build.gradle")
+      tasks = ['check']
+    }
+  }
+}
+
+[
+  'android'
+].each {
+  tasks.integrationTests.dependsOn "integrationTestFor-$it"
+}
