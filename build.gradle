@@ -1,7 +1,3 @@
-task wrapper(type: Wrapper) {
-  gradleVersion = '1.10'
-}
-
 apply from: file("gradle/integration-tests.gradle")
 
 boolean hasCredentials = hasProperty('nexusUsername') && hasProperty('nexusPassword')
