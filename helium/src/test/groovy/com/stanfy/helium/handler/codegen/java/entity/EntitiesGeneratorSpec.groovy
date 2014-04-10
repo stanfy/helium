@@ -34,13 +34,13 @@ public class A
     implements Parcelable {
 
   public static final Creator<A> CREATOR = new Creator<A>() {
-    public A createFromParcel(Parcel source) {
-      return new A(source);
-    }
-    public A[] newArray(int size) {
-      return new A[size];
-    }
-  };
+        public A createFromParcel(Parcel source) {
+          return new A(source);
+        }
+        public A[] newArray(int size) {
+          return new A[size];
+        }
+      };
 
 
   public A() {

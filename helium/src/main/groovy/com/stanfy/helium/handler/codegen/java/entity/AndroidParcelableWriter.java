@@ -64,13 +64,13 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     getOutput().emitEmptyLine();
     String className = message.getCanonicalName();
     String creatorBody = "{\n"
-        + "    public " + className + " createFromParcel(Parcel source) {\n"
-        + "      return new " + className + "(source);\n"
-        + "    }\n"
-        + "    public " + className + "[] newArray(int size) {\n"
-        + "      return new " + className + "[size];\n"
-        + "    }\n"
-        + "  }";
+        + "  public " + className + " createFromParcel(Parcel source) {\n"
+        + "    return new " + className + "(source);\n"
+        + "  }\n"
+        + "  public " + className + "[] newArray(int size) {\n"
+        + "    return new " + className + "[size];\n"
+        + "  }\n"
+        + "}";
     getOutput().emitField("Creator<" + className + ">", "CREATOR",
         new HashSet<Modifier>(Arrays.asList(Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)),
         "new Creator<" + className + ">() " + creatorBody);

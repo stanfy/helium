@@ -41,13 +41,13 @@ public class MyMsg
     implements Parcelable {
 
   public static final Creator<MyMsg> CREATOR = new Creator<MyMsg>() {
-    public MyMsg createFromParcel(Parcel source) {
-      return new MyMsg(source);
-    }
-    public MyMsg[] newArray(int size) {
-      return new MyMsg[size];
-    }
-  };
+        public MyMsg createFromParcel(Parcel source) {
+          return new MyMsg(source);
+        }
+        public MyMsg[] newArray(int size) {
+          return new MyMsg[size];
+        }
+      };
 
   public String device_id;
 
