@@ -130,6 +130,8 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     }
 
     Class<?> clazz = getJavaClass(field);
+
+    // date?
     if (clazz == Date.class) {
       output.emitStatement("long %1$sValue = source.readLong()", fieldName);
       output.emitStatement("this.%1$s = %1$sValue != -1 ? new Date(%1$sValue) : null", fieldName);
@@ -139,6 +141,13 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     // boolean?
     if (clazz == boolean.class) {
       readBoolean(field, fieldName, output);
+      return;
+    }
+
+    // enum?
+    if (Enum.class.isAssignableFrom(clazz)) {
+      String enumName = output.compressType(clazz.getCanonicalName());
+      output.emitStatement("this.%1$s = %2$s.values()[source.readInt()]", fieldName, enumName);
       return;
     }
 
@@ -204,13 +213,22 @@ public class AndroidParcelableWriter extends DelegateJavaClassWriter {
     }
 
     Class<?> clazz = getJavaClass(field);
+
+    // date?
     if (clazz == Date.class) {
       output.emitStatement("dest.writeLong(this.%1$s != null ? this.%1$s.getTime() : -1L)", fieldName);
       return;
     }
 
+    // boolean?
     if (clazz == boolean.class) {
       writeBoolean(field, output, fieldName);
+      return;
+    }
+
+    // enum?
+    if (Enum.class.isAssignableFrom(clazz)) {
+      output.emitStatement("dest.writeInt(this.%1$s.ordinal())", fieldName);
       return;
     }
 

@@ -394,4 +394,30 @@ class MyMsg {
   }
 
 
+  def "enumerations support"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "enum", type: new Type(name: "my-enum")))
+    options.customPrimitivesMapping = ['my-enum': MyTestEnum.class.name]
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    this.enumField = ${MyTestEnum.class.name.replace('$', '.')}.values()[source.readInt()];
+""",
+        writeBody: """
+    dest.writeInt(this.enumField.ordinal());
+"""
+    )
+  }
+
+  /** Enum for tests. */
+  enum MyTestEnum {
+    ONE, TWO
+  }
+
 }
