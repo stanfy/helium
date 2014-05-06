@@ -106,6 +106,13 @@ class ServiceMethod extends Descriptionable {
     return hasRequiredParametersInPath() || hasRequiredParameterFields()
   }
 
+  List<String> getPathParameters() {
+    if (!hasRequiredParametersInPath()) {
+      return []
+    }
+    return (path =~ /@(\w+)/).collect { List<String> it -> it[1] }
+  }
+
   String toString() {
     return name ? "\"$name\"(type: $type path: $path)" : "\"type: $type path: $path\""
   }

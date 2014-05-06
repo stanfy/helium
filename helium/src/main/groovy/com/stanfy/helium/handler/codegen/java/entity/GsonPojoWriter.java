@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * Adds {@code SerializedName} annotations.
  */
-public class GsonPojoWriter extends DelegateJavaClassWriter {
+class GsonPojoWriter extends DelegateJavaClassWriter {
 
   public GsonPojoWriter(JavaClassWriter core) {
     super(core);

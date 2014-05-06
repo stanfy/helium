@@ -1,9 +1,11 @@
 package com.stanfy.helium.gradle
 
+import com.stanfy.helium.gradle.SourceGenDslDelegate.RetrofitDslDelegate
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import com.stanfy.helium.gradle.tasks.GenerateApiTestsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
+import com.stanfy.helium.gradle.tasks.GenerateRetrofitTask
 import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions
 import com.stanfy.helium.utils.Names
 import groovy.transform.PackageScope
@@ -44,6 +46,7 @@ final class HeliumInitializer implements TasksCreator {
       if (sourceGen != null) {
         processEntities(sourceGen.entities, classLoader, it)
         processConstants(sourceGen.constants, classLoader, it)
+        processRetrofit(sourceGen.retrofit, classLoader, it)
       }
     }
   }
@@ -74,7 +77,8 @@ final class HeliumInitializer implements TasksCreator {
     LOG.debug "runApiTests task: dir=$runTestsTask.dir"
   }
 
-  private void configureHeliumTask(BaseHeliumTask task, File specification, File output, ClassLoader classLoader) {
+  private static void configureHeliumTask(BaseHeliumTask task, File specification, File output,
+                                          ClassLoader classLoader) {
     task.output = output
     task.input = specification
     task.classLoader = classLoader
@@ -114,6 +118,23 @@ final class HeliumInitializer implements TasksCreator {
     configureHeliumTask(task, specification, constants.output, classLoader)
     task.options = constants.genOptions
     config.sourceGen(specification).constants[constants.genOptions.packageName] = task
+  }
+
+  private void processRetrofit(RetrofitDslDelegate retrofit, ClassLoader classLoader, File specification) {
+    if (!retrofit) {
+      return
+    }
+
+    if (!retrofit.output) {
+      retrofit.output = new File(userConfig.project.buildDir, "source/gen/retrofit")
+    }
+    GenerateRetrofitTask task = userConfig.project.tasks.create(
+        taskName("generateRetrofit", specification, retrofit.genOptions),
+        GenerateRetrofitTask
+    )
+    configureHeliumTask(task, specification, retrofit.output, classLoader)
+    task.options = retrofit.genOptions
+    config.sourceGen(specification).retrofit[retrofit.genOptions.packageName] = task
   }
 
   private String taskName(final String prefix, final File specification, final JavaGeneratorOptions options) {

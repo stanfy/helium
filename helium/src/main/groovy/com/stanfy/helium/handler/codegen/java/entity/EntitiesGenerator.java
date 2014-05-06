@@ -1,10 +1,11 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.stanfy.helium.handler.Handler;
+import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
+import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Type;
-import com.stanfy.helium.utils.Names;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -15,35 +16,25 @@ import java.io.OutputStreamWriter;
 /**
  * POJO generator.
  */
-public class EntitiesGenerator implements Handler {
-
-  /** Output directory. */
-  private final File outputDirectory;
-
-  /** Options. */
-  private final EntitiesGeneratorOptions options;
+public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOptions> implements Handler {
 
   public EntitiesGenerator(final File outputDirectory, final EntitiesGeneratorOptions options) {
-    this.outputDirectory = outputDirectory;
-    this.options = options;
+    super(outputDirectory, options);
   }
 
   public EntitiesGenerator(final File outputDirectory, final String packageName) {
-    this.outputDirectory = outputDirectory;
-    this.options = EntitiesGeneratorOptions.defaultOptions(packageName);
+    this(outputDirectory, EntitiesGeneratorOptions.defaultOptions(packageName));
   }
 
   @Override
   public void handle(final Project project) {
-    File targetDirectory = new File(outputDirectory, Names.packageNameToPath(options.getPackageName()));
-    if (!targetDirectory.mkdirs() && !targetDirectory.exists()) {
-      throw new IllegalStateException("Cannot create directory " + targetDirectory);
-    }
+    File targetDirectory = getPackageDirectory();
+    JavaGeneratorOptions options = getOptions();
 
     for (Type type : project.getTypes().all()) {
       boolean shouldProcess = options.isTypeUserDefinedMessage(type) && options.isTypeIncluded(type);
       if (shouldProcess) {
-        File classFile = new File(targetDirectory, type.getCanonicalName() + ".java");
+        File classFile = new File(targetDirectory, type.getCanonicalName().concat(EXT_JAVA));
         write((Message) type, classFile);
       }
     }
@@ -54,6 +45,7 @@ public class EntitiesGenerator implements Handler {
     try {
       output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
       JavaClassWriter coreWriter = Writers.pojo().create(output);
+      EntitiesGeneratorOptions options = getOptions();
       new MessageToJavaClass(options.getWriterWrapper().wrapWriter(coreWriter, options), options).write(type);
     } catch (IOException e) {
       throw new RuntimeException(e);

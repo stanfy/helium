@@ -2,6 +2,7 @@ package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
+import com.stanfy.helium.gradle.tasks.GenerateRetrofitTask
 import com.stanfy.helium.handler.codegen.java.constants.ConstantNameConverter
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -86,6 +87,34 @@ class HeliumPuginSourceGenSpec extends Specification {
     task.options.nameConverter.class.name.contains("Proxy")
   }
 
+  def "source generation should support retrofit"() {
+    given:
+    project.helium {
+      File outputDir = project.file("../rrr")
+      sourceGen {
+        retrofit {
+          output outputDir
+          options {
+            packageName = "example"
+            entitiesPackage = "another.pkg"
+            prettifyNames = true
+          }
+        }
+      }
+    }
+
+    createTasks()
+
+    def task = project.tasks["generateRetrofitExample"]
+
+    expect:
+    task != null
+    task.output == project.file("../rrr")
+    task.options.packageName == "example"
+    task.options.entitiesPackage == "another.pkg"
+    task.options.prettifyNames
+  }
+
   def "source generation tasks should be accessible by package name"() {
     given:
     project.helium {
@@ -100,6 +129,11 @@ class HeliumPuginSourceGenSpec extends Specification {
             packageName = "p2"
           }
         }
+        retrofit {
+          options {
+            packageName = "p1"
+          }
+        }
       }
     }
 
@@ -108,6 +142,7 @@ class HeliumPuginSourceGenSpec extends Specification {
     expect:
     project.helium.sourceGen.entities['p1'] instanceof GenerateJavaEntitiesTask
     project.helium.sourceGen.constants['p2'] instanceof GenerateJavaConstantsTask
+    project.helium.sourceGen.retrofit['p1'] instanceof GenerateRetrofitTask
   }
 
   def "source generation tasks are created per specification"() {

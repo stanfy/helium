@@ -1,6 +1,7 @@
 package com.stanfy.helium.gradle
 
 import com.stanfy.helium.handler.codegen.java.constants.ConstantsGeneratorOptions
+import com.stanfy.helium.handler.codegen.java.retrofit.RetrofitGeneratorOptions
 import com.stanfy.helium.utils.DslUtils
 import groovy.transform.PackageScope
 
@@ -23,6 +24,7 @@ class SourceGenDslDelegate {
 
   private EntitiesDslDelegate entities
   private ConstantsDslDelegate constants
+  private RetrofitDslDelegate retrofit
 
   private final Object owner
 
@@ -41,6 +43,11 @@ class SourceGenDslDelegate {
   }
 
   @PackageScope
+  RetrofitDslDelegate getRetrofit() {
+    return retrofit
+  }
+
+  @PackageScope
   void setEntities(EntitiesDslDelegate value) {
     this.entities = value
   }
@@ -48,6 +55,11 @@ class SourceGenDslDelegate {
   @PackageScope
   void setConstants(ConstantsDslDelegate value) {
     this.constants = value
+  }
+
+  @PackageScope
+  void setRetrofit(RetrofitDslDelegate value) {
+    this.retrofit = value
   }
 
   void entities(Closure<?> config) {
@@ -60,6 +72,10 @@ class SourceGenDslDelegate {
     DslUtils.runWithProxy(constants, config)
   }
 
+  void retrofit(Closure<?> config) {
+    retrofit = new RetrofitDslDelegate()
+    DslUtils.runWithProxy(retrofit, config)
+  }
 
   abstract class BaseDslDelegate<T> {
 
@@ -92,6 +108,16 @@ class SourceGenDslDelegate {
     @Override
     void options(Closure<?> config) {
       genOptions = ConstantsGeneratorOptions.defaultOptions(DEFAULT_PACKAGE)
+      super.options(config)
+    }
+
+  }
+
+  class RetrofitDslDelegate extends BaseDslDelegate<RetrofitGeneratorOptions> {
+
+    @Override
+    void options(Closure<?> config) {
+      genOptions = RetrofitGeneratorOptions.defaultOptions(DEFAULT_PACKAGE)
       super.options(config)
     }
 

@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * Writes type as a Java class.
  */
-public class PojoWriter implements JavaClassWriter {
+class PojoWriter implements JavaClassWriter {
 
   /** Output. */
   private final JavaWriter output;
