@@ -2,6 +2,24 @@ apply from: file("gradle/integration-tests.gradle")
 
 boolean hasCredentials = hasProperty('nexusUsername') && hasProperty('nexusPassword')
 
+version = '0.3.6'
+
+//noinspection GroovyAssignabilityCheck
+task populateVersion(description: "Populate root project version") << {
+  String version = project.setVersionValue
+  [
+      fileTree(dir: "$rootDir", includes: ["*.gradle"]),
+      fileTree(dir: "$rootDir/samples", includes: ["*/*.gradle"]),
+      fileTree(dir: "$rootDir", includes: ["*/src/**/*.java", "*/src/**/*.groovy"])
+  ].each { def collection ->
+    collection.each {
+      String code = it.getText("UTF-8")
+      code = code.replace("$rootProject.version", version)
+      it.withWriter("UTF-8") { it << code }
+    }
+  }
+}
+
 subprojects {
   buildscript {
     repositories {
@@ -14,7 +32,7 @@ subprojects {
   }
 
   group = 'com.stanfy.helium'
-  version = '0.3.6-SNAPSHOT'
+  version = rootProject.version
 
   repositories {
     mavenCentral()
