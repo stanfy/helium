@@ -27,7 +27,8 @@ abstract class BaseHeliumTask extends DefaultTask {
     if (!heliumInstance) {
       heliumInstance = new Helium().defaultTypes()
       if (input) {
-        heliumInstance.from input
+        File baseDir = input.parentFile
+        heliumInstance.set "baseDir", baseDir from input
       }
     }
     return heliumInstance

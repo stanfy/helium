@@ -1,7 +1,10 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.handler.ScriptExtender
 import com.stanfy.helium.model.*
 import groovy.transform.PackageScope
+
+import java.nio.charset.Charset
 
 import static com.stanfy.helium.utils.DslUtils.runWithProxy
 
@@ -18,6 +21,8 @@ class ProjectDsl implements Project {
   private final List<Sequence> sequences = new ArrayList<>()
   /** Notes list. */
   private final List<Note> notes = new ArrayList<>()
+  /** Included files list. */
+  private final List<File> includedFiles = new ArrayList<>()
 
   /** Structure. */
   private final List<StructureUnit> structure = new ArrayList<>()
@@ -27,6 +32,14 @@ class ProjectDsl implements Project {
 
   /** Types resolver. */
   private TypeResolver typeResolver = new DefaultTypeResolver()
+
+  /** Used charset. */
+  private Charset charset = Charset.forName("UTF-8")
+
+  @Override
+  List<File> getIncludedFiles() {
+    return includedFiles
+  }
 
   @Override
   Service serviceByName(final String name) {
@@ -129,6 +142,17 @@ class ProjectDsl implements Project {
     Note note = new Note(value: text)
     notes.add note
     structure.add note
+  }
+
+  public void include(final Object spec) {
+    final File specFile
+    if (spec instanceof File) {
+      specFile = spec as File
+    } else {
+      specFile = new File(spec as String)
+    }
+    includedFiles.add specFile
+    ScriptExtender.fromFile(specFile, charset).handle(this)
   }
 
 }
