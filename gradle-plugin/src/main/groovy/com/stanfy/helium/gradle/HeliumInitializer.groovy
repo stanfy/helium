@@ -7,6 +7,7 @@ import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
 import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions
 import com.stanfy.helium.utils.Names
 import groovy.transform.PackageScope
+import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.tasks.GradleBuild
 import org.slf4j.Logger
@@ -25,51 +26,62 @@ final class HeliumInitializer implements TasksCreator {
   /** Config object. */
   private final HeliumExtension config
   /** User configuration. */
-  private final Config userConfig;
+  private final UserConfig userConfig;
 
-  private File specification
-
-  public HeliumInitializer(final HeliumExtension config, final Config userConfig) {
+  public HeliumInitializer(final HeliumExtension config, final UserConfig userConfig) {
     this.config = config
     this.userConfig = userConfig
   }
 
   @Override
   void createTasks(ClassLoader classLoader) {
-    Project project = userConfig.project
-    specification = config.specification
+    config.specifications.each {
+      // runApiTest
+      createApiTestTasks(it, classLoader)
 
-    if (specification) {
-      // tests generation task
-      GenerateApiTestsTask genTestsTask = project.tasks.create("genApiTests", GenerateApiTestsTask)
-      genTestsTask.group = GROUP
-      configureHeliumTask(genTestsTask, new File(project.buildDir, "source/$TESTS_OUT_PATH"), classLoader)
-      LOG.debug "genApiTests task: json=$genTestsTask.input, output=$genTestsTask.output"
-
-      // tests run task
-      GradleBuild runTestsTask = project.tasks.create('runApiTests', GradleBuild)
-      runTestsTask.group = GROUP
-      runTestsTask.buildFile = new File(genTestsTask.output, "build.gradle")
-      runTestsTask.dir = genTestsTask.output
-      runTestsTask.tasks = ['check']
-      runTestsTask.dependsOn genTestsTask
-      LOG.debug "runApiTests task: dir=$runTestsTask.dir"
-    }
-
-    // source generation
-    if (userConfig.sourceGeneration) {
-      processEntities(userConfig.sourceGeneration.entities, classLoader)
-      processConstants(userConfig.sourceGeneration.constants, classLoader)
+      // source generation
+      SourceGenDslDelegate sourceGen = userConfig.getSourceGenFor(it)
+      if (sourceGen != null) {
+        processEntities(sourceGen.entities, classLoader, it)
+        processConstants(sourceGen.constants, classLoader, it)
+      }
     }
   }
 
-  private void configureHeliumTask(BaseHeliumTask task, File output, ClassLoader classLoader) {
+  private String taskName(final String prefix, final File specification) {
+    if (config.specifications.size() > 1) {
+      return "${prefix}${FilenameUtils.getBaseName(specification.name).capitalize()}"
+    }
+    return prefix
+  }
+
+  private void createApiTestTasks(final File specification, final ClassLoader classLoader) {
+    Project project = userConfig.project
+
+    // tests generation task
+    GenerateApiTestsTask genTestsTask = project.tasks.create(taskName("genApiTests", specification), GenerateApiTestsTask)
+    genTestsTask.group = GROUP
+    configureHeliumTask(genTestsTask, specification, new File(project.buildDir, "source/$TESTS_OUT_PATH"), classLoader)
+    LOG.debug "genApiTests task: json=$genTestsTask.input, output=$genTestsTask.output"
+
+    // tests run task
+    GradleBuild runTestsTask = project.tasks.create(taskName('runApiTests', specification), GradleBuild)
+    runTestsTask.group = GROUP
+    runTestsTask.buildFile = new File(genTestsTask.output, "build.gradle")
+    runTestsTask.dir = genTestsTask.output
+    runTestsTask.tasks = ['check']
+    runTestsTask.dependsOn genTestsTask
+    LOG.debug "runApiTests task: dir=$runTestsTask.dir"
+  }
+
+  private void configureHeliumTask(BaseHeliumTask task, File specification, File output, ClassLoader classLoader) {
     task.output = output
     task.input = specification
     task.classLoader = classLoader
   }
 
-  private void processEntities(SourceGenDslDelegate.EntitiesDslDelegate entities, ClassLoader classLoader) {
+  private void processEntities(SourceGenDslDelegate.EntitiesDslDelegate entities, ClassLoader classLoader,
+                               File specification) {
     if (!entities) {
       return
     }
@@ -78,15 +90,16 @@ final class HeliumInitializer implements TasksCreator {
       entities.output = new File(userConfig.project.buildDir, "source/gen/rest-api")
     }
     GenerateJavaEntitiesTask task = userConfig.project.tasks.create(
-        taskName("generateEntities", entities.genOptions),
+        taskName("generateEntities", specification, entities.genOptions),
         GenerateJavaEntitiesTask
     )
-    configureHeliumTask(task, entities.output, classLoader)
+    configureHeliumTask(task, specification, entities.output, classLoader)
     task.options = entities.genOptions
-    config.sourceGen.entities[entities.genOptions.packageName] = task
+    config.sourceGen(specification).entities[entities.genOptions.packageName] = task
   }
 
-  private void processConstants(SourceGenDslDelegate.ConstantsDslDelegate constants, ClassLoader classLoader) {
+  private void processConstants(SourceGenDslDelegate.ConstantsDslDelegate constants, ClassLoader classLoader,
+                                File specification) {
     if (!constants) {
       return
     }
@@ -95,17 +108,17 @@ final class HeliumInitializer implements TasksCreator {
       constants.output = new File(userConfig.project.buildDir, "source/gen/constants")
     }
     GenerateJavaConstantsTask task = userConfig.project.tasks.create(
-        taskName("generateConstants", constants.genOptions),
+        taskName("generateConstants", specification, constants.genOptions),
         GenerateJavaConstantsTask
     )
-    configureHeliumTask(task, constants.output, classLoader)
+    configureHeliumTask(task, specification, constants.output, classLoader)
     task.options = constants.genOptions
-    config.sourceGen.constants[constants.genOptions.packageName] = task
+    config.sourceGen(specification).constants[constants.genOptions.packageName] = task
   }
 
-  private static String taskName(final String prefix, final JavaGeneratorOptions options) {
+  private String taskName(final String prefix, final File specification, final JavaGeneratorOptions options) {
     String pkgSuffix = Names.prettifiedName(Names.canonicalName(options.packageName))
-    return "$prefix${pkgSuffix.capitalize()}"
+    return "${taskName(prefix, specification)}${pkgSuffix.capitalize()}"
   }
 
 }

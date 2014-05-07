@@ -3,11 +3,14 @@ package com.stanfy.helium.gradle
 import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
 import com.stanfy.helium.handler.codegen.java.constants.ConstantNameConverter
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
 import javax.lang.model.element.Modifier
+
+import static com.stanfy.helium.gradle.HeliumPluginSpec.generateSpec
 
 /**
  * Tests for HeliumExtension.
@@ -19,6 +22,9 @@ class HeliumPuginSourceGenSpec extends Specification {
   def setup() {
     project = ProjectBuilder.builder().build()
     project.apply plugin: 'helium'
+    project.helium {
+      specification generateSpec("s1")
+    }
   }
 
   private void createTasks() {
@@ -102,6 +108,56 @@ class HeliumPuginSourceGenSpec extends Specification {
     expect:
     project.helium.sourceGen.entities['p1'] instanceof GenerateJavaEntitiesTask
     project.helium.sourceGen.constants['p2'] instanceof GenerateJavaConstantsTask
+  }
+
+  def "source generation tasks are created per specification"() {
+    given:
+    project.helium {
+      // 2nd spec
+      specification(generateSpec("s2.api")) {
+        sourceGen {
+          entities {
+            options {
+              packageName = "p2"
+            }
+          }
+        }
+      }
+      sourceGen {
+        entities {
+          options {
+            packageName = "p1"
+          }
+        }
+      }
+    }
+    createTasks()
+
+    expect:
+    project.helium.specifications.size() == 2
+    project.helium.sourceGen('s1').entities['p1'] instanceof GenerateJavaEntitiesTask
+    project.helium.sourceGen('s2').entities['p2'] instanceof GenerateJavaEntitiesTask
+    !project.helium.sourceGen('s2').entities['p1']
+    !project.helium.sourceGen('s1').entities['p2']
+  }
+
+  def "default sourceGen property is not available if there are multiple specifications"() {
+    when:
+    project.helium {
+      specification generateSpec("s2.api")
+      sourceGen {
+        entities {
+          options {
+            packageName = "p1"
+          }
+        }
+      }
+    }
+    def task = project.helium.sourceGen.entities['p1']
+
+    then:
+    def e = thrown(GradleException)
+    e.message.contains("multiple specifications")
   }
 
 }

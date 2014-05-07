@@ -3,7 +3,8 @@ package com.stanfy.helium.gradle
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import com.stanfy.helium.utils.DslUtils
 import groovy.transform.PackageScope
-import org.gradle.api.Project
+import org.apache.commons.io.FilenameUtils
+import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
 
 /**
@@ -19,8 +20,8 @@ class HeliumExtension {
   private static final String HELIUM_ARTIFACT_NAME = "helium"
   public static final String HELIUM_DEP = "com.stanfy.helium:$HELIUM_ARTIFACT_NAME"
 
-  /** Specification location. */
-  File specification
+  /** Specifications collection. */
+  private final ArrayList<File> specifications = new ArrayList<>()
 
   /** Ignore test failures. */
   boolean ignoreFailures
@@ -28,22 +29,68 @@ class HeliumExtension {
   /** Classpath extension for Helium specs. */
   FileCollection classpath
 
-  private final SourceGenerationTasks sourceGenTasks = new SourceGenerationTasks()
+  /** Source generation tasks for each specification. */
+  private final Map<String, SourceGenerationTasks> sourceGenTasks = new HashMap<>()
 
-  private Config config
+  private UserConfig config
 
   @PackageScope
-  void attach(final Config config) {
+  void attach(final UserConfig config) {
     this.config = config
   }
 
+  Collection<File> getSpecifications() {
+    return specifications
+  }
+
+  final void specification(def spec) {
+    specification(spec, null)
+  }
+
+  void specification(def spec, Closure<Void> config) {
+    File specFile = this.config.project.file(spec)
+    String name = FilenameUtils.getBaseName(specFile.name)
+    if (sourceGenTasks[name]) {
+      throw new GradleException("Helium specification with name $name is already defined")
+    }
+    sourceGenTasks[name] = new SourceGenerationTasks()
+    specifications.add specFile
+
+    if (config) {
+      SpecificationDslDelegate delegate = new SpecificationDslDelegate(specFile, this.config)
+      DslUtils.runWithProxy(delegate, config)
+    }
+  }
+
   void sourceGen(Closure<?> config) {
-    this.config.sourceGeneration = new SourceGenDslDelegate(config.owner)
-    DslUtils.runWithProxy(this.config.sourceGeneration, config)
+    this.config.defaultSourceGeneration = new SourceGenDslDelegate(config.owner)
+    DslUtils.runWithProxy(this.config.defaultSourceGeneration, config)
   }
 
   SourceGenerationTasks getSourceGen() {
-    return sourceGenTasks
+    if (sourceGenTasks.empty) {
+      return null
+    }
+    if (sourceGenTasks.size() == 1) {
+      return sourceGenTasks.values().iterator().next()
+    } else {
+      throw new GradleException("Default sourceGen property cannot be accessed when "
+          + "multiple specifications are declared. Use sourceGen('<specName>') instead.")
+    }
+  }
+
+  SourceGenerationTasks sourceGen(final String name) {
+    if (!name) {
+      throw new IllegalArgumentException("Specification name is not provided")
+    }
+    return sourceGenTasks[name]
+  }
+
+  SourceGenerationTasks sourceGen(final File spec) {
+    if (!spec) {
+      throw new IllegalArgumentException("Specification is not provided")
+    }
+    return sourceGenTasks[FilenameUtils.getBaseName(spec.name)]
   }
 
   public static class SourceGenerationTasks {

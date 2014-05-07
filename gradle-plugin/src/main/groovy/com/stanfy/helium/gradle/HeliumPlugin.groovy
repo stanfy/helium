@@ -9,13 +9,13 @@ import org.gradle.api.Project
  */
 class HeliumPlugin implements Plugin<Project> {
 
-  private Config config
+  private UserConfig config
 
   @Override
   void apply(final Project project) {
     project.extensions.add("helium", HeliumExtension)
     HeliumExtension hel = project.helium
-    config = new Config(project)
+    config = new UserConfig(project)
     hel.attach config
 
     project.afterEvaluate {

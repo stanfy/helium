@@ -12,10 +12,22 @@ buildscript {
 apply plugin: 'helium'
 
 helium {
-  specification file('twitter1.api')
+  specification(file('twitter1.api')) {
+    sourceGen {
+      entities {
+        options {
+          packageName = 'foo.bar'
+          customPrimitivesMapping = [
+              timestamp: "java.util.Date"
+          ]
+        }
+      }
+    }
+  }
+  specification file('twitter2.api')
 }
 
 task check()
 afterEvaluate {
-  check.dependsOn 'genApiTests'
+  check.dependsOn 'genApiTestsTwitter1', 'genApiTestsTwitter2', 'generateEntitiesTwitter1FooBar', 'runApiTestsTwitter2'
 }

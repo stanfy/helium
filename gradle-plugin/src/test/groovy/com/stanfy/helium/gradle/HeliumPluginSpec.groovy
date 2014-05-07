@@ -9,22 +9,55 @@ import spock.lang.Specification
  */
 class HeliumPluginSpec extends Specification {
 
+  /** Gradle project. */
+  Project project
+
+  static File generateSpec(final String name) {
+    File tmp = File.createTempFile("aaa", "bbb")
+    tmp.deleteOnExit()
+    File f = new File(tmp.parentFile, name)
+    f.deleteOnExit()
+    tmp.parentFile.deleteOnExit()
+    f << "type 'string'"
+    return f
+  }
+
+  def setup() {
+    project = ProjectBuilder.builder().build()
+    project.apply plugin: 'helium'
+  }
+
   def "creates genApiTests task"() {
     given:
-    Project p = ProjectBuilder.builder().build()
-    p.apply plugin: 'helium'
-    File f = File.createTempFile("abc", "abc")
-    f.deleteOnExit()
-    f << "type 'string'"
-    p.helium {
-      specification f
+    project.helium {
+      specification generateSpec("abc")
     }
 
-    (p.plugins.withType(HeliumPlugin).collect() as List)[0].createTasks(p)
+    createTasks()
 
     expect:
-    p.tasks.findByName('genApiTests') != null
-    p.tasks.findByName('runApiTests') != null
+    project.tasks.findByName('genApiTests') != null
+    project.tasks.findByName('runApiTests') != null
+  }
+
+  def "creates tasks for every specification"() {
+    given:
+    project.helium {
+      specification generateSpec("s1")
+      specification generateSpec("s2")
+    }
+
+    createTasks()
+
+    expect:
+    project.tasks.findByName('genApiTestsS1') != null
+    project.tasks.findByName('runApiTestsS1') != null
+    project.tasks.findByName('genApiTestsS2') != null
+    project.tasks.findByName('runApiTestsS2') != null
+  }
+
+  private createTasks() {
+    (project.plugins.withType(HeliumPlugin).collect() as List)[0].createTasks(project)
   }
 
 }
