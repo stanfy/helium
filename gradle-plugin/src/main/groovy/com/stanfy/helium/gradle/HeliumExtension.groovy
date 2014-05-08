@@ -7,6 +7,8 @@ import org.apache.commons.io.FilenameUtils
 import org.gradle.api.GradleException
 import org.gradle.api.file.FileCollection
 
+import static com.stanfy.helium.gradle.UserConfig.specName
+
 /**
  * Helium extension.
  */
@@ -49,7 +51,7 @@ class HeliumExtension {
 
   void specification(def spec, Closure<Void> config) {
     File specFile = this.config.project.file(spec)
-    String name = FilenameUtils.getBaseName(specFile.name)
+    String name = specName(specFile)
     if (sourceGenTasks[name]) {
       throw new GradleException("Helium specification with name $name is already defined")
     }
@@ -90,7 +92,7 @@ class HeliumExtension {
     if (!spec) {
       throw new IllegalArgumentException("Specification is not provided")
     }
-    return sourceGenTasks[FilenameUtils.getBaseName(spec.name)]
+    return sourceGenTasks[specName(spec)]
   }
 
   public static class SourceGenerationTasks {

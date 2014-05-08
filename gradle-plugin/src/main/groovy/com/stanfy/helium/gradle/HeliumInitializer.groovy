@@ -7,13 +7,13 @@ import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
 import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions
 import com.stanfy.helium.utils.Names
 import groovy.transform.PackageScope
-import org.apache.commons.io.FilenameUtils
 import org.gradle.api.Project
 import org.gradle.api.tasks.GradleBuild
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import static com.stanfy.helium.gradle.HeliumExtension.GROUP
+import static com.stanfy.helium.gradle.UserConfig.specName
 
 @PackageScope
 final class HeliumInitializer implements TasksCreator {
@@ -50,7 +50,7 @@ final class HeliumInitializer implements TasksCreator {
 
   private String taskName(final String prefix, final File specification) {
     if (config.specifications.size() > 1) {
-      return "${prefix}${FilenameUtils.getBaseName(specification.name).capitalize()}"
+      return "${prefix}${specName(specification).capitalize()}"
     }
     return prefix
   }

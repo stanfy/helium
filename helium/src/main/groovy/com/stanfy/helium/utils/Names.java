@@ -37,7 +37,7 @@ public class Names {
     StringBuilder result = new StringBuilder(s);
     for (int i = 0; i < result.length(); i++) {
       boolean shouldCap = false;
-      while (i < result.length() && result.charAt(i) == '_') {
+      while (i < result.length() && (result.charAt(i) == '_' || result.charAt(i) == '-')) {
         result.delete(i, i + 1);
         shouldCap = true;
       }

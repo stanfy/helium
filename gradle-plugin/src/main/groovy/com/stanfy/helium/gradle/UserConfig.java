@@ -1,5 +1,7 @@
 package com.stanfy.helium.gradle;
 
+import com.stanfy.helium.utils.Names;
+import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;
 
 import java.io.File;
@@ -22,6 +24,11 @@ class UserConfig {
 
   UserConfig(final Project project) {
     this.project = project;
+  }
+
+  public static String specName(final File specFile) {
+    String name = FilenameUtils.getBaseName(specFile.getName());
+    return Names.prettifiedName(name);
   }
 
   public void set(final File spec, final SourceGenDslDelegate delegate) {

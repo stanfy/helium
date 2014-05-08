@@ -114,7 +114,7 @@ class HeliumPuginSourceGenSpec extends Specification {
     given:
     project.helium {
       // 2nd spec
-      specification(generateSpec("s2.api")) {
+      specification(generateSpec("s-foo-2.api")) {
         sourceGen {
           entities {
             options {
@@ -136,8 +136,8 @@ class HeliumPuginSourceGenSpec extends Specification {
     expect:
     project.helium.specifications.size() == 2
     project.helium.sourceGen('s1').entities['p1'] instanceof GenerateJavaEntitiesTask
-    project.helium.sourceGen('s2').entities['p2'] instanceof GenerateJavaEntitiesTask
-    !project.helium.sourceGen('s2').entities['p1']
+    project.helium.sourceGen('sFoo2').entities['p2'] instanceof GenerateJavaEntitiesTask
+    !project.helium.sourceGen('sFoo2').entities['p1']
     !project.helium.sourceGen('s1').entities['p2']
   }
 
