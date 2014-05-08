@@ -27,6 +27,10 @@ helium {
   specification file('twitter2.api')
 }
 
+task clean(type: Delete) {
+  delete buildDir
+}
+
 task check()
 afterEvaluate {
   check.dependsOn 'genApiTestsTwitter1', 'genApiTestsTwitter2', 'generateEntitiesTwitter1FooBar', 'runApiTestsTwitter2'

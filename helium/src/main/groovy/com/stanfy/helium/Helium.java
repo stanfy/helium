@@ -5,7 +5,6 @@ import com.stanfy.helium.handler.ClosureExtender;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.ScriptExtender;
 import com.stanfy.helium.model.Project;
-import groovy.lang.Binding;
 import groovy.lang.Closure;
 
 import java.io.File;
@@ -21,9 +20,6 @@ public final class Helium {
 
   /** DSL instance to build. */
   private final ProjectDsl project = new ProjectDsl();
-
-  /** Script variables. */
-  private final Binding variables = new Binding();
 
   /** Default types flag. */
   private boolean defaultTypes;
@@ -58,15 +54,16 @@ public final class Helium {
   }
 
   public Helium from(final Reader scriptReader) {
-    return processBy(new ScriptExtender(scriptReader).withVars(variables));
+    return processBy(new ScriptExtender(scriptReader).withVars(project.getVariablesBinding()));
   }
 
   public Helium from(final File scriptFile) throws IOException {
-    return processBy(ScriptExtender.fromFile(scriptFile, Charset.forName(encoding)).withVars(variables));
+    return processBy(ScriptExtender.fromFile(scriptFile, Charset.forName(encoding))
+        .withVars(project.getVariablesBinding()));
   }
 
   public Helium from(final String scriptText) {
-    return processBy(new ScriptExtender(new StringReader(scriptText)).withVars(variables));
+    return processBy(new ScriptExtender(new StringReader(scriptText)).withVars(project.getVariablesBinding()));
   }
 
   public Helium processBy(final Handler handler) {
@@ -79,7 +76,7 @@ public final class Helium {
   }
 
   public Helium set(final String name, final Object value) {
-    variables.setVariable(name, value);
+    project.getVariablesBinding().setVariable(name, value);
     return this;
   }
 

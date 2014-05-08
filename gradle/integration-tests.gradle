@@ -9,7 +9,7 @@ tasks.addRule("integrationTestFor-<SampleName>") { String taskName ->
     tasks.create(taskName, GradleBuild) {
       dir = projectDir
       buildFile = new File(projectDir, "build.gradle")
-      tasks = ['check']
+      tasks = ['clean', 'check']
     }
   }
 }

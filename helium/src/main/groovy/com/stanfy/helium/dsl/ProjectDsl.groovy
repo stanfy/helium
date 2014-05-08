@@ -36,6 +36,8 @@ class ProjectDsl implements Project {
   /** Used charset. */
   private Charset charset = Charset.forName("UTF-8")
 
+  final Binding variablesBinding = new Binding()
+
   @Override
   List<File> getIncludedFiles() {
     return includedFiles
@@ -152,7 +154,7 @@ class ProjectDsl implements Project {
       specFile = new File(spec as String)
     }
     includedFiles.add specFile
-    ScriptExtender.fromFile(specFile, charset).handle(this)
+    ScriptExtender.fromFile(specFile, charset).withVars(variablesBinding).handle(this)
   }
 
 }
