@@ -2,6 +2,8 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.DefaultType
+import com.stanfy.helium.Helium
+import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.dsl.scenario.ScenarioDelegate
 import com.stanfy.helium.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.model.Project
@@ -43,12 +45,7 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
   @Override
   public void handle(final Project project) {
     // copy scenarios file
-    specFile.withWriter(UTF_8) { Writer out ->
-      DefaultType.values().each { DefaultType type ->
-        out << "type '${type.langName}'\n"
-      }
-      out << scenariosFile.getText(UTF_8)
-    }
+    copy(project)
 
     def toDelete = []
     eachService(project, { Service service, JavaWriter writer ->
@@ -63,6 +60,24 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
       getTestFile(getClassName(service)).delete()
     }
 
+  }
+
+  private void copy(final Project project) {
+    // XXX temp solution
+    specFile.withWriter(UTF_8) { Writer out ->
+      DefaultType.values().each { DefaultType type ->
+        out << "type '${type.langName}'\n"
+      }
+
+      if (project instanceof ProjectDsl) {
+        Binding vars = project.variablesBinding
+        vars.variables.each { key, value ->
+          out << "def $key = \"${value}\"\n"
+        }
+      }
+
+      out << scenariosFile.getText(UTF_8)
+    }
   }
 
   @Override

@@ -1,5 +1,6 @@
 package com.stanfy.helium.model;
 
+import java.io.File;
 import java.util.List;
 
 /**
@@ -19,7 +20,7 @@ public interface Project {
   /**
    * @return messages described in this project
    */
-  List<Service> getMessages();
+  List<Message> getMessages();
 
   /**
    * @return notes described in this project
@@ -37,5 +38,10 @@ public interface Project {
   List<Sequence> getSequences();
 
   Service serviceByName(final String name);
+
+  /**
+   * @return list of included files
+   */
+  List<File> getIncludedFiles();
 
 }

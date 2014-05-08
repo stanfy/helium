@@ -383,4 +383,16 @@ class ProjectDslSpec extends Specification {
     dsl.messages[0].skipUnknownFields
   }
 
+  def "can include other files"() {
+    given:
+    def file = new File(ProjectDslSpec.class.getResource("/included.spec").toURI())
+
+    when:
+    dsl.include file
+
+    then:
+    dsl.notes[-1].value == "I'm included"
+    dsl.includedFiles[-1] == file
+  }
+
 }

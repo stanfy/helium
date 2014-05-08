@@ -9,8 +9,11 @@ import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 /**
  * Delegate for DSL
  * <code>
- *   pojo {
- *     packageName = "foo"
+ *   sourceGen {
+ *     entities {
+ *     }
+ *     constants {
+ *     }
  *   }
  * </code>
  */
@@ -18,13 +21,33 @@ class SourceGenDslDelegate {
 
   public static final String DEFAULT_PACKAGE = "api"
 
-  @PackageScope EntitiesDslDelegate entities;
-  @PackageScope ConstantsDslDelegate constants;
+  private EntitiesDslDelegate entities
+  private ConstantsDslDelegate constants
 
   private final Object owner
 
   public SourceGenDslDelegate(final Object owner) {
     this.owner = owner
+  }
+
+  @PackageScope
+  EntitiesDslDelegate getEntities() {
+    return entities
+  }
+
+  @PackageScope
+  ConstantsDslDelegate getConstants() {
+    return constants
+  }
+
+  @PackageScope
+  void setEntities(EntitiesDslDelegate value) {
+    this.entities = value
+  }
+
+  @PackageScope
+  void setConstants(ConstantsDslDelegate value) {
+    this.constants = value
   }
 
   void entities(Closure<?> config) {

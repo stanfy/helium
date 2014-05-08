@@ -114,6 +114,15 @@ class HeliumSpec extends Specification {
     handler.servicesCount == 1
     handler.typesCount == 2
   }
+
+  def "sets variables"() {
+    when:
+    helium.set "count", 3 from 'count.times() { note "$it" }' processBy handler
+
+    then:
+    handler.notesCount == 3
+  }
+
 }
 
 /** Handler for tests. */

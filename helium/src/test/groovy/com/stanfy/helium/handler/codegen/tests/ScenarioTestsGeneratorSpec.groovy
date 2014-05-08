@@ -11,13 +11,18 @@ class ScenarioTestsGeneratorSpec extends Specification {
 
   ScenarioTestsGenerator generator
 
-  File spec, out
+  File spec, included, out
 
   def setup() {
-    spec = File.createTempFile("hel", "test")
+    spec = File.createTempFile("hel", "test-spec")
     spec.deleteOnExit()
+    included = new File(spec.parentFile, "included-spec")
+    included.withWriter("UTF-8") { Writer out ->
+      out << "type 'A' message {}"
+    }
     spec.withWriter("UTF-8") { Writer out ->
       out << '''
+        include "${baseDir}/included-spec"
         service {
           name "Main"
           tests {
@@ -54,7 +59,7 @@ class ScenarioTestsGeneratorSpec extends Specification {
   }
 
   private void run() {
-    new Helium().from(spec).processBy generator
+    new Helium().set("baseDir", spec.parentFile).from(spec).processBy generator
   }
 
   def "generates file per service"() {

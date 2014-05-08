@@ -1,0 +1,47 @@
+include "$baseDir/common.api"
+
+type "SearchResponse" message {
+  statuses 'Tweet' sequence
+  search_metadata(skip: true)
+}
+
+service {
+
+  name "Twitter"
+
+  version "1.1"
+  location "https://api.twitter.com/$version"
+
+  get "search/tweets.json" spec {
+    parameters {
+      q(type: 'string', examples: ['@noradio'])
+      count 'int32' optional
+      include_entities 'bool' optional
+    }
+    response 'SearchResponse'
+  }
+
+  tests {
+    httpHeaders {
+      'Authorization' "Bearer AAAAAAAAAAAAAAAAAAAAAJ3PVgAAAAAA%2BPcuieQDv6hOE9SyWM2AOWjIloc%3DU2fCluURs5dnG5A3WaaVhNgiBjXKkV5lynvoquGu7ediOCRWiF"
+    }
+    useExamples true
+
+    scenario "search for tweets" spec {
+      def searchResponse = get "search/tweets.json" with {
+        parameters {
+          q '#androiddev'
+          count 2
+          include_entities false
+        }
+      }
+
+      assert searchResponse.body != null
+
+      def size = searchResponse.body?.statuses?.size()
+      assert size == 2 : "Expected 2 statuses, got $size"
+      assert searchResponse.body?.statuses?.every { it.user != null }
+    }
+
+  }
+}

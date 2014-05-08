@@ -15,6 +15,10 @@ helium {
   specification file('twitter.api')
 }
 
+task clean(type: Delete) {
+  delete buildDir
+}
+
 task check()
 afterEvaluate {
   check.dependsOn 'genApiTests'
