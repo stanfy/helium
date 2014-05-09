@@ -395,4 +395,21 @@ class ProjectDslSpec extends Specification {
     dsl.includedFiles[-1] == file
   }
 
+  def "can user parseString for custom types"() {
+    when:
+    dsl.type "custom" spec {
+      description "Custom type"
+      from("json") { parseString { Integer.parseInt(it) } }
+      to("json") { formatToString { String.valueOf(it) } }
+    }
+    def customType = dsl.types.byName("custom")
+    def converter = dsl.types.findConverters("json")?.getConverter(customType)
+
+    then:
+    customType != null
+    converter instanceof ClosureJsonConverter
+    converter.reader != null
+    converter.writer != null
+  }
+
 }

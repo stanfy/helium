@@ -9,8 +9,6 @@ import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.utils.DslUtils
 import org.joda.time.format.DateTimeFormat
 
-import java.text.ParseException
-
 /**
  * Proxy for type.
  */
@@ -35,16 +33,25 @@ class ConfigurableType extends ConfigurableProxy<Type> {
       return ClosureJsonConverter.AS_STRING_READER
     }
     public Closure<?> asDate(final String dateFormat) {
+      return stringParser("Expected format: $dateFormat") { String str ->
+        return DateTimeFormat.forPattern(dateFormat)
+            .withLocale(Locale.US)
+            .parseDateTime(str)
+            .toDate()
+      }
+    }
+    public Closure<?> parseString(Closure<?> parser) {
+      return stringParser(null, parser)
+    }
+
+    private Closure<?> stringParser(String message, Closure<?> parser) {
       return { JsonReader input ->
         String str = (String) ClosureJsonConverter.AS_STRING_READER(input)
         if (str == null) { return null }
         try {
-          return DateTimeFormat.forPattern(dateFormat)
-              .withLocale(Locale.US)
-              .parseDateTime(str)
-              .toDate()
+          return parser(str)
         } catch (IllegalArgumentException e) {
-          throw new ConvertValueSyntaxException(str, "Expected format: $dateFormat")
+          throw new ConvertValueSyntaxException(str, message ? message : e.message)
         }
       }
     }
@@ -75,6 +82,16 @@ class ConfigurableType extends ConfigurableProxy<Type> {
         throw new IllegalArgumentException("Cannot interpret '$value' as date. Format: '$dateFormat'.")
       }
     }
+    public Closure<?> formatToString(final Closure<String> formatter) {
+      return { JsonWriter input, Object value ->
+        if (value == null) {
+          input.nullValue()
+          return
+        }
+        input.value(formatter(value))
+      }
+    }
+
   }
 
 }
