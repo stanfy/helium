@@ -95,30 +95,24 @@ class SourceGenDslDelegate {
 
   class EntitiesDslDelegate extends BaseDslDelegate<EntitiesGeneratorOptions> {
 
-    @Override
-    void options(Closure<?> config) {
+    EntitiesDslDelegate() {
       genOptions = EntitiesGeneratorOptions.defaultOptions(DEFAULT_PACKAGE)
-      super.options(config)
     }
 
   }
 
   class ConstantsDslDelegate extends BaseDslDelegate<ConstantsGeneratorOptions> {
 
-    @Override
-    void options(Closure<?> config) {
+    ConstantsDslDelegate() {
       genOptions = ConstantsGeneratorOptions.defaultOptions(DEFAULT_PACKAGE)
-      super.options(config)
     }
 
   }
 
   class RetrofitDslDelegate extends BaseDslDelegate<RetrofitGeneratorOptions> {
 
-    @Override
-    void options(Closure<?> config) {
+    RetrofitDslDelegate() {
       genOptions = RetrofitGeneratorOptions.defaultOptions(DEFAULT_PACKAGE)
-      super.options(config)
     }
 
   }

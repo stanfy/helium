@@ -10,7 +10,7 @@ buildscript {
 }
 
 apply plugin: 'java'
-apply plugin: 'helium'
+apply plugin: 'helium-java'
 
 repositories {
   mavenCentral()
@@ -25,32 +25,20 @@ dependencies {
 helium {
   specification file("src/api/my-backend.api")
 
+  def genSources = file("src/gen")
   sourceGen {
     entities {
-      output = file("src/gen/java")
+      output = file("$genSources/entities")
       options {
         packageName = "com.stanfy.helium.sample.retrofit.api"
       }
     }
     retrofit {
-      output = file("src/gen/java")
+      output = file("$genSources/retrofit")
       options {
         packageName = "com.stanfy.helium.sample.retrofit.api"
       }
     }
   }
 
-}
-
-def genSources = file("src/gen/java")
-
-sourceSets {
-  main {
-    java.srcDirs += genSources
-  }
-}
-
-afterEvaluate {
-  compileJava.dependsOn helium.sourceGen.entities['com.stanfy.helium.sample.retrofit.api']
-  compileJava.dependsOn helium.sourceGen.retrofit['com.stanfy.helium.sample.retrofit.api']
 }

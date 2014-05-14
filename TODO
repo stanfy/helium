@@ -12,10 +12,8 @@ Docs generation:
 
 Code generation:
 
-- Java POJOs
-- Swagger
-- Request builders for Enroscar
 - Retrofit integration
+- Swagger
 - Protobuffers
 
 - Objective-C?
