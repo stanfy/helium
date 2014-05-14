@@ -1,0 +1,33 @@
+type 'User' message(skipUnknownFields: true) {
+  id_str 'string'
+  name 'string'
+}
+
+type "Post" message(skipUnknownFields: true) {
+  id 'int64'
+  text 'string'
+  user 'User'
+}
+
+type "SearchResponse" message {
+  statuses 'Post' sequence
+  search_metadata(skip: true)
+}
+
+service {
+
+  name "My Backend"
+
+  version "3.4"
+  location "https://my.backend.com/$version"
+
+  get "search/posts.json" spec {
+    name "Search posts"
+    parameters {
+      query 'string'
+      count 'int32' optional
+    }
+    response 'SearchResponse'
+  }
+
+}

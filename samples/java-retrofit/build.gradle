@@ -1,0 +1,56 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  }
+  dependencies {
+    classpath 'com.stanfy.helium:gradle-plugin:0.4.0-SNAPSHOT'
+  }
+}
+
+apply plugin: 'java'
+apply plugin: 'helium'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  compile 'com.squareup.retrofit:retrofit:1.5.1'
+  testCompile 'junit:junit:4.11'
+  testCompile 'org.mockito:mockito-all:1.9.5'
+}
+
+helium {
+  specification file("src/api/my-backend.api")
+
+  sourceGen {
+    entities {
+      output = file("src/gen/java")
+      options {
+        packageName = "com.stanfy.helium.sample.retrofit.api"
+      }
+    }
+    retrofit {
+      output = file("src/gen/java")
+      options {
+        packageName = "com.stanfy.helium.sample.retrofit.api"
+      }
+    }
+  }
+
+}
+
+def genSources = file("src/gen/java")
+
+sourceSets {
+  main {
+    java.srcDirs += genSources
+  }
+}
+
+afterEvaluate {
+  compileJava.dependsOn helium.sourceGen.entities['com.stanfy.helium.sample.retrofit.api']
+  compileJava.dependsOn helium.sourceGen.retrofit['com.stanfy.helium.sample.retrofit.api']
+}
