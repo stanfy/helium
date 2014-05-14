@@ -1,6 +1,5 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
-import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
@@ -11,7 +10,7 @@ import java.util.HashSet;
 /**
  * Message to Java class converter.
  */
-public class MessageToJavaClass {
+final class MessageToJavaClass {
 
   /** Writer. */
   private final JavaClassWriter writer;
@@ -93,32 +92,13 @@ public class MessageToJavaClass {
   }
 
   private String getAccessMethodName(final String type, final Field field) {
-    StringBuilder result = new StringBuilder().append(type).append(options.getFieldName(field));
+    StringBuilder result = new StringBuilder().append(type).append(options.getName(field));
     result.setCharAt(type.length(), Character.toUpperCase(result.charAt(type.length())));
     return result.toString();
   }
 
   private String getFieldTypeName(final Field field) {
-    Type type = field.getType();
-    final String typeName;
-    if (type instanceof Message) {
-      if (field.isSequence()) {
-        typeName = writer.getOutput().compressType(options.getSequenceTypeName(type.getCanonicalName()));
-      } else {
-        typeName = type.getCanonicalName();
-      }
-    } else if (type.isPrimitive()) {
-      Class<?> clazz = options.getJavaClass(type);
-      if (field.isSequence()) {
-        String itemClassName = options.getSequenceItemClassName(clazz);
-        typeName = writer.getOutput().compressType(options.getSequenceTypeName(itemClassName));
-      } else {
-        typeName = writer.getOutput().compressType(clazz.getCanonicalName());
-      }
-    } else {
-      throw new UnsupportedOperationException("Cannot write field " + field);
-    }
-    return typeName;
+    return options.getJavaTypeName(field.getType(), field.getSequence(), writer.getOutput());
   }
 
 }

@@ -98,6 +98,7 @@ class HeliumExtension {
   public static class SourceGenerationTasks {
     Map<String, BaseHeliumTask> entities = [:]
     Map<String, BaseHeliumTask> constants = [:]
+    Map<String, BaseHeliumTask> retrofit = [:]
   }
 
 }

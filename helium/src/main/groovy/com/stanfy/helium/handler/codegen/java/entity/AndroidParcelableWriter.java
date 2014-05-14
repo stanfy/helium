@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * Writer for Android parcelables.
  */
-public class AndroidParcelableWriter extends DelegateJavaClassWriter {
+class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
   /** Types supported by Parcel. */
   private static final Map<Class<?>, String> SUPPORTED_TYPES_BY_ANDROID = new HashMap<Class<?>, String>();

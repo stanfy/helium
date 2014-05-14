@@ -7,7 +7,7 @@ import spock.lang.Specification
 /**
  * Base class for Java generator tests.
  */
-abstract class BaseGeneratorSpec<T extends Handler> extends Specification {
+abstract class BaseMessageToClassGeneratorSpec<T extends Handler> extends Specification {
 
   ProjectDsl project
   File output

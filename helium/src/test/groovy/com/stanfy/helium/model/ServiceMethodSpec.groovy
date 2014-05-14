@@ -97,4 +97,11 @@ class ServiceMethodSpec extends Specification {
     method.hasRequiredParameters()
   }
 
+  def "can return path parameter names"() {
+    given:
+    method.path = "something/@param/@two"
+    expect:
+    method.pathParameters == ['param', 'two']
+  }
+
 }

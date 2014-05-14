@@ -13,7 +13,7 @@ import java.util.EnumSet;
 /**
  * Writes a constants file.
  */
-public class MessageToConstants {
+final class MessageToConstants {
 
   /** Output. */
   private final JavaWriter output;

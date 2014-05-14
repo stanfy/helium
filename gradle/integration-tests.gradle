@@ -17,7 +17,8 @@ tasks.addRule("integrationTestFor-<SampleName>") { String taskName ->
 [
   'tests-with-gradle',
   'android',
-  'multiple-specs'
+  'multiple-specs',
+  'java-retrofit'
 ].each {
   tasks.integrationTests.dependsOn "integrationTestFor-$it"
 }

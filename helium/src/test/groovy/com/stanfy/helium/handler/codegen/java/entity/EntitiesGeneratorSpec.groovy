@@ -1,11 +1,11 @@
 package com.stanfy.helium.handler.codegen.java.entity
 
-import com.stanfy.helium.handler.codegen.java.BaseGeneratorSpec
+import com.stanfy.helium.handler.codegen.java.BaseMessageToClassGeneratorSpec
 
 /**
  * Tests for EntitiesGenerator.
  */
-class EntitiesGeneratorSpec extends BaseGeneratorSpec<EntitiesGenerator> {
+class EntitiesGeneratorSpec extends BaseMessageToClassGeneratorSpec<EntitiesGenerator> {
 
   EntitiesGeneratorOptions options
 

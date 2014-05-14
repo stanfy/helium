@@ -11,7 +11,7 @@ import java.util.Set;
 /**
  * Delegate decorator.
  */
-public class DelegateJavaClassWriter implements JavaClassWriter {
+class DelegateJavaClassWriter implements JavaClassWriter {
 
   /** Instance to delegate to. */
   private final JavaClassWriter core;

@@ -47,6 +47,9 @@ class UserConfig {
       if (res.getConstants() == null) {
         res.setConstants(defaultSourceGeneration.getConstants());
       }
+      if (res.getRetrofit() == null) {
+        res.setRetrofit(defaultSourceGeneration.getRetrofit());
+      }
     }
     return res;
   }

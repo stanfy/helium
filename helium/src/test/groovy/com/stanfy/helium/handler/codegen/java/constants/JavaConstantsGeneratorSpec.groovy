@@ -1,11 +1,11 @@
 package com.stanfy.helium.handler.codegen.java.constants
 
-import com.stanfy.helium.handler.codegen.java.BaseGeneratorSpec
+import com.stanfy.helium.handler.codegen.java.BaseMessageToClassGeneratorSpec
 
 /**
  * Tests for JavaConstantsGenerator.
  */
-class JavaConstantsGeneratorSpec extends BaseGeneratorSpec<JavaConstantsGenerator> {
+class JavaConstantsGeneratorSpec extends BaseMessageToClassGeneratorSpec<JavaConstantsGenerator> {
 
   /** Options. */
   ConstantsGeneratorOptions options
