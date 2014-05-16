@@ -2,7 +2,7 @@ apply from: file("gradle/integration-tests.gradle")
 
 boolean hasCredentials = hasProperty('nexusUsername') && hasProperty('nexusPassword')
 
-version = '0.4.0'
+version = '0.4.1-SNAPSHOT'
 
 //noinspection GroovyAssignabilityCheck
 task populateVersion(description: "Populate root project version") << {

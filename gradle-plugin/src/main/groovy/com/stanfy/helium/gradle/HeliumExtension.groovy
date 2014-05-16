@@ -14,7 +14,7 @@ import static com.stanfy.helium.gradle.UserConfig.specName
  */
 class HeliumExtension {
 
-  public static final String VERSION = "0.4.0"
+  public static final String VERSION = "0.4.1-SNAPSHOT"
 
   /** Tasks group. */
   public static final String GROUP = "Helium"
