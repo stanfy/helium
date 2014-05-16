@@ -7,6 +7,7 @@ dependencies {
   compile gradleApi()
 
   compile project(':helium')
+  compile 'com.android.tools.build:gradle:0.10.1'
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
 }
@@ -17,6 +18,13 @@ afterEvaluate {
       mavenDeployer {
         pom.project {
           name 'Helium Gradle plugin'
+        }
+        pom.whenConfigured { def pom ->
+          pom.dependencies.each {
+            if (it.groupId == 'com.android.tools.build') {
+              it.scope = 'provided'
+            }
+          }
         }
       }
     }
