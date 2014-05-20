@@ -121,6 +121,19 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
 
     // no bad inputs
     !testText.contains('public void get_test_no_bad_input_shouldFail')
+
+    // respects unresolved path param
+    !testText.contains("with/unresolved/path/@parameter")
+
+    // nothing if headers are not resolved
+    !testText.contains("with/header/no/poke/test")
+    // use constant header
+    testText.contains("with/constant/header")
+    testText.contains 'request.addHeader("ConstantHeader", "v1")'
+    // resolve header example
+    testText.contains("with/header/example")
+    testText.contains 'request.addHeader("RequiredHeader", "e1")'
+
   }
 
 }

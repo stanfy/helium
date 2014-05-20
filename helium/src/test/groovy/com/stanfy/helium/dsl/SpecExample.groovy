@@ -116,6 +116,25 @@ final class SpecExample {
         }
       }
 
+      get "with/header/no/poke/test" spec {
+        httpHeaders 'h1'
+        response 'UserProfile'
+      }
+
+      get "with/constant/header" spec {
+        httpHeaders header('ConstantHeader', 'v1')
+        response 'UserProfile'
+      }
+
+      get "with/header/example" spec {
+        httpHeaders header('RequiredHeader', examples: ['e1'])
+        response 'UserProfile'
+      }
+
+      get "with/unresolved/path/@parameter" spec {
+        response 'UserProfile'
+      }
+
       tests {
         useExamples true
         generateBadInputTests true

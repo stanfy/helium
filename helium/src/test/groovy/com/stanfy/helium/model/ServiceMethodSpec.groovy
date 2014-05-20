@@ -43,12 +43,12 @@ class ServiceMethodSpec extends Specification {
     ) == "/alpha/beta/a/Yulenka/alpha-beta/encoded%20value"
   }
 
-  def "hasParametrizedPath checks for @"() {
+  def "hasRequiredParametersInPath checks for @"() {
     given:
     method.path = "@param"
-    boolean v1 = method.hasParametrizedPath()
+    boolean v1 = method.hasRequiredParametersInPath()
     method.path = "param"
-    boolean v2 = method.hasParametrizedPath()
+    boolean v2 = method.hasRequiredParametersInPath()
 
     expect:
     v1
@@ -102,6 +102,22 @@ class ServiceMethodSpec extends Specification {
     method.path = "something/@param/@two"
     expect:
     method.pathParameters == ['param', 'two']
+  }
+
+  def "hasRequiredParameters should respect non-constant headers"() {
+    given:
+    method.httpHeaders.add(new HttpHeader(name: 'a'))
+    expect:
+    method.hasRequiredHeaders()
+    method.hasRequiredParameters()
+  }
+
+  def "hasRequiredParameters should ignore constant headers"() {
+    given:
+    method.httpHeaders.add(new HttpHeader(name: 'a', value: 'b'))
+    expect:
+    !method.hasRequiredHeaders()
+    !method.hasRequiredParameters()
   }
 
 }

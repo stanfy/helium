@@ -33,6 +33,9 @@ class ServiceMethod extends Descriptionable {
   /** Test information. */
   final MethodTestInfo testInfo = new MethodTestInfo()
 
+  /** HTTP headers. */
+  final List<HttpHeader> httpHeaders = new ArrayList<>()
+
   @Override
   String getCanonicalName() {
     return Names.canonicalName(type.toString().toLowerCase(Locale.US) + " " + path)
@@ -48,10 +51,6 @@ class ServiceMethod extends Descriptionable {
       res = res.replaceAll("@${Pattern.quote(name)}", value)
     }
     return new URI("http", "host.com", res, null).toURL().getPath()
-  }
-
-  boolean hasParametrizedPath() {
-    return path.contains('@')
   }
 
   String getUriQueryWithExamples(final String encoding) {
@@ -102,8 +101,12 @@ class ServiceMethod extends Descriptionable {
     return parameters?.hasRequiredFields()
   }
 
+  boolean hasRequiredHeaders() {
+    return httpHeaders.any { HttpHeader h -> !h.constant }
+  }
+
   boolean hasRequiredParameters() {
-    return hasRequiredParametersInPath() || hasRequiredParameterFields()
+    return hasRequiredParametersInPath() || hasRequiredParameterFields() || hasRequiredHeaders()
   }
 
   List<String> getPathParameters() {
