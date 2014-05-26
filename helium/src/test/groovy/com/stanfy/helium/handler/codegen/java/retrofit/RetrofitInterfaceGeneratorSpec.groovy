@@ -42,6 +42,11 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
         name "Delete stuff"
       }
 
+      get "/headers" spec {
+        httpHeaders 'H1', 'H2', header('HC1', 'cvalue1'), header('HC2', 'cvalue2')
+        response 'BMessage'
+      }
+
     }
     project.service {
       name "B"
@@ -107,6 +112,18 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     then:
     text.contains('@DELETE("/example")\n')
     text.contains('void deleteStuff(ResponseCallback callback)')
+  }
+
+  def "maps headers"() {
+    when:
+    gen.handle(project)
+    def text = new File("$output/test/api/A.java").text
+
+    then:
+    text.contains('@Headers({')
+    text.contains('"HC1: cvalue1",')
+    text.contains('"HC2: cvalue2"')
+    text.contains('BMessage getHeaders(@Header("H1") String headerH1, @Header("H2") String headerH2)')
   }
 
 }
