@@ -11,6 +11,9 @@ import groovy.transform.CompileStatic
 
 import javax.lang.model.element.Modifier
 
+import static com.stanfy.helium.handler.codegen.tests.Utils.findUnresolvedHeaders
+import static com.stanfy.helium.handler.codegen.tests.Utils.preparePokeTestInfo
+
 /**
  * REST API tests generator.
  * Generates JUnit4 tests that invoke REST API methods.
@@ -55,7 +58,11 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
 
   private static void addTestMethods(final JavaWriter out, final Service service, ServiceMethod method,
                                      final JsonEntityExampleGenerator entitiesGenerator) {
-    MethodTestInfo testInfo = method.testInfo.resolve(service.testInfo)
+    MethodTestInfo testInfo = preparePokeTestInfo(method, service)
+    if (!findUnresolvedHeaders(method, testInfo.httpHeaders).empty) {
+      return
+    }
+
     String encoding = HttpExecutor.resolveEncoding(service, method)
 
     MethodGenerator gen = new MethodGenerator(out: out, service: service, method: method, testInfo: testInfo)

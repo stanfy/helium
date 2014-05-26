@@ -4,11 +4,13 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
 import com.stanfy.helium.model.Field;
+import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.Type;
+import com.stanfy.helium.utils.Names;
 import org.apache.commons.io.IOUtils;
 
 import javax.lang.model.element.Modifier;
@@ -24,6 +26,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.squareup.javawriter.JavaWriter.stringLiteral;
+import static com.stanfy.helium.utils.Names.canonicalName;
+import static com.stanfy.helium.utils.Names.prettifiedName;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 /**
@@ -120,6 +124,16 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
 
         writeJavaDoc(writer, m);
 
+        List<String> constantHeaders = new ArrayList<String>();
+        for (HttpHeader header : m.getHttpHeaders()) {
+          if (header.isConstant()) {
+            constantHeaders.add(stringLiteral(header.getName() + ": " + header.getValue()));
+          }
+        }
+        if (!constantHeaders.isEmpty()) {
+          writer.emitAnnotation("Headers", constantHeaders.toArray(new String[constantHeaders.size()]));
+        }
+
         writer.emitAnnotation(m.getType().toString(), stringLiteral(getTransformedPath(m)));
 
         String responseType = "void";
@@ -169,8 +183,17 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     ArrayList<String> res = new ArrayList<String>();
     if (m.hasRequiredParametersInPath()) {
       for (String pp : m.getPathParameters()) {
-        res.add("@Path(\"" + pp + "\") String");
+        res.add("@Path(" + stringLiteral(pp) + ") String");
         res.add(getOptions().getSafeParameterName(pp));
+      }
+    }
+
+    if (m.hasRequiredHeaders()) {
+      for (HttpHeader header : m.getHttpHeaders()) {
+        if (!header.isConstant()) {
+          res.add("@Header(" + stringLiteral(header.getName()) + ") String");
+          res.add("header".concat(prettifiedName(canonicalName(header.getName()))));
+        }
       }
     }
 

@@ -14,11 +14,8 @@ tasks.addRule("integrationTestFor-<SampleName>") { String taskName ->
   }
 }
 
-[
-  'tests-with-gradle',
-  'android',
-  'multiple-specs',
-  'java-retrofit'
-].each {
-  tasks.integrationTests.dependsOn "integrationTestFor-$it"
+new File(projectDir, "samples").listFiles().each {
+  if (it.directory) {
+    tasks.integrationTests.dependsOn "integrationTestFor-$it.name"
+  }
 }

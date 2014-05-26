@@ -412,4 +412,40 @@ class ProjectDslSpec extends Specification {
     converter.writer != null
   }
 
+  def "can describe http headers for service methods"() {
+    when:
+    dsl.service {
+      get "some" spec {
+        httpHeaders 'header1', header('header2', 'value2', examples: ['example']),
+            header('header3', value: 'value3'), header('header4'), header(name: 'header5'),
+            "${'header6'}"
+      }
+    }
+    def headers = dsl.services[0].methods[0].httpHeaders
+
+    then:
+    headers.size() == 6
+
+    headers[0].name == 'header1'
+    !headers[0].constant
+
+    headers[1].name == 'header2'
+    headers[1].constant
+    headers[1].value == 'value2'
+    headers[1].examples == ['example']
+
+    headers[2].name == 'header3'
+    headers[2].value == 'value3'
+    headers[2].constant
+
+    headers[3].name == 'header4'
+    !headers[3].constant
+
+    headers[4].name == 'header5'
+    !headers[4].constant
+
+    headers[5].name == 'header6'
+    !headers[5].constant
+  }
+
 }
