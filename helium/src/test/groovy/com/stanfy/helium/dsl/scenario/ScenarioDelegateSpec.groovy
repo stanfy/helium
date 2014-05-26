@@ -45,6 +45,11 @@ class ScenarioDelegateSpec extends Specification {
         }
       }
 
+      get "/headers/example" spec {
+        httpHeaders header('H1', 'v1'), 'H2'
+        response 'Msg'
+      }
+
       tests {
 
         scenario "simple post" spec {

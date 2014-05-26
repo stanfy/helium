@@ -2,7 +2,6 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.HeliumWriter
-import com.stanfy.helium.model.HttpHeader
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
@@ -11,6 +10,9 @@ import com.stanfy.helium.model.tests.MethodTestInfo
 import groovy.transform.CompileStatic
 
 import javax.lang.model.element.Modifier
+
+import static com.stanfy.helium.handler.codegen.tests.Utils.findUnresolvedHeaders
+import static com.stanfy.helium.handler.codegen.tests.Utils.preparePokeTestInfo
 
 /**
  * REST API tests generator.
@@ -56,8 +58,8 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
 
   private static void addTestMethods(final JavaWriter out, final Service service, ServiceMethod method,
                                      final JsonEntityExampleGenerator entitiesGenerator) {
-    MethodTestInfo testInfo = prepareTestInfo(method, service)
-    if (!allHeadersResolved(method, testInfo)) {
+    MethodTestInfo testInfo = preparePokeTestInfo(method, service)
+    if (!findUnresolvedHeaders(method, testInfo.httpHeaders).empty) {
       return
     }
 
@@ -124,24 +126,6 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     }
 
 
-  }
-
-  private static MethodTestInfo prepareTestInfo(ServiceMethod method, Service service) {
-    MethodTestInfo testInfo = method.testInfo.resolve(service.testInfo)
-    method.httpHeaders.each { HttpHeader h ->
-      if (h.constant) {
-        testInfo.httpHeaders[h.name] = h.value
-      } else if (h.examples?.size() > 0) {
-        testInfo.httpHeaders[h.name] = h.examples[0]
-      }
-    }
-    return testInfo
-  }
-
-  private static boolean allHeadersResolved(ServiceMethod method, MethodTestInfo testInfo) {
-    return method.httpHeaders.findAll() { HttpHeader h -> !h.constant }.every { HttpHeader h ->
-      testInfo.httpHeaders.containsKey(h.name)
-    }
   }
 
   private static class MethodGenerator {

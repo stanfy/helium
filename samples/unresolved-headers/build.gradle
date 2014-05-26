@@ -1,0 +1,25 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  }
+  dependencies {
+    classpath 'com.stanfy.helium:gradle-plugin:0.4.1-SNAPSHOT'
+  }
+}
+
+apply plugin: 'helium'
+
+helium {
+  specification file('fake.api')
+}
+
+task clean(type: Delete) {
+  delete buildDir
+}
+
+task check()
+afterEvaluate {
+  check.dependsOn 'runApiTests'
+}

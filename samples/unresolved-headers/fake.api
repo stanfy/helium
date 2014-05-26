@@ -1,0 +1,32 @@
+service {
+  name "Fake"
+  location "http://does.not.matter"
+
+  get "something" spec {
+    httpHeaders 'Required', header('Const', 'Value')
+  }
+
+  tests {
+    scenario "test headers check" spec {
+      try {
+        get "something" with { /* no headers */ }
+        throw new AssertionError("headers not checked")
+      } catch (def e) {
+        assert e.message.contains('Required')
+      }
+    }
+    scenario "const headers check" spec {
+      try {
+        get "something" with {
+          httpHeaders {
+            'Required' 'One'
+            'Const' 'Another'
+          }
+        }
+        throw new AssertionError("const headers not checked")
+      } catch (def e) {
+        assert e.message.contains('Const')
+      }
+    }
+  }
+}

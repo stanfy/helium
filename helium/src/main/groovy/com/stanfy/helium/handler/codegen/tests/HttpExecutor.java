@@ -6,6 +6,7 @@ import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
 import com.stanfy.helium.entities.json.JsonConverterFactory;
 import com.stanfy.helium.entities.json.JsonEntityWriter;
+import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
@@ -25,6 +26,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -90,6 +92,16 @@ class HttpExecutor implements ScenarioExecutor {
     HashMap<String, String> httpHeaders = new HashMap<String, String>();
     httpHeaders.putAll(testInfo.getHttpHeaders());
     httpHeaders.putAll(request.getHttpHeaders());
+    List<String> unresolvedHeaders = Utils.findUnresolvedHeaders(method, httpHeaders);
+    if (!unresolvedHeaders.isEmpty()) {
+      throw new IllegalArgumentException("Unresolved headers: " + unresolvedHeaders);
+    }
+    Utils.checkConstantHeaders(method, httpHeaders);
+    for (HttpHeader header : method.getHttpHeaders()) {
+      if (header.isConstant()) {
+        httpHeaders.put(header.getName(), header.getValue());
+      }
+    }
 
     // prepare request URI
     String requestPath = service.getMethodUri(method, request.getPathParameters());
