@@ -1,6 +1,8 @@
 package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
+import com.stanfy.helium.utils.ConfigurableMap
+import com.stanfy.helium.utils.ConfigurableStringMap
 import com.stanfy.helium.utils.DslUtils
 import groovy.transform.PackageScope
 import org.apache.commons.io.FilenameUtils
@@ -67,6 +69,10 @@ class HeliumExtension {
   void sourceGen(Closure<?> config) {
     this.config.defaultSourceGeneration = new SourceGenDslDelegate(config.owner)
     DslUtils.runWithProxy(this.config.defaultSourceGeneration, config)
+  }
+
+  void variables(Closure<?> config) {
+    DslUtils.runWithProxy(new ConfigurableStringMap(this.config.variables, "Variables"), config)
   }
 
   SourceGenerationTasks getSourceGen() {

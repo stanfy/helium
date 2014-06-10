@@ -6,6 +6,7 @@ import org.gradle.api.Project;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -21,6 +22,9 @@ class UserConfig {
 
   /** Source generation rules per each spec. */
   private final Map<File, SourceGenDslDelegate> specSourceGeneration = new HashMap<File, SourceGenDslDelegate>();
+
+  /** Variables binding passed to all the tasks. */
+  final Map<String, String> variables = new LinkedHashMap<String, String>();
 
   UserConfig(final Project project) {
     this.project = project;

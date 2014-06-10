@@ -10,7 +10,7 @@ service {
   name "Twitter"
 
   version "1.1"
-  location "https://api.twitter.com/$version"
+  location "https://$host/$version"
 
   get "search/tweets.json" spec {
     parameters {

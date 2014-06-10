@@ -1,5 +1,6 @@
 package com.stanfy.helium.gradle
 
+import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
@@ -13,12 +14,20 @@ class HeliumPluginSpec extends Specification {
   Project project
 
   static File generateSpec(final String name) {
+    return generateSpec(name, null)
+  }
+  static File generateSpec(final String name, final String code) {
     File tmp = File.createTempFile("aaa", "bbb")
     tmp.deleteOnExit()
     File f = new File(tmp.parentFile, name)
     f.deleteOnExit()
     tmp.parentFile.deleteOnExit()
-    f << "type 'string'"
+    f.withWriter {
+      it << "type 'A' message { }\n"
+      if (code) {
+        it << code
+      }
+    }
     return f
   }
 
@@ -54,6 +63,25 @@ class HeliumPluginSpec extends Specification {
     project.tasks.findByName('runApiTestsS1') != null
     project.tasks.findByName('genApiTestsS2') != null
     project.tasks.findByName('runApiTestsS2') != null
+  }
+
+  def "passes variables to tasks"() {
+    given:
+    project.helium {
+      specification generateSpec("s1", 'def aaa = "$a, $baseDir"')
+      variables {
+        'a' 'b'
+      }
+    }
+
+    createTasks()
+
+    def task = project.tasks.findByName('genApiTests')
+
+    expect:
+    task instanceof BaseHeliumTask
+    ((BaseHeliumTask) task).runWithClassLoader()
+    ((BaseHeliumTask) task).variables['a'] == 'b'
   }
 
   private createTasks() {

@@ -2,6 +2,7 @@ package com.stanfy.helium.gradle.tasks
 
 import com.stanfy.helium.Helium
 import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
@@ -19,6 +20,10 @@ abstract class BaseHeliumTask extends DefaultTask {
   @OutputDirectory
   File output
 
+  /** Variables binding. */
+  @Input
+  Map<String, String> variables
+
   ClassLoader classLoader
 
   private Helium heliumInstance
@@ -26,6 +31,11 @@ abstract class BaseHeliumTask extends DefaultTask {
   protected Helium getHelium() {
     if (!heliumInstance) {
       heliumInstance = new Helium().defaultTypes()
+      if (!variables.isEmpty()) {
+        variables.each { String name, String value ->
+          helium.set name, value
+        }
+      }
       if (input) {
         File baseDir = input.parentFile
         heliumInstance.set "baseDir", baseDir from input

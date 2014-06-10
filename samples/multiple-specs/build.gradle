@@ -25,6 +25,10 @@ helium {
     }
   }
   specification file('twitter2.api')
+
+  variables {
+    host 'api.twitter.com'
+  }
 }
 
 task clean(type: Delete) {

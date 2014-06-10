@@ -77,11 +77,12 @@ final class HeliumInitializer implements TasksCreator {
     LOG.debug "runApiTests task: dir=$runTestsTask.dir"
   }
 
-  private static void configureHeliumTask(BaseHeliumTask task, File specification, File output,
+  private void configureHeliumTask(BaseHeliumTask task, File specification, File output,
                                           ClassLoader classLoader) {
     task.output = output
     task.input = specification
     task.classLoader = classLoader
+    task.variables = Collections.unmodifiableMap(userConfig.variables)
   }
 
   private void processEntities(SourceGenDslDelegate.EntitiesDslDelegate entities, ClassLoader classLoader,
