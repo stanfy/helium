@@ -64,6 +64,24 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     userProfile instanceof Message
   }
 
+  def "does not generate file for with zero methods"() {
+    when:
+    File output = File.createTempDir()
+    output.deleteOnExit()
+    generator = new RestApiPokeTestsGenerator(output)
+    new Helium().defaultTypes() from { service { name "fake" } } processBy generator
+
+    int testsCount = 0
+    generator.srcOutput.eachFileRecurse {
+      if (it.name.endsWith("Test.java")) {
+        testsCount++
+      }
+    }
+
+    then:
+    testsCount == 0
+  }
+
   def "should generate JUnit tests"() {
     when:
     runExampleGenerator()

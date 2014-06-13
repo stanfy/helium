@@ -50,17 +50,19 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     JsonEntityExampleGenerator entitiesGenerator = new JsonEntityExampleGenerator(project.getTypes())
 
     eachService(project, { final Service service, final JavaWriter writer ->
+      int count = 0;
       service.methods.each { ServiceMethod method ->
-        addTestMethods writer, service, method, entitiesGenerator
+        count += addTestMethods writer, service, method, entitiesGenerator
       }
+      return count > 0
     } as BaseUnitTestsGenerator.ServiceHandler)
   }
 
-  private static void addTestMethods(final JavaWriter out, final Service service, ServiceMethod method,
+  private static int addTestMethods(final JavaWriter out, final Service service, ServiceMethod method,
                                      final JsonEntityExampleGenerator entitiesGenerator) {
     MethodTestInfo testInfo = preparePokeTestInfo(method, service)
     if (!findUnresolvedHeaders(method, testInfo.httpHeaders).empty) {
-      return
+      return 0
     }
 
     String encoding = HttpExecutor.resolveEncoding(service, method)
@@ -125,7 +127,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
 
     }
 
-
+    return gen.count
   }
 
   private static class MethodGenerator {
@@ -134,6 +136,8 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     ServiceMethod method
     Service service
     MethodTestInfo testInfo
+
+    int count
 
     private void emitHeaders() {
       testInfo.httpHeaders.each { String key, String value ->
@@ -153,6 +157,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     }
 
     private void startTestMethod(String nameSuffix) {
+      count++
       String name = method.canonicalName
       out.emitAnnotation('Test')
       out.beginMethod('void', name + nameSuffix, Collections.<Modifier>singleton(Modifier.PUBLIC), null,

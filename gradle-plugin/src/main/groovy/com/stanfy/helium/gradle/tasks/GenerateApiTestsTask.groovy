@@ -41,6 +41,8 @@ repositories {
 test {
   ignoreFailures = ${project.helium.ignoreFailures}
   ${classpathString}
+  scanForTestClasses = false
+  include '**/*Test.class'
 }
 
 dependencies {

@@ -2,7 +2,6 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.DefaultType
-import com.stanfy.helium.Helium
 import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.dsl.scenario.ScenarioDelegate
 import com.stanfy.helium.dsl.scenario.ScenarioInvoker
@@ -47,18 +46,12 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
     // copy scenarios file
     copy(project)
 
-    def toDelete = []
     eachService(project, { Service service, JavaWriter writer ->
       service.testInfo.scenarios.each { Scenario scenario ->
         addTestMethod service, scenario, writer
       }
-      if (!service.testInfo.scenarios) {
-        toDelete += service
-      }
+      return !service.testInfo.scenarios.empty
     } as BaseUnitTestsGenerator.ServiceHandler)
-    toDelete.each { Service service ->
-      getTestFile(getClassName(service)).delete()
-    }
 
   }
 

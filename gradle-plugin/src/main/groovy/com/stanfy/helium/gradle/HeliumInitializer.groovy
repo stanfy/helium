@@ -23,7 +23,8 @@ final class HeliumInitializer implements TasksCreator {
   /** Logger. */
   private static final Logger LOG = LoggerFactory.getLogger(HeliumInitializer.class)
 
-  private static final String TESTS_OUT_PATH = "helium/api-tests"
+  private static final String BASE_OUT_PATH = "generated/source/helium"
+  private static final String TESTS_OUT_PATH = "$BASE_OUT_PATH/api-tests"
 
   /** Config object. */
   private final HeliumExtension config
@@ -61,16 +62,19 @@ final class HeliumInitializer implements TasksCreator {
   private void createApiTestTasks(final File specification, final ClassLoader classLoader) {
     Project project = userConfig.project
 
-    def descriptionSuffix = specName(specification)
-    if (!descriptionSuffix.empty) {
-      descriptionSuffix = " for specification $descriptionSuffix"
+
+    def specName = specName(specification)
+    def descriptionSuffix = ""
+    if (!specName.empty) {
+      descriptionSuffix = " for specification '$specName'"
     }
 
     // tests generation task
     GenerateApiTestsTask genTestsTask = project.tasks.create(taskName("genApiTests", specification), GenerateApiTestsTask)
     genTestsTask.group = GROUP
     genTestsTask.description = "Generate project with API tests${descriptionSuffix}"
-    configureHeliumTask(genTestsTask, specification, new File(project.buildDir, "source/$TESTS_OUT_PATH"), classLoader)
+    def testsProjectDir = new File(project.buildDir, "$TESTS_OUT_PATH/$specName")
+    configureHeliumTask(genTestsTask, specification, testsProjectDir, classLoader)
     LOG.debug "genApiTests task: json=$genTestsTask.input, output=$genTestsTask.output"
 
     // tests run task
@@ -99,7 +103,7 @@ final class HeliumInitializer implements TasksCreator {
     }
 
     if (!entities.output) {
-      entities.output = new File(userConfig.project.buildDir, "source/gen/rest-api")
+      entities.output = new File(userConfig.project.buildDir, "$BASE_OUT_PATH/entities/${specName(specification)}")
     }
     GenerateJavaEntitiesTask task = userConfig.project.tasks.create(
         taskName("generateEntities", specification, entities.genOptions),
@@ -117,7 +121,7 @@ final class HeliumInitializer implements TasksCreator {
     }
 
     if (!constants.output) {
-      constants.output = new File(userConfig.project.buildDir, "source/gen/constants")
+      constants.output = new File(userConfig.project.buildDir, "$BASE_OUT_PATH/constants/${specName(specification)}")
     }
     GenerateJavaConstantsTask task = userConfig.project.tasks.create(
         taskName("generateConstants", specification, constants.genOptions),
@@ -134,7 +138,7 @@ final class HeliumInitializer implements TasksCreator {
     }
 
     if (!retrofit.output) {
-      retrofit.output = new File(userConfig.project.buildDir, "source/gen/retrofit")
+      retrofit.output = new File(userConfig.project.buildDir, "$BASE_OUT_PATH/retrofit/${specName(specification)}")
     }
     GenerateRetrofitTask task = userConfig.project.tasks.create(
         taskName("generateRetrofit", specification, retrofit.genOptions),

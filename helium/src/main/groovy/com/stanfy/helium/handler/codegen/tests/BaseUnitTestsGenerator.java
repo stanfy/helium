@@ -126,19 +126,25 @@ abstract class BaseUnitTestsGenerator implements Handler {
 
   protected void eachService(final Project project, final ServiceHandler handler) throws IOException {
     for (Service service : project.getServices()) {
-      JavaWriter writer = createTestsWriter(getClassName(service));
+      String className = getClassName(service);
+      JavaWriter writer = createTestsWriter(className);
+      boolean typeWritten = false;
       try {
         startTest(writer, service);
-        handler.process(service, writer);
+        typeWritten = handler.process(service, writer);
         writer.endType();
       } finally {
         writer.close();
+        if (!typeWritten) {
+          //noinspection ResultOfMethodCallIgnored
+          getTestFile(className).delete();
+        }
       }
     }
   }
 
   public interface ServiceHandler {
-    void process(final Service service, final JavaWriter writer);
+    boolean process(final Service service, final JavaWriter writer);
   }
 
 }
