@@ -61,15 +61,22 @@ final class HeliumInitializer implements TasksCreator {
   private void createApiTestTasks(final File specification, final ClassLoader classLoader) {
     Project project = userConfig.project
 
+    def descriptionSuffix = specName(specification)
+    if (!descriptionSuffix.empty) {
+      descriptionSuffix = " for specification $descriptionSuffix"
+    }
+
     // tests generation task
     GenerateApiTestsTask genTestsTask = project.tasks.create(taskName("genApiTests", specification), GenerateApiTestsTask)
     genTestsTask.group = GROUP
+    genTestsTask.description = "Generate project with API tests${descriptionSuffix}"
     configureHeliumTask(genTestsTask, specification, new File(project.buildDir, "source/$TESTS_OUT_PATH"), classLoader)
     LOG.debug "genApiTests task: json=$genTestsTask.input, output=$genTestsTask.output"
 
     // tests run task
     GradleBuild runTestsTask = project.tasks.create(taskName('runApiTests', specification), GradleBuild)
     runTestsTask.group = GROUP
+    runTestsTask.description = "Run API tests${descriptionSuffix}"
     runTestsTask.buildFile = new File(genTestsTask.output, "build.gradle")
     runTestsTask.dir = genTestsTask.output
     runTestsTask.tasks = ['check']
