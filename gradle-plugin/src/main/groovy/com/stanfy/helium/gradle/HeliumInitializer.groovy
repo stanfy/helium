@@ -38,9 +38,19 @@ final class HeliumInitializer implements TasksCreator {
 
   @Override
   void createTasks(ClassLoader classLoader) {
+    def runApiTest = null
+    if (config.specifications.size() > 1) {
+      runApiTest = userConfig.project.tasks.create("runApiTests")
+      runApiTest.description = "Run all API tests"
+      runApiTest.group = GROUP
+    }
+
     config.specifications.each {
       // runApiTest
-      createApiTestTasks(it, classLoader)
+      def runTask = createApiTestTasks(it, classLoader)
+      if (runApiTest) {
+        runApiTest.dependsOn runTask
+      }
 
       // source generation
       SourceGenDslDelegate sourceGen = userConfig.getSourceGenFor(it)
@@ -59,20 +69,15 @@ final class HeliumInitializer implements TasksCreator {
     return prefix
   }
 
-  private void createApiTestTasks(final File specification, final ClassLoader classLoader) {
+  private GradleBuild createApiTestTasks(final File specification, final ClassLoader classLoader) {
     Project project = userConfig.project
 
-
     def specName = specName(specification)
-    def descriptionSuffix = ""
-    if (!specName.empty) {
-      descriptionSuffix = " for specification '$specName'"
-    }
 
     // tests generation task
     GenerateApiTestsTask genTestsTask = project.tasks.create(taskName("genApiTests", specification), GenerateApiTestsTask)
     genTestsTask.group = GROUP
-    genTestsTask.description = "Generate project with API tests${descriptionSuffix}"
+    genTestsTask.description = "Generate project with API tests for specification '$specName'"
     def testsProjectDir = new File(project.buildDir, "$TESTS_OUT_PATH/$specName")
     configureHeliumTask(genTestsTask, specification, testsProjectDir, classLoader)
     LOG.debug "genApiTests task: json=$genTestsTask.input, output=$genTestsTask.output"
@@ -80,12 +85,14 @@ final class HeliumInitializer implements TasksCreator {
     // tests run task
     GradleBuild runTestsTask = project.tasks.create(taskName('runApiTests', specification), GradleBuild)
     runTestsTask.group = GROUP
-    runTestsTask.description = "Run API tests${descriptionSuffix}"
+    runTestsTask.description = "Run API tests for specification '$specName'"
     runTestsTask.buildFile = new File(genTestsTask.output, "build.gradle")
     runTestsTask.dir = genTestsTask.output
     runTestsTask.tasks = ['check']
     runTestsTask.dependsOn genTestsTask
     LOG.debug "runApiTests task: dir=$runTestsTask.dir"
+
+    return runTestsTask
   }
 
   private void configureHeliumTask(BaseHeliumTask task, File specification, File output,
