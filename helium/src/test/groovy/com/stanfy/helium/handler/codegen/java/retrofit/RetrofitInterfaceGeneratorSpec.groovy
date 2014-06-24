@@ -78,6 +78,7 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     then:
     text.contains("import another.AMessage;")
     text.contains("import another.BMessage;")
+    text.contains("import retrofit.client.Response;")
   }
 
   def "should write methods"() {

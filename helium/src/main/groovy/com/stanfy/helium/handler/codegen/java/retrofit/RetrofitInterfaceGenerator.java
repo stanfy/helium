@@ -102,7 +102,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
           }
         }
         if (m.getResponse() == null) {
-          imports.add("retrofit.ResponseCallback");
+          imports.add("retrofit.client.Response");
         }
       }
 
