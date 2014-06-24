@@ -10,10 +10,9 @@ import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.Type;
-import com.stanfy.helium.utils.Names;
+
 import org.apache.commons.io.IOUtils;
 
-import javax.lang.model.element.Modifier;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -24,6 +23,8 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.lang.model.element.Modifier;
 
 import static com.squareup.javawriter.JavaWriter.stringLiteral;
 import static com.stanfy.helium.utils.Names.canonicalName;
@@ -136,7 +137,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
 
         writer.emitAnnotation(m.getType().toString(), stringLiteral(getTransformedPath(m)));
 
-        String responseType = "void";
+        String responseType = "Response";
         if (m.getResponse() != null) {
           responseType = resolveJavaTypeName(m.getResponse(), writer);
         }
@@ -207,12 +208,6 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     if (m.getBody() != null) {
       res.add("@Body " + getJavaType(m.getBody(), writer));
       res.add("body");
-    }
-
-    if (m.getResponse() == null) {
-      // we must add callback parameter
-      res.add("ResponseCallback");
-      res.add("callback");
     }
 
     return res;

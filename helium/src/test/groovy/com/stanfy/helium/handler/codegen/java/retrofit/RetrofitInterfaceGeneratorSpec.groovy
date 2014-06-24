@@ -1,9 +1,7 @@
 package com.stanfy.helium.handler.codegen.java.retrofit
 
-import com.stanfy.helium.DefaultType
 import com.stanfy.helium.dsl.ProjectDsl
 import spock.lang.Specification
-
 /**
  * Spec for RetrofitInterfaceGenerator.
  */
@@ -89,7 +87,7 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
 
     then:
     text.contains('@GET("/get/void")\n')
-    text.contains('void getGetVoid(ResponseCallback callback);\n')
+    text.contains('Response getGetVoid();\n')
   }
 
   def "should write different parameters"() {
@@ -111,7 +109,7 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
 
     then:
     text.contains('@DELETE("/example")\n')
-    text.contains('void deleteStuff(ResponseCallback callback)')
+    text.contains('Response deleteStuff()')
   }
 
   def "maps headers"() {
