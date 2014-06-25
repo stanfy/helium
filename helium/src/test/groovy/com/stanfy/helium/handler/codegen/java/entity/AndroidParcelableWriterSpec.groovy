@@ -62,6 +62,13 @@ public class MyMsg
     this.another_id = source.readInt();
   }
 
+  @Override
+  public String toString() {
+    return "MyMsg: {\\n"
+         + "  device_id=\\"" + device_id + "\\",\\n"
+         + "  another_id=\\"" + another_id + "\\"\\n"
+         + "}";
+  }
 
   @Override
   public int describeContents() {

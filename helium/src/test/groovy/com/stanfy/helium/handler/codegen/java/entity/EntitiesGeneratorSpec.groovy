@@ -49,6 +49,10 @@ public class A
   A(Parcel source) {
   }
 
+  @Override
+  public String toString() {
+    return "A: has no fields";
+  }
 
   @Override
   public int describeContents() {
