@@ -1,14 +1,9 @@
 package com.stanfy.helium.handler.codegen.java.entity
 
-import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
-import com.stanfy.helium.handler.codegen.java.entity.GsonPojoWriter
-import com.stanfy.helium.handler.codegen.java.entity.MessageToJavaClass
-import com.stanfy.helium.handler.codegen.java.entity.PojoWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
 import spock.lang.Specification
-
 /**
  * Tests for GsonPojoWriter.
  */
@@ -48,6 +43,13 @@ public class MyMsg {
   public int another_id;
 
 
+  @Override
+  public String toString() {
+    return "MyMsg: {\\n"
+         + "  device_id=\\"" + device_id + "\\",\\n"
+         + "  another_id=\\"" + another_id + "\\"\\n"
+         + "}";
+  }
 }
 """.trim() + '\n'
   }

@@ -5,7 +5,11 @@ import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.util.Collections;
 import java.util.HashSet;
+
+import javax.lang.model.element.Modifier;
 
 /**
  * Message to Java class converter.
@@ -42,6 +46,8 @@ final class MessageToJavaClass {
         String collectionName = options.getSequenceCollectionName();
         if (collectionName != null) {
           imports.add(collectionName);
+        } else if (options.isAddToString()) {
+          imports.add("java.util.Arrays");
         }
       }
 
@@ -87,8 +93,77 @@ final class MessageToJavaClass {
       }
     }
 
+    // toString method
+    if (options.isAddToString()) {
+      generateToString(writer, message, false);
+    }
+
     // end
     writer.writeClassEnd(message);
+  }
+
+  static class Writer extends StringWriter {
+    public Writer add(final String pattern, final Object... args) {
+      append(String.format(pattern, args));
+      return this;
+    }
+  }
+
+  void generateToString(final JavaClassWriter writer,
+                         final Message message,
+                         final boolean singleLine) throws IOException {
+    String indent = " ";
+    String separator = ",";
+
+    final Writer str = new Writer();
+    if (message.getActiveFields().size() == 0) {
+      str.add("return \"%s: has no fields\"", message.getName(), singleLine ? "" : "\n");
+    } else {
+      str.add("return \"%s: {%s", message.getName(), singleLine ? "\"\n" : "\\n\"\n");
+
+      for (int i = 0; i < message.getActiveFields().size(); i++) {
+        Field field = message.getActiveFields().get(i);
+        String fieldName = options.getSafeFieldName(field);
+
+        final String value;
+        if (field.getType().isPrimitive() && !field.isSequence()) {
+          value = fieldName;
+        } else {
+          String toString;
+
+          if (options.getSequenceCollectionName() == null && field.isSequence()) {
+            if (field.getType().isPrimitive()) {
+              toString = "Arrays.toString(" + options.getName(field) + ")";
+            } else {
+              toString = "Arrays.deepToString(" + options.getName(field) + ")";
+            }
+          } else {
+            toString = fieldName + ".toString()";
+          }
+
+          value = "(" + fieldName + " != null ? " + toString + " : \"null\")";
+        }
+
+        boolean notTheLastOne = i < message.getActiveFields().size() - 1;
+        String ending = String.format(" + \"\\\"%s%s\"",
+            notTheLastOne ? separator : "",
+            singleLine ? " " : "\\n");
+
+        str.add("%s+ \"%s%s=\\\"\" + %s%s\n",
+            indent,
+            singleLine ? "" : "  ",
+            options.getSafeFieldName(field),
+            value,
+            ending);
+      }
+
+      str.add("%s+ \"}\"", indent, message.getName());
+    }
+
+    writer.getOutput().emitAnnotation(Override.class)
+        .beginMethod("String", "toString", Collections.singleton(Modifier.PUBLIC))
+        .emitStatement(str.toString())
+        .endMethod();
   }
 
   private String getAccessMethodName(final String type, final Field field) {

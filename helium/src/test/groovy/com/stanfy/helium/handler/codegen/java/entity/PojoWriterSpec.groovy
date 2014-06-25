@@ -27,6 +27,7 @@ class PojoWriterSpec extends Specification {
     options.fieldModifiers = [Modifier.PRIVATE] as Set
     options.addGetters = true
     options.addSetters = true
+    options.addToString = false
     options.packageName = TEST_PACKAGE;
     writer = new PojoWriter(output)
   }
@@ -251,6 +252,153 @@ public class Test {
 }
 """.trim() + '\n'
 
+  }
+
+  def "toString message with single field"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "new", type: new Type(name: "string")))
+    options.addToString = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+'''
+  @Override
+  public String toString() {
+    return "Test: {\\n"
+         + "  newField=\\"" + newField + "\\"\\n"
+         + "}";
+  }
+'''
+    )
+  }
+
+  def "toString of empty message"() {
+    given:
+    Message msg = new Message(name: "Test")
+    options.addToString = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+'''
+  @Override
+  public String toString() {
+    return "Test: has no fields";
+  }
+'''
+    )
+  }
+
+  def "toString for complex message"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "fieldStr", type: new Type(name: "string")))
+    msg.addField(new Field(name: "fieldInt32", type: new Type(name: "int32")))
+    msg.addField(new Field(name: "fieldBool", type: new Type(name: "bool")))
+    Message childMessage = new Message(name: "Child")
+    msg.addField(new Field(name: "fieldChild", type: childMessage))
+    options.addToString = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+'''
+  @Override
+  public String toString() {
+    return "MyMsg: {\\n"
+         + "  fieldStr=\\"" + fieldStr + "\\",\\n"
+         + "  fieldInt32=\\"" + fieldInt32 + "\\",\\n"
+         + "  fieldBool=\\"" + fieldBool + "\\",\\n"
+         + "  fieldChild=\\"" + (fieldChild != null ? fieldChild.toString() : "null") + "\\"\\n"
+         + "}";
+  }
+'''
+    )
+  }
+
+  def "toString for sequence"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "fieldFloatList", type: new Type(name: "float"), sequence: true))
+    options.addToString = true
+    options.sequenceCollectionName = "List"
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+'''
+  @Override
+  public String toString() {
+    return "MyMsg: {\\n"
+         + "  fieldFloatList=\\"" + (fieldFloatList != null ? fieldFloatList.toString() : "null") + "\\"\\n"
+         + "}";
+  }
+'''
+    )
+  }
+
+  def "toString for sequence (sequences in form of arrays)"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+
+    msg.addField(new Field(name: "affiliateId", type: new Type(name: "string")))
+    Message childMessage = new Message(name: "Child")
+    msg.addField(new Field(name: "fieldChild", type: childMessage))
+    msg.addField(new Field(name: "fieldChildSeq", type: childMessage, sequence: true))
+    msg.addField(new Field(name: "fieldChildSeqPrimitive", type: new Type(name: "float"), sequence: true))
+    options.addToString = true
+    options.sequenceCollectionName = null
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+'''
+  @Override
+  public String toString() {
+    return "MyMsg: {\\n"
+         + "  affiliateId=\\"" + affiliateId + "\\",\\n"
+         + "  fieldChild=\\"" + (fieldChild != null ? fieldChild.toString() : "null") + "\\",\\n"
+         + "  fieldChildSeq=\\"" + (fieldChildSeq != null ? Arrays.deepToString(fieldChildSeq) : "null") + "\\",\\n"
+         + "  fieldChildSeqPrimitive=\\"" + (fieldChildSeqPrimitive != null ? Arrays.toString(fieldChildSeqPrimitive) : "null") + "\\"\\n"
+         + "}";
+  }
+''')
+    output.toString().contains("import java.util.Arrays;")
+  }
+
+  def "escape Java keywords in toString"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "package", type: new Type(name: "float")))
+    msg.addField(new Field(name: "versionCode", type: new Type(name: "int32")))
+    options.addToString = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+'''
+  @Override
+  public String toString() {
+    return "MyMsg: {\\n"
+         + "  packageField=\\"" + packageField + "\\",\\n"
+         + "  versionCode=\\"" + versionCode + "\\"\\n"
+         + "}";
+  }
+''')
   }
 
 }

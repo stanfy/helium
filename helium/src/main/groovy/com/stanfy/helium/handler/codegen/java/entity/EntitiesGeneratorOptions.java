@@ -2,11 +2,12 @@ package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions;
 
-import javax.lang.model.element.Modifier;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.lang.model.element.Modifier;
 
 import static com.stanfy.helium.handler.codegen.java.entity.Writers.WriterWrapper;
 
@@ -34,6 +35,9 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
 
   /** Whether to generate getters. */
   private boolean addGetters;
+
+  /** Whether to generate toString() method. */
+  private boolean addToString = true;
 
   /** Writer  */
   private WriterWrapper writerWrapper = Writers.chain();
@@ -64,6 +68,10 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
   public void setAddGetters(final boolean addGetters) {
     this.addGetters = addGetters;
   }
+
+  public boolean isAddToString() { return addToString; }
+
+  public void setAddToString(boolean addToString) { this.addToString = addToString; }
 
   public WriterWrapper getWriterWrapper() { return writerWrapper; }
 
