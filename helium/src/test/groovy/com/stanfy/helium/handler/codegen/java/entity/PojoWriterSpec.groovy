@@ -401,4 +401,41 @@ public class Test {
 ''')
   }
 
+  def "write JavaDoc from Description"() {
+    given:
+    Message msg = new Message(name: "Test", description: "Some testing class.\n@since 03.07.2014")
+    msg.addField(new Field(name: "a", type: new Type(name: "int32"), required: false, sequence: true, description: "Just A field"))
+    options.useArraysForSequences()
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+/**
+ * Some testing class.
+ * @since 03.07.2014
+ */
+public class Test {
+
+  /**
+   * Just A field
+   */
+  private int[] a;
+
+
+  public int[] getA() {
+    return this.a;
+  }
+
+  public void setA(int[] value) {
+    this.a = value;
+  }
+
+}
+""".trim() + '\n'
+  }
+
 }
