@@ -4,12 +4,11 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 
+import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
-
-import javax.lang.model.element.Modifier;
 
 /**
  * Writes type as a Java class.
@@ -33,13 +32,11 @@ class PojoWriter implements JavaClassWriter {
 
   @Override
   public void writeClassBegin(final Message message, final String extending, final String... implementing) throws IOException {
-    if (message.getDescription() != null) { output.emitJavadoc(message.getDescription()); }
     output.beginType(message.getCanonicalName(), "class", Collections.singleton(Modifier.PUBLIC), extending, implementing);
   }
 
   @Override
   public void writeField(final Field field, final String fieldTypeName, final String fieldName, final Set<Modifier> modifiers) throws IOException {
-    if (field.getDescription() != null) { output.emitJavadoc(field.getDescription()); }
     output.emitField(fieldTypeName, fieldName, modifiers);
   }
 

@@ -403,8 +403,11 @@ public class Test {
 
   def "write JavaDoc from Description"() {
     given:
-    Message msg = new Message(name: "Test", description: "Some testing class.\n@since 03.07.2014")
+    Message msg = new Message(name: "Test", description: "Some testing class")
     msg.addField(new Field(name: "a", type: new Type(name: "int32"), required: false, sequence: true, description: "Just A field"))
+    msg.addField(new Field(name: "percent", type: new Type(name: "int64"), required: false, description: "In %"))
+    options.addGetters = false
+    options.addSetters = false
     options.useArraysForSequences()
 
     when:
@@ -416,23 +419,19 @@ package $TEST_PACKAGE;
 
 /**
  * Some testing class.
- * @since 03.07.2014
  */
 public class Test {
 
   /**
-   * Just A field
+   * Just A field.
    */
   private int[] a;
 
+  /**
+   * In %.
+   */
+  private long percent;
 
-  public int[] getA() {
-    return this.a;
-  }
-
-  public void setA(int[] value) {
-    this.a = value;
-  }
 
 }
 """.trim() + '\n'

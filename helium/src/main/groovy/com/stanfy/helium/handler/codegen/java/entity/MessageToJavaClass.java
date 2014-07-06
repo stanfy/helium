@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
+import com.stanfy.helium.model.Descriptionable;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
@@ -62,11 +63,13 @@ final class MessageToJavaClass {
     writer.writeImports(imports);
 
     // class name
+    emitJavaDoc(message);
     writer.writeClassBegin(message, null);
     writer.getOutput().emitEmptyLine();
 
     // fields
     for (Field field : message.getActiveFields()) {
+      emitJavaDoc(field);
       writer.writeField(field, getFieldTypeName(field), options.getSafeFieldName(field), options.getFieldModifiers());
       writer.getOutput().emitEmptyLine();
     }
@@ -100,6 +103,19 @@ final class MessageToJavaClass {
 
     // end
     writer.writeClassEnd(message);
+  }
+
+  private void emitJavaDoc(final Descriptionable subject) throws IOException {
+    if (subject.getDescription() != null) {
+      String javadoc = subject.getDescription().trim();
+      if (javadoc.length() == 0) {
+        return;
+      }
+      if (!javadoc.endsWith(".")) {
+        javadoc = javadoc.concat(".");
+      }
+      writer.getOutput().emitJavadoc("%s", javadoc);
+    }
   }
 
   static class Writer extends StringWriter {
