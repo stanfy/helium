@@ -15,7 +15,7 @@ tasks.addRule("integrationTestFor-<SampleName>") { String taskName ->
 }
 
 new File(projectDir, "samples").listFiles().each {
-  if (it.directory) {
+  if (it.directory && !it.name.contains('android')) { // TODO: include Android again after Gradle 2.0 support
     tasks.integrationTests.dependsOn "integrationTestFor-$it.name"
   }
 }

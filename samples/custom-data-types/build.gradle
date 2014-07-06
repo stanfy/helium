@@ -1,0 +1,33 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  }
+  dependencies {
+    classpath 'com.stanfy.helium:gradle-plugin:0.5.1-SNAPSHOT'
+  }
+}
+
+apply plugin: 'helium'
+
+helium {
+  specification file('test.spec')
+}
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  helium 'joda-time:joda-time:2.3'
+}
+
+task clean(type: Delete) {
+  delete buildDir
+}
+
+task check()
+afterEvaluate {
+  check.dependsOn 'runApiTests'
+}
