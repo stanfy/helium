@@ -1,13 +1,10 @@
 package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
-import com.stanfy.helium.utils.ConfigurableMap
 import com.stanfy.helium.utils.ConfigurableStringMap
 import com.stanfy.helium.utils.DslUtils
 import groovy.transform.PackageScope
-import org.apache.commons.io.FilenameUtils
 import org.gradle.api.GradleException
-import org.gradle.api.file.FileCollection
 
 import static com.stanfy.helium.gradle.UserConfig.specName
 
@@ -29,9 +26,6 @@ class HeliumExtension {
 
   /** Ignore test failures. */
   boolean ignoreFailures
-
-  /** Classpath extension for Helium specs. */
-  FileCollection classpath
 
   /** Source generation tasks for each specification. */
   private final Map<String, SourceGenerationTasks> sourceGenTasks = new HashMap<>()

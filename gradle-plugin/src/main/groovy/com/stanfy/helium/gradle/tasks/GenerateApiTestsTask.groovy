@@ -20,7 +20,7 @@ class GenerateApiTestsTask extends BaseHeliumTask {
     helium.processBy new RestApiPokeTestsGenerator(sourcesDir, resDir)
     helium.processBy new ScenarioTestsGenerator(input, sourcesDir, resDir)
 
-    FileCollection classpath = project.helium.classpath
+    FileCollection classpath = project.configurations.helium
     def classpathString = ""
     if (classpath) {
       String all = classpath.inject("[]", { String acc, File f -> acc + ", '" + f.absolutePath + "'" })

@@ -3,6 +3,7 @@ package com.stanfy.helium.gradle
 import com.stanfy.helium.dsl.HeliumScript
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 
 /**
  * Gradle plugin for Helium.
@@ -13,6 +14,10 @@ class HeliumPlugin implements Plugin<Project> {
 
   @Override
   void apply(final Project project) {
+    Configuration configuration = project.configurations.create('helium')
+    configuration.description = "Helium specification dependencies configuration"
+    configuration.visible = false
+
     project.extensions.add("helium", HeliumExtension)
     HeliumExtension hel = project.helium
     config = new UserConfig(project)
@@ -26,7 +31,7 @@ class HeliumPlugin implements Plugin<Project> {
   void createTasks(final Project project) {
     HeliumExtension extension = project.helium
 
-    def classpath = extension.classpath ? extension.classpath : project.files()
+    def classpath = project.configurations.helium
     URL[] urls = classpath.collect() { it.toURI().toURL() } as URL[]
     URLClassLoader classLoader = new URLClassLoader(urls, HeliumScript.classLoader)
 
