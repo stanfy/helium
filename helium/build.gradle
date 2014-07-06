@@ -3,7 +3,7 @@ apply plugin: 'signing'
 apply plugin: 'maven'
 
 dependencies {
-  compile 'org.codehaus.groovy:groovy-all:2.3.3'
+  compile 'org.codehaus.groovy:groovy-all:2.1.7'
 
   compile 'com.squareup:javawriter:2.5.0'
   compile 'org.apache.httpcomponents:httpclient:4.3'
