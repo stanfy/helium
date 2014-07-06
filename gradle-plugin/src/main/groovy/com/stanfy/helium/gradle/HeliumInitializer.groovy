@@ -1,11 +1,7 @@
 package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.SourceGenDslDelegate.RetrofitDslDelegate
-import com.stanfy.helium.gradle.tasks.BaseHeliumTask
-import com.stanfy.helium.gradle.tasks.GenerateApiTestsTask
-import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
-import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
-import com.stanfy.helium.gradle.tasks.GenerateRetrofitTask
+import com.stanfy.helium.gradle.tasks.*
 import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions
 import com.stanfy.helium.utils.Names
 import groovy.transform.PackageScope
@@ -18,7 +14,7 @@ import static com.stanfy.helium.gradle.HeliumExtension.GROUP
 import static com.stanfy.helium.gradle.UserConfig.specName
 
 @PackageScope
-final class HeliumInitializer implements TasksCreator {
+final class HeliumInitializer {
 
   /** Logger. */
   private static final Logger LOG = LoggerFactory.getLogger(HeliumInitializer.class)
@@ -36,8 +32,7 @@ final class HeliumInitializer implements TasksCreator {
     this.userConfig = userConfig
   }
 
-  @Override
-  void createTasks(ClassLoader classLoader) {
+  void createTasks(URL[] classpath) {
     def runApiTest = null
     if (config.specifications.size() > 1) {
       runApiTest = userConfig.project.tasks.create("runApiTests")
@@ -47,7 +42,7 @@ final class HeliumInitializer implements TasksCreator {
 
     config.specifications.each {
       // runApiTest
-      def runTask = createApiTestTasks(it, classLoader)
+      def runTask = createApiTestTasks(it, classpath)
       if (runApiTest) {
         runApiTest.dependsOn runTask
       }
@@ -55,9 +50,9 @@ final class HeliumInitializer implements TasksCreator {
       // source generation
       SourceGenDslDelegate sourceGen = userConfig.getSourceGenFor(it)
       if (sourceGen != null) {
-        processEntities(sourceGen.entities, classLoader, it)
-        processConstants(sourceGen.constants, classLoader, it)
-        processRetrofit(sourceGen.retrofit, classLoader, it)
+        processEntities(sourceGen.entities, classpath, it)
+        processConstants(sourceGen.constants, classpath, it)
+        processRetrofit(sourceGen.retrofit, classpath, it)
       }
     }
   }
@@ -69,7 +64,7 @@ final class HeliumInitializer implements TasksCreator {
     return prefix
   }
 
-  private GradleBuild createApiTestTasks(final File specification, final ClassLoader classLoader) {
+  private GradleBuild createApiTestTasks(final File specification, final URL[] classpath) {
     Project project = userConfig.project
 
     def specName = specName(specification)
@@ -79,7 +74,7 @@ final class HeliumInitializer implements TasksCreator {
     genTestsTask.group = GROUP
     genTestsTask.description = "Generate project with API tests for specification '$specName'"
     def testsProjectDir = new File(project.buildDir, "$TESTS_OUT_PATH/$specName")
-    configureHeliumTask(genTestsTask, specification, testsProjectDir, classLoader)
+    configureHeliumTask(genTestsTask, specification, testsProjectDir, classpath)
     LOG.debug "genApiTests task: json=$genTestsTask.input, output=$genTestsTask.output"
 
     // tests run task
@@ -96,14 +91,14 @@ final class HeliumInitializer implements TasksCreator {
   }
 
   private void configureHeliumTask(BaseHeliumTask task, File specification, File output,
-                                          ClassLoader classLoader) {
+                                   URL[] classpath) {
     task.output = output
     task.input = specification
-    task.classLoader = classLoader
+    task.classpath = classpath
     task.variables = Collections.unmodifiableMap(userConfig.variables)
   }
 
-  private void processEntities(SourceGenDslDelegate.EntitiesDslDelegate entities, ClassLoader classLoader,
+  private void processEntities(SourceGenDslDelegate.EntitiesDslDelegate entities, URL[] classpath,
                                File specification) {
     if (!entities) {
       return
@@ -116,12 +111,12 @@ final class HeliumInitializer implements TasksCreator {
         taskName("generateEntities", specification, entities.genOptions),
         GenerateJavaEntitiesTask
     )
-    configureHeliumTask(task, specification, entities.output, classLoader)
+    configureHeliumTask(task, specification, entities.output, classpath)
     task.options = entities.genOptions
     config.sourceGen(specification).entities[entities.genOptions.packageName] = task
   }
 
-  private void processConstants(SourceGenDslDelegate.ConstantsDslDelegate constants, ClassLoader classLoader,
+  private void processConstants(SourceGenDslDelegate.ConstantsDslDelegate constants, URL[] classpath,
                                 File specification) {
     if (!constants) {
       return
@@ -134,12 +129,12 @@ final class HeliumInitializer implements TasksCreator {
         taskName("generateConstants", specification, constants.genOptions),
         GenerateJavaConstantsTask
     )
-    configureHeliumTask(task, specification, constants.output, classLoader)
+    configureHeliumTask(task, specification, constants.output, classpath)
     task.options = constants.genOptions
     config.sourceGen(specification).constants[constants.genOptions.packageName] = task
   }
 
-  private void processRetrofit(RetrofitDslDelegate retrofit, ClassLoader classLoader, File specification) {
+  private void processRetrofit(RetrofitDslDelegate retrofit, URL[] classpath, File specification) {
     if (!retrofit) {
       return
     }
@@ -151,7 +146,7 @@ final class HeliumInitializer implements TasksCreator {
         taskName("generateRetrofit", specification, retrofit.genOptions),
         GenerateRetrofitTask
     )
-    configureHeliumTask(task, specification, retrofit.output, classLoader)
+    configureHeliumTask(task, specification, retrofit.output, classpath)
     task.options = retrofit.genOptions
     config.sourceGen(specification).retrofit[retrofit.genOptions.packageName] = task
   }

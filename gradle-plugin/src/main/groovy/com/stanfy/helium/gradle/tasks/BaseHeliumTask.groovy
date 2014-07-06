@@ -1,6 +1,7 @@
 package com.stanfy.helium.gradle.tasks
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.dsl.HeliumScript
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -24,7 +25,7 @@ abstract class BaseHeliumTask extends DefaultTask {
   @Input
   Map<String, String> variables
 
-  ClassLoader classLoader
+  URL[] classpath
 
   private Helium heliumInstance
 
@@ -49,6 +50,7 @@ abstract class BaseHeliumTask extends DefaultTask {
   @TaskAction
   final void runWithClassLoader() {
     ClassLoader oldClassLoader = Thread.currentThread().contextClassLoader
+    URLClassLoader classLoader = new URLClassLoader(classpath, HeliumScript.classLoader)
     Thread.currentThread().setContextClassLoader(classLoader)
     try {
       doIt()

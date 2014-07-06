@@ -33,9 +33,8 @@ class HeliumPlugin implements Plugin<Project> {
 
     def classpath = project.configurations.helium
     URL[] urls = classpath.collect() { it.toURI().toURL() } as URL[]
-    URLClassLoader classLoader = new URLClassLoader(urls, HeliumScript.classLoader)
 
-    new HeliumInitializer(extension, config).createTasks(classLoader)
+    new HeliumInitializer(extension, config).createTasks(urls)
   }
 
 }
