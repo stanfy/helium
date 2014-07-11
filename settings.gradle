@@ -1,2 +1,3 @@
 include 'helium'
 include 'gradle-plugin'
+include 'command-line'

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+java -jar build/libs/helium-cli.jar -o build/test-cmd-out --java-entities -Hpackage=com.test src/cmd-test/test.api

@@ -19,3 +19,5 @@ new File(projectDir, "samples").listFiles().each {
     tasks.integrationTests.dependsOn "integrationTestFor-$it.name"
   }
 }
+
+tasks.integrationTests.dependsOn ":command-line:verifyTest"

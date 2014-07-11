@@ -1,0 +1,35 @@
+apply plugin: 'groovy'
+apply plugin: 'signing'
+apply plugin: 'maven'
+
+dependencies {
+  compile project(':helium')
+  compile 'commons-cli:commons-cli:1.2'
+}
+
+ext.mainClassName = "com.stanfy.helium.cli.Main"
+
+task noDepsJar(type: Jar, dependsOn: jar) {
+  archiveName = 'helium-cli.jar'
+  def deps = files(configurations.runtime, jar.archivePath)
+  def depClasses = deps.collect { it.isDirectory() ? it : zipTree(it) }
+  from(depClasses) {
+    exclude 'META-INF/MANIFEST.MF'
+  }
+  manifest {
+    attributes 'Main-Class': project.mainClassName
+  }
+}
+
+task execTest(type: Exec, dependsOn: noDepsJar) {
+  workingDir project.projectDir
+  commandLine 'src/cmd-test/run'
+}
+
+task verifyTest(dependsOn: execTest) << {
+  def file = new File(buildDir, "test-cmd-out")
+  assert file.exists()
+  assert file.directory
+
+  assert new File(file, "com/test/Entity.java").exists()
+}
