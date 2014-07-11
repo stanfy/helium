@@ -1,0 +1,14 @@
+type "Entity" message {
+  a 'string'
+  b int
+  c long
+}
+
+service {
+  name "Test service"
+
+  get "/profile" spec {
+    response 'Entity'
+  }
+
+}
