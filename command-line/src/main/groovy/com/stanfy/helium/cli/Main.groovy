@@ -25,7 +25,7 @@ class Main {
       ]
   ]
 
-  private static final def CLI = new CliBuilder(usage: "helium [options] <spec>", header: "Options:")
+  private static final def CLI = new CliBuilder(usage: "java -jar helium-cli.jar [options] <spec>", header: "Options:")
   static {
     CLI.x("Do not include default types")
     CLI.H(args: 2, valueSeparator: '=', argName: 'property=value', "Set value of a property\n")
