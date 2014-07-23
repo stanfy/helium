@@ -29,7 +29,7 @@ class ScenarioInvokerTest extends Specification {
     Scenario scenario = new Scenario(
         before: { throw new AssertionError("error1") },
         action: { throw new AssertionError("will not get here") },
-        after: { throw new AssertionError("error2") }
+        after: { throw new Exception("error2") }
     )
 
     when:
