@@ -24,6 +24,23 @@ class ScenarioInvokerTest extends Specification {
     thrown AssertionError
   }
 
+  def "report all errors"() {
+    given:
+    Scenario scenario = new Scenario(
+        before: { throw new AssertionError("error1") },
+        action: { },
+        after: { throw new AssertionError("error2") }
+    )
+
+    when:
+    ScenarioInvoker.invokeScenario(scenarioDelegate, scenario)
+
+    then:
+    def e = thrown AssertionError
+    e.message.contains("error1")
+    e.message.contains("error2")
+  }
+
   def "always execute 'after' after successful 'action'"() {
     given:
     def executed = false

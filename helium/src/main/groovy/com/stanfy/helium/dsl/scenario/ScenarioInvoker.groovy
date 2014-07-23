@@ -29,15 +29,13 @@ class ScenarioInvoker {
       result = DslUtils.runWithProxy(delegate, scenario.action)
 
     } catch (AssertionError e) {
-      crucialError = e
+      delegate.reportedProblems.add e
     } finally {
       if (scenario.after) {
         try {
           DslUtils.runWithProxy(delegate, scenario.after)
         } catch (AssertionError e) {
-          if (crucialError == null) {
-            crucialError = e
-          }
+          delegate.reportedProblems.add e
         }
       }
       currentDelegate.set(null)
