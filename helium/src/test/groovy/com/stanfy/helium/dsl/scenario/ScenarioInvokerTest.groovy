@@ -28,7 +28,7 @@ class ScenarioInvokerTest extends Specification {
     given:
     Scenario scenario = new Scenario(
         before: { throw new AssertionError("error1") },
-        action: { },
+        action: { throw new AssertionError("will not get here") },
         after: { throw new AssertionError("error2") }
     )
 
@@ -39,6 +39,7 @@ class ScenarioInvokerTest extends Specification {
     def e = thrown AssertionError
     e.message.contains("error1")
     e.message.contains("error2")
+    !e.message.contains("will not get here")
   }
 
   def "always execute 'after' after successful 'action'"() {
