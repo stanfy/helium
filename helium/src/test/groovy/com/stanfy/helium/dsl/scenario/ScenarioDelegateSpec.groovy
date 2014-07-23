@@ -92,7 +92,12 @@ class ScenarioDelegateSpec extends Specification {
           store "T", true
         }
 
-        scenario "check store", before: someBefore spec {
+        def afterStore = {
+          assert NAME == "VALUE"
+          assert T
+        }
+
+        scenario "check store", before: someBefore, after: afterStore spec {
           assert NAME == "VALUE"
           post "some/resource/@id" with {
             path {
