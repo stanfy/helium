@@ -46,7 +46,7 @@ class HeliumWriter implements Closeable {
   private String getSpaces() {
     if (!indent) { return "" }
     if (spacesBuffer.length() >= indent) {
-      return spacesBuffer[0..indent-1]
+      return spacesBuffer.substring(0, indent)
     }
     StringBuilder builder = new StringBuilder(spacesBuffer)
     for (int i = spacesBuffer.length(); i < indent; i++) {

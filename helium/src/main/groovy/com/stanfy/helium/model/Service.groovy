@@ -44,7 +44,7 @@ class Service extends Descriptionable implements StructureUnit {
     if (parameters) {
       path = method.getPathWithParameters(parameters)
     }
-    path = path.startsWith('/') ? path[1..-1] : path
+    path = path.startsWith('/') ? path.substring(1, path.length()) : path
 
     if (!location) { throw new IllegalStateException("Service location is not specified") }
     String loc = location.endsWith('/') ? location[0..-2] : location
