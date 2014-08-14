@@ -2,7 +2,6 @@ package com.stanfy.helium.model
 
 import com.stanfy.helium.model.tests.MethodTestInfo
 import com.stanfy.helium.model.tests.ServiceTestInfo
-import com.stanfy.helium.utils.Names
 import groovy.transform.CompileStatic
 
 /**
@@ -44,10 +43,10 @@ class Service extends Descriptionable implements StructureUnit {
     if (parameters) {
       path = method.getPathWithParameters(parameters)
     }
-    path = path.startsWith('/') ? path.substring(1, path.length()) : path
+    path = path.startsWith('/') ? path.substring(1) : path
 
     if (!location) { throw new IllegalStateException("Service location is not specified") }
-    String loc = location.endsWith('/') ? location[0..-2] : location
+    String loc = location.endsWith('/') ? location.substring(0, location.length() - 1) : location
     return "$loc/$path"
   }
 
