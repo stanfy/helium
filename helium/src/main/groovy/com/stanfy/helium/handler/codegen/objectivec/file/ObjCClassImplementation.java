@@ -4,7 +4,7 @@ package com.stanfy.helium.handler.codegen.objectivec.file;
  * Created by ptaykalo on 8/17/14.
  * Simple block that know how to serialize ObjC Class Implementation
  */
-public class ObjCClassImplementation {
+public class ObjCClassImplementation implements ObjCSourcePart {
 
   /*
   Class Name
@@ -18,5 +18,16 @@ public class ObjCClassImplementation {
 
   public String getClassName() {
     return className;
+  }
+
+  @Override
+  public String asString() {
+    // TODO use some templates
+    return
+        String.join("\n",
+            "#import \""+className+".h\"",
+            "@implementation " + className,
+            "@end"
+        );
   }
 }

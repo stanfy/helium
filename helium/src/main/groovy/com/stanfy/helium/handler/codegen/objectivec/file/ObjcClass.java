@@ -6,8 +6,19 @@ package com.stanfy.helium.handler.codegen.objectivec.file;
  */
 public class ObjCClass {
 
+  /*
+  Class name is unique in the project, since objC still doesn't have normal packages or namespaces
+   */
   private String name;
+  /*
+  Link to class implementation part.
+  This part lives in the ObjCImplementationFile
+   */
   private ObjCClassImplementation implementation;
+    /*
+  Link to class definition part.
+  This part lives in the ObjCCDefinitionFile
+   */
   private ObjCClassDefinition definition;
 
   public ObjCClass(final String name) {

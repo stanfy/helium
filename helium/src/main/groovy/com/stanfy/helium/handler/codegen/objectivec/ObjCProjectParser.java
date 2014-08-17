@@ -22,12 +22,22 @@ public class ObjCProjectParser {
     for (Message message : project.getMessages()) {
 
       ObjCClass objCClass = new ObjCClass(message.getName());
-      objCClass.setDefinition(new ObjCClassDefinition(message.getName()));
-      objCClass.setImplementation(new ObjCClassImplementation(message.getName()));
+
+      ObjCClassDefinition classDefinition = new ObjCClassDefinition(message.getName());
+      ObjCClassImplementation classImplementation = new ObjCClassImplementation(message.getName());
+
+      objCClass.setDefinition(classDefinition);
+      objCClass.setImplementation(classImplementation);
 
       objCProject.addClass(objCClass);
-      objCProject.addFile(new ObjCHeaderFile(message.getName()));
-      objCProject.addFile(new ObjCImplementationFile(message.getName()));
+      ObjCHeaderFile headerFile = new ObjCHeaderFile(message.getName());
+      ObjCImplementationFile implementationFile = new ObjCImplementationFile(message.getName());
+
+      headerFile.addSourcePart(classDefinition);
+      implementationFile.addSourcePart(classImplementation);
+
+      objCProject.addFile(headerFile);
+      objCProject.addFile(implementationFile);
     }
 
     // classes

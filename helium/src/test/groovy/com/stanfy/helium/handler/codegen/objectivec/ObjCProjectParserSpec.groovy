@@ -1,6 +1,8 @@
 package com.stanfy.helium.handler.codegen.objectivec
 
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassDefinition
+import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassImplementation
 import spock.lang.Specification
 
 /**
@@ -72,6 +74,18 @@ class ObjCProjectParserSpec extends Specification{
         objCProject.getFiles().any({ file -> file.name.toLowerCase().contains("A".toLowerCase()) })
         objCProject.getFiles().any({ file -> file.name.toLowerCase().contains("B".toLowerCase()) })
         objCProject.getFiles().any({ file -> file.name.toLowerCase().contains("C".toLowerCase()) })
+    }
+
+    def "should generate ,m files wich should contain implementation part"() {
+        when:
+        parser = new ObjCProjectParser()
+        objCProject = parser.parse(project);
+        def implementationFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCImplementationFile ? file : null })
+        def definitionFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCHeaderFile ? file : null })
+        println definitionFiles.get(0).getSourceParts()
+        then:
+        implementationFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCClassImplementation}})
+        definitionFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCClassDefinition}})
     }
 
     def "should generate Classes each of those have definition and implementation"() {

@@ -19,6 +19,7 @@ abstract class ObjCProjectGeneratorSpec<T extends ObjCProjectGenerator> extends 
         project.addFile(new ObjCImplementationFile("B"));
 
         output = File.createTempDir()
+        println output
     }
 
     def "should generate files"() {

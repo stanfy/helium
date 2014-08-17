@@ -2,8 +2,9 @@ package com.stanfy.helium.handler.codegen.objectivec.file;
 
 /**
  * Created by ptaykalo on 8/17/14.
+ * Holds information about class Definition for spcific obejctive class with specific ClassName
  */
-public class ObjCClassDefinition {
+public class ObjCClassDefinition implements ObjCSourcePart {
   /*
 Class Name
  */
@@ -15,5 +16,15 @@ Class Name
 
   public String getClassName() {
     return className;
+  }
+
+  @Override
+  public String asString() {
+    // TODO use some templates
+    return
+        String.join("\n",
+            "@interface " + className + " : NSObject",
+            "@end"
+        );
   }
 }

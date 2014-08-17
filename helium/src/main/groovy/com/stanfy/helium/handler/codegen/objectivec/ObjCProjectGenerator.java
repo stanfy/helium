@@ -35,6 +35,7 @@ public class ObjCProjectGenerator {
         Writer output = null;
         try {
           output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
+          output.write(file.asString());
         } catch (IOException e) {
           throw new RuntimeException(e);
         } finally {
