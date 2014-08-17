@@ -8,8 +8,8 @@ import spock.lang.Specification
  * Created by ptaykalo on 8/17/14.
  */
 class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProjectGenerator> {
+
     def setup() {
         generator = new ObjCProjectGenerator(output, project);
-
     }
 }

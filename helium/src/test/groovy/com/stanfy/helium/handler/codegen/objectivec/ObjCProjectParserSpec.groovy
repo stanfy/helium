@@ -62,5 +62,38 @@ class ObjCProjectParserSpec extends Specification{
         objCProject.getFiles().any({ file -> file.name.toLowerCase().contains("C".toLowerCase()) })
     }
 
+    def "should generate ObjCProject with ,m files which have correct class implementations"() {
+        when:
+        parser = new ObjCProjectParser()
+        objCProject = parser.parse(project);
+
+        then:
+        objCProject.getFiles() != null
+        objCProject.getFiles().any({ file -> file.name.toLowerCase().contains("A".toLowerCase()) })
+        objCProject.getFiles().any({ file -> file.name.toLowerCase().contains("B".toLowerCase()) })
+        objCProject.getFiles().any({ file -> file.name.toLowerCase().contains("C".toLowerCase()) })
+    }
+
+    def "should generate Classes each of those have definition and implementation"() {
+        when:
+        parser = new ObjCProjectParser()
+        objCProject = parser.parse(project);
+
+        then:
+        objCProject.getClasses() != null
+        objCProject.getClasses().every({ objCClass -> objCClass.getDefinition() != null && objCClass.getImplementation() != null });
+    }
+
+    def "should generate Classes each of those have definition and implementation with correct names"() {
+        when:
+        parser = new ObjCProjectParser()
+        objCProject = parser.parse(project);
+
+        then:
+        objCProject.getClasses() != null
+        objCProject.getClasses().every({ objCClass -> objCClass.getDefinition().getClassName() == objCClass.getName() && objCClass.getImplementation().getClassName() == objCClass.getName()});
+    }
+
+
 
 }

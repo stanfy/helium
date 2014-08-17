@@ -1,6 +1,9 @@
 package com.stanfy.helium.handler.codegen.objectivec;
 
-import java.io.File;
+import com.stanfy.helium.model.Type;
+import org.apache.commons.io.IOUtils;
+
+import java.io.*;
 
 /**
  * Created by ptaykalo on 8/17/14
@@ -25,6 +28,19 @@ public class ObjCProjectGenerator {
   }
 
   public void generate() {
-
+    for (ObjCFile file : project.getFiles()) {
+      boolean shouldProcess = true;
+      if (shouldProcess) {
+        File classFile = new File(output, file.getName() + "." + file.getExtension());
+        Writer output = null;
+        try {
+          output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        } finally {
+          IOUtils.closeQuietly(output);
+        }
+      }
+    }
   }
 }

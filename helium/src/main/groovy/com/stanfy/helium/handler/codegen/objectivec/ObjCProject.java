@@ -1,5 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec;
 
+import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClass;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,13 +15,22 @@ public class ObjCProject {
   Files those are contained in this project. Each should have an unique name
    */
   private ArrayList<ObjCFile> files = new ArrayList<ObjCFile>();
+  /*
+  Classes that this project contains
+   */
+  private ArrayList<ObjCClass> classes = new ArrayList<ObjCClass>();
 
-  List<ObjCFile> getFiles() {
+  public List<ObjCFile> getFiles() {
     return files;
   }
 
-  void addFile(ObjCFile file) {
+  public void addFile(ObjCFile file) {
     files.add(file);
   }
+
+  public List<ObjCClass> getClasses() { return classes; }
+
+  public void addClass(final ObjCClass objCClass) { classes.add(objCClass); }
+
 
 }
