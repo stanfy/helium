@@ -1,6 +1,8 @@
 package com.stanfy.helium.handler.codegen.objectivec
 
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.handler.codegen.objectivec.parser.ObjCProjectParser
+import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
 import org.apache.commons.io.FileUtils
 
 
@@ -10,6 +12,7 @@ import org.apache.commons.io.FileUtils
 class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProjectGenerator> {
 
     ProjectDsl projectDSL;
+    ObjCProjectParser parser;
 
     def setup() {
 
@@ -19,7 +22,7 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
         projectDSL.type "C" message { }
 
         // Parser
-        ObjCProjectParser parser = new ObjCProjectParser();
+        parser = new ObjCProjectParser();
         this.project = parser.parse(projectDSL);
 
         generator = new ObjCProjectGenerator(output, this.project);
@@ -37,6 +40,24 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
         then:
         fileAImplContents.contains("@implementation A")
         fileAHeaderContents.contains("@interface A")
+    }
+
+    def "should generate implementation parts with prefixes from options"() {
+        when:
+        def options = new DefaultObjCProjectParserOptions()
+        this.project = parser.parse(projectDSL, options);
+        generator = new ObjCProjectGenerator(output, this.project);
+
+        generator.generate();
+
+        def fileAHeader = new File("$output/"+options.prefix +"A.h")
+        def fileAHeaderContents = FileUtils.readFileToString(fileAHeader)
+        def fileAImpl = new File("$output/"+options.prefix +"A.m")
+        def fileAImplContents = FileUtils.readFileToString(fileAImpl)
+
+        then:
+        fileAImplContents.contains("@implementation "+options.prefix +"A")
+        fileAHeaderContents.contains("@interface "+options.prefix +"A")
     }
 
 
