@@ -12,7 +12,7 @@ public class ObjCHeaderFile extends ObjCFile{
   }
 
   @Override
-  String getExtension() {
+  public String getExtension() {
     return "h";
   }
 }

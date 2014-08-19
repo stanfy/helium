@@ -26,7 +26,7 @@ abstract public class ObjCFile implements ObjCSourcePart {
   /*
   File extension :)
    */
-  abstract String getExtension();
+  public abstract String getExtension();
 
 
   public List<ObjCSourcePart> getSourceParts() {

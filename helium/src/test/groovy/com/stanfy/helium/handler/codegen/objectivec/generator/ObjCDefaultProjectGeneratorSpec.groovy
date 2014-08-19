@@ -1,6 +1,7 @@
-package com.stanfy.helium.handler.codegen.objectivec
+package com.stanfy.helium.handler.codegen.objectivec.generator
 
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.handler.codegen.objectivec.ObjCProjectGenerator
 import com.stanfy.helium.handler.codegen.objectivec.parser.ObjCProjectParser
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
 import org.apache.commons.io.FileUtils
