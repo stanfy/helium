@@ -7,7 +7,9 @@ import com.stanfy.helium.handler.codegen.objectivec.ObjCProject;
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClass;
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassDefinition;
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassImplementation;
+import com.stanfy.helium.handler.codegen.objectivec.file.ObjCPropertyDefinition;
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.ObjCProjectParserOptions;
+import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 
@@ -42,6 +44,10 @@ public class ObjCProjectParser {
 
       ObjCClassDefinition classDefinition = new ObjCClassDefinition(fileName);
       ObjCClassImplementation classImplementation = new ObjCClassImplementation(fileName);
+
+      for (Field field : message.getActiveFields()) {
+        classDefinition.addPropertyDefinition( new ObjCPropertyDefinition(field.getName(), field.getType().getName()));
+      }
 
       objCClass.setDefinition(classDefinition);
       objCClass.setImplementation(classImplementation);

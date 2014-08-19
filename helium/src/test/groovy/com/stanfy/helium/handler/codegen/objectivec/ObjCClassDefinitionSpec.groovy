@@ -23,7 +23,7 @@ class ObjCClassDefinitionSpec extends Specification {
     def "should add sourceParts"() {
         when:
         ObjCClassDefinition classDefinition = new ObjCClassDefinition(fileName);
-        ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition();
+        ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", "type");
         classDefinition.addPropertyDefinition(propertyDefinition)
 
         then:
