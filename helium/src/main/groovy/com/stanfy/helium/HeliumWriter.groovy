@@ -123,8 +123,9 @@ class HeliumWriter implements Closeable {
     if (field.examples) {
       StringBuilder examplesString = new StringBuilder()
       examplesString << "["
-      field.examples.each { String example ->
-        examplesString << JavaWriter.stringLiteral(example) << ", "
+      field.examples.each { Object example ->
+        String v = example instanceof String ? JavaWriter.stringLiteral(example) : String.valueOf(example)
+        examplesString << v << ", "
       }
       examplesString.delete(examplesString.length() - 2, examplesString.length())
       examplesString << "]"

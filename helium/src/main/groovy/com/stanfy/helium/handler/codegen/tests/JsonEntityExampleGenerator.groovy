@@ -58,7 +58,7 @@ class JsonEntityExampleGenerator {
     throw new UnsupportedOperationException("Cannot generate JSON from $type")
   }
 
-  private def cast(final String example, final Type type) {
+  private static def cast(final Object example, final Type type) {
     Class<?> groovyClass = JavaPrimitiveTypes.javaClass(type)
     return example.asType(groovyClass)
   }

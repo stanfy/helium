@@ -47,4 +47,11 @@ class FieldSpec extends Specification {
     field.examples == ['a']
   }
 
+  def "examples may be of any type"() {
+    when:
+    field.examples = [1, '2']
+    then:
+    field.examples == [1, '2']
+  }
+
 }
