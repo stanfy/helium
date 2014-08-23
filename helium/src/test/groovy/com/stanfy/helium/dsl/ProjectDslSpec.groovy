@@ -448,4 +448,14 @@ class ProjectDslSpec extends Specification {
     !headers[5].constant
   }
 
+  def "can give int examples"() {
+    when:
+    dsl.type 'int32' spec { }
+    dsl.type 'A' message {
+      ttt(type: 'int32', examples: [1, 2, 3])
+    }
+    then:
+    dsl.messages[0].fields[0].examples.size() == 3
+  }
+
 }

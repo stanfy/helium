@@ -56,7 +56,7 @@ class ServiceMethod extends Descriptionable {
   String getUriQueryWithExamples(final String encoding) {
     return getUriQueryWithResolver(encoding, { Field f ->
       if (!f.examples) { return null }
-      return f.examples[0]
+      return String.valueOf(f.examples[0])
     })
   }
   String getUriQueryWithParameters(final String encoding, final Map<String, String> parameters) {

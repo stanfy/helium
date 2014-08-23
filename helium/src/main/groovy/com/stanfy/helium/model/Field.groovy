@@ -23,7 +23,7 @@ class Field extends Descriptionable {
   boolean sequence
 
   /** Value examples. */
-  private List<String> examples
+  private List<Object> examples
 
   /** Marks this field as ignorable. */
   boolean skip
@@ -36,14 +36,14 @@ class Field extends Descriptionable {
     super.setName(name)
   }
 
-  void setExamples(List<String> examples) {
+  void setExamples(List<Object> examples) {
     if (type instanceof Message) {
       throw new IllegalStateException("Examples can be provided for primitives only")
     }
     this.@examples = examples
   }
 
-  List<String> getExamples() {
+  List<Object> getExamples() {
     return this.@examples ? Collections.unmodifiableList(this.@examples) : Collections.emptyList()
   }
 

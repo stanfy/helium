@@ -62,14 +62,14 @@ tests {
 
   def "can write examples"() {
     when:
-    writer.emitField(new Field(name : 'a', type : new Type(name : 'A'), examples: ['aaa']))
+    writer.emitField(new Field(name : 'a', type : new Type(name : 'A'), examples: ['aaa', 2]))
 
     then:
     out.toString() == '''
 a {
   type 'A'
   required true
-  examples ["aaa"]
+  examples ["aaa", 2]
 }
 '''.trim() + '\n'
   }
