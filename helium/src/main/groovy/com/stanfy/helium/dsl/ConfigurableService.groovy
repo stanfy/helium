@@ -55,7 +55,11 @@ class ConfigurableService extends ConfigurableProxy<Service> {
       throw new IllegalStateException("Type is not defined for service method $method in '${getCore().name}'")
     }
 
-    getCore().methods.add method
+    def methods = getCore().methods
+    if (methods.contains(method)) {
+      throw new IllegalStateException("Method $method.type $method.path is already declared")
+    }
+    methods.add method
     return method
   }
 
