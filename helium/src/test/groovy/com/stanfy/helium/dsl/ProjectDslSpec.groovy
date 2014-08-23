@@ -458,4 +458,17 @@ class ProjectDslSpec extends Specification {
     dsl.messages[0].fields[0].examples.size() == 3
   }
 
+  def "declaration of duplicate methods is not allowed"() {
+    when:
+    dsl.service {
+      name "t"
+      get "/1" spec { }
+      post "/1" spec { }
+      get "/1" spec { }
+    }
+    then:
+    def e = thrown(IllegalStateException)
+    e.message.contains "GET /1"
+  }
+
 }

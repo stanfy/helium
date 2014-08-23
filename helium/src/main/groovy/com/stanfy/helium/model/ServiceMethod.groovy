@@ -120,4 +120,31 @@ class ServiceMethod extends Descriptionable {
     return name ? "\"$name\"(type: $type path: $path)" : "\"type: $type path: $path\""
   }
 
+  @Override
+  boolean equals(o) {
+    if (this.is(o)) {
+      return true
+    }
+    if (getClass() != o.class) {
+      return false
+    }
+
+    ServiceMethod that = (ServiceMethod) o
+
+    if (path != that.path) {
+      return false
+    }
+    if (type != that.type) {
+      return false
+    }
+
+    return true
+  }
+
+  @Override
+  int hashCode() {
+    int result = path.hashCode()
+    result = 31 * result + type.hashCode()
+    return result
+  }
 }
