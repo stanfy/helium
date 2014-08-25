@@ -27,6 +27,10 @@ public class ObjCProjectParser {
     return typeTransformer;
   }
 
+  private ObjCPropertyNameTransformer nameTransformer = new ObjCPropertyNameTransformer();
+  public ObjCPropertyNameTransformer getNameTransformer() { return nameTransformer; }
+
+
   /*
   Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
    */
@@ -64,7 +68,7 @@ public class ObjCProjectParser {
       ObjCClassImplementation classImplementation = new ObjCClassImplementation(fileName);
 
       for (Field field : message.getActiveFields()) {
-        String propertyName = field.getName();
+        String propertyName = nameTransformer.propertyNameFrom(field.getName());
         Type heliumAPIType = field.getType();
         String propertyType = typeTransformer.objCType(heliumAPIType, field.isSequence());
 
