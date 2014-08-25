@@ -1,10 +1,14 @@
 package com.stanfy.helium.handler.codegen.objectivec.parser
 
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCPropertyDefinition
+import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.handler.codegen.objectivec.file.ObjCPropertyDefinition.AccessModifier
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.utils.ConfigurableProxy
 import spock.lang.Specification
-import com.stanfy.helium.model.Sequence;
+import com.stanfy.helium.model.Sequence
+
+import static com.stanfy.helium.utils.DslUtils.runWithProxy;
 
 /**
  * Created by ptaykalo on 8/17/14.
@@ -25,8 +29,36 @@ class ObjCProjectTypeTransformerSpec extends Specification{
 
         then:
         objCType == "NSString *";
-        accessorModifierForType == ObjCPropertyDefinition.AccessModifier.COPY
+        accessorModifierForType == AccessModifier.COPY
     }
+
+    def "should use correct simple transform for types"(String heliumType, String objcType, AccessModifier accessModifier) {
+        given:
+        Type type = new Type();
+        runWithProxy(new ConfigurableProxy<Type>(type, new ProjectDsl())) {
+            name heliumType
+        }
+
+        def objCType = typeTransformer.objCType(type)
+        def accessorModifierForType = typeTransformer.accessorModifierForType(type)
+
+        expect:
+        objCType == objcType
+        accessorModifierForType == accessModifier;
+
+        where:
+        heliumType | objcType    | accessModifier
+        "int32"   | "NSInteger" | AccessModifier.ASSIGN
+        "int64"   | "NSInteger" | AccessModifier.ASSIGN
+        "long"    | "NSInteger" | AccessModifier.ASSIGN
+        "bool"    | "BOOL"      | AccessModifier.ASSIGN
+        "boolean" | "BOOL"      | AccessModifier.ASSIGN
+        "float"   | "double"    | AccessModifier.ASSIGN
+        "float32" | "double"    | AccessModifier.ASSIGN
+        "float64" | "double"    | AccessModifier.ASSIGN
+        "double"  | "double"    | AccessModifier.ASSIGN
+   }
+
 
     def "should use NSArray for sequence sub-type"() {
         def sequence = new Sequence(name: "string")
@@ -36,7 +68,7 @@ class ObjCProjectTypeTransformerSpec extends Specification{
 
         then:
         objCType == "NSArray *";
-        accessorModifierForType == ObjCPropertyDefinition.AccessModifier.STRONG
+        accessorModifierForType == AccessModifier.STRONG
     }
 
     def "should use fall back to helium type name for unknown type"() {
@@ -47,7 +79,7 @@ class ObjCProjectTypeTransformerSpec extends Specification{
 
         then:
         objCType == "AS";
-        accessorModifierForType == ObjCPropertyDefinition.AccessModifier.STRONG
+        accessorModifierForType == AccessModifier.STRONG
     }
 
 
@@ -60,19 +92,19 @@ class ObjCProjectTypeTransformerSpec extends Specification{
 
         then:
         objCType == "SomePrefix_AS *";
-        accessorModifierForType == ObjCPropertyDefinition.AccessModifier.STRONG
+        accessorModifierForType == AccessModifier.STRONG
     }
 
     def "should user correct access modifier if such was registered"() {
         def message = new Message(name: "AS")
         when:
-        typeTransformer.registerRefTypeTransformation("AS", "SomePrefix_AS", ObjCPropertyDefinition.AccessModifier.WEAK);
+        typeTransformer.registerRefTypeTransformation("AS", "SomePrefix_AS", AccessModifier.WEAK);
         def objCType = typeTransformer.objCType(message)
         def accessorModifierForType = typeTransformer.accessorModifierForType(message)
 
         then:
         objCType == "SomePrefix_AS *";
-        accessorModifierForType == ObjCPropertyDefinition.AccessModifier.WEAK
+        accessorModifierForType == AccessModifier.WEAK
     }
 
 }

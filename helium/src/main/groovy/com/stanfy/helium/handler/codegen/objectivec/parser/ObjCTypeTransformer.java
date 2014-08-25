@@ -23,6 +23,17 @@ public class ObjCTypeTransformer {
 
   public ObjCTypeTransformer() {
     this.registerRefTypeTransformation("string", "NSString", AccessModifier.COPY);
+    this.registerSimpleTransformation("int32", "NSInteger");
+    this.registerSimpleTransformation("int64", "NSInteger");
+    this.registerSimpleTransformation("long", "NSInteger");
+    this.registerSimpleTransformation("int", "NSInteger");
+    this.registerSimpleTransformation("boolean", "BOOL");
+    this.registerSimpleTransformation("bool", "BOOL");
+    this.registerSimpleTransformation("float", "double");
+    this.registerSimpleTransformation("float32", "double");
+    this.registerSimpleTransformation("float64", "double");
+    this.registerSimpleTransformation("double", "double");
+
   }
 
   public void registerSimpleTransformation(final String heliumTypeName, final String objectiveCTypeName) {

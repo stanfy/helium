@@ -110,6 +110,4 @@ class ObjCProjectParserPropertiesSpec extends Specification{
         aClass.definition.propertyDefinitions.get(0).getAccessModifier() == ObjCPropertyDefinition.AccessModifier.COPY;
     }
 
-
-
 }
