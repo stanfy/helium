@@ -18,6 +18,10 @@ import com.stanfy.helium.model.Project;
  */
 public class ObjCProjectParser {
 
+  /*
+   Type transformer to transform correct Objc types from Helium API
+   */
+  private ObjCTypeTransformer typeTransformer = new ObjCTypeTransformer();
 
   /*
   Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
@@ -45,7 +49,11 @@ public class ObjCProjectParser {
       ObjCClassImplementation classImplementation = new ObjCClassImplementation(fileName);
 
       for (Field field : message.getActiveFields()) {
-        classDefinition.addPropertyDefinition( new ObjCPropertyDefinition(field.getName(), field.getType().getName()));
+        String propertyName = field.getName();
+        String heliumAPIType = field.getType().getName();
+        String propertyType = typeTransformer.objCType(heliumAPIType);
+        ObjCPropertyDefinition.AccessModifier accessModifier = typeTransformer.accessorModifierForType(heliumAPIType);
+        classDefinition.addPropertyDefinition( new ObjCPropertyDefinition(propertyName, propertyType,accessModifier));
       }
 
       objCClass.setDefinition(classDefinition);

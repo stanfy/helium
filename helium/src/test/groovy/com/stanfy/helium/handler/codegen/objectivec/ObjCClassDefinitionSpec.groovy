@@ -28,7 +28,9 @@ class ObjCClassDefinitionSpec extends Specification {
 
         then:
         classDefinition.getPropertyDefinitions().size() == 1
-
     }
+
+
+
 
 }

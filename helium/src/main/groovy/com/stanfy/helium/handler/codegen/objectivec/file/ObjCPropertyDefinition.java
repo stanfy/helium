@@ -26,7 +26,8 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
   private String name;
 
   /*
-  Property result type
+  Property result type (this is the type, which will be simply translated to the output)
+  so, in case of ObjC - it should be NSString, and NSArray... etc
    */
   private String type;
 
@@ -55,8 +56,22 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
     this.atomicModifier = atomicModifier;
   }
 
+  public AccessModifier getAccessModifier() {
+    return accessModifier;
+  }
+
+  public AtomicModifier getAtomicModifier() {
+    return atomicModifier;
+  }
+
+  public String getType() {
+    return type;
+  }
+
+
+
   @Override
   public String asString() {
-    return null;
+    return "@property(" + atomicModifier.toString().toLowerCase() + ", " + accessModifier.toString().toLowerCase()+ ")" + type +" " + name + ";";
   }
 }
