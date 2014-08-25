@@ -72,6 +72,6 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
 
   @Override
   public String asString() {
-    return "@property(" + atomicModifier.toString().toLowerCase() + ", " + accessModifier.toString().toLowerCase()+ ")" + type +" " + name + ";";
+    return "@property(" + atomicModifier.toString().toLowerCase() + ", " + accessModifier.toString().toLowerCase()+ ") " + type +" " + name + ";";
   }
 }

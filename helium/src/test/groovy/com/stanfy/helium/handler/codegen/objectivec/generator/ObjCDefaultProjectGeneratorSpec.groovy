@@ -4,6 +4,7 @@ import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProjectGenerator
 import com.stanfy.helium.handler.codegen.objectivec.parser.ObjCProjectParser
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
+import com.stanfy.helium.model.Type
 import org.apache.commons.io.FileUtils
 
 
@@ -18,7 +19,13 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
     def setup() {
 
         projectDSL = new ProjectDsl()
-        projectDSL.type "A" message { }
+
+        projectDSL.typeResolver.registerNewType( new Type(name:"string"));
+
+        when:
+        projectDSL.type "A" message {
+            name 'string'
+        };
         projectDSL.type "B" message { }
         projectDSL.type "C" message { }
 

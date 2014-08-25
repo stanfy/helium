@@ -30,6 +30,15 @@ class ObjCClassDefinitionSpec extends Specification {
         classDefinition.getPropertyDefinitions().size() == 1
     }
 
+    def "should generate contents of properties sourceParts when repersented as string"() {
+        when:
+        ObjCClassDefinition classDefinition = new ObjCClassDefinition(fileName);
+        ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", "type");
+        classDefinition.addPropertyDefinition(propertyDefinition)
+
+        then:
+        classDefinition.asString().contains(propertyDefinition.asString());
+    }
 
 
 

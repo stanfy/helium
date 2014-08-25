@@ -25,11 +25,13 @@ Class Name
   @Override
   public String asString() {
     // TODO use some templates
-    return
-        String.join("\n",
-            "@interface " + className + " : NSObject",
-            "@end"
-        );
+    StringBuffer bld = new StringBuffer();
+    bld.append("@interface ").append(className).append(" : NSObject").append("\n");
+    for (ObjCPropertyDefinition propertyDefinition : propertyDefinitions) {
+      bld.append(propertyDefinition.asString()).append("\n");
+    }
+    bld.append("@end");
+    return bld.toString();
   }
 
   /*

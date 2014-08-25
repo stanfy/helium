@@ -11,6 +11,7 @@ import com.stanfy.helium.handler.codegen.objectivec.parser.options.ObjCProjectPa
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
+import com.stanfy.helium.model.Type;
 
 /**
  * Created by ptaykalo on 8/17/14.
@@ -50,7 +51,7 @@ public class ObjCProjectParser {
 
       for (Field field : message.getActiveFields()) {
         String propertyName = field.getName();
-        String heliumAPIType = field.getType().getName();
+        Type heliumAPIType = field.getType();
         String propertyType = typeTransformer.objCType(heliumAPIType);
         ObjCPropertyDefinition.AccessModifier accessModifier = typeTransformer.accessorModifierForType(heliumAPIType);
         classDefinition.addPropertyDefinition( new ObjCPropertyDefinition(propertyName, propertyType,accessModifier));
