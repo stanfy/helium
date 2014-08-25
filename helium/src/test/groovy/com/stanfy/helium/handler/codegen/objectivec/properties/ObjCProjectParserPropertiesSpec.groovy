@@ -1,16 +1,10 @@
 package com.stanfy.helium.handler.codegen.objectivec.properties
 
 import com.stanfy.helium.dsl.ProjectDsl
-import com.stanfy.helium.handler.codegen.objectivec.ObjCHeaderFile
-import com.stanfy.helium.handler.codegen.objectivec.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClass
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassDefinition
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassImplementation
 import com.stanfy.helium.handler.codegen.objectivec.parser.ObjCProjectParser
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
-import com.stanfy.helium.model.Field
-import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
