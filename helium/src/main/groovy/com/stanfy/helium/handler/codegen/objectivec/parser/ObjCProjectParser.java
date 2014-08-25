@@ -67,14 +67,18 @@ public class ObjCProjectParser {
         String propertyName = field.getName();
         Type heliumAPIType = field.getType();
         String propertyType = typeTransformer.objCType(heliumAPIType, field.isSequence());
-//        System.out.println(" Field " + field.getName() + " of type "+ field.getType() + "("  + field.getType().getName() + ") ----->>   " + propertyType);
 
-        if (heliumAPIType instanceof Message) {
-//          System.out.println(" Field " + field.getName() + " of type "+ field.getType() + "("  + field.getType().getName() + ") ----->>   " + propertyType + ((Message)field.getType()).getFields());
+        if (heliumAPIType instanceof Message && !field.isSequence()) {
           classDefinition.addExternalClassDeclaration(propertyType.replaceAll("\\*|\\s", ""));
         }
         ObjCPropertyDefinition.AccessModifier accessModifier = typeTransformer.accessorModifierForType(heliumAPIType);
-        classDefinition.addPropertyDefinition( new ObjCPropertyDefinition(propertyName, propertyType,accessModifier));
+        ObjCPropertyDefinition property = new ObjCPropertyDefinition(propertyName, propertyType, accessModifier);
+
+        if (field.isSequence()) {
+          property.setComment(" sequence of " + typeTransformer.objCType(heliumAPIType, false) + " items");
+        }
+
+        classDefinition.addPropertyDefinition(property);
       }
 
       objCClass.setDefinition(classDefinition);

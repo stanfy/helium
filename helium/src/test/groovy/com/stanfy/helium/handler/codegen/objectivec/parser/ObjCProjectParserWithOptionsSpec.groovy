@@ -127,7 +127,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
         def CClass = objCProject.getClasses().find {it.getDefinition().getClassName().contains("C") }
 
         then:
-        CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "B")
+        !CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "B") // Sequence
         CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "A")
         !CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "C")
 

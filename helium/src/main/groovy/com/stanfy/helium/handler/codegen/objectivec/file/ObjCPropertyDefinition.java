@@ -41,6 +41,20 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
    */
   private AtomicModifier atomicModifier;
 
+  /*
+    Additional comment
+     */
+  private String comment;
+
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
+  }
+
+
   public ObjCPropertyDefinition(final String name, final String type) {
     this(name, type, AccessModifier.STRONG, AtomicModifier.NONATOMIC);
   }
@@ -72,6 +86,10 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
 
   @Override
   public String asString() {
-    return "@property(" + atomicModifier.toString().toLowerCase() + ", " + accessModifier.toString().toLowerCase()+ ") " + type +" " + name + ";";
+    String propertyDeclaration = "@property(" + atomicModifier.toString().toLowerCase() + ", " + accessModifier.toString().toLowerCase() + ") " + type + " " + name + ";";
+    if (comment != null) {
+      propertyDeclaration = "// " + comment + "\n" + propertyDeclaration;
+    }
+    return propertyDeclaration;
   }
 }
