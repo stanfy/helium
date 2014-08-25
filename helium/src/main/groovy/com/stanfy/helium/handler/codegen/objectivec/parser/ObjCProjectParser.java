@@ -66,8 +66,11 @@ public class ObjCProjectParser {
       for (Field field : message.getActiveFields()) {
         String propertyName = field.getName();
         Type heliumAPIType = field.getType();
-        String propertyType = typeTransformer.objCType(heliumAPIType);
+        String propertyType = typeTransformer.objCType(heliumAPIType, field.isSequence());
+//        System.out.println(" Field " + field.getName() + " of type "+ field.getType() + "("  + field.getType().getName() + ") ----->>   " + propertyType);
+
         if (heliumAPIType instanceof Message) {
+//          System.out.println(" Field " + field.getName() + " of type "+ field.getType() + "("  + field.getType().getName() + ") ----->>   " + propertyType + ((Message)field.getType()).getFields());
           classDefinition.addExternalClassDeclaration(propertyType.replaceAll("\\*|\\s", ""));
         }
         ObjCPropertyDefinition.AccessModifier accessModifier = typeTransformer.accessorModifierForType(heliumAPIType);

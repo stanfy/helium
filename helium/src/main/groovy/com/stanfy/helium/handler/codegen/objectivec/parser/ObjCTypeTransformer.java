@@ -55,6 +55,13 @@ public class ObjCTypeTransformer {
     Returns Objective-C type for specified Helium API Type
      */
   public String objCType(Type heliumAPIType) {
+    return this.objCType(heliumAPIType, false);
+  }
+
+  public String objCType(Type heliumAPIType, boolean isSequence) {
+    if (isSequence) {
+      return "NSArray *";
+    }
     if (heliumAPIType instanceof Sequence) {
       return "NSArray *";
     }
