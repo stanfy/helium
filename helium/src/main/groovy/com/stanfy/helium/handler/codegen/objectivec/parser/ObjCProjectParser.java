@@ -68,7 +68,7 @@ public class ObjCProjectParser {
         Type heliumAPIType = field.getType();
         String propertyType = typeTransformer.objCType(heliumAPIType);
         if (heliumAPIType instanceof Message) {
-          classDefinition.addExternalClassDeclaration(propertyType);
+          classDefinition.addExternalClassDeclaration(propertyType.replaceAll("\\*|\\s", ""));
         }
         ObjCPropertyDefinition.AccessModifier accessModifier = typeTransformer.accessorModifierForType(heliumAPIType);
         classDefinition.addPropertyDefinition( new ObjCPropertyDefinition(propertyName, propertyType,accessModifier));
