@@ -23,11 +23,11 @@ public class ObjCClassImplementation implements ObjCSourcePart {
   @Override
   public String asString() {
     // TODO use some templates
-    return
-        String.join("\n",
-            "#import \""+className+".h\"",
-            "@implementation " + className,
-            "@end"
-        );
+    StringBuilder bld = new StringBuilder();
+    bld.append("#import ").append(className).append(".h\"\n");
+    bld.append("@implementation ").append(className).append("\n");
+    bld.append("@end");
+    return bld.toString();
+
   }
 }

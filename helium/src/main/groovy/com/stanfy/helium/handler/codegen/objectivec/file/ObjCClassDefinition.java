@@ -28,7 +28,7 @@ Class Name
   @Override
   public String asString() {
     // TODO use some templates
-    StringBuffer bld = new StringBuffer();
+    StringBuilder bld = new StringBuilder();
     for (String externalClass : externalClassDeclaration) {
       bld.append("@class ").append(externalClass).append(";\n");
 
