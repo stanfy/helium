@@ -25,7 +25,10 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
         project = new ProjectDsl()
         project.type "A" message { }
         project.type "B" message { }
-        project.type "C" message { }
+        project.type "C" message {
+            a "A"
+            b "B" sequence
+        }
 
         parseOptions = new DefaultObjCProjectParserOptions();
     }
@@ -79,7 +82,6 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
         objCProject = parser.parse(project, parseOptions);
         def implementationFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCImplementationFile ? file : null })
         def definitionFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCHeaderFile ? file : null })
-        println definitionFiles.get(0).getSourceParts()
         then:
         implementationFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCClassImplementation}})
         definitionFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCClassDefinition}})
@@ -105,6 +107,31 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
         objCProject.getClasses().every({ objCClass -> objCClass.getDefinition().getClassName() == objCClass.getName() && objCClass.getImplementation().getClassName() == objCClass.getName()});
     }
 
+    def "should generate register types for all messages in the project"(String message) {
+        given:
+        parser = new ObjCProjectParser()
+        objCProject = parser.parse(project, parseOptions);
+
+        expect:
+        parser.getTypeTransformer().objCType(project.getTypes().byName(message)) == parseOptions.prefix + message + " *";
+
+        where:
+        message << ["A", "B", "C"]
+    }
+
+    def "should fill external classes declarations"() {
+        when:
+        parser = new ObjCProjectParser()
+        objCProject = parser.parse(project, parseOptions);
+
+        def CClass = objCProject.getClasses().find {it.getDefinition().getClassName().contains("C") }
+
+        then:
+        CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "B" + " *")
+        CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "A" + " *")
+        !CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "C" + " *")
+
+    }
 
 
 }

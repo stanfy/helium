@@ -20,9 +20,12 @@ import com.stanfy.helium.model.Type;
 public class ObjCProjectParser {
 
   /*
-   Type transformer to transform correct Objc types from Helium API
-   */
+     Type transformer to transform correct Objc types from Helium API
+     */
   private ObjCTypeTransformer typeTransformer = new ObjCTypeTransformer();
+  public ObjCTypeTransformer getTypeTransformer() {
+    return typeTransformer;
+  }
 
   /*
   Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
@@ -37,6 +40,17 @@ public class ObjCProjectParser {
    */
   public ObjCProject parse(final Project project, final ObjCProjectParserOptions options) {
     ObjCProject objCProject = new ObjCProject();
+
+    // Register all messages first
+    for (Message message : project.getMessages()) {
+      String messageName = message.getName();
+      String className = messageName;
+      if (options != null && options.getPrefix() != null) {
+        className = options.getPrefix() + className;
+      }
+      typeTransformer.registerRefTypeTransformation(messageName, className);
+    }
+
     for (Message message : project.getMessages()) {
 
       String fileName = message.getName();
@@ -53,6 +67,9 @@ public class ObjCProjectParser {
         String propertyName = field.getName();
         Type heliumAPIType = field.getType();
         String propertyType = typeTransformer.objCType(heliumAPIType);
+        if (heliumAPIType instanceof Message) {
+          classDefinition.addExternalClassDeclaration(propertyType);
+        }
         ObjCPropertyDefinition.AccessModifier accessModifier = typeTransformer.accessorModifierForType(heliumAPIType);
         classDefinition.addPropertyDefinition( new ObjCPropertyDefinition(propertyName, propertyType,accessModifier));
       }

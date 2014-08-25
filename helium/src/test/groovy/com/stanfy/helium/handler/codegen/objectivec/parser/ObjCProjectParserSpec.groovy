@@ -86,7 +86,6 @@ class ObjCProjectParserSpec extends Specification{
         objCProject = parser.parse(project);
         def implementationFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCImplementationFile ? file : null })
         def definitionFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCHeaderFile ? file : null })
-        println definitionFiles.get(0).getSourceParts()
         then:
         implementationFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCClassImplementation}})
         definitionFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCClassDefinition}})
@@ -112,6 +111,16 @@ class ObjCProjectParserSpec extends Specification{
         objCProject.getClasses().every({ objCClass -> objCClass.getDefinition().getClassName() == objCClass.getName() && objCClass.getImplementation().getClassName() == objCClass.getName()});
     }
 
+    def "should generate register types for all messages in the project"() {
+        when:
+        parser = new ObjCProjectParser()
+        objCProject = parser.parse(project);
+
+        then:
+        parser.getTypeTransformer().objCType(project.getTypes().byName("A")) != null
+        parser.getTypeTransformer().objCType(project.getTypes().byName("B")) != null
+        parser.getTypeTransformer().objCType(project.getTypes().byName("C")) != null
+    }
 
 
 }

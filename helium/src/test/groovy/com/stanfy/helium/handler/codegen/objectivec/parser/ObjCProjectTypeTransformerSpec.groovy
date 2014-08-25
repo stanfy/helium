@@ -59,6 +59,22 @@ class ObjCProjectTypeTransformerSpec extends Specification{
         "double"  | "double"    | AccessModifier.ASSIGN
    }
 
+    def "should use correct simple transform for groovy types(Long)"() {
+        given:
+        Type longType = new Type();
+        runWithProxy(new ConfigurableProxy<Type>(longType, new ProjectDsl())) {
+            name long
+        }
+
+        def objCType = typeTransformer.objCType(longType)
+        def accessorModifierForType = typeTransformer.accessorModifierForType(longType)
+
+        expect:
+        objCType == "NSInteger"
+        accessorModifierForType == AccessModifier.ASSIGN;
+
+    }
+
 
     def "should use NSArray for sequence sub-type"() {
         def sequence = new Sequence(name: "string")
