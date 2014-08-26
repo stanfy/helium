@@ -1,27 +1,24 @@
 package com.stanfy.helium.handler.codegen.java;
 
 import com.squareup.javawriter.JavaWriter;
+import com.stanfy.helium.handler.codegen.GeneratorOptions;
 import com.stanfy.helium.model.Descriptionable;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.utils.Names;
 
-import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Base class for Java generator options.
  */
-public abstract class JavaGeneratorOptions implements Serializable {
-
-  private static final long serialVersionUID = 1;
+public abstract class JavaGeneratorOptions extends GeneratorOptions {
 
   /** Reserved java keywords. */
   private static final Set<String> JAVA_KEYWORDS = new HashSet<String>(Arrays.asList(
@@ -33,15 +30,6 @@ public abstract class JavaGeneratorOptions implements Serializable {
       "finally", "long", "strictfp", "volatile", "const", "float", "native", "super", "while"
   ));
 
-  /** Package name for generated classes. */
-  private String packageName;
-
-  /** Include type name patterns. */
-  private Set<String> include = new HashSet<String>();
-
-  /** Exclude type name patterns. */
-  private Set<String> exclude = new HashSet<String>();
-
   /** Collection class name for sequences. */
   private String sequenceCollectionName = List.class.getCanonicalName();
 
@@ -51,24 +39,8 @@ public abstract class JavaGeneratorOptions implements Serializable {
   /** Whether to prettify field names. */
   private boolean prettifyNames;
 
-  public String getPackageName() {
-    return packageName;
-  }
-
-  public void setPackageName(final String packageName) {
-    if (packageName == null) {
-      throw new IllegalArgumentException("Package name cannot be null");
-    }
-    this.packageName = packageName;
-  }
-
-  public Set<String> getInclude() {
-    return include;
-  }
-
-  public Set<String> getExclude() {
-    return exclude;
-  }
+  /** Package name for generated classes. */
+  private String packageName;
 
   public String getSequenceCollectionName() {
     return sequenceCollectionName;
@@ -88,30 +60,6 @@ public abstract class JavaGeneratorOptions implements Serializable {
 
   public void setCustomPrimitivesMapping(final Map<String, String> customPrimitivesMapping) {
     this.customPrimitivesMapping = customPrimitivesMapping;
-  }
-
-
-  public boolean isTypeUserDefinedMessage(final Type type) {
-    return !type.isAnonymous() && type instanceof Message;
-  }
-
-  public boolean isTypeIncluded(final Type type) {
-    String name = type.getName();
-    for (String pattern : exclude) {
-      if (Pattern.compile(pattern).matcher(name).matches()) {
-        return false;
-      }
-    }
-    if (include.isEmpty()) {
-      return true;
-    }
-
-    for (String pattern : include) {
-      if (Pattern.compile(pattern).matcher(name).matches()) {
-        return true;
-      }
-    }
-    return false;
   }
 
   public String getJavaTypeName(final Type type, final boolean sequence, final JavaWriter writer) {
@@ -189,6 +137,17 @@ public abstract class JavaGeneratorOptions implements Serializable {
 
   public String getSafeParameterName(final String name) {
     return JAVA_KEYWORDS.contains(name) ? name.concat("Param") : name;
+  }
+
+  public String getPackageName() {
+    return packageName;
+  }
+
+  public void setPackageName(final String packageName) {
+    if (packageName == null) {
+      throw new IllegalArgumentException("Package name cannot be null");
+    }
+    this.packageName = packageName;
   }
 
 }

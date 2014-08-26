@@ -13,7 +13,7 @@ class JavaPlugin implements Plugin<Project> {
 
   @Override
   void apply(final Project project) {
-    project.apply plugin: 'helium'
+    project.apply plugin: HeliumPlugin
 
     if (!project.plugins.findPlugin(org.gradle.api.plugins.JavaPlugin.class)) {
       throw new GradleException("Java plugin is not applied");

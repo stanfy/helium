@@ -2,6 +2,7 @@ package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
+import com.stanfy.helium.gradle.tasks.GenerateJsonSchemaTask
 import com.stanfy.helium.gradle.tasks.GenerateObjcTask
 import com.stanfy.helium.gradle.tasks.GenerateRetrofitTask
 import com.stanfy.helium.handler.codegen.java.constants.ConstantNameConverter
@@ -17,13 +18,13 @@ import static com.stanfy.helium.gradle.HeliumPluginSpec.generateSpec
 /**
  * Tests for HeliumExtension.
  */
-class HeliumPuginSourceGenSpec extends Specification {
+class HeliumPluginSourceGenSpec extends Specification {
 
   Project project
 
   def setup() {
     project = ProjectBuilder.builder().build()
-    project.apply plugin: 'helium'
+    project.apply plugin: "helium"
     project.helium {
       specification generateSpec("s1")
     }
@@ -258,6 +259,49 @@ class HeliumPuginSourceGenSpec extends Specification {
     project.helium.sourceGen("anotherSpec").entities != null
     project.helium.sourceGen("s1").objc != null
     project.helium.sourceGen("s1").entities != null
+  }
+
+  def "json schema generation task should be accessible by specification name"() {
+    given:
+    project.helium {
+      specification new File("asdf/Testspec1") {}
+      specification new File("asdf/Testspec2") {}
+
+      sourceGen {
+        jsonSchema{ }
+      }
+    }
+
+    createTasks()
+
+    expect:
+    project.helium.sourceGen('s1').jsonSchema instanceof GenerateJsonSchemaTask
+    project.helium.sourceGen('Testspec1').jsonSchema instanceof GenerateJsonSchemaTask
+    project.helium.sourceGen('Testspec2').jsonSchema instanceof GenerateJsonSchemaTask
+  }
+
+  def "source generation should support json scheme generator"() {
+    given:
+    project.helium {
+      File outputDir = project.file("../jjj")
+
+      sourceGen {
+        jsonSchema {
+          output outputDir
+        }
+      }
+
+      specification new File('testspec.api') {}
+    }
+
+    createTasks()
+
+    def task = project.tasks['generateJsonSchemaS1']
+
+    expect:
+    task != null
+    task.output == project.file("../jjj")
+    project.tasks['generateJsonSchemaTestspec'] != null
   }
 
 }
