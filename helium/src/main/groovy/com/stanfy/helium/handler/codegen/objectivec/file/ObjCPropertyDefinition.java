@@ -22,7 +22,7 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
 
   /*
   Property name
-   */
+  */
   private String name;
 
   /*
@@ -76,6 +76,10 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
 
   public AtomicModifier getAtomicModifier() {
     return atomicModifier;
+  }
+
+  public String getName() {
+    return name;
   }
 
   public String getType() {

@@ -13,6 +13,9 @@ import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Type;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by ptaykalo on 8/17/14.
  *
@@ -67,8 +70,9 @@ public class ObjCProjectParser {
       ObjCClassDefinition classDefinition = new ObjCClassDefinition(fileName);
       ObjCClassImplementation classImplementation = new ObjCClassImplementation(fileName);
 
+      HashSet<String> usedPropertyNames = new HashSet<String>();
       for (Field field : message.getActiveFields()) {
-        String propertyName = nameTransformer.propertyNameFrom(field.getName());
+        String propertyName = nameTransformer.propertyNameFrom(field.getName(), usedPropertyNames);
         Type heliumAPIType = field.getType();
         String propertyType = typeTransformer.objCType(heliumAPIType, field.isSequence());
 
@@ -83,6 +87,9 @@ public class ObjCProjectParser {
         }
 
         classDefinition.addPropertyDefinition(property);
+
+        // Update used Names
+        usedPropertyNames.add(propertyName);
       }
 
       objCClass.setDefinition(classDefinition);

@@ -9,6 +9,7 @@ import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassImplementation
 import com.stanfy.helium.handler.codegen.objectivec.parser.ObjCProjectParser
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.ObjCProjectParserOptions
+import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
 /**
@@ -130,6 +131,28 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
         !CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "B") // Sequence
         CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "A")
         !CClass.getDefinition().getExternalClassDeclaration().contains(parseOptions.prefix + "C")
+
+    }
+
+    def "should not generate properties with names of reserved keywords"() {
+        when:
+        project = new ProjectDsl()
+        project.typeResolver.registerNewType( new Type(name:"int32"));
+
+        project.type "A" message {
+            copy "int32"
+            copyField "int32"
+            copyField1 "int32"
+        }
+
+        parser = new ObjCProjectParser()
+        objCProject = parser.parse(project, parseOptions);
+
+        def propertyNames = objCProject.getClasses().get(0).getDefinition().getPropertyDefinitions().collect {p -> p.getName()}
+
+        then:
+        propertyNames.size() == 3
+        propertyNames.toSet().size() == 3
 
     }
 
