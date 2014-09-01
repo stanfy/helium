@@ -6,7 +6,6 @@ import com.stanfy.helium.handler.codegen.objectivec.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassDefinition
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassImplementation
-import com.stanfy.helium.handler.codegen.objectivec.parser.ObjCProjectParser
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.ObjCProjectParserOptions
 import com.stanfy.helium.model.Type
@@ -17,7 +16,7 @@ import spock.lang.Specification
  */
 class ObjCProjectParserWithOptionsSpec extends Specification{
 
-    ObjCProjectParser parser;
+    DefaultObjCProjectParser parser;
     ProjectDsl project;
     ObjCProject objCProject;
     ObjCProjectParserOptions parseOptions;
@@ -36,7 +35,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
     def "should generate ObjCProject with options"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
 
         then:
@@ -45,7 +44,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
     def "should add ObjCFiles for each message"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
 
         // At least 6 files
@@ -56,7 +55,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
     def "should generate ObjCProject with .h and .m file for each message"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
 
         then:
@@ -67,7 +66,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
     def "should generate ObjCProject with files those have message name in their names and prefix from options"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
 
         then:
@@ -79,7 +78,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
     def "should generate ,m files wich should contain implementation part"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
         def implementationFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCImplementationFile ? file : null })
         def definitionFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCHeaderFile ? file : null })
@@ -90,7 +89,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
     def "should generate Classes each of those have definition and implementation"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
 
         then:
@@ -100,7 +99,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
     def "should generate Classes each of those have definition and implementation with correct names"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
 
         then:
@@ -110,7 +109,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
     def "should generate register types for all messages in the project"(String message) {
         given:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
 
         expect:
@@ -122,7 +121,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
     def "should fill external classes declarations"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
 
         def CClass = objCProject.getClasses().find {it.getDefinition().getClassName().contains("C") }
@@ -145,7 +144,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
             copyField1 "int32"
         }
 
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project, parseOptions);
 
         def propertyNames = objCProject.getClasses().get(0).getDefinition().getPropertyDefinitions().collect {p -> p.getName()}

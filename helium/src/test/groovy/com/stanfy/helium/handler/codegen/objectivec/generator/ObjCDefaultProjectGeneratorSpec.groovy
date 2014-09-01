@@ -2,7 +2,7 @@ package com.stanfy.helium.handler.codegen.objectivec.generator
 
 import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProjectGenerator
-import com.stanfy.helium.handler.codegen.objectivec.parser.ObjCProjectParser
+import com.stanfy.helium.handler.codegen.objectivec.parser.DefaultObjCProjectParser
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
 import com.stanfy.helium.model.Type
 import org.apache.commons.io.FileUtils
@@ -14,7 +14,7 @@ import org.apache.commons.io.FileUtils
 class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProjectGenerator> {
 
     ProjectDsl projectDSL;
-    ObjCProjectParser parser;
+    DefaultObjCProjectParser parser;
 
     def setup() {
 
@@ -30,7 +30,7 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
         projectDSL.type "C" message { }
 
         // Parser
-        parser = new ObjCProjectParser();
+        parser = new DefaultObjCProjectParser();
         this.project = parser.parse(projectDSL);
 
         generator = new ObjCProjectGenerator(output, this.project);

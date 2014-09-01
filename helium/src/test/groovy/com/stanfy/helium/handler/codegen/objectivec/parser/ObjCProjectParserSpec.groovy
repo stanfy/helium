@@ -6,7 +6,6 @@ import com.stanfy.helium.handler.codegen.objectivec.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassDefinition
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassImplementation
-import com.stanfy.helium.handler.codegen.objectivec.parser.ObjCProjectParser
 import spock.lang.Specification
 
 /**
@@ -14,7 +13,7 @@ import spock.lang.Specification
  */
 class ObjCProjectParserSpec extends Specification{
 
-    ObjCProjectParser parser;
+    DefaultObjCProjectParser parser;
     ProjectDsl project;
     ObjCProject objCProject;
 
@@ -27,7 +26,7 @@ class ObjCProjectParserSpec extends Specification{
 
     def "should generate ObjCProject"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project);
 
         then:
@@ -36,7 +35,7 @@ class ObjCProjectParserSpec extends Specification{
 
     def "should add ObjCFiles for each message"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project);
 
         // At least 6 files
@@ -47,7 +46,7 @@ class ObjCProjectParserSpec extends Specification{
 
     def "should generate ObjCProject with .h and .m file for each message"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project);
 
         then:
@@ -58,7 +57,7 @@ class ObjCProjectParserSpec extends Specification{
 
     def "should generate ObjCProject with files those have message name in their names"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project);
 
         then:
@@ -70,7 +69,7 @@ class ObjCProjectParserSpec extends Specification{
 
     def "should generate ObjCProject with ,m files which have correct class implementations"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project);
 
         then:
@@ -82,7 +81,7 @@ class ObjCProjectParserSpec extends Specification{
 
     def "should generate ,m files wich should contain implementation part"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project);
         def implementationFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCImplementationFile ? file : null })
         def definitionFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCHeaderFile ? file : null })
@@ -93,7 +92,7 @@ class ObjCProjectParserSpec extends Specification{
 
     def "should generate Classes each of those have definition and implementation"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project);
 
         then:
@@ -103,7 +102,7 @@ class ObjCProjectParserSpec extends Specification{
 
     def "should generate Classes each of those have definition and implementation with correct names"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project);
 
         then:
@@ -113,7 +112,7 @@ class ObjCProjectParserSpec extends Specification{
 
     def "should generate register types for all messages in the project"() {
         when:
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         objCProject = parser.parse(project);
 
         then:

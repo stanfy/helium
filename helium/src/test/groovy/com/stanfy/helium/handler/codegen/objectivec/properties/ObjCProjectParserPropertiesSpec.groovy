@@ -4,7 +4,7 @@ import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClass
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCPropertyDefinition
-import com.stanfy.helium.handler.codegen.objectivec.parser.ObjCProjectParser
+import com.stanfy.helium.handler.codegen.objectivec.parser.DefaultObjCProjectParser
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
 import com.stanfy.helium.model.Type
 import spock.lang.Specification
@@ -14,14 +14,14 @@ import spock.lang.Specification
  */
 class ObjCProjectParserPropertiesSpec extends Specification{
 
-    ObjCProjectParser parser;
+    DefaultObjCProjectParser parser;
     ProjectDsl project;
     ObjCProject objCProject
     DefaultObjCProjectParserOptions options
 
     def setup() {
         project = new ProjectDsl()
-        parser = new ObjCProjectParser()
+        parser = new DefaultObjCProjectParser()
         options = new DefaultObjCProjectParserOptions();
     }
 
