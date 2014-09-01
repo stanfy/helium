@@ -14,13 +14,13 @@ import java.util.regex.Pattern;
 public class ObjCPropertyNameTransformer {
 
   //http://www.binpress.com/tutorial/objective-c-reserved-keywords/43
-  private static Set<String> KEYWORDS = new HashSet<String>(Arrays.asList("auto", "break", "case", "char", "const", "continue", "default", "do", "double",
+  public static Set<String> KEYWORDS = new HashSet<String>(Arrays.asList("auto", "break", "case", "char", "const", "continue", "default", "do", "double",
       "else", "enum", "extern", "float", "for", "goto", "if", "inline", "int", "long", "register", "restrict", "return",
       "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while",
       "_Bool", "_Complex", "_Imaginery", "BOOL", "Class", "bycopy", "byref", "id", "IMP", "in", "inout", "nil", "NO", "NULL",
       "oneway", "out", "Protocol", "SEL", "self", "super", "YES", "interface", "end", "implementation", "protocol", "class",
-      "public", "protected", "private", "property", "try", "throw", "catch()", "finally", "synthesize", "dynamic",
-      "selector", "atomic", "nonatomic", "retain"));
+      "public", "protected", "private", "property", "try", "throw", "catch", "finally", "synthesize", "dynamic",
+      "selector", "atomic", "nonatomic", "retain", "copy", "assign"));
 
 
   public String propertyNameFrom(final String propertyName) {
@@ -28,17 +28,23 @@ public class ObjCPropertyNameTransformer {
   }
 
   public String propertyNameFrom(final String propertyName, final Set<String> nonAllowedNames) {
-    Set<String> st = KEYWORDS;
-
     // update Property name :)
     String currPropertyName = propertyName;
     if (KEYWORDS.contains(currPropertyName)) {
-      currPropertyName = currPropertyName + "_Field";
+      currPropertyName = currPropertyName + "Field";
     } else if (nonAllowedNames != null && nonAllowedNames.contains(currPropertyName)) {
-      currPropertyName = currPropertyName + "_Field";
+      currPropertyName = currPropertyName + "Field";
     }
-
-    return toCamelCase(currPropertyName);
+   // First generated property is ok
+   // Check if the generated name is in restricted set or keyworkds
+      String generatedName = toCamelCase(currPropertyName);
+      String resultName = generatedName;
+      int i = 0;
+      while (KEYWORDS.contains(resultName) || (nonAllowedNames != null && nonAllowedNames.contains(resultName))) {
+          resultName = generatedName + i;
+          i++;
+      }
+      return resultName;
   }
 
   private static String toCamelCase(String value) {
