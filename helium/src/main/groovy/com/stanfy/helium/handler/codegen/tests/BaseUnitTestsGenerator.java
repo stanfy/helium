@@ -14,7 +14,12 @@ import org.fest.assertions.api.Assertions;
 import org.junit.Test;
 
 import javax.lang.model.element.Modifier;
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Set;

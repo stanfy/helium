@@ -64,6 +64,10 @@ subprojects {
       archives sourcesJar
     }
 
+    checkstyle {
+      configFile = file("$rootDir/config/checkstyle/checkstyle.xml")
+    }
+
     signing {
       required !version.contains("SNAPSHOT")
       sign configurations.archives

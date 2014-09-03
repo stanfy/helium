@@ -7,7 +7,6 @@ import com.stanfy.helium.entities.ConverterFactory;
 import com.stanfy.helium.entities.EntityReader;
 import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.ValidationError;
-import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Type;
 
 import java.io.IOException;

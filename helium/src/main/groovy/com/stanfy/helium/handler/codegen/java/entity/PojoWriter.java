@@ -55,7 +55,7 @@ class PojoWriter implements JavaClassWriter {
   }
 
   @Override
-  public void writeClassEnd(Message message) throws IOException {
+  public void writeClassEnd(final Message message) throws IOException {
     output.endType();
   }
 

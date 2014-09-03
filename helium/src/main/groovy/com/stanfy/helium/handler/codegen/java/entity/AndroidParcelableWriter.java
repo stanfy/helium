@@ -96,7 +96,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
   }
 
   @Override
-  public void writeClassEnd(Message message) throws IOException {
+  public void writeClassEnd(final Message message) throws IOException {
     JavaWriter output = getOutput();
     output.emitEmptyLine();
     output.emitAnnotation(Override.class);
@@ -172,7 +172,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
         classLoader);
   }
 
-  private void readBoolean(Field field, String fieldName, JavaWriter output) throws IOException {
+  private void readBoolean(final Field field, final String fieldName, final JavaWriter output) throws IOException {
     if (field.isSequence()) {
       output.emitStatement("int %1$sCount = source.readInt()", fieldName);
       output.beginControlFlow("if (" + fieldName + "Count > 0)");
@@ -186,8 +186,8 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     }
   }
 
-  private static void readParcelable(Field field, String fieldName, JavaWriter output,
-                                     String className, String classLoader) throws IOException {
+  private static void readParcelable(final Field field, final String fieldName, final JavaWriter output,
+                                     final String className, final String classLoader) throws IOException {
     String shortClassName = output.compressType(className);
     if (field.isSequence()) {
       output.emitStatement("Parcelable[] %1$sParcelables = source.readParcelableArray(%2$s)",
@@ -256,7 +256,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     output.emitStatement("dest.writeValue(this.%s)", fieldName);
   }
 
-  private static boolean isAndroidParcelable(Class<?> clazz) {
+  private static boolean isAndroidParcelable(final Class<?> clazz) {
     for (Class<?> intf : clazz.getInterfaces()) {
       if ("android.os.Parcelable".equals(intf.getCanonicalName())) {
         return true;
@@ -265,13 +265,15 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     return false;
   }
 
-  private static void writeParcelable(JavaWriter output, Field field, String fieldName) throws IOException {
+  private static void writeParcelable(final JavaWriter output, final Field field, final String fieldName)
+      throws IOException {
     output.emitStatement("dest.writeParcelable%1$s(this.%2$s, options)",
         field.isSequence() ? "Array" : "",
         fieldName);
   }
 
-  private static void writeBoolean(Field field, JavaWriter output, String fieldName) throws IOException {
+  private static void writeBoolean(final Field field, final JavaWriter output, final String fieldName)
+      throws IOException {
     if (field.isSequence()) {
       output.emitStatement("int %1$sCount = this.%1$s != null ? this.%1$s.length : 0", fieldName);
       output.emitStatement("dest.writeInt(%1$sCount)", fieldName);

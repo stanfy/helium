@@ -4,7 +4,6 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.model.Descriptionable;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
-import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.utils.Names;
 

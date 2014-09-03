@@ -2,9 +2,6 @@ package com.stanfy.helium.entities;
 
 import com.stanfy.helium.model.Type;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
  * Pair of type and value.
  */

@@ -118,16 +118,9 @@ final class MessageToJavaClass {
     }
   }
 
-  static class Writer extends StringWriter {
-    public Writer add(final String pattern, final Object... args) {
-      append(String.format(pattern, args));
-      return this;
-    }
-  }
-
   void generateToString(final JavaClassWriter writer,
-                         final Message message,
-                         final boolean singleLine) throws IOException {
+                        final Message message,
+                        final boolean singleLine) throws IOException {
     String indent = " ";
     String separator = ",";
 
@@ -190,6 +183,13 @@ final class MessageToJavaClass {
 
   private String getFieldTypeName(final Field field) {
     return options.getJavaTypeName(field.getType(), field.getSequence(), writer.getOutput());
+  }
+
+  static class Writer extends StringWriter {
+    public Writer add(final String pattern, final Object... args) {
+      append(String.format(pattern, args));
+      return this;
+    }
   }
 
 }

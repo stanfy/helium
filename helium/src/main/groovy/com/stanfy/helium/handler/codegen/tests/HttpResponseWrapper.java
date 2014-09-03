@@ -34,7 +34,7 @@ import java.util.Map;
 class HttpResponseWrapper implements MethodExecutionResult {
 
   /** Empty response object. */
-  private static TypedEntity<?> EMPTY_RESPONSE = new TypedEntity<Type>(null, null);
+  private static final TypedEntity<?> EMPTY_RESPONSE = new TypedEntity<Type>(null, null);
 
   /** Types. */
   private final TypeResolver typeResolver;
