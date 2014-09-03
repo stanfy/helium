@@ -5,7 +5,7 @@ type "Entity" message {
 }
 
 service {
-  name "Test service"
+  name "Test service $providedVar"
 
   get "/profile" spec {
     response 'Entity'

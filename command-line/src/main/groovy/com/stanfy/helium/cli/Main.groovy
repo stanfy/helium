@@ -29,7 +29,9 @@ class Main {
   static {
     CLI.x("Do not include default types")
     CLI.H(args: 2, valueSeparator: '=', argName: 'property=value', "Set value of a property\n")
-    CLI.o(longOpt: "output", args: 1, argName: 'dir', "Output directory")
+    CLI.o(longOpt: "output", args: 1, argName: 'dir', "Output directory\n")
+
+    CLI.V(args: 2, valueSeparator: '=', argName: 'name=value', "Set variable accessible in specs\n")
 
     HANDLERS.each { name, definition ->
       String propsDescr = definition.properties.keySet().collect {
@@ -84,6 +86,7 @@ class Main {
         h.defaultTypes()
       }
 
+      setVariables(h, options)
       h.from(file)
 
       HANDLERS.each { name, definition ->
@@ -91,6 +94,13 @@ class Main {
           h.processBy(definition.factory(options, output) as Handler)
         }
       }
+    }
+  }
+
+  private static void setVariables(final Helium h, final def options) {
+    def vars = options.Vs as List<String>
+    for (int i = 0; i < vars.size() / 2; i++) {
+      h.set(vars[i * 2], vars[i * 2 + 1])
     }
   }
 
