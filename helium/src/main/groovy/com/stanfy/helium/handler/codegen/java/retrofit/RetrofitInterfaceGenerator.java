@@ -153,7 +153,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     }
   }
 
-  private void writeJavaDoc(JavaWriter writer, ServiceMethod m) throws IOException {
+  private void writeJavaDoc(final JavaWriter writer, final ServiceMethod m) throws IOException {
     StringBuilder javadoc = new StringBuilder();
     if (m.getName() != null) {
       javadoc.append(m.getName());

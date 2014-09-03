@@ -9,6 +9,12 @@ import com.stanfy.helium.utils.Names;
  */
 public class RetrofitGeneratorOptions extends JavaGeneratorOptions {
 
+  /** Entities package. */
+  private String entitiesPackage;
+
+  /** Whether to use service method names to generate java method names. */
+  private boolean useMethodNames;
+
   public static RetrofitGeneratorOptions defaultOptions(final String packageName) {
     RetrofitGeneratorOptions options = new RetrofitGeneratorOptions();
     options.setPackageName(packageName);
@@ -16,12 +22,6 @@ public class RetrofitGeneratorOptions extends JavaGeneratorOptions {
     options.setUseMethodNames(true);
     return options;
   }
-
-  /** Entities package. */
-  private String entitiesPackage;
-
-  /** Whether to use service method names to generate java method names. */
-  private boolean useMethodNames;
 
   public void setEntitiesPackage(final String entitiesPackage) {
     this.entitiesPackage = entitiesPackage;

@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * Primitive types mapping for Java.
  */
-public class JavaPrimitiveTypes {
+public final class JavaPrimitiveTypes {
 
   /** Predefined names mapping. */
   private static final Map<String, Class<?>> NAMES_MAP = new HashMap<String, Class<?>>();
@@ -21,6 +21,10 @@ public class JavaPrimitiveTypes {
     NAMES_MAP.put(DefaultType.INT64.getLangName(), long.class);
     NAMES_MAP.put(DefaultType.BYTES.getLangName(), byte[].class);
     NAMES_MAP.put(DefaultType.BOOL.getLangName(), boolean.class);
+  }
+
+  private JavaPrimitiveTypes() {
+    throw new UnsupportedOperationException("no instances");
   }
 
   public static Class<?> javaClass(final Type type) {
@@ -51,10 +55,6 @@ public class JavaPrimitiveTypes {
       return Boolean.class;
     }
     throw new IllegalArgumentException("Cannot handle " + primitive);
-  }
-
-  private JavaPrimitiveTypes() {
-    throw new UnsupportedOperationException("no instances");
   }
 
 }

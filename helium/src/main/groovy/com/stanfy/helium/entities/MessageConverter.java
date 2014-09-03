@@ -6,7 +6,12 @@ import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Type;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Base class for message serializers.
@@ -16,7 +21,7 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
   /** Type. */
   private final Message type;
 
-  public MessageConverter(String format, Message type) {
+  public MessageConverter(final String format, final Message type) {
     super(format);
     this.type = type;
   }
@@ -48,7 +53,7 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
   }
 
   @Override
-  public Map<String, ?> read(I input, List<ValidationError> errors) throws IOException {
+  public Map<String, ?> read(final I input, final List<ValidationError> errors) throws IOException {
     LinkedHashMap<String, Object> values = new LinkedHashMap<String, Object>();
     Set<String> visitedFields = new HashSet<String>();
     while (hasNext(input)) {

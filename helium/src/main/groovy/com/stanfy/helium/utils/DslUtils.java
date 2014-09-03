@@ -5,7 +5,7 @@ import groovy.lang.Closure;
 /**
  * DSL utils.
  */
-public class DslUtils {
+public final class DslUtils {
 
   private DslUtils() { /* hidden */ }
 

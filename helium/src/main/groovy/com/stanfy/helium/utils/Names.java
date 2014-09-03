@@ -5,10 +5,14 @@ import java.util.regex.Pattern;
 /**
  * Names related utils.
  */
-public class Names {
+public final class Names {
 
   private static final Pattern REPLACED_WITH_UNDERSCORE = Pattern.compile("[/\\s\\.]+");
   private static final Pattern BAD_CHARACTERS = Pattern.compile("\\W+");
+
+  private Names() {
+    throw new UnsupportedOperationException("no instances");
+  }
 
   public static String canonicalName(final String name) {
     if (name == null) {

@@ -12,6 +12,9 @@ public class ConstantsGeneratorOptions extends JavaGeneratorOptions {
 
   private static final long serialVersionUID = 1;
 
+  /** Constants name former. */
+  private ConstantNameConverter nameConverter;
+
   public static ConstantsGeneratorOptions defaultOptions(final String packageName) {
     ConstantsGeneratorOptions converter = new ConstantsGeneratorOptions();
     converter.setPackageName(packageName);
@@ -23,9 +26,6 @@ public class ConstantsGeneratorOptions extends JavaGeneratorOptions {
     });
     return converter;
   }
-
-  /** Constants name former. */
-  private ConstantNameConverter nameConverter;
 
   public ConstantNameConverter getNameConverter() {
     return nameConverter;

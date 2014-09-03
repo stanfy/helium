@@ -8,18 +8,9 @@ import java.io.Writer;
  */
 public final class Writers {
 
-  public interface WriterWrapper extends Serializable {
-    JavaClassWriter wrapWriter(JavaClassWriter delegate, EntitiesGeneratorOptions options);
-  }
-
-  public interface WriterFactory extends Serializable {
-    JavaClassWriter create(Writer output);
-  }
-
   private Writers() {
     throw new UnsupportedOperationException("no instances");
   }
-
 
   /**
    * @return POJO writer factory
@@ -73,6 +64,14 @@ public final class Writers {
         return result;
       }
     };
+  }
+
+  public interface WriterWrapper extends Serializable {
+    JavaClassWriter wrapWriter(JavaClassWriter delegate, EntitiesGeneratorOptions options);
+  }
+
+  public interface WriterFactory extends Serializable {
+    JavaClassWriter create(Writer output);
   }
 
 }

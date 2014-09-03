@@ -18,15 +18,6 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
 
   private static final long serialVersionUID = 1;
 
-  /** Default options. */
-  public static EntitiesGeneratorOptions defaultOptions(final String packageName) {
-    EntitiesGeneratorOptions options = new EntitiesGeneratorOptions();
-    options.setFieldModifiers(new HashSet<Modifier>(Arrays.asList(Modifier.PUBLIC)));
-    options.setPackageName(packageName);
-    return options;
-  }
-
-
   /** Field modifiers. */
   private Set<Modifier> fieldModifiers = Collections.emptySet();
 
@@ -41,6 +32,14 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
 
   /** Writer  */
   private WriterWrapper writerWrapper = Writers.chain();
+
+  /** Default options. */
+  public static EntitiesGeneratorOptions defaultOptions(final String packageName) {
+    EntitiesGeneratorOptions options = new EntitiesGeneratorOptions();
+    options.setFieldModifiers(new HashSet<Modifier>(Arrays.asList(Modifier.PUBLIC)));
+    options.setPackageName(packageName);
+    return options;
+  }
 
   public Set<Modifier> getFieldModifiers() {
     return fieldModifiers;
@@ -71,7 +70,7 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
 
   public boolean isAddToString() { return addToString; }
 
-  public void setAddToString(boolean addToString) { this.addToString = addToString; }
+  public void setAddToString(final boolean addToString) { this.addToString = addToString; }
 
   public WriterWrapper getWriterWrapper() { return writerWrapper; }
 

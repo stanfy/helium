@@ -40,7 +40,7 @@ public final class Helium {
     return this;
   }
 
-  public Helium encoding(String encoding) {
+  public Helium encoding(final String encoding) {
     if (encoding == null || encoding.length() == 0) {
       throw new IllegalArgumentException("Encoding is not specified");
     }

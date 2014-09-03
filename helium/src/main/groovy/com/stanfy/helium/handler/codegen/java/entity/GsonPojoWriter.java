@@ -13,7 +13,7 @@ import java.util.Set;
  */
 class GsonPojoWriter extends DelegateJavaClassWriter {
 
-  public GsonPojoWriter(JavaClassWriter core) {
+  public GsonPojoWriter(final JavaClassWriter core) {
     super(core);
   }
 

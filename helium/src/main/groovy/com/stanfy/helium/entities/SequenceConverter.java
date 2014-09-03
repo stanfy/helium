@@ -1,11 +1,9 @@
 package com.stanfy.helium.entities;
 
 import com.stanfy.helium.model.Sequence;
-import com.stanfy.helium.model.Type;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -17,7 +15,7 @@ public abstract class SequenceConverter<I, O> extends BaseTypeConverter<I, O> im
   /** Type. */
   private final Sequence type;
 
-  public SequenceConverter(String format, Sequence type) {
+  public SequenceConverter(final String format, final Sequence type) {
     super(format);
     this.type = type;
   }
@@ -28,7 +26,7 @@ public abstract class SequenceConverter<I, O> extends BaseTypeConverter<I, O> im
   }
 
   @Override
-  public void write(O output, Object value) throws IOException {
+  public void write(final O output, final Object value) throws IOException {
     List<?> list = (List<?>) value;
     for (Object v : list) {
       writeValue(getType().getItemsType(), v, output);
@@ -36,7 +34,7 @@ public abstract class SequenceConverter<I, O> extends BaseTypeConverter<I, O> im
   }
 
   @Override
-  public List<?> read(I input, List<ValidationError> errors) throws IOException {
+  public List<?> read(final I input, final List<ValidationError> errors) throws IOException {
     ArrayList<Object> result = new ArrayList<Object>();
     int index = 0;
     while (hasNext(input)) {
@@ -54,6 +52,6 @@ public abstract class SequenceConverter<I, O> extends BaseTypeConverter<I, O> im
     return result;
   }
 
-  protected abstract boolean hasNext(I input) throws IOException;
+  protected abstract boolean hasNext(final I input) throws IOException;
 
 }

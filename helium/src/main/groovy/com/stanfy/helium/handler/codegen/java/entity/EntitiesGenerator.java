@@ -40,7 +40,7 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
     }
   }
 
-  private void write(Message type, File classFile) {
+  private void write(final Message type, final File classFile) {
     OutputStreamWriter output = null;
     try {
       output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
