@@ -2,9 +2,7 @@ package com.stanfy.helium.handler.codegen.objectivec.parser;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Created by ptaykalo on 8/25/14.
@@ -14,7 +12,7 @@ import java.util.regex.Pattern;
 public class ObjCPropertyNameTransformer {
 
   //http://www.binpress.com/tutorial/objective-c-reserved-keywords/43
-  public static Set<String> KEYWORDS = new HashSet<String>(Arrays.asList("auto", "break", "case", "char", "const", "continue", "default", "do", "double",
+  private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList("auto", "break", "case", "char", "const", "continue", "default", "do", "double",
       "else", "enum", "extern", "float", "for", "goto", "if", "inline", "int", "long", "register", "restrict", "return",
       "short", "signed", "sizeof", "static", "struct", "switch", "typedef", "union", "unsigned", "void", "volatile", "while",
       "_Bool", "_Complex", "_Imaginery", "BOOL", "Class", "bycopy", "byref", "id", "IMP", "in", "inout", "nil", "NO", "NULL",
@@ -22,6 +20,9 @@ public class ObjCPropertyNameTransformer {
       "public", "protected", "private", "property", "try", "throw", "catch", "finally", "synthesize", "dynamic",
       "selector", "atomic", "nonatomic", "retain", "copy", "assign"));
 
+  public static Set<String> getKeywords() {
+    return KEYWORDS;
+  }
 
   public String propertyNameFrom(final String propertyName) {
     return propertyNameFrom(propertyName, null);
@@ -47,7 +48,7 @@ public class ObjCPropertyNameTransformer {
       return resultName;
   }
 
-  private static String toCamelCase(String value) {
+  private static String toCamelCase(final String value) {
     StringBuilder sb = new StringBuilder();
 
     final char delimChar = '_';

@@ -25,15 +25,15 @@ public class DefaultObjCProjectParser implements ObjCProjectParser {
      Type transformer to transform correct Objc types from Helium API
      */
   private ObjCTypeTransformer typeTransformer = new ObjCTypeTransformer();
+  private ObjCPropertyNameTransformer nameTransformer = new ObjCPropertyNameTransformer();
+
   @Override
   public ObjCTypeTransformer getTypeTransformer() {
     return typeTransformer;
   }
 
-  private ObjCPropertyNameTransformer nameTransformer = new ObjCPropertyNameTransformer();
   @Override
   public ObjCPropertyNameTransformer getNameTransformer() { return nameTransformer; }
-
 
   /*
   Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure

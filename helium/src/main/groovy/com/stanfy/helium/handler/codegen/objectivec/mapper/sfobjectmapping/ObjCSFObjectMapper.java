@@ -12,7 +12,7 @@ import com.stanfy.helium.model.Project;
  * Generated classes will could be used with
  * https://github.com/stanfy/SFObjectMapping
  */
-public class ObjCSFObjectMapper implements ObjCMapper{
+public class ObjCSFObjectMapper implements ObjCMapper {
 
   @Override
   public void generateMappings(final ObjCProject project, final Project projectDSL, final ObjCProjectParserOptions options) {

@@ -1,7 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec;
 
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClass;
-import com.stanfy.helium.model.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,7 +29,7 @@ public class ObjCProject {
     return files;
   }
 
-  public void addFile(ObjCFile file) {
+  public void addFile(final ObjCFile file) {
     files.add(file);
   }
 

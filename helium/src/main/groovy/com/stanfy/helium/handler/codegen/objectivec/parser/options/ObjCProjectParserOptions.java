@@ -9,7 +9,7 @@ public interface ObjCProjectParserOptions {
   /*
   Returns prefix for all files those would be generated
    */
-  public String getPrefix();
+  String getPrefix();
 
 }
 

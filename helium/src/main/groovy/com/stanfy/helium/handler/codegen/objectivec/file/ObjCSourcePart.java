@@ -10,5 +10,5 @@ public interface ObjCSourcePart {
   /*
   Returns source part as string
    */
-  public String asString();
+  String asString();
 }

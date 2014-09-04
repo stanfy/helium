@@ -1,10 +1,10 @@
 package com.stanfy.helium.handler.codegen.objectivec.parser.options;
 
-public class DefaultObjCProjectParserOptions implements ObjCProjectParserOptions{
+public class DefaultObjCProjectParserOptions implements ObjCProjectParserOptions {
 
   private String prefix = "HE";
 
-  public void setPrefix(String prefix) {
+  public void setPrefix(final String prefix) {
     this.prefix = prefix;
   }
 

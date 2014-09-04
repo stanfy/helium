@@ -5,9 +5,9 @@ package com.stanfy.helium.handler.codegen.objectivec;
  * Class that represents objective-C header file
  * Will always have .h extension
  */
-public class ObjCHeaderFile extends ObjCFile{
+public class ObjCHeaderFile extends ObjCFile {
 
-  public ObjCHeaderFile(String name) {
+  public ObjCHeaderFile(final String name) {
     super(name);
   }
 

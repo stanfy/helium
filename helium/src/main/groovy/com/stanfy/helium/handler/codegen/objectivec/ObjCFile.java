@@ -9,7 +9,7 @@ import java.util.List;
  * Structure that represent Objective-C source file
  * Concrete implementations can be header, and implementation file
  */
-abstract public class ObjCFile implements ObjCSourcePart {
+public abstract class ObjCFile implements ObjCSourcePart {
 
   private String name;
   private ArrayList<ObjCSourcePart> sourceParts = new ArrayList<ObjCSourcePart>();

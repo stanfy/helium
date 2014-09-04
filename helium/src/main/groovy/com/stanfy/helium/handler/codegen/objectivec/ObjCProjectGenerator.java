@@ -1,9 +1,12 @@
 package com.stanfy.helium.handler.codegen.objectivec;
 
-import com.stanfy.helium.model.Type;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 
 /**
  * Created by ptaykalo on 8/17/14

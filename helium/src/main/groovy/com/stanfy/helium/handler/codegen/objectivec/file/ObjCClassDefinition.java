@@ -14,8 +14,8 @@ public class ObjCClassDefinition implements ObjCSourcePart {
 Class Name
  */
   private String className;
-  private ArrayList<ObjCPropertyDefinition>propertyDefinitions = new ArrayList<ObjCPropertyDefinition>();
-  private Set<String>externalClassDeclaration = new HashSet<String>();
+  private ArrayList<ObjCPropertyDefinition> propertyDefinitions = new ArrayList<ObjCPropertyDefinition>();
+  private Set<String> externalClassDeclaration = new HashSet<String>();
 
   public ObjCClassDefinition(final String className) {
     this.className = className;
@@ -44,7 +44,7 @@ Class Name
   /*
   Adds spcecified property definition to this class
    */
-  public void addPropertyDefinition(ObjCPropertyDefinition property) {
+  public void addPropertyDefinition(final ObjCPropertyDefinition property) {
     propertyDefinitions.add(property);
   }
 

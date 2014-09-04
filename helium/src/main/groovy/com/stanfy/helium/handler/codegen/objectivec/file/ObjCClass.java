@@ -30,9 +30,9 @@ public class ObjCClass {
   }
 
   public ObjCClassImplementation getImplementation() { return implementation; }
-  public void setImplementation(ObjCClassImplementation implementation) { this.implementation = implementation; }
+  public void setImplementation(final ObjCClassImplementation implementation) { this.implementation = implementation; }
 
   public ObjCClassDefinition getDefinition() { return definition; }
-  public void setDefinition(ObjCClassDefinition definition) { this.definition = definition; }
+  public void setDefinition(final ObjCClassDefinition definition) { this.definition = definition; }
 }
 

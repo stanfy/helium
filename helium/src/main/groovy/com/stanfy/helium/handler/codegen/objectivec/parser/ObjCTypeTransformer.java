@@ -54,11 +54,11 @@ public class ObjCTypeTransformer {
   /*
     Returns Objective-C type for specified Helium API Type
      */
-  public String objCType(Type heliumAPIType) {
+  public String objCType(final Type heliumAPIType) {
     return this.objCType(heliumAPIType, false);
   }
 
-  public String objCType(Type heliumAPIType, boolean isSequence) {
+  public String objCType(final Type heliumAPIType, final boolean isSequence) {
     if (isSequence) {
       return "NSArray *";
     }
@@ -90,7 +90,7 @@ public class ObjCTypeTransformer {
       return AccessModifier.STRONG;
     }
 
-    if (heliumAPIType.getName().equals("string")) {
+    if ("string".equals(heliumAPIType.getName())) {
       return AccessModifier.COPY;
     }
     return AccessModifier.ASSIGN;

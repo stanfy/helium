@@ -6,7 +6,7 @@ package com.stanfy.helium.handler.codegen.objectivec;
  */
 public class ObjCImplementationFile extends ObjCFile {
 
-  public ObjCImplementationFile(String name) {
+  public ObjCImplementationFile(final String name) {
     super(name);
   }
 

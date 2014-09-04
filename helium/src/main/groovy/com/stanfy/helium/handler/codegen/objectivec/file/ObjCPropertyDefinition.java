@@ -2,7 +2,7 @@ package com.stanfy.helium.handler.codegen.objectivec.file;
 
 /**
  * Created by ptaykalo on 8/19/14.
- *
+ * Wrapper for ObjC property
  */
 public class ObjCPropertyDefinition implements ObjCSourcePart {
 
@@ -46,15 +46,6 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
      */
   private String comment;
 
-  public String getComment() {
-    return comment;
-  }
-
-  public void setComment(String comment) {
-    this.comment = comment;
-  }
-
-
   public ObjCPropertyDefinition(final String name, final String type) {
     this(name, type, AccessModifier.STRONG, AtomicModifier.NONATOMIC);
   }
@@ -69,6 +60,15 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
     this.accessModifier = accessModifier;
     this.atomicModifier = atomicModifier;
   }
+
+  public String getComment() {
+    return comment;
+  }
+
+  public void setComment(final String comment) {
+    this.comment = comment;
+  }
+
 
   public AccessModifier getAccessModifier() {
     return accessModifier;
@@ -85,7 +85,6 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
   public String getType() {
     return type;
   }
-
 
 
   @Override
