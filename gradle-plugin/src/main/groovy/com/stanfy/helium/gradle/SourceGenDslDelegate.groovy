@@ -1,11 +1,14 @@
 package com.stanfy.helium.gradle
 
-import com.stanfy.helium.handler.codegen.java.constants.ConstantsGeneratorOptions
-import com.stanfy.helium.handler.codegen.java.retrofit.RetrofitGeneratorOptions
+import com.stanfy.helium.gradle.internal.SourceCodeGenerators
+import com.stanfy.helium.gradle.tasks.BaseHeliumTask
+import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions
 import com.stanfy.helium.utils.DslUtils
+import com.stanfy.helium.utils.Names
+import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 
-import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
+import static com.stanfy.helium.gradle.UserConfig.specName
 
 /**
  * Delegate for DSL
@@ -20,11 +23,18 @@ import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
  */
 class SourceGenDslDelegate {
 
-  public static final String DEFAULT_PACKAGE = "api"
+  static {
+    def meta = SourceGenDslDelegate.metaClass
+    SourceCodeGenerators.GENERATORS.each { String name, def params ->
+      // configuration method
+      meta."$name" << { Closure<?> config ->
+        setDelegate(name, new GeneratorDslDelegate(genOptions: params.optionsFactory()))
+        DslUtils.runWithProxy(getDelegate(name), config)
+      }
+    }
+  }
 
-  private EntitiesDslDelegate entities
-  private ConstantsDslDelegate constants
-  private RetrofitDslDelegate retrofit
+  private final Map<String, GeneratorDslDelegate> delegatesMap = [:]
 
   private final Object owner
 
@@ -32,87 +42,65 @@ class SourceGenDslDelegate {
     this.owner = owner
   }
 
+  @SuppressWarnings("GrMethodMayBeStatic")
+  @CompileStatic
   @PackageScope
-  EntitiesDslDelegate getEntities() {
-    return entities
+  Collection<String> allGenerators() {
+    return SourceCodeGenerators.GENERATORS.keySet()
   }
 
+  @CompileStatic
   @PackageScope
-  ConstantsDslDelegate getConstants() {
-    return constants
+  GeneratorDslDelegate getDelegate(final String name) {
+    return delegatesMap[name]
   }
 
+  @CompileStatic
   @PackageScope
-  RetrofitDslDelegate getRetrofit() {
-    return retrofit
-  }
-
-  @PackageScope
-  void setEntities(EntitiesDslDelegate value) {
-    this.entities = value
-  }
-
-  @PackageScope
-  void setConstants(ConstantsDslDelegate value) {
-    this.constants = value
+  def setDelegate(final String name, final GeneratorDslDelegate generator) {
+    delegatesMap[name] = generator
   }
 
   @PackageScope
-  void setRetrofit(RetrofitDslDelegate value) {
-    this.retrofit = value
+  void createTasks(final UserConfig userConfig, final File specification, final URL[] classpath,
+                   final String basePath, final HeliumExtension config) {
+    delegatesMap.each { String name, GeneratorDslDelegate delegate ->
+      if (!delegate) {
+        return
+      }
+      if (!delegate.output) {
+        delegate.output = new File(userConfig.project.buildDir, "$basePath/entities/${specName(specification)}")
+      }
+      def task = userConfig.project.tasks.create(
+          taskName("generate${name.capitalize()}", specification, delegate.genOptions, config),
+          SourceCodeGenerators.GENERATORS[name].task as Class<? extends BaseHeliumTask>
+      )
+      HeliumInitializer.configureHeliumTask(task, specification, delegate.output, classpath, userConfig)
+      task.options = delegate.genOptions
+      config.sourceGen(specification)[name][delegate.genOptions.packageName] = task
+    }
   }
 
-  void entities(Closure<?> config) {
-    entities = new EntitiesDslDelegate()
-    DslUtils.runWithProxy(entities, config)
+
+  private static String taskName(final String prefix, final File specification, final JavaGeneratorOptions options,
+                          final HeliumExtension config) {
+    String pkgSuffix = Names.prettifiedName(Names.canonicalName(options.packageName))
+    return "${HeliumInitializer.taskName(prefix, specification, config)}${pkgSuffix.capitalize()}"
   }
 
-  void constants(Closure<?> config) {
-    constants = new ConstantsDslDelegate()
-    DslUtils.runWithProxy(constants, config)
-  }
+  static final class GeneratorDslDelegate {
 
-  void retrofit(Closure<?> config) {
-    retrofit = new RetrofitDslDelegate()
-    DslUtils.runWithProxy(retrofit, config)
-  }
-
-  abstract class BaseDslDelegate<T> {
-
-    T genOptions
+    // TODO: generalize for not only Java
+    JavaGeneratorOptions genOptions
 
     File output
 
-    void output(File output) {
+    void output(final File output) {
       this.output = output;
     }
 
-    void options(Closure<?> config) {
+    void options(final Closure<?> config) {
       DslUtils.runWithProxy(genOptions, config)
-    }
-
-  }
-
-  class EntitiesDslDelegate extends BaseDslDelegate<EntitiesGeneratorOptions> {
-
-    EntitiesDslDelegate() {
-      genOptions = EntitiesGeneratorOptions.defaultOptions(DEFAULT_PACKAGE)
-    }
-
-  }
-
-  class ConstantsDslDelegate extends BaseDslDelegate<ConstantsGeneratorOptions> {
-
-    ConstantsDslDelegate() {
-      genOptions = ConstantsGeneratorOptions.defaultOptions(DEFAULT_PACKAGE)
-    }
-
-  }
-
-  class RetrofitDslDelegate extends BaseDslDelegate<RetrofitGeneratorOptions> {
-
-    RetrofitDslDelegate() {
-      genOptions = RetrofitGeneratorOptions.defaultOptions(DEFAULT_PACKAGE)
     }
 
   }

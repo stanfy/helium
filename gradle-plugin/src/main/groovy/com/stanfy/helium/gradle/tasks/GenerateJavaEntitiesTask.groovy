@@ -8,10 +8,7 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Task for generating POJOs from a specification.
  */
-class GenerateJavaEntitiesTask extends BaseHeliumTask {
-
-  /** Generator options. */
-  EntitiesGeneratorOptions options;
+class GenerateJavaEntitiesTask extends BaseHeliumTask<EntitiesGeneratorOptions> {
 
   @Override
   protected void doIt() {

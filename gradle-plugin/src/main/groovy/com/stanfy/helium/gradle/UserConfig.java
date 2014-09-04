@@ -45,14 +45,10 @@ class UserConfig {
       return defaultSourceGeneration;
     }
     if (defaultSourceGeneration != null) {
-      if (res.getEntities() == null) {
-        res.setEntities(defaultSourceGeneration.getEntities());
-      }
-      if (res.getConstants() == null) {
-        res.setConstants(defaultSourceGeneration.getConstants());
-      }
-      if (res.getRetrofit() == null) {
-        res.setRetrofit(defaultSourceGeneration.getRetrofit());
+      for (String gen : defaultSourceGeneration.allGenerators()) {
+        if (res.getDelegate(gen) == null) {
+          res.setDelegate(gen, defaultSourceGeneration.getDelegate(gen));
+        }
       }
     }
     return res;
