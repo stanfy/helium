@@ -28,7 +28,7 @@ class HeliumExtension {
   boolean ignoreFailures
 
   /** Source generation tasks for each specification. */
-  private final Map<String, SourceGenerationTasks> sourceGenTasks = new HashMap<>()
+  private final Map<String, Map<String, BaseHeliumTask>> sourceGenTasks = new HashMap<>()
 
   private UserConfig config
 
@@ -51,7 +51,7 @@ class HeliumExtension {
     if (sourceGenTasks[name]) {
       throw new GradleException("Helium specification with name $name is already defined")
     }
-    sourceGenTasks[name] = new SourceGenerationTasks()
+    sourceGenTasks[name] = new HashMap<>()
     specifications.add specFile
 
     if (config) {
@@ -69,7 +69,7 @@ class HeliumExtension {
     DslUtils.runWithProxy(new ConfigurableStringMap(this.config.variables, "Variables"), config)
   }
 
-  SourceGenerationTasks getSourceGen() {
+  Map<String, BaseHeliumTask> getSourceGen() {
     if (sourceGenTasks.empty) {
       return null
     }
@@ -81,24 +81,18 @@ class HeliumExtension {
     }
   }
 
-  SourceGenerationTasks sourceGen(final String name) {
+  Map<String, BaseHeliumTask> sourceGen(final String name) {
     if (!name) {
       throw new IllegalArgumentException("Specification name is not provided")
     }
     return sourceGenTasks[name]
   }
 
-  SourceGenerationTasks sourceGen(final File spec) {
+  Map<String, BaseHeliumTask> sourceGen(final File spec) {
     if (!spec) {
       throw new IllegalArgumentException("Specification is not provided")
     }
     return sourceGenTasks[specName(spec)]
-  }
-
-  public static class SourceGenerationTasks {
-    Map<String, BaseHeliumTask> entities = [:]
-    Map<String, BaseHeliumTask> constants = [:]
-    Map<String, BaseHeliumTask> retrofit = [:]
   }
 
 }

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.widget.TextView;
 
+import com.stanfy.helium.sample.api.Twitter;
 import com.stanfy.helium.sample.api.Tweet;
 import com.stanfy.helium.sample.api.User;
 import com.stanfy.helium.sample.constants.UserConstants;
@@ -25,7 +26,8 @@ public class SampleActivity extends Activity {
         + "Some of generated classes :\n"
         + User.class + "\n"
         + Tweet.class + "\n\n"
-        + "(Tweet implements Parcelable) == " + (Parcelable.class.isAssignableFrom(Tweet.class))
+        + "(Tweet implements Parcelable) == " + (Parcelable.class.isAssignableFrom(Tweet.class)) + "\n\n"
+        + "Retorfit interface: " + Twitter.class
     );
   }
 }

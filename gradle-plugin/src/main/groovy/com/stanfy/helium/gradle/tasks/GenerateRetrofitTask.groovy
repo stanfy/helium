@@ -6,10 +6,7 @@ import com.stanfy.helium.handler.codegen.java.retrofit.RetrofitInterfaceGenerato
 /**
  * Task for generating Retrofit interfaces from a specification.
  */
-class GenerateRetrofitTask extends BaseHeliumTask {
-
-  /** Generator options. */
-  RetrofitGeneratorOptions options;
+class GenerateRetrofitTask extends BaseHeliumTask<RetrofitGeneratorOptions> {
 
   @Override
   protected void doIt() {

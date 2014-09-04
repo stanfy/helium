@@ -8,10 +8,7 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Task for generating constants.
  */
-class GenerateJavaConstantsTask extends BaseHeliumTask {
-
-  /** Generator options. */
-  ConstantsGeneratorOptions options
+class GenerateJavaConstantsTask extends BaseHeliumTask<ConstantsGeneratorOptions> {
 
   @Override
   protected void doIt() {

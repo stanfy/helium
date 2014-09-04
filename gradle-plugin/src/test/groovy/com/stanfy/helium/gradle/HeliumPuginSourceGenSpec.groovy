@@ -51,7 +51,7 @@ class HeliumPuginSourceGenSpec extends Specification {
 
     createTasks()
 
-    def task = project.tasks['generateEntitiesSomePackage']
+    def task = project.tasks['generateEntities']
 
     expect:
     task != null
@@ -78,7 +78,7 @@ class HeliumPuginSourceGenSpec extends Specification {
 
     createTasks()
 
-    def task = project.tasks['generateConstantsSomeConsts']
+    def task = project.tasks['generateConstants']
 
     expect:
     task != null
@@ -105,7 +105,7 @@ class HeliumPuginSourceGenSpec extends Specification {
 
     createTasks()
 
-    def task = project.tasks["generateRetrofitExample"]
+    def task = project.tasks["generateRetrofit"]
 
     expect:
     task != null
@@ -115,7 +115,7 @@ class HeliumPuginSourceGenSpec extends Specification {
     task.options.prettifyNames
   }
 
-  def "source generation tasks should be accessible by package name"() {
+  def "source generation tasks should be accessible"() {
     given:
     project.helium {
       sourceGen {
@@ -140,9 +140,12 @@ class HeliumPuginSourceGenSpec extends Specification {
     createTasks()
 
     expect:
-    project.helium.sourceGen.entities['p1'] instanceof GenerateJavaEntitiesTask
-    project.helium.sourceGen.constants['p2'] instanceof GenerateJavaConstantsTask
-    project.helium.sourceGen.retrofit['p1'] instanceof GenerateRetrofitTask
+    project.helium.sourceGen.entities instanceof GenerateJavaEntitiesTask
+    project.helium.sourceGen.entities.options.packageName == 'p1'
+    project.helium.sourceGen.constants instanceof GenerateJavaConstantsTask
+    project.helium.sourceGen.constants.options.packageName == 'p2'
+    project.helium.sourceGen.retrofit instanceof GenerateRetrofitTask
+    project.helium.sourceGen.retrofit.options.packageName == 'p1'
   }
 
   def "source generation tasks are created per specification"() {
@@ -170,10 +173,10 @@ class HeliumPuginSourceGenSpec extends Specification {
 
     expect:
     project.helium.specifications.size() == 2
-    project.helium.sourceGen('s1').entities['p1'] instanceof GenerateJavaEntitiesTask
-    project.helium.sourceGen('sFoo2').entities['p2'] instanceof GenerateJavaEntitiesTask
-    !project.helium.sourceGen('sFoo2').entities['p1']
-    !project.helium.sourceGen('s1').entities['p2']
+    project.helium.sourceGen('s1').entities instanceof GenerateJavaEntitiesTask
+    project.helium.sourceGen('s1').entities.options.packageName == 'p1'
+    project.helium.sourceGen('sFoo2').entities instanceof GenerateJavaEntitiesTask
+    project.helium.sourceGen('sFoo2').entities.options.packageName == 'p2'
   }
 
   def "default sourceGen property is not available if there are multiple specifications"() {
@@ -188,7 +191,7 @@ class HeliumPuginSourceGenSpec extends Specification {
         }
       }
     }
-    def task = project.helium.sourceGen.entities['p1']
+    def task = project.helium.sourceGen.entities
 
     then:
     def e = thrown(GradleException)

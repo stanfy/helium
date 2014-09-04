@@ -10,7 +10,7 @@ buildscript {
   }
 }
 
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 apply plugin: 'helium-android'
 
 android {
@@ -34,6 +34,7 @@ repositories {
 
 dependencies {
   compile 'com.google.code.gson:gson:2.2.4'
+  compile 'com.squareup.retrofit:retrofit:1.6.1'
 }
 
 // import some classes to be able to customize source generation
@@ -49,9 +50,6 @@ helium {
 
     // generate entity classes based on messages defined in the spec
     entities {
-
-      // set output directory
-      output = file("$sourceOut/entities")
 
       options {
         packageName = "com.stanfy.helium.sample.api"
@@ -92,7 +90,7 @@ helium {
     // generate constants from field names: may be useful for injecting SQL-code e.g.
     constants {
 
-      // set output directory
+      // customize output directory
       output = file("$sourceOut/constants")
 
       options {
@@ -109,5 +107,19 @@ helium {
       }
     }
 
+    // generate Retofit interface
+    retrofit {
+      options {
+        packageName = "com.stanfy.helium.sample.api"
+      }
+    }
+
   }
+}
+
+afterEvaluate {
+  // verify tasks are accessible: just to test
+  assert helium.sourceGen.entities != null
+  assert helium.sourceGen.constants != null
+  assert helium.sourceGen.retrofit != null
 }

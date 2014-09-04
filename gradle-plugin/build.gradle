@@ -8,7 +8,7 @@ dependencies {
   compile gradleApi()
 
   compile project(':helium')
-  compile 'com.android.tools.build:gradle:0.10.1'
+  compile 'com.android.tools.build:gradle:0.12.2'
 
   testCompile 'org.spockframework:spock-core:0.7-groovy-1.8'
 }

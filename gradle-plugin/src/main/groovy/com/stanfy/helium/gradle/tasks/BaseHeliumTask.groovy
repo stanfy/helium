@@ -11,7 +11,7 @@ import org.gradle.api.tasks.TaskAction
 /**
  * Created by roman on 12/27/13.
  */
-abstract class BaseHeliumTask extends DefaultTask {
+abstract class BaseHeliumTask<T> extends DefaultTask {
 
   /** Input specification file. */
   @InputFile
@@ -26,6 +26,9 @@ abstract class BaseHeliumTask extends DefaultTask {
   Map<String, String> variables
 
   URL[] classpath
+
+  /** Handler options. */
+  T options
 
   private Helium heliumInstance
 
