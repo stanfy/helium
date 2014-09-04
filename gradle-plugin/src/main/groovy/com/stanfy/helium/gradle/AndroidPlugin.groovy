@@ -3,6 +3,7 @@ package com.stanfy.helium.gradle
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.BasePlugin
 import com.android.build.gradle.api.BaseVariant
+import com.stanfy.helium.gradle.internal.SourceCodeGenerators
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -29,9 +30,9 @@ class AndroidPlugin implements Plugin<Project> {
   @groovy.transform.PackageScope
   static void addGeneratedSources(final Project project) {
     HeliumExtension hel = project.helium
-    def generators = ['entities', 'constants', 'retrofit'] // TODO stop hardcoding generators
+    def generators = SourceCodeGenerators.java()
     def allTasks = hel.specifications.collect { File spec ->
-      generators.collect { hel.sourceGen(spec)[it].values() }
+      generators.collect { hel.sourceGen(spec)[it] }.findAll { it != null }
     }.flatten()
 
     def variants = (project.plugins.findPlugin(AppPlugin.class)
