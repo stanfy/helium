@@ -63,7 +63,7 @@ class SourceGenDslDelegate {
         return
       }
       if (!delegate.output) {
-        delegate.output = new File(userConfig.project.buildDir, "$basePath/entities/${specName(specification)}")
+        delegate.output = new File(userConfig.project.buildDir, "$basePath/$name/${specName(specification)}")
       }
       def task = userConfig.project.tasks.create(
           HeliumInitializer.taskName("generate${name.capitalize()}", specification, config),

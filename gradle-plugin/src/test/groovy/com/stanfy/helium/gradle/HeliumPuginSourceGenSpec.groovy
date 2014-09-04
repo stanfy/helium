@@ -142,10 +142,13 @@ class HeliumPuginSourceGenSpec extends Specification {
     expect:
     project.helium.sourceGen.entities instanceof GenerateJavaEntitiesTask
     project.helium.sourceGen.entities.options.packageName == 'p1'
+    project.helium.sourceGen.entities.output == new File(project.buildDir, "generated/source/helium/entities/s1")
     project.helium.sourceGen.constants instanceof GenerateJavaConstantsTask
     project.helium.sourceGen.constants.options.packageName == 'p2'
+    project.helium.sourceGen.constants.output == new File(project.buildDir, "generated/source/helium/constants/s1")
     project.helium.sourceGen.retrofit instanceof GenerateRetrofitTask
     project.helium.sourceGen.retrofit.options.packageName == 'p1'
+    project.helium.sourceGen.retrofit.output == new File(project.buildDir, "generated/source/helium/retrofit/s1")
   }
 
   def "source generation tasks are created per specification"() {
