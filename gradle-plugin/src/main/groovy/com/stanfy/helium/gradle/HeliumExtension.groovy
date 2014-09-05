@@ -48,11 +48,10 @@ class HeliumExtension {
   void specification(def spec, Closure<Void> config) {
     File specFile = this.config.project.file(spec)
     String name = specName(specFile)
-    if (sourceGenTasks[name]) {
-      throw new GradleException("Helium specification with name $name is already defined")
+    if (!this.config.contains(specFile)) {
+      sourceGenTasks[name] = new HashMap<>()
+      specifications.add specFile
     }
-    sourceGenTasks[name] = new HashMap<>()
-    specifications.add specFile
 
     if (config) {
       SpecificationDslDelegate delegate = new SpecificationDslDelegate(specFile, this.config)
@@ -61,7 +60,9 @@ class HeliumExtension {
   }
 
   void sourceGen(Closure<?> config) {
-    this.config.defaultSourceGeneration = new SourceGenDslDelegate(config.owner)
+    if (!this.config.defaultSourceGeneration) {
+      this.config.defaultSourceGeneration = new SourceGenDslDelegate(config.owner)
+    }
     DslUtils.runWithProxy(this.config.defaultSourceGeneration, config)
   }
 

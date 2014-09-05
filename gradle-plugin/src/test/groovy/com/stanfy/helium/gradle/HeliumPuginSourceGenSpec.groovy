@@ -222,4 +222,42 @@ class HeliumPuginSourceGenSpec extends Specification {
     project.helium.sourceGen.objc.options.prefix == 'TT'
   }
 
+  def "it's possible to add more tasks for a spec later"() {
+    when:
+    project.helium {
+      sourceGen {
+        objc {
+          output = new File("objc")
+          options {
+            prefix = 'TT'
+          }
+        }
+      }
+      sourceGen {
+        entities {
+          output = new File("entities")
+        }
+      }
+      specification generateSpec("anotherSpec.api"), {
+        sourceGen {
+          constants { }
+        }
+      }
+      specification generateSpec("anotherSpec.api"), {
+        sourceGen {
+          retrofit { }
+        }
+      }
+    }
+    createTasks()
+
+    then:
+    project.helium.sourceGen("anotherSpec").constants != null
+    project.helium.sourceGen("anotherSpec").retrofit != null
+    project.helium.sourceGen("anotherSpec").objc != null
+    project.helium.sourceGen("anotherSpec").entities != null
+    project.helium.sourceGen("s1").objc != null
+    project.helium.sourceGen("s1").entities != null
+  }
+
 }

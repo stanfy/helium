@@ -25,8 +25,8 @@ class SpecificationDslDelegate {
 
   void sourceGen(Closure<Void> action) {
     SourceGenDslDelegate delegate = new SourceGenDslDelegate(action.owner)
-    config.set specification, delegate
     DslUtils.runWithProxy(delegate, action)
+    config.set specification, delegate
   }
 
 }

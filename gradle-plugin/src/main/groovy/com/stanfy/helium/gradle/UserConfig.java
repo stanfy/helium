@@ -36,7 +36,17 @@ class UserConfig {
   }
 
   public void set(final File spec, final SourceGenDslDelegate delegate) {
-    specSourceGeneration.put(spec, delegate);
+    SourceGenDslDelegate res = specSourceGeneration.get(spec);
+    if (res == null) {
+      specSourceGeneration.put(spec, delegate);
+      return;
+    }
+    for (String gen : delegate.allGenerators()) {
+      SourceGenDslDelegate.GeneratorDslDelegate generatorDelegate = delegate.getDelegate(gen);
+      if (generatorDelegate != null) {
+        res.setDelegate(gen, generatorDelegate);
+      }
+    }
   }
 
   public SourceGenDslDelegate getSourceGenFor(final File spec) {
@@ -52,6 +62,10 @@ class UserConfig {
       }
     }
     return res;
+  }
+
+  public boolean contains(final File spec) {
+    return specSourceGeneration.containsKey(spec);
   }
 
 }
