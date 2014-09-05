@@ -1,0 +1,11 @@
+type "SomeMessage" message {
+  id 'int64'
+}
+
+service {
+  name "Test service"
+
+  get "/test/message" spec {
+    response 'SomeMessage'
+  }
+}

@@ -1,0 +1,33 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  }
+  dependencies {
+    classpath 'com.stanfy.helium:gradle-plugin:0.5.5-SNAPSHOT'
+  }
+}
+
+apply plugin: 'helium'
+
+helium {
+  specification file('sample.api')
+  sourceGen {
+    objc {
+      options {
+        prefix = 'HEL'
+      }
+    }
+  }
+}
+
+task clean(type: Delete) {
+  delete buildDir
+}
+
+task check()
+afterEvaluate {
+  check.dependsOn 'generateObjc'
+  assert helium.sourceGen.objc.output == file("$buildDir/generated/source/helium/objc/sample")
+}

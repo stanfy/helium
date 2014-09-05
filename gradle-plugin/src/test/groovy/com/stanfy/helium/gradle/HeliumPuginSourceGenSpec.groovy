@@ -2,6 +2,7 @@ package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
+import com.stanfy.helium.gradle.tasks.GenerateObjcTask
 import com.stanfy.helium.gradle.tasks.GenerateRetrofitTask
 import com.stanfy.helium.handler.codegen.java.constants.ConstantNameConverter
 import org.gradle.api.GradleException
@@ -199,6 +200,26 @@ class HeliumPuginSourceGenSpec extends Specification {
     then:
     def e = thrown(GradleException)
     e.message.contains("multiple specifications")
+  }
+
+  def "supports objc description"() {
+    when:
+    project.helium {
+      sourceGen {
+        objc {
+          output = new File("test")
+          options {
+            prefix = 'TT'
+          }
+        }
+      }
+    }
+    createTasks()
+
+    then:
+    project.helium.sourceGen.objc instanceof GenerateObjcTask
+    project.helium.sourceGen.objc.output == new File("test")
+    project.helium.sourceGen.objc.options.prefix == 'TT'
   }
 
 }

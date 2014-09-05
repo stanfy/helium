@@ -3,7 +3,10 @@ package com.stanfy.helium.cli
 import com.stanfy.helium.Helium
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGenerator
-import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions;
+import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
+import com.stanfy.helium.handler.codegen.objectivec.ObjCProjectHandler
+import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
+import com.stanfy.helium.handler.codegen.objectivec.parser.options.ObjCProjectParserOptions;
 
 /**
  * Main entry point.
@@ -22,7 +25,20 @@ class Main {
             )
             return new EntitiesGenerator(output, genOptions)
           }
+      ],
+      "objective-c-entities" : [
+              description: "Generate Objective-C entity classes",
+              properties: [
+                      "prefix": "Prefix for generated classes. Required."
+              ],
+
+              factory: { def options, File output ->
+                  DefaultObjCProjectParserOptions genOptions = new DefaultObjCProjectParserOptions()
+                  genOptions.prefix = requiredProperty(options, "prefix");
+                  return new ObjCProjectHandler(output, genOptions)
+              }
       ]
+
   ]
 
   private static final def CLI = new CliBuilder(usage: "java -jar helium-cli.jar [options] <spec>", header: "Options:")
