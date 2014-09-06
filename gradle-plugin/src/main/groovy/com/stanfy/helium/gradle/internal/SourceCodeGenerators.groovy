@@ -2,11 +2,13 @@ package com.stanfy.helium.gradle.internal
 
 import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
+import com.stanfy.helium.gradle.tasks.GenerateJsonSchemaTask
 import com.stanfy.helium.gradle.tasks.GenerateObjcTask
 import com.stanfy.helium.gradle.tasks.GenerateRetrofitTask
 import com.stanfy.helium.handler.codegen.java.constants.ConstantsGeneratorOptions
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 import com.stanfy.helium.handler.codegen.java.retrofit.RetrofitGeneratorOptions
+import com.stanfy.helium.handler.codegen.json.schema.JsonSchemaGeneratorOptions
 import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
 
 /**
@@ -18,20 +20,24 @@ class SourceCodeGenerators {
 
   public static final Map<String, ? extends Map<String, Object>> GENERATORS = [
       entities: [
-          optionsFactory: { return EntitiesGeneratorOptions.defaultOptions(DEFAULT_PACKAGE) },
+          optionsFactory: { EntitiesGeneratorOptions.defaultOptions(DEFAULT_PACKAGE) },
           task: GenerateJavaEntitiesTask
       ],
       constants: [
-          optionsFactory: { return ConstantsGeneratorOptions.defaultOptions(DEFAULT_PACKAGE) },
+          optionsFactory: { ConstantsGeneratorOptions.defaultOptions(DEFAULT_PACKAGE) },
           task: GenerateJavaConstantsTask
       ],
       retrofit: [
-          optionsFactory: { return RetrofitGeneratorOptions.defaultOptions(DEFAULT_PACKAGE) },
+          optionsFactory: { RetrofitGeneratorOptions.defaultOptions(DEFAULT_PACKAGE) },
           task: GenerateRetrofitTask
       ],
       objc: [
-          optionsFactory: { return new DefaultObjCProjectParserOptions(); },
+          optionsFactory: { new DefaultObjCProjectParserOptions() },
           task: GenerateObjcTask
+      ],
+      jsonSchema: [
+          optionsFactory: { JsonSchemaGeneratorOptions.defaultOptions() },
+          task: GenerateJsonSchemaTask
       ]
   ]
 

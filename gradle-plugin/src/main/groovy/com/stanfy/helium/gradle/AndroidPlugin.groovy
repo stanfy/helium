@@ -16,7 +16,7 @@ class AndroidPlugin implements Plugin<Project> {
 
   @Override
   void apply(final Project project) {
-    project.apply plugin: 'helium'
+    project.apply plugin: HeliumPlugin
 
     if (!project.plugins.withType(BasePlugin.class)) {
       throw new GradleException("Android plugin is not applied");
