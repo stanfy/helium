@@ -15,6 +15,7 @@ public class ObjCProjectHandler implements Handler {
   private File outputFile;
   private DefaultObjCProjectParser projectParser;
   private ObjCProjectParserOptions projectParserOptions;
+
   public ObjCProjectHandler(final File outputFile, final ObjCProjectParserOptions projectParserOptions) {
     this.outputFile = outputFile;
     this.projectParserOptions = projectParserOptions;
@@ -27,4 +28,5 @@ public class ObjCProjectHandler implements Handler {
     ObjCProject objCProject = this.projectParser.parse(project, projectParserOptions);
     new ObjCProjectGenerator(outputFile, objCProject).generate();
   }
+
 }

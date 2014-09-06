@@ -24,7 +24,7 @@ public class ObjCClassImplementation implements ObjCSourcePart {
   public String asString() {
     // TODO use some templates
     StringBuilder bld = new StringBuilder();
-    bld.append("#import ").append(className).append(".h\"\n");
+    bld.append("#import \"").append(className).append(".h\"\n");
     bld.append("@implementation ").append(className).append("\n");
     bld.append("@end");
     return bld.toString();

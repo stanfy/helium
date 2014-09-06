@@ -14,14 +14,10 @@ import java.io.Writer;
  */
 public class ObjCProjectGenerator {
 
-  /*
-  Structure of the objC project
-   */
+  /** Structure of the objC project. */
   private final ObjCProject project;
 
-  /*
-  Directory, where result files should be saved to
-   */
+  /** Directory, where result files should be saved to*/
   private final File output;
 
 
