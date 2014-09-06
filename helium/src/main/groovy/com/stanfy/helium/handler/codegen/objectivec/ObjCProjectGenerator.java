@@ -20,7 +20,6 @@ public class ObjCProjectGenerator {
   /** Directory, where result files should be saved to*/
   private final File output;
 
-
   public ObjCProjectGenerator(final File output, final ObjCProject project) {
     this.project = project;
     this.output = output;
@@ -28,18 +27,15 @@ public class ObjCProjectGenerator {
 
   public void generate() {
     for (ObjCFile file : project.getFiles()) {
-      boolean shouldProcess = true;
-      if (shouldProcess) {
-        File classFile = new File(output, file.getName() + "." + file.getExtension());
-        Writer output = null;
-        try {
-          output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
-          output.write(file.asString());
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        } finally {
-          IOUtils.closeQuietly(output);
-        }
+      File classFile = new File(output, file.getName() + "." + file.getExtension());
+      Writer output = null;
+      try {
+        output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
+        output.write(file.asString());
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      } finally {
+        IOUtils.closeQuietly(output);
       }
     }
   }

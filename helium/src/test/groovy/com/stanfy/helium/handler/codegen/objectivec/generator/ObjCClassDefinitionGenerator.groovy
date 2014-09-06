@@ -10,20 +10,20 @@ import java.util.regex.Pattern
  */
 class ObjCClassDefinitionGenerator extends Specification {
 
-    ObjCClassDefinition classDefinition;
+  ObjCClassDefinition classDefinition;
 
-    def setup() {
-        classDefinition = new ObjCClassDefinition("S");
-    }
+  def setup() {
+    classDefinition = new ObjCClassDefinition("S");
+  }
 
-    def "should generate external classes parts"() {
-        given:
-        def externalClassName = "ExternalOne"
-        classDefinition.addExternalClassDeclaration(externalClassName)
-        def regex = Pattern.compile(".*\\s*@class\\s*" + externalClassName + "\\s*;.*", Pattern.DOTALL);
-        expect:
-        regex.matcher(classDefinition.asString()).matches()
+  def "should generate external classes parts"() {
+    given:
+    def externalClassName = "ExternalOne"
+    classDefinition.addExternalClassDeclaration(externalClassName)
+    def regex = Pattern.compile(".*\\s*@class\\s*" + externalClassName + "\\s*;.*", Pattern.DOTALL);
+    expect:
+    regex.matcher(classDefinition.asString()).matches()
 
-    }
+  }
 }
 

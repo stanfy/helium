@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.objectivec.parser;
+package com.stanfy.helium.handler.codegen.objectivec.builder;
 
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Sequence;
@@ -13,7 +13,7 @@ import java.util.HashMap;
  * Created by ptaykalo on 8/25/14.
  * Performs transformation of the Helium API type to the Objective-C Type
  */
-public class ObjCTypeTransformer {
+final class ObjCTypeTransformer {
 
   /*
   This hashmap holds information about Helium API -> Objective-C type conversions

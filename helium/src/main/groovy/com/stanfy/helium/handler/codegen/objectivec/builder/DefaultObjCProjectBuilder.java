@@ -1,13 +1,13 @@
-package com.stanfy.helium.handler.codegen.objectivec.parser;
+package com.stanfy.helium.handler.codegen.objectivec.builder;
 
 import com.stanfy.helium.handler.codegen.objectivec.ObjCHeaderFile;
 import com.stanfy.helium.handler.codegen.objectivec.ObjCImplementationFile;
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProject;
+import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions;
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClass;
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCPropertyDefinition;
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassDefinition;
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassImplementation;
-import com.stanfy.helium.handler.codegen.objectivec.parser.options.ObjCProjectParserOptions;
+import com.stanfy.helium.handler.codegen.objectivec.file.ObjCPropertyDefinition;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
@@ -19,7 +19,7 @@ import java.util.HashSet;
  * Created by ptaykalo on 8/17/14.
  *
  */
-public class DefaultObjCProjectParser implements ObjCProjectParser {
+public class DefaultObjCProjectBuilder implements ObjCProjectBuilder {
 
   /*
      Type transformer to transform correct Objc types from Helium API
@@ -39,8 +39,8 @@ public class DefaultObjCProjectParser implements ObjCProjectParser {
   Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
    */
   @Override
-  public ObjCProject parse(final Project project) {
-    return parse(project, null);
+  public ObjCProject build(final Project project) {
+    return build(project, null);
   }
 
   /*
@@ -48,11 +48,14 @@ public class DefaultObjCProjectParser implements ObjCProjectParser {
   Uses specified options for the generation @see ObjCProjectParserOptions
    */
   @Override
-  public ObjCProject parse(final Project project, final ObjCProjectParserOptions options) {
+  public ObjCProject build(final Project project, final ObjcEntitiesOptions options) {
     ObjCProject objCProject = new ObjCProject();
 
     // Register all messages first
     for (Message message : project.getMessages()) {
+      if (message.isAnonymous() || (options != null && !options.isTypeIncluded(message))) {
+        continue;
+      }
       String messageName = message.getName();
       String className = messageName;
       if (options != null && options.getPrefix() != null) {
