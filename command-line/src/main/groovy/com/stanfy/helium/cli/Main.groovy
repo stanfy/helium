@@ -140,6 +140,9 @@ class Main {
   }
 
   private static void setVariables(final Helium h, final def options) {
+    if (!options.Vs) {
+      return
+    }
     def vars = options.Vs as List<String>
     for (int i = 0; i < vars.size() / 2; i++) {
       h.set(vars[i * 2], vars[i * 2 + 1])
