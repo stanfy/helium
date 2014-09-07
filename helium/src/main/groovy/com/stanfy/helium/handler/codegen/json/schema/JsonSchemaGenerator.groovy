@@ -13,6 +13,8 @@ import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.constraints.ConstrainedType
+import com.stanfy.helium.model.constraints.EnumConstraint
 import org.apache.commons.io.IOUtils
 
 /**
@@ -72,13 +74,11 @@ class JsonSchemaGenerator extends BaseGenerator<JsonSchemaGeneratorOptions> impl
     schema.description = msg.getDescription()
 
     if (msg.fields) {
-      msg.activeFields
-          .each
-          { field ->
-            def property = makeSchemaFromType(field.getType())
-            property.description = field.getDescription()
-            schema.addProperty(field.name, property)
-          }
+      msg.activeFields.each { field ->
+        def property = makeSchemaFromType(field.getType())
+        property.description = field.getDescription()
+        schema.addProperty(field.name, property)
+      }
 
       msg.fields.grep({it.required }).each({schema.addRequired(it.name)})
     }
@@ -108,6 +108,12 @@ class JsonSchemaGenerator extends BaseGenerator<JsonSchemaGeneratorOptions> impl
       case JsonType.ARRAY:
         property = makeSchemaFromSequence((Sequence) type)
         break
+      case JsonType.ENUM:
+        property = new JsonSchemaEntity()
+        EnumConstraint<String> constraint = ((ConstrainedType) type)
+            .getConstraint(EnumConstraint.class) as EnumConstraint<String>
+        property.enumeration = new ArrayList<>(constraint.values)
+        break
       default:
         property = new JsonSchemaEntity()
         property.type = jsonType
@@ -124,6 +130,12 @@ class JsonSchemaGenerator extends BaseGenerator<JsonSchemaGeneratorOptions> impl
   }
 
   static JsonType translateType(Type type) {
+    if (type instanceof ConstrainedType) {
+      if (type.containsConstraint(EnumConstraint)) {
+        return JsonType.ENUM
+      }
+      return translateType(type.baseType)
+    }
     if (type.isPrimitive()) {
       switch (type.name) {
         case DefaultType.DOUBLE.langName:

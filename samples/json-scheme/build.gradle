@@ -1,0 +1,41 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  }
+  dependencies {
+    classpath 'com.stanfy.helium:gradle-plugin:0.5.5-SNAPSHOT'
+  }
+}
+
+apply plugin: 'helium'
+
+helium {
+  specification file('example.api')
+  sourceGen {
+    jsonSchema { }
+  }
+}
+
+task clean(type: Delete) {
+  delete buildDir
+}
+
+// ---- check task ---
+import groovy.json.JsonSlurper
+
+task check()
+afterEvaluate {
+  check.dependsOn 'generateJsonSchema'
+  check << {
+    def dir = generateJsonSchema.output as File
+    def buildInfoFile = new File(dir, "BuildInfoSchema.json")
+    def buildInfoSchema = new JsonSlurper().parseText(buildInfoFile.text)
+    println buildInfoSchema
+    // verify generated schema
+    assert buildInfoSchema.type == 'object'
+    assert buildInfoSchema['properties'].ch['enum'].contains('beta')
+    assert buildInfoSchema['properties'].environment['enum'].contains('prod')
+  }
+}

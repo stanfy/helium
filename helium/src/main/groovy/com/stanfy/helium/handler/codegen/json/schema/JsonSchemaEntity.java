@@ -31,6 +31,9 @@ class JsonSchemaEntity {
   @SerializedName("items")
   JsonSchemaEntity items;
 
+  @SerializedName("enum")
+  List<String> enumeration;
+
   public void addProperty(final String propertyName, final JsonSchemaEntity property) {
     if (properties == null) {
       this.properties = new HashMap<String, JsonSchemaEntity>();

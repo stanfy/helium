@@ -14,7 +14,8 @@ enum JsonType {
   NUMBER,
   NULL,
   OBJECT,
-  STRING;
+  STRING,
+  ENUM;
 
   public String getName() {
     return this.name().toLowerCase(Locale.US);

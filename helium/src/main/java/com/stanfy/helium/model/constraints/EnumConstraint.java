@@ -13,6 +13,10 @@ public class EnumConstraint<T> implements Constraint<T> {
     this.values = values;
   }
 
+  public Set<T> getValues() {
+    return values;
+  }
+
   @Override
   public boolean validate(final T value) {
     return values.contains(value);

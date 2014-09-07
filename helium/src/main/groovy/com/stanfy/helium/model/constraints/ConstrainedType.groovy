@@ -43,4 +43,12 @@ final class ConstrainedType extends Type {
     return Collections.unmodifiableList(constraints)
   }
 
+  boolean containsConstraint(final Class<? extends Constraint<?>> constraint) {
+    return getConstraint(constraint) != null
+  }
+
+  Constraint<?> getConstraint(final Class<?> constraint) {
+    return this.@constraints.find { constraint.isAssignableFrom(it.getClass()) }
+  }
+
 }
