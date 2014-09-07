@@ -82,9 +82,7 @@ class Main {
     return null
   }
 
-  /*
-  Property, that can contain multiple values
-   */
+  /** Property, that can contain multiple values */
   private static Map<String, String> mapProperty(def options, String name) {
     if (!options.Hs) {
       return null
