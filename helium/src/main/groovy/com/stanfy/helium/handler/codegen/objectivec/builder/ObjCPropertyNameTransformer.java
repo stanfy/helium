@@ -1,15 +1,18 @@
-package com.stanfy.helium.handler.codegen.objectivec.parser;
+package com.stanfy.helium.handler.codegen.objectivec.builder;
 
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.stanfy.helium.utils.Names.canonicalName;
+import static com.stanfy.helium.utils.Names.prettifiedName;
 
 /**
  * Created by ptaykalo on 8/25/14.
  * Transform property names for specified class
  * It updateing words those could possibly be
  */
-public class ObjCPropertyNameTransformer {
+final class ObjCPropertyNameTransformer {
 
   //http://www.binpress.com/tutorial/objective-c-reserved-keywords/43
   private static final Set<String> KEYWORDS = new HashSet<String>(Arrays.asList("auto", "break", "case", "char", "const", "continue", "default", "do", "double",
@@ -49,29 +52,7 @@ public class ObjCPropertyNameTransformer {
   }
 
   private static String toCamelCase(final String value) {
-    StringBuilder sb = new StringBuilder();
-
-    final char delimChar = '_';
-    boolean lower = false;
-
-    int startIndex = value.indexOf(delimChar);
-    if (startIndex == -1) {
-      return value;
-    }
-    sb.append(value.substring(0, startIndex));
-    for (int charInd = startIndex + 1; charInd < value.length(); ++charInd) {
-      final char valueChar = value.charAt(charInd);
-      if (valueChar == delimChar) {
-        lower = false;
-      } else if (lower) {
-        sb.append(Character.toLowerCase(valueChar));
-      } else {
-        sb.append(Character.toUpperCase(valueChar));
-        lower = true;
-      }
-    }
-
-    return sb.toString();
+    return prettifiedName(canonicalName(value));
   }
 
 }

@@ -1,8 +1,8 @@
 package com.stanfy.helium.handler.codegen.objectivec.mapper.sfobjectmapping;
 
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProject;
+import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions;
 import com.stanfy.helium.handler.codegen.objectivec.mapper.ObjCMapper;
-import com.stanfy.helium.handler.codegen.objectivec.parser.options.ObjCProjectParserOptions;
 import com.stanfy.helium.model.Project;
 
 /**
@@ -15,7 +15,7 @@ import com.stanfy.helium.model.Project;
 public class ObjCSFObjectMapper implements ObjCMapper {
 
   @Override
-  public void generateMappings(final ObjCProject project, final Project projectDSL, final ObjCProjectParserOptions options) {
+  public void generateMappings(final ObjCProject project, final Project projectDSL, final ObjcEntitiesOptions options) {
 
     //
   }

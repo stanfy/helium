@@ -1,7 +1,7 @@
-package com.stanfy.helium.handler.codegen.objectivec.parser;
+package com.stanfy.helium.handler.codegen.objectivec.builder;
 
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProject;
-import com.stanfy.helium.handler.codegen.objectivec.parser.options.ObjCProjectParserOptions;
+import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions;
 import com.stanfy.helium.model.Project;
 
 /**
@@ -9,10 +9,10 @@ import com.stanfy.helium.model.Project;
  * Interface for the class that can generate valid ObjCProject structure, based on provided
  * Helium DSL Project description
  */
-public interface ObjCProjectParser {
-  /*
-  Returns type transformer, which is responsible for convertation
-  Of types, described in Porject DSL to ObjC types
+public interface ObjCProjectBuilder {
+  /**
+   * Returns type transformer, which is responsible for convertation.
+   * Of types, described in Porject DSL to ObjC types.
    */
   ObjCTypeTransformer getTypeTransformer();
 
@@ -21,11 +21,12 @@ public interface ObjCProjectParser {
   /*
     Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
      */
-  ObjCProject parse(final Project project);
+  ObjCProject build(final Project project);
 
   /*
     Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
     Uses specified options for the generation @see ObjCProjectParserOptions
      */
-  ObjCProject parse(final Project project, final ObjCProjectParserOptions options);
+  // TODO replace with more generic options
+  ObjCProject build(final Project project, final ObjcEntitiesOptions options);
 }

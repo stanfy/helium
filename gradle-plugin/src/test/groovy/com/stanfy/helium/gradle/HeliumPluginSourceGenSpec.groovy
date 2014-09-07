@@ -3,7 +3,7 @@ package com.stanfy.helium.gradle
 import com.stanfy.helium.gradle.tasks.GenerateJavaConstantsTask
 import com.stanfy.helium.gradle.tasks.GenerateJavaEntitiesTask
 import com.stanfy.helium.gradle.tasks.GenerateJsonSchemaTask
-import com.stanfy.helium.gradle.tasks.GenerateObjcTask
+import com.stanfy.helium.gradle.tasks.GenerateObjcEntitiesTask
 import com.stanfy.helium.gradle.tasks.GenerateRetrofitTask
 import com.stanfy.helium.handler.codegen.java.constants.ConstantNameConverter
 import org.gradle.api.GradleException
@@ -218,7 +218,7 @@ class HeliumPluginSourceGenSpec extends Specification {
     createTasks()
 
     then:
-    project.helium.sourceGen.objc instanceof GenerateObjcTask
+    project.helium.sourceGen.objc instanceof GenerateObjcEntitiesTask
     project.helium.sourceGen.objc.output == new File("test")
     project.helium.sourceGen.objc.options.prefix == 'TT'
   }

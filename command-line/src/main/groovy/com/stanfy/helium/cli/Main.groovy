@@ -4,9 +4,8 @@ import com.stanfy.helium.Helium
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGenerator
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
-import com.stanfy.helium.handler.codegen.objectivec.ObjCProjectHandler
-import com.stanfy.helium.handler.codegen.objectivec.parser.options.DefaultObjCProjectParserOptions
-import com.stanfy.helium.handler.codegen.objectivec.parser.options.ObjCProjectParserOptions;
+import com.stanfy.helium.handler.codegen.objectivec.ObjCEntitiesGenerator
+import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions
 
 /**
  * Main entry point.
@@ -33,9 +32,9 @@ class Main {
               ],
 
               factory: { def options, File output ->
-                  DefaultObjCProjectParserOptions genOptions = new DefaultObjCProjectParserOptions()
+                  ObjcEntitiesOptions genOptions = new ObjcEntitiesOptions()
                   genOptions.prefix = requiredProperty(options, "prefix");
-                  return new ObjCProjectHandler(output, genOptions)
+                  return new ObjCEntitiesGenerator(output, genOptions)
               }
       ]
 
