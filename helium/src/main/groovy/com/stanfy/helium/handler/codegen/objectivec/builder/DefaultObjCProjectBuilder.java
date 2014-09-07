@@ -14,6 +14,7 @@ import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Type;
 
 import java.util.HashSet;
+import java.util.Map;
 
 /**
  * Created by ptaykalo on 8/17/14.
@@ -62,6 +63,22 @@ public class DefaultObjCProjectBuilder implements ObjCProjectBuilder {
         className = options.getPrefix() + className;
       }
       typeTransformer.registerRefTypeTransformation(messageName, className);
+    }
+
+    // Registering all custom mappings
+    if (options != null && options.getCustomTypesMappings() != null) {
+      Map<String, String> customTypesMappings = options.getCustomTypesMappings();
+      for (Map.Entry<String, String> entry : customTypesMappings.entrySet()) {
+        // Check if Objective-C Type have * here
+        String objectiveCType = entry.getValue();
+        String heliumType = entry.getKey();
+        if (objectiveCType.contains("*")) {
+          String validObjectiveCString = objectiveCType.replace("*", "").trim();
+          typeTransformer.registerRefTypeTransformation(heliumType, validObjectiveCString);
+        } else {
+          typeTransformer.registerSimpleTransformation(heliumType, objectiveCType);
+        }
+      }
     }
 
     for (Message message : project.getMessages()) {

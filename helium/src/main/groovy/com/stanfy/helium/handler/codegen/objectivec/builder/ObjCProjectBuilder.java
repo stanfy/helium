@@ -16,15 +16,19 @@ public interface ObjCProjectBuilder {
    */
   ObjCTypeTransformer getTypeTransformer();
 
+  /**
+   * Returns transformer, that is responsible for generation valid names for properties
+   *
+   */
   ObjCPropertyNameTransformer getNameTransformer();
 
   /*
-    Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
+    Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
      */
   ObjCProject build(final Project project);
 
   /*
-    Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
+    Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
     Uses specified options for the generation @see ObjCProjectParserOptions
      */
   // TODO replace with more generic options

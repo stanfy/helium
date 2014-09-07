@@ -7,6 +7,7 @@ import com.stanfy.helium.handler.codegen.objectivec.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassDefinition
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassImplementation
+import com.stanfy.helium.handler.codegen.objectivec.file.ObjCPropertyDefinition
 import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
@@ -154,5 +155,65 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
 
   }
 
+  def "should use provided custom types mappings for unknown object types"() {
+    when:
+    project = new ProjectDsl()
+    project.typeResolver.registerNewType( new Type(name:"int32"));
+
+
+    project.type "A" spec {
+    }
+
+    project.type "B" message {
+      testA "A"
+    }
+
+    parser = new DefaultObjCProjectBuilder()
+    def customTypesMappings = new HashMap<>()
+    customTypesMappings["A"] = "NSDate *"
+    builderOptions.customTypesMappings = customTypesMappings;
+
+    objCProject = parser.build(project, builderOptions);
+
+    def propertyDefinitions = objCProject.getClasses().get(0).getDefinition().getPropertyDefinitions()
+
+    then:
+    objCProject.getClasses().size() == 1
+    propertyDefinitions.size() == 1
+    propertyDefinitions.get(0).type == "NSDate *"
+    propertyDefinitions.get(0).accessModifier == ObjCPropertyDefinition.AccessModifier.STRONG
+
+  }
+
+
+  def "should use provided custom types mappings for unknown primitive types"() {
+    when:
+    project = new ProjectDsl()
+    project.typeResolver.registerNewType( new Type(name:"int32"));
+
+
+    project.type "A" spec {
+    }
+
+    project.type "B" message {
+      testA "A"
+    }
+
+    parser = new DefaultObjCProjectBuilder()
+    def customTypesMappings = new HashMap<>()
+    customTypesMappings["A"] = "somePrimitive"
+    builderOptions.customTypesMappings = customTypesMappings;
+
+    objCProject = parser.build(project, builderOptions);
+
+    def propertyDefinitions = objCProject.getClasses().get(0).getDefinition().getPropertyDefinitions()
+
+    then:
+    objCProject.getClasses().size() == 1
+    propertyDefinitions.size() == 1
+    propertyDefinitions.get(0).type == "somePrimitive"
+    propertyDefinitions.get(0).accessModifier == ObjCPropertyDefinition.AccessModifier.ASSIGN
+
+  }
 
 }
