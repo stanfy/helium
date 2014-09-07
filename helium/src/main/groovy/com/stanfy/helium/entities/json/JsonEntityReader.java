@@ -3,7 +3,7 @@ package com.stanfy.helium.entities.json;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.stanfy.helium.entities.Converter;
-import com.stanfy.helium.entities.ConverterFactory;
+import com.stanfy.helium.entities.ConvertersPool;
 import com.stanfy.helium.entities.EntityReader;
 import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.ValidationError;
@@ -24,9 +24,9 @@ public class JsonEntityReader implements EntityReader {
   private final JsonReader json;
 
   /** Converters. */
-  private final ConverterFactory<JsonReader, ?> converters;
+  private final ConvertersPool<JsonReader, ?> converters;
 
-  public JsonEntityReader(final Reader reader, final ConverterFactory<JsonReader, ?> converters) {
+  public JsonEntityReader(final Reader reader, final ConvertersPool<JsonReader, ?> converters) {
     this.json = new JsonReader(reader);
     this.json.setLenient(true);
     this.converters = converters;
@@ -49,7 +49,7 @@ public class JsonEntityReader implements EntityReader {
     } catch (JsonSyntaxException e) {
       errors.add(new ValidationError(type, "Could not parse json JSON (syntax error)\n" + getFullErrorMessage(e)));
     } catch (IllegalStateException e) {
-      errors.add(new ValidationError(type, "Could not parse json JSON (bad response structure)\n" + getFullErrorMessage(e)));
+      errors.add(new ValidationError(type, "Could not parse json JSON (bad structure)\n" + getFullErrorMessage(e)));
     }
 
     TypedEntity<?> res = new TypedEntity<Type>(type, value);

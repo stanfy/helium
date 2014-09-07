@@ -101,6 +101,13 @@ class ProjectDsl implements Project {
     return seq
   }
 
+  public void updatePrimitiveType(final Type type) {
+    Type prevType = pendingTypeDefinitions.put(type.name, type)
+    if (!prevType) {
+      throw new IllegalStateException("Type $type.name is not in pending type definitions")
+    }
+  }
+
   private void updatePendingTypes(final String name, final Type type, final boolean addToStructure) {
     Type prevType = pendingTypeDefinitions.remove(name)
     pendingTypeDefinitions[name] = type

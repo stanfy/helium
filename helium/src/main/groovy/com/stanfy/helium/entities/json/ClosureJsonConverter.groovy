@@ -10,7 +10,7 @@ import com.stanfy.helium.model.Type
 /**
  * Converts a primitive with custom reader/writer closures.
  */
-class ClosureJsonConverter extends JsonConverterFactory.JsonPrimitiveConverter {
+class ClosureJsonConverter extends JsonPrimitiveConverter {
 
   public static final Closure<?> AS_STRING_READER = { JsonReader reader ->
     JsonToken nextToken = reader.peek();

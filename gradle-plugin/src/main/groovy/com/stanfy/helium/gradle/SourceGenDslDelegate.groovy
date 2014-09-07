@@ -25,7 +25,8 @@ class SourceGenDslDelegate {
     SourceCodeGenerators.GENERATORS.each { String name, def params ->
       // configuration method
       meta."$name" << { Closure<?> config ->
-        setDelegate(name, new GeneratorDslDelegate(genOptions: params.optionsFactory()))
+        def options = params.optionsFactory()
+        setDelegate(name, new GeneratorDslDelegate(genOptions: options))
         DslUtils.runWithProxy(getDelegate(name), config)
       }
     }
@@ -70,7 +71,7 @@ class SourceGenDslDelegate {
           SourceCodeGenerators.GENERATORS[name].task as Class<? extends BaseHeliumTask>
       )
       HeliumInitializer.configureHeliumTask(task, specification, delegate.output, classpath, userConfig)
-      task.options = delegate.genOptions
+      task.setOptions delegate.genOptions
       config.sourceGen(specification)[name] = task
     }
   }

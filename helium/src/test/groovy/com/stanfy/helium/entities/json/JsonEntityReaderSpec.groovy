@@ -1,13 +1,13 @@
 package com.stanfy.helium.entities.json
 
 import com.google.gson.stream.JsonReader
-import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.dsl.ProjectDsl
-import com.stanfy.helium.entities.ConverterFactory
+import com.stanfy.helium.entities.ConvertersPool
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.constraints.ConstrainedType
 import spock.lang.Specification
 
 /**
@@ -15,7 +15,7 @@ import spock.lang.Specification
  */
 class JsonEntityReaderSpec extends Specification {
 
-  ConverterFactory<JsonReader, ?> converters
+  ConvertersPool<JsonReader, ?> converters
 
   ProjectDsl dsl
 
@@ -48,7 +48,7 @@ class JsonEntityReaderSpec extends Specification {
     structMessage = dsl.messages[2]
     listWithName = dsl.messages[1]
 
-    converters = dsl.types.findConverters(JsonConverterFactory.JSON)
+    converters = dsl.types.findConverters(JsonConvertersPool.JSON)
   }
 
   private TypedEntity read(final Type type, final String json) {
@@ -476,6 +476,26 @@ class JsonEntityReaderSpec extends Specification {
 
     expect:
     error == null
+  }
+
+  def "applies constraints"() {
+    given:
+    dsl.type "weekendDay" spec {
+      constraints("string") {
+        enumeration "Sat", "Sun"
+      }
+    }
+    def okResult = read(dsl.types.byName("weekendDay"), '"Sat"')
+    def errResult = read(dsl.types.byName("weekendDay"), '"Mon"')
+
+    expect:
+    okResult.type instanceof ConstrainedType
+    okResult.value == "Sat"
+    okResult.validationError == null
+    errResult.type instanceof ConstrainedType
+    errResult.value == "Mon"
+    errResult.validationError.explanation.contains("Sun")
+    errResult.validationError.explanation.contains("Mon")
   }
 
 }

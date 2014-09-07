@@ -4,6 +4,7 @@ import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.constraints.ConstrainedType
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 
@@ -54,6 +55,8 @@ class TypeDsl {
   void spec(final Closure<?> spec) {
     ConfigurableType proxy = new ConfigurableType(type, dsl)
     runWithProxy(proxy, spec)
+
+    // register custom converters
     Set<String> formats = new HashSet<>()
     formats.addAll(proxy.@readers.keySet())
     formats.addAll(proxy.@writers.keySet())
@@ -64,6 +67,15 @@ class TypeDsl {
       dsl.typeResolver.findConverters(format).addConverter(
           type.name, new ClosureJsonConverter(type, reader, writer)
       )
+    }
+
+    // turn into constrained type
+    if (proxy.getBaseTypeName() && proxy.getConstraints()) {
+      ConstrainedType type = new ConstrainedType(dsl.typeResolver.byName(proxy.getBaseTypeName()))
+      type.addConstraints(proxy.getConstraints())
+      type.name = this.type.name
+      type.description = this.type.description
+      dsl.updatePrimitiveType(type)
     }
   }
 

@@ -1,6 +1,5 @@
 package com.stanfy.helium.dsl
 
-import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
@@ -34,42 +33,74 @@ class FieldsBuilder {
 
   @Override
   def invokeMethod(final String name, final Object args) {
+    Map map = null
+    Closure<?> spec = null
     Object arg = args
+
     if (args.getClass().isArray()) {
       Object[] arr = args as Object[]
       if (arr.length > 1) {
-        throw new IllegalArgumentException("Bad argument for building field $name: $args")
+        if (arr[0] instanceof Map && arr[1] instanceof Closure) {
+          map = arr[0] as Map
+          spec = arr[1] as Closure<?>
+          arg = null
+        } else {
+          throw new IllegalArgumentException("Bad argument for building field $name: $args")
+        }
+      } else {
+        if (arr[0] instanceof Map) {
+          map = arr[0] as Map
+          arg = null
+        } else if (arr[0] instanceof Closure<?>) {
+          spec = arr[0] as Closure<?>
+          arg = null
+        } else {
+          arg = arr[0]
+        }
       }
-      arg = arr[0]
     }
 
-    if (arg instanceof Closure) {
-      // just configure
-      Field f = new Field()
-      runWithProxy(new ConfigurableProxy<Field>(f, project), (Closure<?>)arg)
-      f.name = name
-      message.addField(f)
-      return f
-    }
+    Field f = null;
 
-    if (arg instanceof Map) {
-      if (arg.skip) {
-        Field f = new Field(name: name, type: IGNORABLE_TYPE, skip: true)
+    // configure with map
+    if (map != null) {
+      if (map.skip) {
+        f = new Field(name: name, type: IGNORABLE_TYPE, skip: true)
         message.addField(f)
         return f
       }
-      Type type = resolveType(arg['type'])
-      arg.type = type
-      Field f = new Field(arg)
+
+      Type type = resolveType(map['type'])
+      map.type = type
+      f = new Field(map)
       f.name = name
       message.addField(f)
+    }
+
+    // configure with closure
+    if (spec != null) {
+      if (f == null) {
+        f = new Field()
+        message.addField(f)
+      }
+      def fieldDsl = new ConfigurableField(f, project)
+      runWithProxy(fieldDsl, spec)
+      fieldDsl.resolveConstraints(message)
+      f.name = name
+    }
+
+    if (f != null) {
       return f
     }
 
+    if (arg == null) {
+      throw new IllegalArgumentException("Bad syntax for field description: $args")
+    }
+
     // treat parameter as a type
-    Field field = new Field(name : name, type : resolveType(arg))
-    message.addField(field)
-    return new OptionalFieldTrigger(field : field)
+    f = new Field(name : name, type : resolveType(arg))
+    message.addField(f)
+    return new OptionalFieldTrigger(field : f)
   }
 
   @CompileStatic

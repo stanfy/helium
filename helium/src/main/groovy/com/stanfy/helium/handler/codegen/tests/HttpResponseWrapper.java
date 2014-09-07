@@ -4,7 +4,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.stanfy.helium.dsl.scenario.MethodExecutionResult;
 import com.stanfy.helium.entities.TypedEntity;
-import com.stanfy.helium.entities.json.JsonConverterFactory;
+import com.stanfy.helium.entities.json.JsonConvertersPool;
 import com.stanfy.helium.entities.json.JsonEntityReader;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.TypeResolver;
@@ -115,7 +115,7 @@ class HttpResponseWrapper implements MethodExecutionResult {
             new InputStreamReader(new BufferedInputStream(
                 response.getEntity().getContent()), encoding
             ),
-            typeResolver.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)
+            typeResolver.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)
         );
 
         body = reader.read(type);

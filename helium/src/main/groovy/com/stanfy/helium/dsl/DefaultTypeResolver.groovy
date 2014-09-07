@@ -2,9 +2,10 @@ package com.stanfy.helium.dsl
 
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import com.stanfy.helium.entities.ConverterFactory
+import com.stanfy.helium.DefaultType
+import com.stanfy.helium.entities.ConvertersPool
 import com.stanfy.helium.entities.json.ClosureJsonConverter
-import com.stanfy.helium.entities.json.JsonConverterFactory
+import com.stanfy.helium.entities.json.JsonConvertersPool
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 
@@ -17,7 +18,7 @@ class DefaultTypeResolver implements TypeResolver {
   private final LinkedHashMap<String, Type> types = new LinkedHashMap<>()
 
   /** Converters. */
-  private final JsonConverterFactory json = new JsonConverterFactory();
+  private final JsonConvertersPool json = new JsonConvertersPool();
 
   @Override
   Type byName(final String name) {
@@ -31,22 +32,22 @@ class DefaultTypeResolver implements TypeResolver {
     switch (clazz) {
       case Double:
       case double:
-        return byName("double")
+        return byName(DefaultType.DOUBLE.langName)
       case Float:
       case float:
-        return byName("float")
+        return byName(DefaultType.FLOAT.langName)
       case Integer:
       case int:
-        return byName("int32")
+        return byName(DefaultType.INT32.langName)
       case Long:
       case long:
-        return byName("int64")
+        return byName(DefaultType.INT64.langName)
       case String:
-        return byName("string")
+        return byName(DefaultType.STRING.langName)
       case byte[]:
-        return byName("bytes")
+        return byName(DefaultType.BYTES.langName)
       case boolean:
-        return byName("bool")
+        return byName(DefaultType.BOOL.langName)
       default:
         throw new IllegalArgumentException("Unknown type $clazz")
     }
@@ -61,23 +62,23 @@ class DefaultTypeResolver implements TypeResolver {
 
     Closure<?> numReader
     switch (type.name) {
-      case "double":
+      case DefaultType.DOUBLE.langName:
         numReader = { JsonReader reader -> return reader.nextDouble() }
         break
-      case "float":
+      case DefaultType.FLOAT.langName:
         numReader = { JsonReader reader ->
           double doubleValue = reader.nextDouble()
           return (float)doubleValue;
         }
         break
-      case "int32":
+      case DefaultType.INT32.langName:
         numReader = { JsonReader reader -> return reader.nextInt() }
         break
-      case "int64":
+      case DefaultType.INT64.langName:
         numReader = { JsonReader reader -> return reader.nextLong() }
         break
 
-      case "bool":
+      case DefaultType.BOOL.langName:
         json.addConverter(type.name, new ClosureJsonConverter(
             type,
             { JsonReader input -> return input.nextBoolean() },
@@ -85,7 +86,7 @@ class DefaultTypeResolver implements TypeResolver {
         ))
         break
 
-      case "string":
+      case DefaultType.STRING.langName:
         json.addConverter(type.name, new ClosureJsonConverter(
             type,
             ClosureJsonConverter.AS_STRING_READER,
@@ -111,9 +112,9 @@ class DefaultTypeResolver implements TypeResolver {
   }
 
   @Override
-  def <I, O> ConverterFactory<I, O> findConverters(final String format) {
-    if (JsonConverterFactory.JSON == format) {
-      return json as ConverterFactory<I, O>;
+  def <I, O> ConvertersPool<I, O> findConverters(final String format) {
+    if (JsonConvertersPool.JSON == format) {
+      return json as ConvertersPool<I, O>;
     }
     throw new UnsupportedOperationException("Format " + format + " is not supported")
   }

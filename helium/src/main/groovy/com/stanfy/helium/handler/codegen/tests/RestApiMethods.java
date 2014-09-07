@@ -5,7 +5,7 @@ import com.google.gson.stream.JsonWriter;
 import com.stanfy.helium.Helium;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.entities.TypedEntity;
-import com.stanfy.helium.entities.json.JsonConverterFactory;
+import com.stanfy.helium.entities.json.JsonConvertersPool;
 import com.stanfy.helium.entities.json.JsonEntityReader;
 import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
@@ -106,7 +106,7 @@ public class RestApiMethods {
     try {
       TypedEntity entity = new JsonEntityReader(
           reader,
-          types.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)
+          types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)
       ).read(types.byName(typeName));
       AssertionUtils.assertCorrectEntity(entity, request, response);
     } finally {

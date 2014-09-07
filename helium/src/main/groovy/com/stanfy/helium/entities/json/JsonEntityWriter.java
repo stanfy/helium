@@ -2,7 +2,7 @@ package com.stanfy.helium.entities.json;
 
 import com.google.gson.stream.JsonWriter;
 import com.stanfy.helium.entities.Converter;
-import com.stanfy.helium.entities.ConverterFactory;
+import com.stanfy.helium.entities.ConvertersPool;
 import com.stanfy.helium.entities.EntityWriter;
 import com.stanfy.helium.entities.TypedEntity;
 
@@ -18,9 +18,9 @@ public class JsonEntityWriter implements EntityWriter {
   private final JsonWriter out;
 
   /** Types. */
-  private final ConverterFactory<?, JsonWriter> converters;
+  private final ConvertersPool<?, JsonWriter> converters;
 
-  public JsonEntityWriter(final Writer out, final ConverterFactory<?, JsonWriter> converters) {
+  public JsonEntityWriter(final Writer out, final ConvertersPool<?, JsonWriter> converters) {
     this.out = new JsonWriter(out);
     this.out.setLenient(true);
     this.converters = converters;

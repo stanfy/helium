@@ -22,7 +22,7 @@ abstract class BaseTypeConverter<I, O> {
 
   public String getFormat() { return format; }
 
-  public abstract ConverterFactory<I, O> getFactory();
+  public abstract ConvertersPool<I, O> getPool();
 
   protected void writeValue(final Type type, final Object value, final O output) throws IOException {
     Converter<Type, I, O> converter = getTypeConverter(type);
@@ -42,8 +42,8 @@ abstract class BaseTypeConverter<I, O> {
   }
 
   protected Converter<Type, I, O> getTypeConverter(final Type type) {
-    ConverterFactory<I, O> factory = getFactory();
-    Converter<Type, I, O> converter = factory.getConverter(type);
+    ConvertersPool<I, O> pool = getPool();
+    Converter<Type, I, O> converter = pool.getConverter(type);
     if (converter == null) {
       throw new IllegalStateException("Converter of type " + type + " for format " + getFormat() + " not found");
     }

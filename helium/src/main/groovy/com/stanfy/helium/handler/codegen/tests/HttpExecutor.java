@@ -4,7 +4,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
-import com.stanfy.helium.entities.json.JsonConverterFactory;
+import com.stanfy.helium.entities.json.JsonConvertersPool;
 import com.stanfy.helium.entities.json.JsonEntityWriter;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.MethodType;
@@ -145,7 +145,7 @@ class HttpExecutor implements ScenarioExecutor {
     if (method.getType().isHasBody() && method.getBody() != null) {
       StringWriter json = new StringWriter();
       try {
-        new JsonEntityWriter(json, types.<JsonReader, JsonWriter>findConverters(JsonConverterFactory.JSON)).write(request.getBody());
+        new JsonEntityWriter(json, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(request.getBody());
       } catch (IOException e) {
         throw new RuntimeException("Cannot serialize request body", e);
       }

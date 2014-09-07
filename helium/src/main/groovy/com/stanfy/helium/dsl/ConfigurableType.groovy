@@ -5,8 +5,10 @@ import com.google.gson.stream.JsonWriter
 import com.stanfy.helium.entities.ConvertValueSyntaxException
 import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.constraints.Constraint
 import com.stanfy.helium.utils.ConfigurableProxy
 import com.stanfy.helium.utils.DslUtils
+import groovy.transform.PackageScope
 import org.joda.time.format.DateTimeFormat
 
 /**
@@ -14,18 +16,35 @@ import org.joda.time.format.DateTimeFormat
  */
 class ConfigurableType extends ConfigurableProxy<Type> {
 
-  Map<String, Closure<?>> readers = [:], writers = [:];
+  @PackageScope Map<String, Closure<?>> readers = [:], writers = [:];
+
+  private String baseTypeName
+  private ArrayList<Constraint<?>> constraints
 
   ConfigurableType(final Type core, final ProjectDsl project) {
     super(core, project)
   }
 
-  public void from(final String format, final Closure<?> spec) {
+  void from(final String format, final Closure<?> spec) {
     readers[format] = DslUtils.runWithProxy(new From(), spec) as Closure<?>
   }
 
-  public void to(final String format, final Closure<?> spec) {
+  void to(final String format, final Closure<?> spec) {
     writers[format] = DslUtils.runWithProxy(new To(), spec) as Closure<?>
+  }
+
+  void constraints(final String baseTypeName, final Closure<?> spec) {
+    this.@baseTypeName = baseTypeName
+    this.@constraints = new ArrayList<>()
+    DslUtils.runWithProxy(new ConstraintsDsl(this.@constraints), spec)
+  }
+
+  @PackageScope String getBaseTypeName() {
+    return this.@baseTypeName
+  }
+
+  @PackageScope ArrayList<Constraint<?>> getConstraints() {
+    return this.@constraints
   }
 
   public class From {

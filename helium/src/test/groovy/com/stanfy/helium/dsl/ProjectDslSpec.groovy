@@ -4,6 +4,7 @@ import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.DefaultTypesLoader
+import com.stanfy.helium.model.constraints.ConstrainedType
 import spock.lang.Specification
 
 /**
@@ -469,6 +470,47 @@ class ProjectDslSpec extends Specification {
     then:
     def e = thrown(IllegalStateException)
     e.message.contains "GET /1"
+  }
+
+  def "can describe constrained types"() {
+    when:
+    dsl.type "string"
+    dsl.type "branch" spec {
+      constraints("string") {
+        enumeration 'master', 'dev'
+      }
+    }
+    then:
+    dsl.types.byName("branch") instanceof ConstrainedType
+    dsl.types.byName("branch").baseType.name == "string"
+    dsl.types.byName("branch").constraints.size() == 1
+  }
+
+  def "can describe constrained fields"() {
+    when:
+    dsl.type "string"
+    dsl.type "CMessage" message {
+      branch(type: "string") {
+        constraints {
+          enumeration 'master', 'dev'
+        }
+      }
+      versionPrefix(type: "string", required: false) {
+        constraints {
+          enumeration 'alpha', 'beta'
+        }
+      }
+    }
+    def msg = (Message) dsl.types.byName("CMessage")
+
+    then:
+    msg.fieldByName("branch").type instanceof ConstrainedType
+    msg.fieldByName("branch").type.baseType.name == "string"
+    msg.fieldByName("branch").type.constraints.size() == 1
+    msg.fieldByName("branch").type.constraints[0].validate("master")
+    !msg.fieldByName("branch").type.constraints[0].validate("feature1")
+    msg.fieldByName("versionPrefix").type.constraints[0].validate("alpha")
+    !msg.fieldByName("versionPrefix").type.constraints[0].validate("SNAPSHOT")
   }
 
 }
