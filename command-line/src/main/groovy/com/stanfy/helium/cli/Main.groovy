@@ -28,12 +28,14 @@ class Main {
       "objective-c-entities" : [
               description: "Generate Objective-C entity classes",
               properties: [
-                      "prefix": "Prefix for generated classes. Required."
+                      "prefix": "Prefix for generated classes. Required.",
+                      "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:OBJC_TYPE"
               ],
 
               factory: { def options, File output ->
                   ObjcEntitiesOptions genOptions = new ObjcEntitiesOptions()
                   genOptions.prefix = requiredProperty(options, "prefix");
+                  genOptions.customTypesMappings = mapProperty(options, "customMapping")
                   return new ObjCEntitiesGenerator(output, genOptions)
               }
       ]
@@ -54,6 +56,8 @@ class Main {
       }.inject("", {x, y -> x + y})
       CLI._(longOpt: name, "$definition.description\nUsed properties:\n$propsDescr\n")
     }
+
+    CLI.width = 120
   }
 
   private static String requiredProperty(def options, String name) {
@@ -76,6 +80,29 @@ class Main {
       }
     }
     return null
+  }
+
+  /*
+  Property, that can contain multiple values
+   */
+  private static Map<String, String> mapProperty(def options, String name) {
+    if (!options.Hs) {
+      return null
+    }
+    def res = [:]
+    def props = options.Hs as List
+    for (int i = 0; i < props.size() / 2; i++) {
+      if (name == props[i * 2]) {
+        def object = props[i * 2 + 1]
+        def kv = (object as String).split(":")
+        if (kv.length != 2) {
+          println "Property -H$name=<key>:<value> is required"
+          System.exit(1)
+        }
+        res[kv[0]] = kv[1];
+      }
+    }
+    return res as Map
   }
 
   static void main(final String[] args) {
