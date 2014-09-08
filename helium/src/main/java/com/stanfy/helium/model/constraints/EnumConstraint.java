@@ -1,19 +1,19 @@
 package com.stanfy.helium.model.constraints;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * Validates whether value belongs to a particular set of possible values.
  */
 public class EnumConstraint<T> implements Constraint<T> {
 
-  private final Set<T> values;
+  private final Collection<T> values;
 
-  public EnumConstraint(final Set<T> values) {
+  public EnumConstraint(final Collection<T> values) {
     this.values = values;
   }
 
-  public Set<T> getValues() {
+  public Collection<T> getValues() {
     return values;
   }
 

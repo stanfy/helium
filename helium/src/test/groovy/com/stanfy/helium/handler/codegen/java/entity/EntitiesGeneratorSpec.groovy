@@ -14,6 +14,39 @@ class EntitiesGeneratorSpec extends BaseMessageToClassGeneratorSpec<EntitiesGene
     generator = new EntitiesGenerator(output, options)
   }
 
+  def "process enums"() {
+    given:
+    project.type "string"
+    project.type "day" spec {
+      description "Days of week."
+      constraints("string") {
+        enumeration "mon", "tue", "wed", "thu", "fri", "sat", "sun"
+      }
+    }
+
+    when:
+    generator.handle(project)
+    def text = new File("$output/com/stanfy/helium/Day.java").text
+
+    then:
+    text == """
+package com.stanfy.helium;
+
+/**
+ * Days of week.
+ */
+public enum Day {
+  MON,
+  TUE,
+  WED,
+  THU,
+  FRI,
+  SAT,
+  SUN;
+}
+""".trim() + '\n'
+  }
+
   def "should be able to chain writers"() {
     given:
     options.writerWrapper = Writers.chain(Writers.gson(), Writers.androidParcelable())

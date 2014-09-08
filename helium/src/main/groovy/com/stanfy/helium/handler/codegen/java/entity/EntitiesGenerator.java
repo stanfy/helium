@@ -1,12 +1,15 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
+import com.stanfy.helium.DefaultType;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
 import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Type;
-
+import com.stanfy.helium.model.constraints.ConstrainedType;
+import com.stanfy.helium.model.constraints.EnumConstraint;
+import com.stanfy.helium.utils.Names;
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -33,10 +36,25 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
     JavaGeneratorOptions options = getOptions();
 
     for (Type type : project.getTypes().all()) {
-      boolean shouldProcess = options.isTypeUserDefinedMessage(type) && options.isTypeIncluded(type);
-      if (shouldProcess) {
-        File classFile = new File(targetDirectory, type.getCanonicalName().concat(EXT_JAVA));
+      if (!options.isTypeIncluded(type)) {
+        continue;
+      }
+
+      String className = Names.capitalize(type.getCanonicalName());
+      File classFile = new File(targetDirectory, className.concat(EXT_JAVA));
+
+      if (options.isTypeUserDefinedMessage(type)) {
+        // turn message into a class
         write((Message) type, classFile);
+      } else if (type instanceof ConstrainedType) {
+        // treat constraints
+        ConstrainedType cType = (ConstrainedType) type;
+        if (cType.getBaseType().getName().equals(DefaultType.STRING.getLangName())) {
+          EnumConstraint<?> enumConstraint = (EnumConstraint<?>) cType.getConstraint(EnumConstraint.class);
+          if (enumConstraint != null) {
+            writeEnum(enumConstraint, type, classFile);
+          }
+        }
       }
     }
   }
@@ -48,6 +66,21 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
       JavaClassWriter coreWriter = Writers.pojo().create(output);
       EntitiesGeneratorOptions options = getOptions();
       new MessageToJavaClass(options.getWriterWrapper().wrapWriter(coreWriter, options), options).write(type);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    } finally {
+      IOUtils.closeQuietly(output);
+    }
+  }
+
+
+  @SuppressWarnings("unchecked")
+  private void writeEnum(final EnumConstraint<?> constraint, final Type type, final File classFile) {
+    EnumConstraint<String> enumConst = (EnumConstraint<String>) constraint;
+    OutputStreamWriter output = null;
+    try {
+      output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
+      new ConstraintsToEnum(getOptions()).write(type, enumConst, output);
     } catch (IOException e) {
       throw new RuntimeException(e);
     } finally {

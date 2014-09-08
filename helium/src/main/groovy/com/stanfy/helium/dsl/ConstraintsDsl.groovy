@@ -16,7 +16,7 @@ final class ConstraintsDsl {
   }
 
   void enumeration(final Collection<Object> values) {
-    constraints.add(new EnumConstraint<Object>(new HashSet<Object>(values)))
+    constraints.add(new EnumConstraint<Object>(values))
   }
 
   void enumeration(final Object... values) {

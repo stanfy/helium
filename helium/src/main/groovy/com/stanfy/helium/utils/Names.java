@@ -59,4 +59,15 @@ public final class Names {
     return path.charAt(0) == '/' ? path : "/".concat(path);
   }
 
+  public static String capitalize(final String name) {
+    if (name == null) {
+      return null;
+    }
+
+    char[] ch = new char[name.length()];
+    name.getChars(0, ch.length, ch, 0);
+    ch[0] = Character.toUpperCase(ch[0]);
+    return new String(ch);
+  }
+
 }
