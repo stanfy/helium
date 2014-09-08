@@ -43,7 +43,7 @@ final class ConstrainedType extends Type {
     return Collections.unmodifiableList(constraints)
   }
 
-  boolean containsConstraint(final Class<? extends Constraint<?>> constraint) {
+  boolean containsConstraint(final Class<? extends Constraint> constraint) {
     return getConstraint(constraint) != null
   }
 

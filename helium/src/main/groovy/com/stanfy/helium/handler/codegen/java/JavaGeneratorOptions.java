@@ -1,11 +1,14 @@
 package com.stanfy.helium.handler.codegen.java;
 
 import com.squareup.javawriter.JavaWriter;
+import com.stanfy.helium.DefaultType;
 import com.stanfy.helium.handler.codegen.GeneratorOptions;
 import com.stanfy.helium.model.Descriptionable;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
+import com.stanfy.helium.model.constraints.ConstrainedType;
+import com.stanfy.helium.model.constraints.EnumConstraint;
 import com.stanfy.helium.utils.Names;
 
 import java.util.Arrays;
@@ -71,6 +74,11 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
         typeName = type.getCanonicalName();
       }
     } else if (type.isPrimitive()) {
+
+      if (isEnumDeclaration(type)) {
+        return Names.capitalize(type.getCanonicalName());
+      }
+
       Class<?> clazz = getJavaClass(type);
       if (sequence) {
         String itemClassName = getSequenceItemClassName(clazz);
@@ -82,6 +90,15 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
       throw new UnsupportedOperationException("Cannot resolve Java type for " + type + ", sequence: " + sequence);
     }
     return typeName;
+  }
+
+  public boolean isEnumDeclaration(final Type type) {
+    if (!(type instanceof ConstrainedType)) {
+      return false;
+    }
+    ConstrainedType cType = (ConstrainedType) type;
+    return cType.getBaseType().getName().equals(DefaultType.STRING.getLangName())
+        && cType.containsConstraint(EnumConstraint.class);
   }
 
   public Class<?> getJavaClass(final Type type) {

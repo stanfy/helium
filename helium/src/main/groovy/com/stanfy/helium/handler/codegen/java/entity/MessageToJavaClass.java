@@ -4,6 +4,7 @@ import com.stanfy.helium.model.Descriptionable;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
+import com.stanfy.helium.model.constraints.ConstrainedType;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -52,7 +53,7 @@ final class MessageToJavaClass {
         }
       }
 
-      if (type.isPrimitive()) {
+      if (type.isPrimitive() && !(type instanceof ConstrainedType)) {
         Class<?> clazz = options.getJavaClass(type);
         if (!clazz.isPrimitive() && !"java.lang".equals(clazz.getPackage().getName())) {
           imports.add(clazz.getCanonicalName());

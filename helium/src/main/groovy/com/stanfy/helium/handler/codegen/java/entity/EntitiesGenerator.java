@@ -1,6 +1,5 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
-import com.stanfy.helium.DefaultType;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
 import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions;
@@ -46,15 +45,10 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
       if (options.isTypeUserDefinedMessage(type)) {
         // turn message into a class
         write((Message) type, classFile);
-      } else if (type instanceof ConstrainedType) {
-        // treat constraints
-        ConstrainedType cType = (ConstrainedType) type;
-        if (cType.getBaseType().getName().equals(DefaultType.STRING.getLangName())) {
-          EnumConstraint<?> enumConstraint = (EnumConstraint<?>) cType.getConstraint(EnumConstraint.class);
-          if (enumConstraint != null) {
-            writeEnum(enumConstraint, type, classFile);
-          }
-        }
+      } else if (options.isEnumDeclaration(type)) {
+        EnumConstraint<?> enumConstraint = (EnumConstraint<?>) ((ConstrainedType) type)
+            .getConstraint(EnumConstraint.class);
+        writeEnum(enumConstraint, type, classFile);
       }
     }
   }

@@ -4,6 +4,8 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.constraints.ConstrainedType;
+import com.stanfy.helium.utils.Names;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
@@ -166,6 +168,12 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
+    if (options.isEnumDeclaration(field.getType())) {
+      String enumName = Names.capitalize(field.getType().getCanonicalName());
+      output.emitStatement("this.%1$s = %2$s.values()[source.readInt()]", fieldName, enumName);
+      return;
+    }
+
     output.emitStatement("this.%1$s = (%2$s) source.readValue(%3$s)",
         fieldName,
         clazz != null ? clazz.getCanonicalName() : field.getType().getCanonicalName(),
@@ -253,6 +261,12 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
+    // enum?
+    if (options.isEnumDeclaration(field.getType())) {
+      output.emitStatement("dest.writeInt(this.%1$s.ordinal())", fieldName);
+      return;
+    }
+
     output.emitStatement("dest.writeValue(this.%s)", fieldName);
   }
 
@@ -286,7 +300,9 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
   }
 
   private Class<?> getJavaClass(final Field field) {
-    return field.getType().isPrimitive() ? options.getJavaClass(field.getType()) : null;
+    return field.getType().isPrimitive() && !(field.getType() instanceof ConstrainedType)
+        ? options.getJavaClass(field.getType())
+        : null;
   }
 
   private String getSupportedMethod(final String prefix, final Field field) {
