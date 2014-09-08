@@ -36,6 +36,7 @@ afterEvaluate {
     // verify generated schema
     assert buildInfoSchema.type == 'object'
     assert buildInfoSchema['properties'].ch['enum'].contains('beta')
+    assert buildInfoSchema['properties'].ch.description == "Channel name"
     assert buildInfoSchema['properties'].environment['enum'].contains('prod')
   }
 }

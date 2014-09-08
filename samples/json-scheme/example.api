@@ -1,4 +1,5 @@
 type "channel" spec {
+  description "Channel name"
   constraints("string") {
     enumeration "beta", "dev", "stable"
   }

@@ -76,7 +76,9 @@ class JsonSchemaGenerator extends BaseGenerator<JsonSchemaGeneratorOptions> impl
     if (msg.fields) {
       msg.activeFields.each { field ->
         def property = makeSchemaFromType(field.getType())
-        property.description = field.getDescription()
+        if (field.description) {
+          property.description = field.getDescription()
+        }
         schema.addProperty(field.name, property)
       }
 
@@ -119,6 +121,9 @@ class JsonSchemaGenerator extends BaseGenerator<JsonSchemaGeneratorOptions> impl
         property.type = jsonType
     }
 
+    if (!property.description) {
+      property.description = type.description
+    }
     return property
   }
 

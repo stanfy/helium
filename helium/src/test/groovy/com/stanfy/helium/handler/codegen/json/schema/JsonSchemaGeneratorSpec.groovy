@@ -231,6 +231,13 @@ class JsonSchemaGeneratorSpec extends Specification {
     generator.translateType(msg) != JsonType.ARRAY
   }
 
+  def "should propagate type descriptions"() {
+    given:
+    def type = new Type(name: "double", description: "bla bla")
+    expect:
+    generator.makeSchemaFromType(type).description == "bla bla"
+  }
+
   def "should translate enum constraint into enum"() {
     given:
     def msg = new Message(name: "MMM")
