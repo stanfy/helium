@@ -24,4 +24,8 @@ class Descriptionable {
     return "${getClass().simpleName}($name)"
   }
 
+  void setDescription(final String desc) {
+    this.@description = desc ? desc.trim() : null
+  }
+
 }
