@@ -1,5 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.file;
 
+import com.stanfy.helium.model.Field;
+
 /**
  * Created by ptaykalo on 8/19/14.
  * Wrapper for ObjC property
@@ -46,6 +48,13 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
      */
   private String comment;
 
+
+  /**
+   * the Helium filed, from which this property was generated
+   */
+  private Field correspondingField;
+
+
   public ObjCPropertyDefinition(final String name, final String type) {
     this(name, type, AccessModifier.STRONG, AtomicModifier.NONATOMIC);
   }
@@ -86,6 +95,13 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
     return type;
   }
 
+  public Field getCorrespondingField() {
+    return correspondingField;
+  }
+
+  public void setCorrespondingField(final Field correspondingField) {
+    this.correspondingField = correspondingField;
+  }
 
   @Override
   public String asString() {

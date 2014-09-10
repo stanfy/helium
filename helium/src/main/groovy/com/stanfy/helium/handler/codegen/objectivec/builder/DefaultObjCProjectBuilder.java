@@ -104,6 +104,7 @@ public class DefaultObjCProjectBuilder implements ObjCProjectBuilder {
         }
         ObjCPropertyDefinition.AccessModifier accessModifier = typeTransformer.accessorModifierForType(heliumAPIType);
         ObjCPropertyDefinition property = new ObjCPropertyDefinition(propertyName, propertyType, accessModifier);
+        property.setCorrespondingField(field);
 
         if (field.isSequence()) {
           property.setComment(" sequence of " + typeTransformer.objCType(heliumAPIType, false) + " items");
@@ -118,10 +119,9 @@ public class DefaultObjCProjectBuilder implements ObjCProjectBuilder {
       objCClass.setDefinition(classDefinition);
       objCClass.setImplementation(classImplementation);
 
-      objCProject.addClass(objCClass);
+      objCProject.addClass(objCClass, message.getName());
       ObjCHeaderFile headerFile = new ObjCHeaderFile(fileName);
       ObjCImplementationFile implementationFile = new ObjCImplementationFile(fileName);
-
       headerFile.addSourcePart(classDefinition);
       implementationFile.addSourcePart(classImplementation);
 
