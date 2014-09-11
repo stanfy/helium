@@ -65,7 +65,7 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
       if (project instanceof ProjectDsl) {
         Binding vars = project.variablesBinding
         vars.variables.each { key, value ->
-          out << "def $key = \"${value}\"\n"
+          out << "def $key = " << JavaWriter.stringLiteral("$value") << '\n'
         }
       }
 
