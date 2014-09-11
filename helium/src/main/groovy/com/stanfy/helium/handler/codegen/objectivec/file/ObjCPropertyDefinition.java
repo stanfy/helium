@@ -7,7 +7,6 @@ import com.stanfy.helium.model.Field;
  * Wrapper for ObjC property
  */
 public class ObjCPropertyDefinition implements ObjCSourcePart {
-
   public enum AccessModifier {
     COPY,
     RETAIN,
@@ -48,11 +47,25 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
      */
   private String comment;
 
-
   /**
    * the Helium filed, from which this property was generated
    */
   private Field correspondingField;
+
+  /**
+   * Returns true, if this property is sequence,
+   * And property type is ono corresponds to the actual items type
+   */
+  private boolean isSequence;
+
+
+
+  /**
+   * Holds information for item type, that will be presented in this property.
+   * Property type can be "NSArray / NSSet" etc
+   * This proeprty will hold type of actual items, those are inthis property
+   */
+  private String sequenceType;
 
 
   public ObjCPropertyDefinition(final String name, final String type) {
@@ -102,6 +115,15 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
   public void setCorrespondingField(final Field correspondingField) {
     this.correspondingField = correspondingField;
   }
+
+
+  public boolean isSequence() { return isSequence; }
+
+  public void setSequence(final boolean isSequence) { this.isSequence = isSequence; }
+
+  public String getSequenceType() { return sequenceType; }
+
+  public void setSequenceType(final String sequenceType) { this.sequenceType = sequenceType; }
 
   @Override
   public String asString() {

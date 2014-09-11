@@ -108,6 +108,8 @@ public class DefaultObjCProjectBuilder implements ObjCProjectBuilder {
 
         if (field.isSequence()) {
           property.setComment(" sequence of " + typeTransformer.objCType(heliumAPIType, false) + " items");
+          property.setSequence(true);
+          property.setSequenceType(typeTransformer.objCType(heliumAPIType, false).replaceAll("\\*|\\s", ""));
         }
 
         classDefinition.addPropertyDefinition(property);

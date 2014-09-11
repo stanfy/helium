@@ -57,7 +57,8 @@ public class ObjCSFObjectMapper implements ObjCMapper {
         Field field = prop.getCorrespondingField();
         if (field != null) {
           if (field.isSequence()) {
-            contentsBuilder.append("collection:@\"").append(prop.getName()).append("\" itemClass:\"@").append(project.getClassForType(field.getType().getName()).getName()).append("\" toKeyPath:@").append(field.getName()).append("\"],\n");
+            String itemClass = prop.getSequenceType();
+            contentsBuilder.append("collection:@\"").append(prop.getName()).append("\" itemClass:@\"").append(itemClass).append("\" toKeyPath:@\"").append(field.getName()).append("\"],\n");
           } else {
             contentsBuilder.append("property:@\"").append(prop.getName()).append("\" toKeyPath:@\"").append(field.getName()).append("\"],\n");
           }
