@@ -1,19 +1,16 @@
 package com.stanfy.helium.handler.codegen.objectivec.builder
 
-import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.Helium
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCPropertyDefinition.AccessModifier
 import com.stanfy.helium.model.Message
-import com.stanfy.helium.model.Type
-import com.stanfy.helium.utils.ConfigurableProxy
-import spock.lang.Specification
 import com.stanfy.helium.model.Sequence
-
-import static com.stanfy.helium.utils.DslUtils.runWithProxy;
+import com.stanfy.helium.model.Type
+import spock.lang.Specification
 
 /**
- * Created by ptaykalo on 8/17/14.
+ * Tests for ObjCProjectTypeTransformer.
  */
-class ObjCProjectTypeTransformerSpec extends Specification{
+class ObjCProjectTypeTransformerSpec extends Specification {
 
   ObjCTypeTransformer typeTransformer;
 
@@ -32,12 +29,9 @@ class ObjCProjectTypeTransformerSpec extends Specification{
     accessorModifierForType == AccessModifier.COPY
   }
 
-  def "should use correct simple transform for types"(String heliumType, String objcType, AccessModifier accessModifier) {
+  def "should use correct simple transform for types"() {
     given:
-    Type type = new Type();
-    runWithProxy(new ConfigurableProxy<Type>(type, new ProjectDsl())) {
-      name heliumType
-    }
+    Type type = new Type(name: heliumType);
 
     def objCType = typeTransformer.objCType(type)
     def accessorModifierForType = typeTransformer.accessorModifierForType(type)
@@ -48,23 +42,25 @@ class ObjCProjectTypeTransformerSpec extends Specification{
 
     where:
     heliumType | objcType    | accessModifier
-    "int32"   | "NSInteger" | AccessModifier.ASSIGN
-    "int64"   | "NSInteger" | AccessModifier.ASSIGN
-    "long"    | "NSInteger" | AccessModifier.ASSIGN
-    "bool"    | "BOOL"      | AccessModifier.ASSIGN
-    "boolean" | "BOOL"      | AccessModifier.ASSIGN
-    "float"   | "double"    | AccessModifier.ASSIGN
-    "float32" | "double"    | AccessModifier.ASSIGN
-    "float64" | "double"    | AccessModifier.ASSIGN
-    "double"  | "double"    | AccessModifier.ASSIGN
+    "int32"    | "NSInteger" | AccessModifier.ASSIGN
+    "int64"    | "NSInteger" | AccessModifier.ASSIGN
+    "long"     | "NSInteger" | AccessModifier.ASSIGN
+    "bool"     | "BOOL"      | AccessModifier.ASSIGN
+    "boolean"  | "BOOL"      | AccessModifier.ASSIGN
+    "float"    | "double"    | AccessModifier.ASSIGN
+    "float32"  | "double"    | AccessModifier.ASSIGN
+    "float64"  | "double"    | AccessModifier.ASSIGN
+    "double"   | "double"    | AccessModifier.ASSIGN
   }
 
   def "should use correct simple transform for groovy types(Long)"() {
     given:
-    Type longType = new Type();
-    runWithProxy(new ConfigurableProxy<Type>(longType, new ProjectDsl())) {
-      name long
-    }
+    def project = new Helium().defaultTypes().from {
+      type 'A' message {
+        foo long
+      }
+    }.project
+    Type longType = project.messages[0].fields[0].type
 
     def objCType = typeTransformer.objCType(longType)
     def accessorModifierForType = typeTransformer.accessorModifierForType(longType)
@@ -72,9 +68,7 @@ class ObjCProjectTypeTransformerSpec extends Specification{
     expect:
     objCType == "NSInteger"
     accessorModifierForType == AccessModifier.ASSIGN;
-
   }
-
 
   def "should use NSArray for sequence sub-type"() {
     def sequence = new Sequence(name: "string")

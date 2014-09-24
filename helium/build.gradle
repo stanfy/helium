@@ -4,7 +4,7 @@ apply plugin: 'maven'
 apply plugin: 'checkstyle'
 
 dependencies {
-  compile 'org.codehaus.groovy:groovy-all:2.1.7'
+  compile 'org.codehaus.groovy:groovy-all:2.3.6'
 
   compile 'com.squareup:javawriter:2.5.0'
   compile 'org.apache.httpcomponents:httpclient:4.3'
@@ -16,6 +16,8 @@ dependencies {
   compile 'org.slf4j:slf4j-simple:1.7.5'
   compile 'joda-time:joda-time:2.3'
 
-  testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+  testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
+    exclude group: 'org.codehaus.groovy'
+  }
   testCompile 'com.google.mockwebserver:mockwebserver:20130403'
 }
