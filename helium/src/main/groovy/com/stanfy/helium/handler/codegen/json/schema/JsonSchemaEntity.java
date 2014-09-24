@@ -2,7 +2,7 @@ package com.stanfy.helium.handler.codegen.json.schema;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,7 @@ class JsonSchemaEntity {
 
   public void addProperty(final String propertyName, final JsonSchemaEntity property) {
     if (properties == null) {
-      this.properties = new HashMap<String, JsonSchemaEntity>();
+      this.properties = new LinkedHashMap<String, JsonSchemaEntity>();
     }
 
     properties.put(propertyName, property);

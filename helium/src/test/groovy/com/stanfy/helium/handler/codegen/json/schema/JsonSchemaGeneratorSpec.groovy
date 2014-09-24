@@ -67,12 +67,12 @@ class JsonSchemaGeneratorSpec extends Specification {
   "type": "object",
   "description": "Test description",
   "properties": {
-    "field2": {
-      "type": "number"
-    },
     "field1": {
       "type": "string",
       "description": "Field1 description"
+    },
+    "field2": {
+      "type": "number"
     }
   },
   "required": [
@@ -107,6 +107,13 @@ class JsonSchemaGeneratorSpec extends Specification {
   "type": "object",
   "description": "Test description",
   "properties": {
+    "field1": {
+      "type": "string",
+      "description": "Field1 description"
+    },
+    "field2": {
+      "type": "number"
+    },
     "field3": {
       "type": "object",
       "description": "Field3 description",
@@ -119,13 +126,6 @@ class JsonSchemaGeneratorSpec extends Specification {
       "required": [
         "nestedField"
       ]
-    },
-    "field2": {
-      "type": "number"
-    },
-    "field1": {
-      "type": "string",
-      "description": "Field1 description"
     }
   },
   "required": [
@@ -165,6 +165,13 @@ class JsonSchemaGeneratorSpec extends Specification {
   "type": "object",
   "description": "Test description",
   "properties": {
+    "field1": {
+      "type": "string",
+      "description": "Field1 description"
+    },
+    "field2": {
+      "type": "number"
+    },
     "field3": {
       "type": "array",
       "description": "Field3 description",
@@ -181,13 +188,6 @@ class JsonSchemaGeneratorSpec extends Specification {
           "nestedField"
         ]
       }
-    },
-    "field2": {
-      "type": "number"
-    },
-    "field1": {
-      "type": "string",
-      "description": "Field1 description"
     }
   },
   "required": [
