@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.tests
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.dsl.SpecExample
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.model.Message
@@ -152,6 +153,20 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     testText.contains("with/header/example")
     testText.contains 'request.addHeader("RequiredHeader", "e1")'
 
+  }
+
+  def "good message for missing service name"() {
+    when:
+    ProjectDsl p = new ProjectDsl()
+    p.service { }
+    File output = File.createTempDir()
+    output.deleteOnExit()
+    generator = new RestApiPokeTestsGenerator(output)
+    generator.handle(p)
+
+    then:
+    def e = thrown(IllegalStateException)
+    e.message.contains "service name"
   }
 
 }

@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.tests
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.dsl.ProjectDsl
 import com.stanfy.helium.dsl.scenario.ScenarioInvoker
 import spock.lang.Specification
 
@@ -95,6 +96,17 @@ class ScenarioTestsGeneratorSpec extends Specification {
     then:
     text != null
     text.contains "${ScenarioInvoker.class.name}.invokeScenario(proxy"
+  }
+
+  def "good message for missing service name"() {
+    when:
+    ProjectDsl p = new ProjectDsl()
+    p.service { }
+    generator.handle(p)
+
+    then:
+    def e = thrown(IllegalStateException)
+    e.message.contains "service name"
   }
 
 }

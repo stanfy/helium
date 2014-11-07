@@ -47,6 +47,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
   public void handle(final Project project) {
     File dest = getPackageDirectory();
     for (Service service : project.getServices()) {
+      ensureServiceNamePresent(service);
       String name = getOptions().getName(service);
       File serviceFile = new File(dest, name.concat(EXT_JAVA));
       try {

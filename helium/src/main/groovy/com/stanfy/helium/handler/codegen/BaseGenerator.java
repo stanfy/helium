@@ -1,11 +1,20 @@
 package com.stanfy.helium.handler.codegen;
 
+import com.stanfy.helium.model.Service;
+
 import java.io.File;
 
 /**
  * Base class for generators.
  */
 public abstract class BaseGenerator<T extends GeneratorOptions> {
+
+  private static final String MISSING_SERVICE_NAME = "Please define your service name. "
+      + "It is required to get source code generated. It should be something like\n"
+      + "service {\n"
+      + "  name 'YOUR SERVICE NAME HERE'\n"
+      + "  // Continue with your methods...\n"
+      + "}\n";
 
   /** Options instance. */
   private final T options;
@@ -31,6 +40,12 @@ public abstract class BaseGenerator<T extends GeneratorOptions> {
 
   public T getOptions() {
     return options;
+  }
+
+  public static void ensureServiceNamePresent(final Service service) {
+    if (service.getName() == null || service.getName().trim().length() == 0) {
+      throw new IllegalStateException(MISSING_SERVICE_NAME);
+    }
   }
 
 }

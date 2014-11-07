@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.tests;
 
 import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.Handler;
+import com.stanfy.helium.handler.codegen.BaseGenerator;
 import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Service;
@@ -131,6 +132,7 @@ abstract class BaseUnitTestsGenerator implements Handler {
 
   protected void eachService(final Project project, final ServiceHandler handler) throws IOException {
     for (Service service : project.getServices()) {
+      BaseGenerator.ensureServiceNamePresent(service);
       String className = getClassName(service);
       JavaWriter writer = createTestsWriter(className);
       boolean typeWritten = false;

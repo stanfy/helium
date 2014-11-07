@@ -125,4 +125,15 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     text.contains('BMessage getHeaders(@Header("H1") String headerH1, @Header("H2") String headerH2)')
   }
 
+  def "good message for missing service name"() {
+    when:
+    ProjectDsl p = new ProjectDsl()
+    p.service { }
+    gen.handle(p)
+
+    then:
+    def e = thrown(IllegalStateException)
+    e.message.contains "service name"
+  }
+
 }
