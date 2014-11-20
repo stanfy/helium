@@ -130,6 +130,10 @@ class ScenarioDelegateSpec extends Specification {
           report new IllegalStateException("end")
         }
 
+        scenario "unknown variable used" spec {
+          store 'key', badUnknownVariableName
+        }
+
       }
 
     }
@@ -223,6 +227,15 @@ class ScenarioDelegateSpec extends Specification {
     e.message.contains("end")
     e.message.contains("2")
     e.message.contains("3")
+  }
+
+  def "unknown variable names are correctly reported"() {
+    when:
+    executeScenario("unknown variable used", null, null)
+    then:
+    def e = thrown(AssertionError)
+    e.message.contains("badUnknownVariableName")
+    e.message.contains("not defined")
   }
 
   /** Executor instance. */

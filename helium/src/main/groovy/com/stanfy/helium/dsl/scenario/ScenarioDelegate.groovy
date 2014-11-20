@@ -71,8 +71,20 @@ class ScenarioDelegate {
     String path = Names.rootPath(p)
     ServiceMethod method = service.methods.find { ServiceMethod method -> method.type == type && method.path == path }
     if (!method) {
-      if (scope.containsKey(p)) {
-        return scope.get(p)
+      if (type == MethodType.GET) {
+        // We introduce method "get" along with other methods to invoke http get request.
+        // Due to Groovy nature, method get(propName) is invoked when some non-existing property
+        // is accessed on an object.
+        // Hence, p can either an uri path (which is not resolved), or a variable name.
+        // We should be able to change this implementation, if we switch to AST transformations.
+        if (scope.containsKey(p)) {
+          return scope.get(p)
+        }
+        if (!['/', '?', '&'].any { p.contains(it) }) {
+          // p does not contain symbols that belong to an URI.
+          // Hence, p is more likely a variable name
+          throw new IllegalArgumentException("Variable '$p' is not defined")
+        }
       }
       throw new IllegalArgumentException("Method not found {$type.name $path}")
     }
