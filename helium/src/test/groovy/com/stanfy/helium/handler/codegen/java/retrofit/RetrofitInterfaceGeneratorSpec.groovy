@@ -36,6 +36,26 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
         response 'BMessage'
       }
 
+      post "/post/async/@id" spec {
+        name "Async post something complex"
+        parameters {
+          a 'int32'
+        }
+        body 'AMessage'
+        response 'BMessage'
+        useRetrofitCallback true
+      }
+
+      post "/post/async_no_response/@id" spec {
+        name "Async post something complex"
+        parameters {
+          a 'int32'
+        }
+        body 'AMessage'
+
+        useRetrofitCallback true
+      }
+
       delete "/example" spec {
         name "Delete stuff"
       }
@@ -111,6 +131,32 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     then:
     text.contains('@DELETE("/example")\n')
     text.contains('Response deleteStuff()')
+  }
+
+  def "writes async retrofit callbacks"() {
+    when:
+    gen.handle(project)
+    def text = new File("$output/test/api/A.java").text
+
+    then:
+    text.contains("import retrofit.Callback;")
+    text.contains('@POST("/post/async/{id}")\n')
+    text.contains(
+            'void asyncPostSomethingComplex(@Path("id") String id, @Query("a") int a, @Body AMessage body, Callback<BMessage> callback);'
+    )
+  }
+
+  def "writes retrofit ResponseCallback"() {
+    when:
+    gen.handle(project)
+    def text = new File("$output/test/api/A.java").text
+
+    then:
+    text.contains("import retrofit.ResponseCallback;")
+    text.contains('@POST("/post/async_no_response/{id}")\n')
+    text.contains(
+            'void asyncPostSomethingComplex(@Path("id") String id, @Query("a") int a, @Body AMessage body, ResponseCallback callback);'
+    )
   }
 
   def "maps headers"() {

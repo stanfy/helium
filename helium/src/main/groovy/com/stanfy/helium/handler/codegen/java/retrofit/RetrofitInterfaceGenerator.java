@@ -102,8 +102,12 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
             addImport(imports, m.getBody(), writer);
           }
         }
-        if (m.getResponse() == null) {
+        final boolean defaultResponse = m.getResponse() == null;
+        if (defaultResponse) {
           imports.add("retrofit.client.Response");
+        }
+        if (m.useRetrofitCallback()) {
+          imports.add(defaultResponse ? "retrofit.ResponseCallback" : "retrofit.Callback");
         }
       }
 
@@ -139,11 +143,15 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         writer.emitAnnotation(m.getType().toString(), stringLiteral(getTransformedPath(m)));
 
         String responseType = "Response";
-        if (m.getResponse() != null) {
-          responseType = resolveJavaTypeName(m.getResponse(), writer);
+        if (m.useRetrofitCallback()) {
+          responseType = "void";
+        } else {
+          if (m.getResponse() != null) {
+            responseType = resolveJavaTypeName(m.getResponse(), writer);
+          }
         }
         writer.beginMethod(responseType, options.getMethodName(m), EnumSet.noneOf(Modifier.class),
-            resolveParameters(m, writer), Collections.<String>emptyList());
+              resolveParameters(m, writer), Collections.<String>emptyList());
         writer.endMethod();
         writer.emitEmptyLine();
       }
@@ -209,6 +217,15 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     if (m.getBody() != null) {
       res.add("@Body " + getJavaType(m.getBody(), writer));
       res.add("body");
+    }
+
+    if (m.useRetrofitCallback()) {
+      String callbackType = "ResponseCallback";
+      if (m.getResponse() != null) {
+        callbackType = "Callback<" + resolveJavaTypeName(m.getResponse(), writer) + ">";
+      }
+      res.add(callbackType);
+      res.add("callback");
     }
 
     return res;
