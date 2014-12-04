@@ -513,4 +513,18 @@ class ProjectDslSpec extends Specification {
     !msg.fieldByName("versionPrefix").type.constraints[0].validate("SNAPSHOT")
   }
 
+  def "can describe head requests"() {
+    when:
+    dsl.type 'int32'
+    dsl.service {
+      name "head test"
+      head "/" spec {
+        response 'int32'
+      }
+    }
+
+    then:
+    dsl.serviceByName("head test").methods[0].type == MethodType.HEAD
+  }
+
 }
