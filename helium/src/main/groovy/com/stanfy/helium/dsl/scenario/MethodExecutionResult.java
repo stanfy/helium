@@ -15,6 +15,8 @@ public interface MethodExecutionResult {
 
   Map<String, String> getHttpHeaders();
 
+  int getStatusCode();
+
   void mustSucceed();
 
   void mustBeClientError();

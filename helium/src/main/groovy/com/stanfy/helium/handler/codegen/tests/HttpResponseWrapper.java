@@ -134,6 +134,11 @@ class HttpResponseWrapper implements MethodExecutionResult {
     return body.getValue();
   }
 
+  @Override
+  public int getStatusCode() {
+    return response.getStatusLine().getStatusCode();
+  }
+
   public void mustSucceed() {
     assertHttpExecution(true);
   }

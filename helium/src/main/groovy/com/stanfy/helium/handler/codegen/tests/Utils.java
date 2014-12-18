@@ -31,7 +31,7 @@ final class Utils {
   static List<String> findUnresolvedHeaders(final ServiceMethod method, final Map<String, String> headers) {
     ArrayList<String> result = new ArrayList<String>();
     for (HttpHeader h : method.getHttpHeaders()) {
-      if (!headers.containsKey(h.getName())) {
+      if (!h.isConstant() && !headers.containsKey(h.getName())) {
         result.add(h.getName());
       }
     }

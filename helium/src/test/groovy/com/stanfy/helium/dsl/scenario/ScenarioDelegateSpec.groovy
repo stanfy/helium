@@ -74,6 +74,7 @@ class ScenarioDelegateSpec extends Specification {
               id '1'
             }
           }
+          assert someRes.statusCode == 200
           assert someRes.body == "ok" : "Result is incorrect: $someRes"
           return someRes
         }
@@ -134,6 +135,12 @@ class ScenarioDelegateSpec extends Specification {
           store 'key', badUnknownVariableName
         }
 
+        scenario "resolved header" spec {
+          def test = get "/headers/example" with {
+            httpHeaders { 'H2' 'v2' }
+          }
+        }
+
       }
 
     }
@@ -148,7 +155,8 @@ class ScenarioDelegateSpec extends Specification {
     executor.scheduledExecutorResult = new ExecResult(
         body: result,
         interactionErrors: errors ? errors : [],
-        willSucceed: true
+        willSucceed: true,
+        statusCode: 200
     )
     Scenario scenario = service.testInfo.scenarioByName(name)
     return ScenarioInvoker.invokeScenario(delegate, scenario)
@@ -238,6 +246,13 @@ class ScenarioDelegateSpec extends Specification {
     e.message.contains("not defined")
   }
 
+  def "headers should be resolved"() {
+    when:
+    executeScenario("resolved header", "ok", null)
+    then:
+    executor.executedMethods.size() == 1
+  }
+
   /** Executor instance. */
   private static class Executor implements ScenarioExecutor {
 
@@ -271,6 +286,8 @@ class ScenarioDelegateSpec extends Specification {
 
     def headers = [:]
 
+    int statusCode
+
     @Override
     Map<String, String> getHttpHeaders() {
       return headers
@@ -294,6 +311,7 @@ class ScenarioDelegateSpec extends Specification {
     boolean isSuccessful() {
       return willSucceed
     }
+
   }
 
 }

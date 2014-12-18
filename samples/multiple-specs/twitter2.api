@@ -41,6 +41,7 @@ service {
       def size = searchResponse.body?.statuses?.size()
       assert size == 2 : "Expected 2 statuses, got $size"
       assert searchResponse.body?.statuses?.every { it.user != null }
+      assert searchResponse.statusCode == 200
     }
 
   }
