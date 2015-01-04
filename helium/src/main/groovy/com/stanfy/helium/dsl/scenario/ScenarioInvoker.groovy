@@ -18,7 +18,6 @@ class ScenarioInvoker {
   }
 
   public static Object invokeScenario(final ScenarioDelegate delegate, final Scenario scenario) {
-    AssertionError crucialError = null
     Object result = null
     try {
       currentDelegate.set(delegate)
@@ -43,10 +42,12 @@ class ScenarioInvoker {
 
     def errors = delegate.intermediateResults.collect() { MethodExecutionResult r ->
       r.interactionErrors
-    }.flatten().collect { AssertionError e -> e.message }
-    errors += delegate.reportedProblems.collect { it.message }
-    if (crucialError) {
-      errors += crucialError.message
+    }.flatten().collect { def e -> e.message }
+    errors += delegate.reportedProblems.collect {
+      if (!it.message) {
+        throw it
+      }
+      it.message
     }
 
     if (!errors.empty) {
