@@ -5,6 +5,13 @@ jdk:
   - oraclejdk7
   - openjdk7
 
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.gradle
+    - $HOME/.android
+
 android:
   components:
     - build-tools-20.0.0
