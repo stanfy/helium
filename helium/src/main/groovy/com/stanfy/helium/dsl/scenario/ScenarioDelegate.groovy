@@ -103,6 +103,31 @@ class ScenarioDelegate {
     return new ConfigurableStringMap(map, name, scope)
   }
 
+  @Override
+  Object invokeMethod(final String name, final Object args) {
+    try {
+      return getMetaClass().invokeMethod(this, name, args)
+    } catch (MissingMethodException e) {
+      // If user misses `with` like in
+      //   def resp = get "/url" {}
+      // we try to detect this here and report.
+      if (service.methods.any { it.path == e.method }) {
+        throw new IllegalArgumentException(
+            "Looks like you missed 'with' after service method uri when trying to invoke a request to $e.method",
+            e
+        )
+      }
+      // If method name looks like path, report about an incorrect path.
+      if (e.message.contains("/")) {
+        throw new IllegalArgumentException(
+            "Looks like you specified an incorrect method path $e.method and missed 'with'",
+            e
+        )
+      }
+      throw e
+    }
+  }
+
   class MethodExecution {
 
     /** Method to execute. */

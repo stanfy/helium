@@ -141,6 +141,18 @@ class ScenarioDelegateSpec extends Specification {
           }
         }
 
+        scenario "bad call syntax" spec {
+          def failed = get "/some/resourceIncorrectUri/@id" {
+            path { id "test" }
+          }
+        }
+
+        scenario "bad call syntax 2" spec {
+          def failed = get "/some/resource/@id" {
+            path { id "test" }
+          }
+        }
+
       }
 
     }
@@ -251,6 +263,24 @@ class ScenarioDelegateSpec extends Specification {
     executeScenario("resolved header", "ok", null)
     then:
     executor.executedMethods.size() == 1
+  }
+
+  def "meaningful message for bad uri and missed 'with'"() {
+    when:
+    executeScenario("bad call syntax", null, null)
+    then:
+    def e = thrown(AssertionError)
+    e.message.contains("'with'")
+    e.message.contains("/some/resourceIncorrectUri/@id")
+  }
+
+  def "meaningful message for missed 'with'"() {
+    when:
+    executeScenario("bad call syntax 2", null, null)
+    then:
+    def e = thrown(AssertionError)
+    e.message.contains("'with'")
+    e.message.contains("/some/resource/@id")
   }
 
   /** Executor instance. */
