@@ -1,3 +1,5 @@
+include "$baseDir/description.api"
+
 def TIMESTAMP_FORMAT = "EEE MMM dd HH:mm:ss Z yyyy"
 
 type "timestamp" spec {

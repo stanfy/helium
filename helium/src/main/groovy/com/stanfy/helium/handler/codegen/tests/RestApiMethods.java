@@ -20,16 +20,20 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.Before;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
 /**
  * Base class for generated REST API tests.
  */
-public class RestApiMethods {
+public abstract class RestApiMethods {
 
   /** Test specification file name. */
   public static final String TEST_SPEC_NAME = "test.spec";
@@ -57,18 +61,38 @@ public class RestApiMethods {
     return HttpExecutor.createHttpClientBuilder();
   }
 
+  protected abstract void prepareVariables(final Helium helium);
+
+  private void prepareBaseDir(final Helium helium, final String specPath) {
+    URL specUrl = getClass().getClassLoader().getResource(specPath);
+    try {
+      @SuppressWarnings("ConstantConditions")
+      URI baseUri = specUrl.toURI();
+      helium.set("baseDir", new File(baseUri).getParentFile().toURI().toString());
+    } catch (URISyntaxException e) {
+      throw new AssertionError(e);
+    }
+  }
+
   protected Project loadDefaultTestSpec() {
-    String path = getClass().getPackage().getName().replaceAll("\\.", "/") + "/" + TEST_SPEC_NAME;
+    String path = getSpecPath();
     InputStream input = getClass().getClassLoader().getResourceAsStream(path);
     if (input == null) {
       throw new IllegalStateException("Test spec not found in cp at " + path);
     }
     try {
       InputStreamReader source = new InputStreamReader(input, "UTF-8");
-      return new Helium().from(source).getProject();
+      Helium h = new Helium();
+      prepareVariables(h);
+      prepareBaseDir(h, path);
+      return h.from(source).getProject();
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private String getSpecPath() {
+    return getClass().getPackage().getName().replaceAll("\\.", "/") + "/" + TEST_SPEC_NAME;
   }
 
   protected ScenarioExecutor createExecutor() {

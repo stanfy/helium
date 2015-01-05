@@ -12,18 +12,22 @@ class ScenarioTestsGeneratorSpec extends Specification {
 
   ScenarioTestsGenerator generator
 
-  File spec, included, out
+  File spec, out
+
+  File includedSpec
+  String baseDir
 
   def setup() {
     spec = File.createTempFile("hel", "test-spec")
     spec.deleteOnExit()
-    included = new File(spec.parentFile, "included-spec")
-    included.withWriter("UTF-8") { Writer out ->
-      out << "type 'A' message {}"
-    }
+
+    def includedSpecUri = getClass().getResource("/include-nested.spec").toURI()
+    includedSpec = new File(includedSpecUri)
+    baseDir = includedSpec.parentFile.toURI().toString()
+
     spec.withWriter("UTF-8") { Writer out ->
-      out << '''
-        include "${baseDir}/included-spec"
+      out << """
+        include "\${baseDir}/${includedSpec.name}"
         service {
           name "Main"
           tests {
@@ -42,7 +46,7 @@ class ScenarioTestsGeneratorSpec extends Specification {
         service {
           name "Test 3"
         }
-      '''
+      """
     }
     out = File.createTempDir()
     out.deleteOnExit()
@@ -60,7 +64,7 @@ class ScenarioTestsGeneratorSpec extends Specification {
   }
 
   private void run() {
-    new Helium().set("baseDir", spec.parentFile).from(spec).processBy generator
+    new Helium().set("baseDir", baseDir).set("v1", "value").from(spec).processBy generator
   }
 
   def "generates file per service"() {
@@ -107,6 +111,16 @@ class ScenarioTestsGeneratorSpec extends Specification {
     then:
     def e = thrown(IllegalStateException)
     e.message.contains "service name"
+  }
+
+  def "set variables"() {
+    when:
+    run()
+    def text = (findFiles { it.name == 'MainScenariosTest.java' })[0]?.text
+    then:
+    text.contains "void prepareVariables(final Helium helium) {"
+    !text.contains("helium.set(\"baseDir\"")
+    text.contains "helium.set(\"v1\", \"value\");"
   }
 
 }
