@@ -63,7 +63,7 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
     if (project instanceof ProjectDsl) {
       if (project.variablesBinding.hasVariable("baseDir")) {
         GroovyShell shell = new GroovyShell(project.variablesBinding)
-        text = text.replaceAll(/include\s+(["'].+?["'])/) { _, arg ->
+        text = text.replaceAll(/include\s+(["'].+?["'])/) { fullLine, arg ->
           String path = shell.evaluate(arg as String) as String
           return "include \"\$baseDir/${map[new File(path)]}\""
         }

@@ -4,7 +4,6 @@ import com.stanfy.helium.gradle.HeliumExtension
 import com.stanfy.helium.handler.codegen.tests.RestApiPokeTestsGenerator
 import com.stanfy.helium.handler.codegen.tests.ScenarioTestsGenerator
 import org.gradle.api.file.FileCollection
-import org.gradle.api.tasks.TaskAction
 
 /**
  * Generates API tests using the specification.
