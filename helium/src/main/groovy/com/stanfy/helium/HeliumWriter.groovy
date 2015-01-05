@@ -4,9 +4,9 @@ import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
-import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Note
 import com.stanfy.helium.model.Project
+import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.StructureUnit
@@ -254,8 +254,8 @@ class HeliumWriter implements Closeable {
   }
 
   private void emitTestsInfoDetails(final TestsInfo testsInfo) {
-    writeLine "useExamples ${!!testsInfo.useExamples}"
-    writeLine "generateBadInputTests ${!!testsInfo.generateBadInputTests}"
+    writeLine "useExamples ${testsInfo.useExamples == null ? false : testsInfo.useExamples}"
+    writeLine "generateBadInputTests ${testsInfo.generateBadInputTests == null ? false : testsInfo.generateBadInputTests}"
     if (!testsInfo.httpHeaders.isEmpty()) {
       writeStringsMap "httpHeaders", testsInfo.httpHeaders
     }
