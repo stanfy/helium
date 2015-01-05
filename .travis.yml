@@ -25,10 +25,10 @@ env:
   - secure: "W6QGZAbSdKkLJQ53hDs5LXRNNCQnv18W40/h2vkEdoImIJ3pZX/gTbycmS0D3x7Ev8BsgjH0/jaK+BeTRmABBs2U7jld7XN690O3dkHTSONRVcRk9litCpvBDnzlt6EaMjvYZSzJ4YPBefG1MFtw+dJkZ5sO6k1J81zaOAXSI90="
 
 install:
-- TERM=dumb ./gradlew -q clean assemble
+- TERM=dumb ./gradlew -q -s clean assemble
 
 script:
-- TERM=dumb ./gradlew --continue check install integrationTests
+- TERM=dumb ./gradlew -s --continue check install integrationTests
 
 after_success:
 - ./scripts/deploy_to_maven.sh
