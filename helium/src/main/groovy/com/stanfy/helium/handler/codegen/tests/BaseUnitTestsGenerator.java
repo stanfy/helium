@@ -1,6 +1,8 @@
 package com.stanfy.helium.handler.codegen.tests;
 
 import com.squareup.javawriter.JavaWriter;
+import com.stanfy.helium.Helium;
+import com.stanfy.helium.dsl.ProjectDsl;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.BaseGenerator;
 import com.stanfy.helium.model.MethodType;
@@ -23,7 +25,10 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
+
+import static com.squareup.javawriter.JavaWriter.stringLiteral;
 
 /**
  * Base generator.
@@ -100,16 +105,33 @@ abstract class BaseUnitTestsGenerator implements Handler {
 
   File getSpecFile() { return new File(getResourcesPackageDir(), RestApiMethods.TEST_SPEC_NAME); }
 
-  protected void startTest(final JavaWriter java, final Service service) throws IOException {
+  protected void startTest(final JavaWriter java, final Service service, final Project project) throws IOException {
     java.emitPackage(getPackageName())
         .emitImports(IMPORT_HTTP_METHODS)
         .emitImports(
             Test.class.getName(),
             MethodType.class.getName(), RestApiMethods.class.getName(), URI.class.getName(),
-            HttpResponse.class.getName(), HttpEntity.class.getName(), StringEntity.class.getName(), HttpEntityEnclosingRequestBase.class.getName()
+            HttpResponse.class.getName(), HttpEntity.class.getName(), StringEntity.class.getName(), HttpEntityEnclosingRequestBase.class.getName(),
+            Helium.class.getName()
         )
         .emitStaticImports(Assertions.class.getName() + ".assertThat")
         .beginType(getClassName(service), "class", PUBLIC, RestApiMethods.class.getSimpleName());
+
+    java.emitAnnotation(Override.class);
+    java.beginMethod("void", "prepareVariables", PROTECTED, "final Helium", "helium");
+    if (project instanceof ProjectDsl) {
+      Map<?, ?> varMap = ((ProjectDsl) project).getVariablesBinding().getVariables();
+      for (Map.Entry entry : varMap.entrySet()) {
+        String name = String.valueOf(entry.getKey());
+        if ("baseDir".equals(name)) {
+          continue;
+        }
+        String value = String.valueOf(entry.getValue());
+        java.emitStatement("helium.set(%1$s, %2$s)", stringLiteral(name), stringLiteral(value));
+      }
+    }
+    java.endMethod();
+    java.emitEmptyLine();
   }
 
   protected File getTestFile(final String className) {
@@ -137,7 +159,7 @@ abstract class BaseUnitTestsGenerator implements Handler {
       JavaWriter writer = createTestsWriter(className);
       boolean typeWritten = false;
       try {
-        startTest(writer, service);
+        startTest(writer, service, project);
         typeWritten = handler.process(service, writer);
         writer.endType();
       } finally {

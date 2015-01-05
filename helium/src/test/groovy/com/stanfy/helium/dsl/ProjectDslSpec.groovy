@@ -396,6 +396,20 @@ class ProjectDslSpec extends Specification {
     dsl.includedFiles[-1] == file
   }
 
+  def "can do nested includes"() {
+    given:
+    def file = new File(ProjectDslSpec.class.getResource("/include-nested.spec").toURI())
+    dsl.variablesBinding.setVariable("baseDir", file.parentFile.toURI().toString())
+
+    when:
+    dsl.include file
+
+    then:
+    dsl.notes[-1].value == "I'm included 2"
+    dsl.notes[-2].value == "I'm included"
+    dsl.includedFiles[-2] == file
+  }
+
   def "can user parseString for custom types"() {
     when:
     dsl.type "custom" spec {

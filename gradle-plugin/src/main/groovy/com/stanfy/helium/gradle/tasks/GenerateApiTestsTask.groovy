@@ -47,7 +47,7 @@ test {
 
 dependencies {
   testCompile '${HeliumExtension.HELIUM_DEP}:${HeliumExtension.VERSION}'
-  testCompile 'junit:junit:4.11'
+  testCompile 'junit:junit:4.12'
 }
 """
     }

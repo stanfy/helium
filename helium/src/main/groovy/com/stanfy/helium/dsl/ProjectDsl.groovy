@@ -158,7 +158,12 @@ class ProjectDsl implements Project {
     if (spec instanceof File) {
       specFile = spec as File
     } else {
-      specFile = new File(spec as String)
+      def path = spec as String
+      if (path.startsWith("file:") || path.startsWith("jar:")) {
+        specFile = new File(new URI(path))
+      } else {
+        specFile = new File(path)
+      }
     }
     includedFiles.add specFile
     ScriptExtender.fromFile(specFile, charset).withVars(variablesBinding).handle(this)
