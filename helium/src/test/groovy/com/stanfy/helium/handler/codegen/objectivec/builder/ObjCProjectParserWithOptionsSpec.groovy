@@ -124,12 +124,12 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
     parser = new DefaultObjCProjectBuilder()
     objCProject = parser.build(project, builderOptions);
 
-    def CClass = objCProject.getClasses().find {it.getDefinition().getClassName().contains("C") }
+    def cClass = objCProject.getClasses().find {it.getDefinition().getClassName().contains("C") }
 
     then:
-    !CClass.getDefinition().getExternalClassDeclaration().contains(builderOptions.prefix + "B") // Sequence
-    CClass.getDefinition().getExternalClassDeclaration().contains(builderOptions.prefix + "A")
-    !CClass.getDefinition().getExternalClassDeclaration().contains(builderOptions.prefix + "C")
+    !cClass.getDefinition().getExternalClassDeclaration().contains(builderOptions.prefix + "B") // Sequence
+    cClass.getDefinition().getExternalClassDeclaration().contains(builderOptions.prefix + "A")
+    !cClass.getDefinition().getExternalClassDeclaration().contains(builderOptions.prefix + "C")
 
   }
 

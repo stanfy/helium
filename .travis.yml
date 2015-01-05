@@ -23,6 +23,7 @@ env:
   global:
   - secure: "N65Gr043MKcOCsRGTaG4Agk+MxTV/QXUU753Z7jgLqaz6oGugtb25oh7fuQ5OrSuF/XV2AXJaM03++2Wa3Xadp4CCA/ciJUMFhmy5KY/PLzpnNtFO0HY0B1IPS79fvsLKNnMaQTW46hnQWIvsXCfTjqzXIZ612ZcQxFdYZEUpns="
   - secure: "W6QGZAbSdKkLJQ53hDs5LXRNNCQnv18W40/h2vkEdoImIJ3pZX/gTbycmS0D3x7Ev8BsgjH0/jaK+BeTRmABBs2U7jld7XN690O3dkHTSONRVcRk9litCpvBDnzlt6EaMjvYZSzJ4YPBefG1MFtw+dJkZ5sO6k1J81zaOAXSI90="
+  - JAVA_OPTS=-XX:MaxPermSize=1024m
 
 install:
 - TERM=dumb ./gradlew -q -s clean assemble

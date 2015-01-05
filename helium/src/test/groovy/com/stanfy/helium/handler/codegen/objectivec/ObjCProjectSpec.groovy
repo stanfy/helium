@@ -1,7 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec
 
 import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClass
-import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
 /**
