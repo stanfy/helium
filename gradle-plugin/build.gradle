@@ -9,7 +9,7 @@ dependencies {
   compile gradleApi()
 
   compile project(':helium')
-  compile 'com.android.tools.build:gradle:0.13.1'
+  compile 'com.android.tools.build:gradle:1.0.0'
 
   testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
     exclude group: 'org.codehaus.groovy'
