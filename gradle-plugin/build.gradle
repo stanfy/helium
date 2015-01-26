@@ -1,8 +1,11 @@
-apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'checkstyle'
-apply plugin: 'codenarc'
+plugins {
+  id 'groovy'
+  id 'maven'
+  id 'signing'
+  id 'checkstyle'
+  id 'codenarc'
+  id 'com.github.johnrengelman.shadow' version '1.2.0' // shadowing dependencies
+}
 
 dependencies {
   compile localGroovy()
@@ -14,6 +17,9 @@ dependencies {
   testCompile('org.spockframework:spock-core:0.7-groovy-2.0') {
     exclude group: 'org.codehaus.groovy'
   }
+
+  compile 'com.squareup:javawriter:2.5.0'
+
 }
 
 afterEvaluate {
@@ -32,5 +38,17 @@ afterEvaluate {
         }
       }
     }
+  }
+}
+
+shadowJar {
+  ['com.squareup.javawriter', 'com.google'].each {
+    def newPackage = "com.stanfy.helium.shadow.${it}"
+    relocate it, newPackage
+  }
+  dependencies {
+    include dependency('com.squareup:javawriter:.*')
+    include dependency('com.google.common:.*:.*')
+    include dependency('com.google.gson:.*:.*')
   }
 }
