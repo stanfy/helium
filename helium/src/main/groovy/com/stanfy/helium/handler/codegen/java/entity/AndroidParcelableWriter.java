@@ -7,7 +7,6 @@ import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.constraints.ConstrainedType;
 import com.stanfy.helium.utils.Names;
 
-import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +16,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import javax.lang.model.element.Modifier;
 
 /**
  * Writer for Android parcelables.
@@ -86,6 +87,9 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     output.emitEmptyLine();
 
     output.beginConstructor(EnumSet.noneOf(Modifier.class), ANDROID_OS_PARCEL, "source");
+    if (message.hasParent()) {
+      output.emitStatement("super(source)");
+    }
 
     for (Field field : message.getActiveFields()) {
       emitReadingStmt(field);
@@ -109,6 +113,13 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     output.emitEmptyLine();
     output.emitAnnotation(Override.class);
     output.beginMethod("void", "writeToParcel", EnumSet.of(Modifier.PUBLIC), ANDROID_OS_PARCEL, "dest", "int", "options");
+
+    // we assume that if parent is specified, it's also a parcelable
+    // note: may be insert safe type check Parcelable.class.isAssignableFrom(getClass().getSupperClass())
+    if (message.hasParent()) {
+      output.emitStatement("super.writeToParcel(dest, options)");
+    }
+
     for (Field field : message.getActiveFields()) {
       emitWritingStmt(field);
     }
