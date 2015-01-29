@@ -36,7 +36,9 @@ import static javax.lang.model.element.Modifier.PUBLIC;
  */
 public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGeneratorOptions> implements Handler {
 
-  /** Package name. */
+  /**
+   * Package name.
+   */
   private static final String RETROFIT_PACKAGE = "retrofit.http.";
 
   public RetrofitInterfaceGenerator(final File outputDir, final RetrofitGeneratorOptions options) {
@@ -106,7 +108,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         if (defaultResponse) {
           imports.add("retrofit.client.Response");
         }
-        if (m.useRetrofitCallback()) {
+        if (options.useRetrofitCallback()) {
           imports.add(defaultResponse ? "retrofit.ResponseCallback" : "retrofit.Callback");
         }
       }
@@ -143,7 +145,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         writer.emitAnnotation(m.getType().toString(), stringLiteral(getTransformedPath(m)));
 
         String responseType = "Response";
-        if (m.useRetrofitCallback()) {
+        if (options.useRetrofitCallback()) {
           responseType = "void";
         } else {
           if (m.getResponse() != null) {
@@ -151,7 +153,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
           }
         }
         writer.beginMethod(responseType, options.getMethodName(m), EnumSet.noneOf(Modifier.class),
-              resolveParameters(m, writer), Collections.<String>emptyList());
+            resolveParameters(m, writer), Collections.<String>emptyList());
         writer.endMethod();
         writer.emitEmptyLine();
       }
@@ -219,7 +221,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
       res.add("body");
     }
 
-    if (m.useRetrofitCallback()) {
+    if (getOptions().useRetrofitCallback()) {
       String callbackType = "ResponseCallback";
       if (m.getResponse() != null) {
         callbackType = "Callback<" + resolveJavaTypeName(m.getResponse(), writer) + ">";

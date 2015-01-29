@@ -36,25 +36,6 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
         response 'BMessage'
       }
 
-      post "/post/async/@id" spec {
-        name "Async post something complex"
-        parameters {
-          a 'int32'
-        }
-        body 'AMessage'
-        response 'BMessage'
-        useRetrofitCallback true
-      }
-
-      post "/post/async_no_response/@id" spec {
-        name "Async post something complex"
-        parameters {
-          a 'int32'
-        }
-        body 'AMessage'
-
-        useRetrofitCallback true
-      }
 
       delete "/example" spec {
         name "Delete stuff"
@@ -68,6 +49,29 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     }
     project.service {
       name "B"
+    }
+
+    // use options.useCallbacks = true
+    project.service {
+      name "Async"
+
+      post "/post/async/@id" spec {
+        name "Async post something complex"
+        parameters {
+          a 'int32'
+        }
+        body 'AMessage'
+        response 'BMessage'
+      }
+
+      post "/post/async_no_response/@id" spec {
+        name "Async post something complex"
+        parameters {
+          a 'int32'
+        }
+        body 'AMessage'
+
+      }
     }
   }
 
@@ -135,27 +139,29 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
 
   def "writes async retrofit callbacks"() {
     when:
+    gen.options.useCallback = true
     gen.handle(project)
-    def text = new File("$output/test/api/A.java").text
+    def text = new File("$output/test/api/Async.java").text
 
     then:
     text.contains("import retrofit.Callback;")
     text.contains('@POST("/post/async/{id}")\n')
     text.contains(
-            'void asyncPostSomethingComplex(@Path("id") String id, @Query("a") int a, @Body AMessage body, Callback<BMessage> callback);'
+        'void asyncPostSomethingComplex(@Path("id") String id, @Query("a") int a, @Body AMessage body, Callback<BMessage> callback);'
     )
   }
 
   def "writes retrofit ResponseCallback"() {
     when:
+    gen.options.useCallback = true
     gen.handle(project)
-    def text = new File("$output/test/api/A.java").text
+    def text = new File("$output/test/api/Async.java").text
 
     then:
     text.contains("import retrofit.ResponseCallback;")
     text.contains('@POST("/post/async_no_response/{id}")\n')
     text.contains(
-            'void asyncPostSomethingComplex(@Path("id") String id, @Query("a") int a, @Body AMessage body, ResponseCallback callback);'
+        'void asyncPostSomethingComplex(@Path("id") String id, @Query("a") int a, @Body AMessage body, ResponseCallback callback);'
     )
   }
 

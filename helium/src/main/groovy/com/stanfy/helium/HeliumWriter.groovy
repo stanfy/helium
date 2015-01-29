@@ -1,16 +1,7 @@
 package com.stanfy.helium
 
 import com.squareup.javawriter.JavaWriter
-import com.stanfy.helium.model.Field
-import com.stanfy.helium.model.Message
-import com.stanfy.helium.model.MethodType
-import com.stanfy.helium.model.Sequence
-import com.stanfy.helium.model.Note
-import com.stanfy.helium.model.Project
-import com.stanfy.helium.model.Service
-import com.stanfy.helium.model.ServiceMethod
-import com.stanfy.helium.model.StructureUnit
-import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.*
 import com.stanfy.helium.model.tests.MethodTestInfo
 import com.stanfy.helium.model.tests.TestsInfo
 import groovy.transform.CompileStatic

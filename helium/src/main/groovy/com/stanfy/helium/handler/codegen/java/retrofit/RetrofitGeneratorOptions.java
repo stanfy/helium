@@ -15,6 +15,9 @@ public class RetrofitGeneratorOptions extends JavaGeneratorOptions {
   /** Whether to use service method names to generate java method names. */
   private boolean useMethodNames;
 
+  /** Used when generating retrofit interfaces */
+  boolean useCallback;
+
   public static RetrofitGeneratorOptions defaultOptions(final String packageName) {
     RetrofitGeneratorOptions options = new RetrofitGeneratorOptions();
     options.setPackageName(packageName);
@@ -52,6 +55,10 @@ public class RetrofitGeneratorOptions extends JavaGeneratorOptions {
       }
     }
     return name;
+  }
+
+  boolean useRetrofitCallback() {
+    return this.useCallback;
   }
 
 }

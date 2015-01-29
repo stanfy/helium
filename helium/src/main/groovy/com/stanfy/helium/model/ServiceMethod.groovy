@@ -30,9 +30,6 @@ class ServiceMethod extends Descriptionable {
   /** Used encoding. */
   String encoding
 
-  /** Used when generating retrofit interfaces */
-  boolean useRetrofitCallback;
-
   /** Test information. */
   final MethodTestInfo testInfo = new MethodTestInfo()
 
@@ -149,9 +146,5 @@ class ServiceMethod extends Descriptionable {
     int result = path.hashCode()
     result = 31 * result + type.hashCode()
     return result
-  }
-
-  boolean useRetrofitCallback() {
-    return this.@useRetrofitCallback;
   }
 }
