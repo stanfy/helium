@@ -1,6 +1,9 @@
 package com.stanfy.helium.handler.codegen.tests;
 
 import com.squareup.javawriter.JavaWriter;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.stanfy.helium.Helium;
 import com.stanfy.helium.dsl.ProjectDsl;
 import com.stanfy.helium.handler.Handler;
@@ -9,10 +12,6 @@ import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.utils.Names;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.entity.StringEntity;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -111,7 +110,7 @@ abstract class BaseUnitTestsGenerator implements Handler {
         .emitImports(
             Test.class.getName(),
             MethodType.class.getName(), RestApiMethods.class.getName(), URI.class.getName(),
-            HttpResponse.class.getName(), HttpEntity.class.getName(), StringEntity.class.getName(), HttpEntityEnclosingRequestBase.class.getName(),
+            Request.class.getName(), Response.class.getName(), OkHttpClient.class.getName(),
             Helium.class.getName()
         )
         .emitStaticImports(Assertions.class.getName() + ".assertThat")

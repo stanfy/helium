@@ -2,6 +2,8 @@ package com.stanfy.helium.handler.codegen.tests;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.Response;
 import com.stanfy.helium.dsl.scenario.MethodExecutionResult;
 import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.json.JsonConvertersPool;
@@ -9,20 +11,8 @@ import com.stanfy.helium.entities.json.JsonEntityReader;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.utils.AssertionUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.entity.ContentType;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHttpResponse;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,13 +30,7 @@ class HttpResponseWrapper implements MethodExecutionResult {
   private final TypeResolver typeResolver;
 
   /** Response instance. */
-  private final HttpResponse response;
-
-  /** Request. */
-  private final HttpRequest request;
-
-  /** Encoding. */
-  private final String encoding;
+  private final Response response;
 
   /** Type. */
   private final Type type;
@@ -60,46 +44,19 @@ class HttpResponseWrapper implements MethodExecutionResult {
   /** Errors. */
   private final List<AssertionError> errors = new LinkedList<AssertionError>();
 
-  HttpResponseWrapper(final TypeResolver typeResolver, final HttpRequest request, final HttpResponse response,
-                      final String encoding, final Type type) {
+  HttpResponseWrapper(final TypeResolver typeResolver, final Response response, final Type type) {
     this.typeResolver = typeResolver;
-    this.request = request;
-    this.encoding = encoding;
     this.type = type;
-    this.response = wrapResponse(response);
-  }
-
-  private HttpResponse wrapResponse(final HttpResponse response) {
-    final HttpEntity responseEntity = response.getEntity();
-    if (responseEntity != null) {
-      InputStream content;
-      try {
-        content = responseEntity.getContent();
-        if (content != null) {
-          final HttpResponse result = new BasicHttpResponse(response.getStatusLine());
-          result.setHeaders(response.getAllHeaders());
-          // TODO: support different content types
-          result.setEntity(new StringEntity(
-              IOUtils.toString(response.getEntity().getContent(), encoding),
-              ContentType.create(ContentType.APPLICATION_JSON.getMimeType(), encoding)
-          ));
-          IOUtils.closeQuietly(content);
-          return result;
-        }
-      } catch (final IOException e) {
-        //ignore
-      }
-    }
-
-    return response;
+    this.response = response;
   }
 
   public Map<String, String> getHttpHeaders() {
     if (httpHeaders == null) {
-      Header[] headers = response.getAllHeaders();
-      httpHeaders = new LinkedHashMap<String, String>(headers.length);
-      for (Header header : headers) {
-        httpHeaders.put(header.getName(), header.getValue());
+      Headers headers = response.headers();
+      int count = headers.size();
+      httpHeaders = new LinkedHashMap<String, String>(count);
+      for (int i = 0; i < count; i++) {
+        httpHeaders.put(headers.name(i), headers.value(i));
       }
     }
     return httpHeaders;
@@ -110,18 +67,16 @@ class HttpResponseWrapper implements MethodExecutionResult {
       mustSucceed();
 
       if (type != null) {
-        // TODO: support different content types
+        // TODO: Support different content types.
         JsonEntityReader reader = new JsonEntityReader(
-            new InputStreamReader(new BufferedInputStream(
-                response.getEntity().getContent()), encoding
-            ),
+            response.body().charStream(),
             typeResolver.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)
         );
 
         body = reader.read(type);
 
         try {
-          AssertionUtils.assertCorrectEntity(body, request, response);
+          AssertionUtils.assertCorrectEntity(body, response);
         } catch (AssertionError e) {
           errors.add(e);
         }
@@ -136,7 +91,7 @@ class HttpResponseWrapper implements MethodExecutionResult {
 
   @Override
   public int getStatusCode() {
-    return response.getStatusLine().getStatusCode();
+    return response.code();
   }
 
   public void mustSucceed() {
@@ -148,13 +103,12 @@ class HttpResponseWrapper implements MethodExecutionResult {
   }
 
   public boolean isSuccessful() {
-    int statusCode = response.getStatusLine().getStatusCode();
-    return statusCode >= HttpStatus.SC_OK && statusCode < HttpStatus.SC_MULTIPLE_CHOICES;
+    return response.isSuccessful();
   }
 
   private void assertHttpExecution(final boolean success) {
     try {
-      AssertionUtils.validateStatus(request, response, success);
+      AssertionUtils.validateStatus(response, success);
     } catch (AssertionError e) {
       errors.add(e);
     }
