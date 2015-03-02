@@ -29,10 +29,18 @@ public class ObjCClass {
     return name;
   }
 
-  public ObjCClassImplementation getImplementation() { return implementation; }
-  public void setImplementation(final ObjCClassImplementation implementation) { this.implementation = implementation; }
+  public ObjCClassImplementation getImplementation() {
+    return implementation;
+  }
+  public void setImplementation(final ObjCClassImplementation implementation) {
+    this.implementation = implementation;
+  }
 
-  public ObjCClassDefinition getDefinition() { return definition; }
-  public void setDefinition(final ObjCClassDefinition definition) { this.definition = definition; }
+  public ObjCClassDefinition getDefinition() {
+    return definition;
+  }
+  public void setDefinition(final ObjCClassDefinition definition) {
+    this.definition = definition;
+  }
 }
 

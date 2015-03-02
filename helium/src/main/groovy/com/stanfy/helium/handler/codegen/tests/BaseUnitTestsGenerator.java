@@ -68,7 +68,9 @@ abstract class BaseUnitTestsGenerator implements Handler {
   }
 
   private static void checkDirectory(final File dir, final String name) {
-    if (dir == null) { throw new IllegalArgumentException(name + " is not defined"); }
+    if (dir == null) {
+      throw new IllegalArgumentException(name + " is not defined");
+    }
     if (!dir.exists()) {
       if (!dir.mkdirs()) {
         throw new IllegalArgumentException(name + " does not exist and cannot be created");
@@ -98,11 +100,17 @@ abstract class BaseUnitTestsGenerator implements Handler {
     return result;
   }
 
-  public File getSourcesPackageDir() { return withPackage(getSrcOutput()); }
+  public File getSourcesPackageDir() {
+    return withPackage(getSrcOutput());
+  }
 
-  public File getResourcesPackageDir() { return withPackage(getResourcesOutput()); }
+  public File getResourcesPackageDir() {
+    return withPackage(getResourcesOutput());
+  }
 
-  File getSpecFile() { return new File(getResourcesPackageDir(), RestApiMethods.TEST_SPEC_NAME); }
+  File getSpecFile() {
+    return new File(getResourcesPackageDir(), RestApiMethods.TEST_SPEC_NAME);
+  }
 
   protected void startTest(final JavaWriter java, final Service service, final Project project) throws IOException {
     java.emitPackage(getPackageName())

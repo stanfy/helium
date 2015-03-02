@@ -9,6 +9,10 @@ import org.junit.runners.model.InitializationError;
  */
 public final class HeliumTest {
 
+  private HeliumTest() {
+    throw new UnsupportedOperationException("no instances");
+  }
+
   /** Provides HTTP client used in tests. */
   public static OkHttpClient httpClient() {
     // TODO: Use one client.
@@ -18,7 +22,7 @@ public final class HeliumTest {
   /** Helium tests runner. */
   public static class Runner extends BlockJUnit4ClassRunner {
 
-    public Runner(Class<?> klass) throws InitializationError {
+    public Runner(final Class<?> klass) throws InitializationError {
       super(klass);
     }
   }

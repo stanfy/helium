@@ -57,7 +57,9 @@ public class JsonConvertersPool extends ConvertersPool<JsonReader, JsonWriter> {
     }
 
     @Override
-    public ConvertersPool<JsonReader, JsonWriter> getPool() { return JsonConvertersPool.this; }
+    public ConvertersPool<JsonReader, JsonWriter> getPool() {
+      return JsonConvertersPool.this;
+    }
 
     @Override
     public List<?> read(final JsonReader input, final List<ValidationError> errors) throws IOException {
@@ -151,7 +153,9 @@ public class JsonConvertersPool extends ConvertersPool<JsonReader, JsonWriter> {
     }
 
     @Override
-    public ConvertersPool<JsonReader, JsonWriter> getPool() { return JsonConvertersPool.this; }
+    public ConvertersPool<JsonReader, JsonWriter> getPool() {
+      return JsonConvertersPool.this;
+    }
 
   }
 

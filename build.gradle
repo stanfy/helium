@@ -66,6 +66,7 @@ subprojects {
 
     checkstyle {
       configFile = file("$rootDir/config/checkstyle/checkstyle.xml")
+      toolVersion = '6.4'
     }
 
     signing {

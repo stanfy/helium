@@ -92,7 +92,9 @@ class HttpExecutor implements ScenarioExecutor {
         throw new AssertionError(e);
       }
       query = queryWriter.toString();
-      if (query.length() > 0) { query = "?" + query; }
+      if (query.length() > 0) {
+        query = "?" + query;
+      }
     }
     return requestPath + query;
   }

@@ -34,7 +34,9 @@ public class DefaultObjCProjectBuilder implements ObjCProjectBuilder {
   }
 
   @Override
-  public ObjCPropertyNameTransformer getNameTransformer() { return nameTransformer; }
+  public ObjCPropertyNameTransformer getNameTransformer() {
+    return nameTransformer;
+  }
 
   /*
   Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure

@@ -21,7 +21,9 @@ public abstract class ObjCFile implements ObjCSourcePart {
   /*
   Returns file name
    */
-  public String getName() { return name; }
+  public String getName() {
+    return name;
+  }
 
   /*
   File extension :)
