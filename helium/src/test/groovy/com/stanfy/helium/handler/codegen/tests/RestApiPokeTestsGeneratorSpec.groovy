@@ -83,8 +83,7 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     testsCount == 0
   }
 
-  def "should generate JUnit tests"() {
-    when:
+  private File runAndGetMainOutput() {
     runExampleGenerator()
     int testsCount = 0
     File testFile = null
@@ -94,15 +93,21 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
         testFile = it
       }
     }
+    assert testsCount == 1
+    return testFile
+  }
+
+  def "should generate JUnit tests"() {
+    when:
+    def testFile = runAndGetMainOutput()
     def testText = testFile?.text
 
     then:
-    testsCount == 1
     testFile.absolutePath.contains("spec${File.separatorChar}tests${File.separatorChar}rest")
     testText.contains "public class Twitter_APIPokeTest extends ${RestApiMethods.simpleName}"
     testText.contains "@Test"
-    testText.contains "send(request)"
-    testText.contains "validate(request, response"
+    testText.contains "getClient().newCall(request).execute()"
+    testText.contains "validate(response,"
     testText.contains MethodType.name
 
     // get users/show.json
@@ -128,15 +133,16 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     // post account/add
     testText.contains "public void post_account_add_shouldFailWithOutBody"
     testText.contains "public void post_account_add_example"
-    testText.contains ".setEntity"
+    testText.contains "RequestBody.create("
     testText.contains '\\"email\\"' // check escaping
 
     // should not contain test for path parameters without examples
     !testText.contains("testNoExamples")
 
     // httpHeaders
-    testText.contains 'request.addHeader("User-Agent", "Mozilla")'
-    testText.contains 'request.addHeader("Super-Header", "A")'
+    testText.contains 'rb.header("User-Agent", "Mozilla")'
+    testText.contains 'rb.header("Super-Header", "A")'
+    testText.contains 'Request request = rb.build();'
 
     // no bad inputs
     !testText.contains('public void get_test_no_bad_input_shouldFail')
@@ -148,10 +154,10 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     !testText.contains("with/header/no/poke/test")
     // use constant header
     testText.contains("with/constant/header")
-    testText.contains 'request.addHeader("ConstantHeader", "v1")'
+    testText.contains 'rb.header("ConstantHeader", "v1")'
     // resolve header example
     testText.contains("with/header/example")
-    testText.contains 'request.addHeader("RequiredHeader", "e1")'
+    testText.contains 'rb.header("RequiredHeader", "e1")'
 
   }
 
@@ -167,6 +173,17 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
     then:
     def e = thrown(IllegalStateException)
     e.message.contains "service name"
+  }
+
+  def "import okhttp"() {
+    given:
+    def testText = runAndGetMainOutput()?.text
+
+    expect:
+    testText.contains "com.squareup.okhttp.OkHttpClient"
+    testText.contains "com.squareup.okhttp.Request"
+    testText.contains "com.squareup.okhttp.Response"
+    testText.contains "com.squareup.okhttp.RequestBody"
   }
 
 }

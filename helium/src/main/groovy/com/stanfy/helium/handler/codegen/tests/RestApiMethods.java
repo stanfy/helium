@@ -7,6 +7,7 @@ import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.utils.AssertionUtils;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +20,7 @@ import java.net.URL;
 /**
  * Base class for generated REST API tests.
  */
+@RunWith(HeliumTest.Runner.class)
 public abstract class RestApiMethods {
 
   /** Test specification file name. */
@@ -74,6 +76,10 @@ public abstract class RestApiMethods {
 
   protected ScenarioExecutor createExecutor() {
     return new HttpExecutor(types, client);
+  }
+
+  protected OkHttpClient getClient() {
+    return client;
   }
 
   /**

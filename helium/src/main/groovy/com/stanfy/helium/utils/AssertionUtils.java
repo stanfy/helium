@@ -108,12 +108,7 @@ public final class AssertionUtils {
   }
 
   private static void dumpHeaders(final Headers headers, final StringBuilder result) {
-    result.append("Headers:\n");
-    for (String hName : headers.names()) {
-      for (String hValue : headers.values(hName)) {
-        result.append(hName).append(':').append(hValue).append('\n');
-      }
-    }
+    result.append("Headers:\n").append(headers);
   }
 
   private static String requestBodyToString(final RequestBody body) {

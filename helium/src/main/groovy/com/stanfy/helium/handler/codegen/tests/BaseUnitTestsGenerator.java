@@ -1,8 +1,10 @@
 package com.stanfy.helium.handler.codegen.tests;
 
 import com.squareup.javawriter.JavaWriter;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import com.stanfy.helium.Helium;
 import com.stanfy.helium.dsl.ProjectDsl;
@@ -44,8 +46,6 @@ abstract class BaseUnitTestsGenerator implements Handler {
   protected static final Set<Modifier> PUBLIC = Collections.singleton(Modifier.PUBLIC);
   /** Protected method. */
   protected static final Set<Modifier> PROTECTED = Collections.singleton(Modifier.PROTECTED);
-
-  private static final String IMPORT_HTTP_METHODS = "org.apache.http.client.methods.*";
 
   /** Output directory. */
   private final File srcOutput;
@@ -114,11 +114,11 @@ abstract class BaseUnitTestsGenerator implements Handler {
 
   protected void startTest(final JavaWriter java, final Service service, final Project project) throws IOException {
     java.emitPackage(getPackageName())
-        .emitImports(IMPORT_HTTP_METHODS)
         .emitImports(
             Test.class.getName(),
             MethodType.class.getName(), RestApiMethods.class.getName(), URI.class.getName(),
             Request.class.getName(), Response.class.getName(), OkHttpClient.class.getName(),
+            RequestBody.class.getName(), MediaType.class.getName(),
             Helium.class.getName()
         )
         .emitStaticImports(Assertions.class.getName() + ".assertThat")

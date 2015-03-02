@@ -120,7 +120,9 @@ class HttpExecutor implements ScenarioExecutor {
           if (entity != null) {
             Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
             new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(entity);
+            out.close();
           }
+          sink.close();
         }
       };
     }
