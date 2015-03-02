@@ -14,7 +14,7 @@ cache:
 
 android:
   components:
-    - build-tools-20.0.0
+    - build-tools-21.1.1
     - android-10
   licenses:
     - android-sdk-license-5be876d5
