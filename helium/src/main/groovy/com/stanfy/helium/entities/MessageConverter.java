@@ -27,7 +27,9 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
   }
 
   @Override
-  public Message getType() { return type; }
+  public Message getType() {
+    return type;
+  }
 
   @Override
   public void write(final O output, final Object value) throws IOException {

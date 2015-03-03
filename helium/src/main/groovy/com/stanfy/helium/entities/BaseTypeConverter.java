@@ -20,7 +20,9 @@ abstract class BaseTypeConverter<I, O> {
     this.format = format;
   }
 
-  public String getFormat() { return format; }
+  public String getFormat() {
+    return format;
+  }
 
   public abstract ConvertersPool<I, O> getPool();
 

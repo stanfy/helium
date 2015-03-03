@@ -33,9 +33,13 @@ public class ObjCProject {
     files.add(file);
   }
 
-  public List<ObjCClass> getClasses() { return classes; }
+  public List<ObjCClass> getClasses() {
+    return classes;
+  }
 
-  public void addClass(final ObjCClass objCClass) { classes.add(objCClass); }
+  public void addClass(final ObjCClass objCClass) {
+    classes.add(objCClass);
+  }
 
   /*
   Adds class, and bounds it to the specified DSL Type

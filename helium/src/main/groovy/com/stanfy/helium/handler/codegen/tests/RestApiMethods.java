@@ -1,25 +1,14 @@
 package com.stanfy.helium.handler.codegen.tests;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Response;
 import com.stanfy.helium.Helium;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
-import com.stanfy.helium.entities.TypedEntity;
-import com.stanfy.helium.entities.json.JsonConvertersPool;
-import com.stanfy.helium.entities.json.JsonEntityReader;
-import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.utils.AssertionUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.junit.Before;
+import org.junit.runner.RunWith;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,18 +17,17 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-
 /**
  * Base class for generated REST API tests.
  */
+@RunWith(HeliumTest.Runner.class)
 public abstract class RestApiMethods {
 
   /** Test specification file name. */
   public static final String TEST_SPEC_NAME = "test.spec";
 
   /** HTTP client instance. */
-  private HttpClient client;
+  private final OkHttpClient client = HeliumTest.httpClient();
 
   /** Types resolver from the specification project. */
   private TypeResolver types;
@@ -50,15 +38,6 @@ public abstract class RestApiMethods {
 
   public RestApiMethods(final TypeResolver types) {
     this.types = types;
-  }
-
-  @Before
-  public void createHttpClient() {
-    client = httpClientBuilder().build();
-  }
-
-  protected HttpClientBuilder httpClientBuilder() {
-    return HttpExecutor.createHttpClientBuilder();
   }
 
   protected abstract void prepareVariables(final Helium helium);
@@ -96,23 +75,20 @@ public abstract class RestApiMethods {
   }
 
   protected ScenarioExecutor createExecutor() {
-    return new HttpExecutor(types);
+    return new HttpExecutor(types, client);
+  }
+
+  protected OkHttpClient getClient() {
+    return client;
   }
 
   /**
    * Assert either successful or client error response status code.
-   * @param response HTTP response instance
    * @param success true for success, false for client error
    */
-  protected static void validateStatus(final HttpRequest request, final HttpResponse response, final boolean success) {
-    AssertionUtils.validateStatus(request, response, success);
+  protected static void validateStatus(final Response response, final boolean success) {
+    AssertionUtils.validateStatus(response, success);
   }
-
-  /*
-    TODO list:
-    1. check gzip encoding
-    2. check content type
-   */
 
   /**
    * Validate obtained HTTP response body. Check whether it matches the format described in the specification.
@@ -121,40 +97,8 @@ public abstract class RestApiMethods {
    * @param typeName expected response type name
    * @throws IOException in case of I/O errors
    */
-  protected void validate(final HttpRequest request, final HttpResponse response, final String encoding, final String typeName) throws IOException {
-    //log("Validating response body...");
-    HttpEntity respEntity = response.getEntity();
-    assertThat(respEntity).describedAs("HTTP entity should not be absent").isNotNull();
-
-    InputStreamReader reader = new InputStreamReader(new BufferedInputStream(respEntity.getContent()), encoding);
-    try {
-      TypedEntity entity = new JsonEntityReader(
-          reader,
-          types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)
-      ).read(types.byName(typeName));
-      AssertionUtils.assertCorrectEntity(entity, request, response);
-    } finally {
-      reader.close();
-    }
-  }
-
-  /**
-   * Create HTTP request instance.
-   * @param type HTTP method
-   * @return instance of HTTP request
-   */
-  protected HttpRequestBase createHttpRequest(final MethodType type) {
-    return HttpExecutor.createRequest(type);
-  }
-
-  /**
-   * Send a built HTTP request
-   * @param request request instance
-   * @return obtained HTTP response
-   * @throws IOException in case of any error
-   */
-  protected HttpResponse send(final HttpRequestBase request) throws IOException {
-    return HttpExecutor.send(client, request);
+  protected void validate(final Response response, final String typeName) throws IOException {
+    new HttpResponseWrapper(types, response, types.byName(typeName)).getBody();
   }
 
 }

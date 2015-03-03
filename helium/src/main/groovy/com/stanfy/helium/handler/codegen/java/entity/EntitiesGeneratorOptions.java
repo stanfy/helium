@@ -68,11 +68,17 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
     this.addGetters = addGetters;
   }
 
-  public boolean isAddToString() { return addToString; }
+  public boolean isAddToString() {
+    return addToString;
+  }
 
-  public void setAddToString(final boolean addToString) { this.addToString = addToString; }
+  public void setAddToString(final boolean addToString) {
+    this.addToString = addToString;
+  }
 
-  public WriterWrapper getWriterWrapper() { return writerWrapper; }
+  public WriterWrapper getWriterWrapper() {
+    return writerWrapper;
+  }
 
   public void setWriterWrapper(final WriterWrapper writerWrapper) {
     if (writerWrapper == null) {

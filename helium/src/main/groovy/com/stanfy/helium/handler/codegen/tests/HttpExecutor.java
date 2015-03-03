@@ -2,36 +2,28 @@ package com.stanfy.helium.handler.codegen.tests;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
+import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.json.JsonConvertersPool;
 import com.stanfy.helium.entities.json.JsonEntityWriter;
 import com.stanfy.helium.model.HttpHeader;
-import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.model.tests.MethodTestInfo;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpPatch;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import okio.BufferedSink;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,20 +33,21 @@ import java.util.Map;
  */
 class HttpExecutor implements ScenarioExecutor {
 
-  /** Logger. */
-  private static final Logger LOG = LoggerFactory.getLogger(HttpExecutor.class);
-
   /** Default encoding. */
   private static final String DEFAULT_ENCODING = "UTF-8";
 
   /** Type resolver. */
   private final TypeResolver types;
 
-  public HttpExecutor(final TypeResolver resolver) {
+  /** HTTP client. */
+  private final OkHttpClient client;
+
+  HttpExecutor(final TypeResolver resolver, final OkHttpClient client) {
     this.types = resolver;
+    this.client = client;
   }
 
-  public static String resolveEncoding(final Service service, final ServiceMethod method) {
+  static String resolveEncoding(final Service service, final ServiceMethod method) {
     String encoding = method.getEncoding();
     if (encoding == null) {
       encoding = service.getEncoding();
@@ -65,38 +58,8 @@ class HttpExecutor implements ScenarioExecutor {
     return encoding;
   }
 
-  public static HttpRequestBase createRequest(final MethodType type) {
-    switch (type) {
-      case GET: return new HttpGet();
-      case POST: return new HttpPost();
-      case PATCH: return new HttpPatch();
-      case DELETE: return new HttpDelete();
-      case PUT: return new HttpPut();
-      case HEAD: return new HttpHead();
-    default:
-      throw new UnsupportedOperationException("Unsupported type " + type);
-    }
-  }
-
-  public static HttpClientBuilder createHttpClientBuilder() {
-    return HttpClientBuilder.create().setUserAgent("Helium");
-  }
-
-  public static HttpResponse send(final HttpClient client, final HttpRequestBase request) throws IOException {
-    LOG.info("Send request " + request.getRequestLine());
-    long startTime = System.currentTimeMillis();
-    HttpResponse resp = client.execute(request);
-    LOG.info("Response loaded in " + (System.currentTimeMillis() - startTime) + " ms: " + resp.getStatusLine());
-    return resp;
-  }
-
-  @Override
-  public HttpResponseWrapper performMethod(final Service service, final ServiceMethod method, final ServiceMethodRequestValues request) {
-    // merge service and test info
-    MethodTestInfo testInfo = method.getTestInfo().resolve(service.getTestInfo());
-    String encoding = resolveEncoding(service, method);
-
-    // prepare HTTP headers
+  private static Headers prepareHeaders(final MethodTestInfo testInfo, final ServiceMethod method,
+                                        final ServiceMethodRequestValues request) {
     HashMap<String, String> httpHeaders = new HashMap<String, String>();
     httpHeaders.putAll(testInfo.getHttpHeaders());
     httpHeaders.putAll(request.getHttpHeaders());
@@ -110,8 +73,15 @@ class HttpExecutor implements ScenarioExecutor {
         httpHeaders.put(header.getName(), header.getValue());
       }
     }
+    Headers.Builder builder = new Headers.Builder();
+    for (Map.Entry<String, String> h : httpHeaders.entrySet()) {
+      builder.add(h.getKey(), h.getValue());
+    }
+    return builder.build();
+  }
 
-    // prepare request URI
+  private static String resolveUri(final Service service, final ServiceMethod method,
+                                   final ServiceMethodRequestValues request, final String encoding) {
     String requestPath = service.getMethodUri(method, request.getPathParameters());
     String query = "";
     if (request.getParameters() != null) {
@@ -119,54 +89,56 @@ class HttpExecutor implements ScenarioExecutor {
       try {
         new HttpParamsWriter(queryWriter, encoding).write(request.getParameters());
       } catch (IOException e) {
-        throw new RuntimeException(e);
+        throw new AssertionError(e);
       }
       query = queryWriter.toString();
-      if (query.length() > 0) { query = "?" + query; }
+      if (query.length() > 0) {
+        query = "?" + query;
+      }
     }
-    String requestUri = requestPath + query;
+    return requestPath + query;
+  }
 
-    HttpRequestBase httpRequest = createRequest(method.getType());
+  @Override
+  public HttpResponseWrapper performMethod(final Service service, final ServiceMethod method, final ServiceMethodRequestValues request) {
+    // merge service and test info
+    MethodTestInfo testInfo = method.getTestInfo().resolve(service.getTestInfo());
+    final String encoding = resolveEncoding(service, method);
 
-    // set URI
+    RequestBody body = null;
+    if (method.getType().isHasBody()) {
+      body = new RequestBody() {
+        @Override
+        public MediaType contentType() {
+          // TODO: Support different content types.
+          return MediaType.parse("application/json");
+        }
+
+        @Override
+        public void writeTo(final BufferedSink sink) throws IOException {
+          TypedEntity entity = request.getBody();
+          if (entity != null) {
+            Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
+            new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(entity);
+            out.close();
+          }
+          sink.close();
+        }
+      };
+    }
+
+    Request httpRequest = new Request.Builder()
+        .headers(prepareHeaders(testInfo, method, request))
+        .url(resolveUri(service, method, request, encoding))
+        .method(method.getType().toString(), body)
+        .build();
+
     try {
-      httpRequest.setURI(new URI(requestUri));
-    } catch (URISyntaxException e) {
-      throw new RuntimeException("Bad URI generated for method " + method, e);
-    }
-
-    // set headers
-    for (Map.Entry<String, String> pair : httpHeaders.entrySet()) {
-      if (pair.getValue() != null && pair.getValue().length() > 0) {
-        httpRequest.addHeader(pair.getKey(), pair.getValue());
-      }
-    }
-
-    // set body
-    // TODO: support different content types
-    if (method.getType().isHasBody() && method.getBody() != null) {
-      StringWriter json = new StringWriter();
-      try {
-        new JsonEntityWriter(json, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(request.getBody());
-      } catch (IOException e) {
-        throw new RuntimeException("Cannot serialize request body", e);
-      }
-      String body = json.toString();
-      LOG.debug("Body: " + body);
-      try {
-        ((HttpEntityEnclosingRequestBase)httpRequest).setEntity(new StringEntity(body, encoding));
-      } catch (UnsupportedEncodingException e) {
-        throw new RuntimeException("Encoding " + encoding + " is not supported", e);
-      }
-    }
-
-    HttpClient client = createHttpClientBuilder().build();
-    try {
-      return new HttpResponseWrapper(types, httpRequest, send(client, httpRequest), encoding, method.getResponse());
+      Response response = client.newCall(httpRequest).execute();
+      return new HttpResponseWrapper(types, response, method.getResponse());
     } catch (IOException e) {
-      throw new RuntimeException("Cannot execute HTTP request", e);
+      throw new AssertionError("Cannot execute HTTP request", e);
     }
-
   }
 
 }
