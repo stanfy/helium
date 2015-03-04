@@ -41,6 +41,9 @@ class TypeDsl {
     if (args.containsKey("skipUnknownFields")) {
       msg.skipUnknownFields = args.skipUnknownFields
     }
+    if (args.containsKey("parent")) {
+      msg.parent = args.parent
+    }
     return msg
   }
 

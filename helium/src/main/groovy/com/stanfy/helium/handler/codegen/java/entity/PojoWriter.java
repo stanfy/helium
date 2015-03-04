@@ -4,12 +4,11 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 
+import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.Set;
-
-import javax.lang.model.element.Modifier;
 
 /**
  * Writes type as a Java class.
