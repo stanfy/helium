@@ -25,8 +25,12 @@ type 'User' message(skipUnknownFields: true) {
   screen_name 'string'
 }
 
-type "Tweet" message(skipUnknownFields: true) {
+type "Base" message {
   id 'int64'
+}
+
+type "Tweet" message(parent: "Base") {
+  //id 'int64'
   text 'string'
   created_at 'timestamp'
   favorited 'bool'
