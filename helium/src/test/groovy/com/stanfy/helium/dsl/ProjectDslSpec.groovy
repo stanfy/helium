@@ -1,9 +1,9 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
-import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.model.constraints.ConstrainedType
 import spock.lang.Specification
 
@@ -539,6 +539,20 @@ class ProjectDslSpec extends Specification {
 
     then:
     dsl.serviceByName("head test").methods[0].type == MethodType.HEAD
+  }
+
+  def "detects unknown message parent" () {
+    when:
+    dsl.type 'int32'
+    dsl.type 'Derived' message(parent: 'Base') {
+      status 'int32'
+    }
+    dsl.getMessages()
+
+    then:
+    // not 'Base' not found
+    def ex = thrown(IllegalArgumentException.class)
+    ex.message == MessageHierarchy.PREFIX_PARENT_TYPE_NOT_FOUND + 'Base'
   }
 
 }

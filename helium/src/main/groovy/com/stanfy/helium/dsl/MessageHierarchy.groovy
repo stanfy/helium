@@ -7,7 +7,11 @@ import com.stanfy.helium.model.Message
  */
 class MessageHierarchy {
 
-  def buildAndValidate(final Collection<Message> input) {
+
+  public static final String PREFIX_CYCLE_DEPENDENCIES = "Cyclic message hierarchy: "
+  public static final String PREFIX_PARENT_TYPE_NOT_FOUND = "Message set does contain type "
+
+  void buildAndValidate(final Collection<Message> input) {
     Map<String, Node> map = new HashMap<>();
 
     // add all to index
@@ -18,7 +22,7 @@ class MessageHierarchy {
         def parentName = n.msg.parent
         if (!map.containsKey(parentName)) {
           // TODO add check for base custom classes here
-          throw new IllegalArgumentException("Message set does contain " + parentName)
+          throw new IllegalArgumentException(PREFIX_PARENT_TYPE_NOT_FOUND + parentName)
         }
 
         map[parentName].addChild(n)
@@ -30,12 +34,12 @@ class MessageHierarchy {
     // DFS to look for cycles
     def cycle = findCycle(roots)
     if (!cycle.isEmpty()) {
-      throw new IllegalArgumentException("Cyclic message hierarchy: " + cycleToString(cycle))
+      throw new IllegalArgumentException(PREFIX_CYCLE_DEPENDENCIES + cycleToString(cycle))
     }
 
   }
 
-  String cycleToString(final Set<Node> nodes) {
+  static String cycleToString(final Set<Node> nodes) {
     nodes.msg.name.join(' -> ')
   }
 
@@ -75,10 +79,6 @@ class MessageHierarchy {
 
     Node(final Message msg) {
       this.msg = msg
-    }
-
-    def hasParent() {
-      return msg.hasParent()
     }
 
     def addChild(final Node node) {

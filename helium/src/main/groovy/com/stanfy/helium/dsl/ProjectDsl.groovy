@@ -38,6 +38,8 @@ class ProjectDsl implements Project {
 
   final Binding variablesBinding = new Binding()
 
+  private final MessageHierarchy messageHierarchy = new MessageHierarchy();
+
   @Override
   List<File> getIncludedFiles() {
     return includedFiles
@@ -56,6 +58,7 @@ class ProjectDsl implements Project {
   @Override
   List<Message> getMessages() {
     applyPendingTypes()
+    messageHierarchy.buildAndValidate(messages)
     return Collections.unmodifiableList(messages)
   }
 
