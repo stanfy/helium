@@ -8,23 +8,21 @@ import spock.lang.Specification
  */
 class MessageHierarchySpec extends Specification {
 
-  def "Should create right string representation" () {
+  def "Can create right string representation" () {
     given:
-    MessageHierarchy hierarchy = new MessageHierarchy()
-
     def i = 0
-    LinkedHashSet<Node> nodes = new LinkedHashSet<>()
+    LinkedHashSet<MessageHierarchy.Node> nodes = new LinkedHashSet<>()
     3.times {
       Message msg = new Message()
       msg.name = "Type" + i++
-      nodes << new MessageHierarchy.Node(msg)
+      nodes.add new MessageHierarchy.Node(msg)
     }
 
     expect:
-    hierarchy.cycleToString(nodes) == "Type0 -> Type1 -> Type2"
+    MessageHierarchy.cycleToString(nodes) == "Type0 -> Type1 -> Type2"
   }
 
-  def "Should not accept wrong parent" () {
+  def "Can not accept wrong parent" () {
     setup:
     MessageHierarchy hierarchy = new MessageHierarchy()
     def messages = new ArrayList<Message>()
@@ -38,7 +36,7 @@ class MessageHierarchySpec extends Specification {
     thrown(IllegalArgumentException.class)
   }
 
-  def "Should find simple cycle" () {
+  def "Can find simple cycle" () {
     setup:
     MessageHierarchy hierarchy = new MessageHierarchy()
     def messages = new ArrayList<Message>()

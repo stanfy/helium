@@ -7,9 +7,15 @@ import com.stanfy.helium.model.Message
  */
 class MessageHierarchy {
 
-
   public static final String PREFIX_CYCLE_DEPENDENCIES = "Cyclic message hierarchy: "
   public static final String PREFIX_PARENT_TYPE_NOT_FOUND = "Message set does contain type "
+
+  private Set<String> externalParentClasses
+
+
+  void setExternalParentClasses(final Set<String> externalParentClasses) {
+    this.externalParentClasses = externalParentClasses
+  }
 
   void buildAndValidate(final Collection<Message> input) {
     Map<String, Node> map = new HashMap<>();
@@ -20,12 +26,14 @@ class MessageHierarchy {
     map.values().each { n ->
       if (n.msg.hasParent()) {
         def parentName = n.msg.parent
-        if (!map.containsKey(parentName)) {
-          // TODO add check for base custom classes here
+        if (map.containsKey(parentName)) {
+          map[parentName].addChild(n)
+          return
+        }
+        if (!externalParentClasses.contains(parentName)) {
           throw new IllegalArgumentException(PREFIX_PARENT_TYPE_NOT_FOUND + parentName)
         }
 
-        map[parentName].addChild(n)
       }
     }
 

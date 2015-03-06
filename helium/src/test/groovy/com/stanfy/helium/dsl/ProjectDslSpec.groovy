@@ -541,18 +541,4 @@ class ProjectDslSpec extends Specification {
     dsl.serviceByName("head test").methods[0].type == MethodType.HEAD
   }
 
-  def "detects unknown message parent" () {
-    when:
-    dsl.type 'int32'
-    dsl.type 'Derived' message(parent: 'Base') {
-      status 'int32'
-    }
-    dsl.getMessages()
-
-    then:
-    // not 'Base' not found
-    def ex = thrown(IllegalArgumentException.class)
-    ex.message == MessageHierarchy.PREFIX_PARENT_TYPE_NOT_FOUND + 'Base'
-  }
-
 }

@@ -33,6 +33,13 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
   /** Writer  */
   private WriterWrapper writerWrapper = Writers.chain();
 
+  /** Set of java class names that can be used as parents
+   *  in generating entities from messages.
+   *
+   *  @see com.stanfy.helium.model.Message#parent
+   */
+  private Set<String> externalParentClasses = new HashSet<String>();
+
   /** Default options. */
   public static EntitiesGeneratorOptions defaultOptions(final String packageName) {
     EntitiesGeneratorOptions options = new EntitiesGeneratorOptions();
@@ -87,4 +94,11 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
     this.writerWrapper = writerWrapper;
   }
 
+  public Set<String> getExternalParentClasses() {
+    return externalParentClasses;
+  }
+
+  public void setExternalParentClasses(final Set<String> externalParentClasses) {
+    this.externalParentClasses = externalParentClasses;
+  }
 }
