@@ -10,7 +10,7 @@ class MessageHierarchy {
   public static final String PREFIX_CYCLE_DEPENDENCIES = "Cyclic message hierarchy: "
   public static final String PREFIX_PARENT_TYPE_NOT_FOUND = "Message set does contain type "
 
-  private Set<String> externalParentClasses
+  private Set<String> externalParentClasses = new HashSet<>()
 
 
   void setExternalParentClasses(final Set<String> externalParentClasses) {
