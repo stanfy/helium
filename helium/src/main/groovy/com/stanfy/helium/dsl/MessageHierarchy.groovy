@@ -59,7 +59,7 @@ class MessageHierarchy {
         cycle << node
 
         def parentNode = node.parentNode
-        while (parentNode != node) {
+        while (parentNode != null && parentNode != node) {
           cycle.add parentNode
           parentNode = parentNode.parentNode
         }
