@@ -128,6 +128,5 @@ public class A
 
     then: "should not give an exception"
     notThrown(IllegalArgumentException)
-
   }
 }

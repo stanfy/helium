@@ -18,80 +18,98 @@ class MessageHierarchy {
   }
 
   void buildAndValidate(final Collection<Message> input) {
-    Map<String, Node> map = new HashMap<>();
+    Map<String, List<Message>> map = new HashMap<>();
+    def validNames = new HashSet<String>()
+    input.collect {validNames.add it.name}
+    def roots = new LinkedHashSet<Message>()
 
-    // add all to index
-    input.each { map[it.name] = new Node(it) }
-
-    map.values().each { n ->
-      if (n.msg.hasParent()) {
-        def parentName = n.msg.parent
-        if (map.containsKey(parentName)) {
-          map[parentName].addChild(n)
-          return
-        }
-        if (!externalParentClasses.contains(parentName)) {
-          throw new IllegalArgumentException(PREFIX_PARENT_TYPE_NOT_FOUND + parentName)
+    validNames.addAll externalParentClasses
+    // add all to index, and fill out roots
+    input.each { msg ->
+      def key = "";
+      if (msg.hasParent()) {
+        if (!validNames.contains(msg.parent)) {
+          throw new IllegalArgumentException(PREFIX_PARENT_TYPE_NOT_FOUND + msg.parent)
         }
 
+        key = externalParentClasses.contains(msg.parent) ? "" : msg.parent
+      }
+      if (key == "") {
+        roots.add msg
+        return
+      }
+      def value = map.containsKey(key) ? map[key] : new ArrayList<>()
+      value.add msg
+
+      map[key] = value
+    }
+
+    if (roots.isEmpty()) {
+      throw new IllegalArgumentException(PREFIX_CYCLE_DEPENDENCIES + findCycleToString(map))
+    }
+
+    def parents = new ArrayList<Message>()
+    def next = new ArrayList<Message>()
+    parents.addAll roots
+
+    while (!parents.isEmpty()) {
+      next.clear()
+
+      parents.each {
+        if (map.containsKey(it.name)) {
+          next.addAll map.remove(it.name)
+        }
+      }
+      parents = next
+    }
+
+    if (!map.isEmpty()) {
+      throw new IllegalArgumentException(PREFIX_CYCLE_DEPENDENCIES + findCycleToString(map))
+    }
+
+  }
+
+  static String findCycleToString(final Map<String, List<Message>> map) {
+    def cycle = new LinkedHashSet<String>()
+    def visited = new HashSet<String>()
+
+    def firstParent = map.keySet().first()
+
+    if (findNext(firstParent, map, cycle, visited)) {
+      return cycleToString(cycle)
+    } else {
+      return ""
+    }
+
+  }
+
+  static String cycleToString(final Collection<String> cycle) {
+    return cycle.join(" -> ")
+  }
+
+  static boolean findNext(
+      final String name,
+      final Map<String, List<Message>> map,
+      final LinkedHashSet<String> cycle,
+      final Set<String> visited) {
+
+    if (!map.containsKey(name)) {
+      cycle.clear()
+      return false
+    }
+    cycle.add name
+    if (visited.contains(name)) {
+      return true
+    }
+    visited.add name
+    for (msg in map[name]) {
+      def childCycle = findNext(msg.name, map, cycle, visited)
+      if (childCycle) {
+        return true
       }
     }
 
-    def roots = map.values()
-
-    // DFS to look for cycles
-    def cycle = findCycle(roots)
-    if (!cycle.isEmpty()) {
-      throw new IllegalArgumentException(PREFIX_CYCLE_DEPENDENCIES + cycleToString(cycle))
-    }
-
+    return false
   }
 
-  static String cycleToString(final Set<Node> nodes) {
-    nodes.msg.name.join(' -> ')
-  }
-
-  Set<Node> findCycle(final Collection<Node> nodes) {
-    Set<Node> cycle = new LinkedHashSet<>();
-    for (node in nodes) {
-      if (node.visited) {
-        // build parent cycle
-        cycle << node
-
-        def parentNode = node.parentNode
-        while (parentNode != null && parentNode != node) {
-          cycle.add parentNode
-          parentNode = parentNode.parentNode
-        }
-        return cycle
-      }
-
-      node.visited = true
-
-      def childCycle = findCycle(node.children)
-      if (!childCycle.isEmpty()) {
-        // cycle found - do not continue
-        return childCycle
-      }
-    }
-    // cycle not found
-    return []
-  }
-
-  static class Node {
-    Message msg;
-    Set<Node> children = new HashSet<>();
-    Node parentNode;
-
-    boolean visited;
-
-    Node(final Message msg) {
-      this.msg = msg
-    }
-
-    def addChild(final Node node) {
-      children << node
-      node.parentNode = this
-    }
-  }
 }
