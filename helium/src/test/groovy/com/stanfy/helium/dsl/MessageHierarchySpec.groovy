@@ -72,10 +72,10 @@ class MessageHierarchySpec extends Specification {
     def ex = thrown(IllegalArgumentException)
     def exMsg = ex.getMessage()
     exMsg =~ MessageHierarchy.PREFIX_CYCLE_DEPENDENCIES
-    exMsg.contains " a "
-    exMsg.contains " b "
-    exMsg.contains " c "
-    exMsg.contains " d "
+    exMsg.contains "a"
+    exMsg.contains "b"
+    exMsg.contains "c"
+    exMsg.contains "d"
 
   }
 }
