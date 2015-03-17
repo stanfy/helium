@@ -348,6 +348,46 @@ class ProjectDslSpec extends Specification {
 
   }
 
+  def "can set message parents" () {
+    given:
+    dsl.type "BaseMessage" message {}
+    dsl.type "ChildMessage" message(parent: "BaseMessage") {}
+
+    expect:
+    def parent = dsl.types.byName("BaseMessage")
+    def child = dsl.types.byName("ChildMessage")
+    parent instanceof Message
+    child instanceof Message
+    !(parent as Message).hasParent()
+    (child as Message).hasParent()
+    (child as Message).getParent().name == parent.name
+  }
+
+  def "can detect unknown parents" () {
+    when:
+    dsl.type "MessageWithBadParent" message(parent: "Base") {}
+
+    then:
+    thrown(IllegalArgumentException)
+  }
+
+  def "should allow only messages as parents"() {
+    when:
+    dsl.type "123"
+    dsl.type "MyInteger" message(parent: "123") {}
+
+    then:
+    thrown IllegalArgumentException
+  }
+
+  def "should check if message is parent of itself"() {
+    when:
+    dsl.type "Samovar" message(parent: "Samovar") {}
+
+    then:
+    thrown IllegalArgumentException
+  }
+
   def "can describe type converters"() {
     given:
     dsl.type "custom" spec {

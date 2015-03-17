@@ -65,7 +65,7 @@ final class MessageToJavaClass {
 
     // class name
     emitJavaDoc(message);
-    writer.writeClassBegin(message, message.getParent());
+    writer.writeClassBegin(message, message.getParent() != null ? message.getParent().getName() : null);
     writer.getOutput().emitEmptyLine();
 
     // fields

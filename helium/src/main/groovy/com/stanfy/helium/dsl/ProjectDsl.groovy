@@ -91,7 +91,19 @@ class ProjectDsl implements Project {
     runWithProxy(new FieldsBuilder(m, this, typeResolver), spec)
     messages.add m
     updatePendingTypes(name, m, addToStructure)
+    // validate message parent
     return m
+  }
+
+  public void updateMessageParent(final Message msg, final String parentName) {
+    if (msg.name == parentName) {
+      throw new IllegalArgumentException("Bad type: " + msg.name + ". Message cannot be parent of itself.")
+    }
+    def parent = types.byName(parentName)
+    if (!(parent instanceof Message)) {
+      throw new IllegalArgumentException("Bad type: " + msg.name + ". Only messages can be parents of messages.")
+    }
+    msg.parent = parent as Message
   }
 
   public Sequence createAndAddSequence(final String name, final String itemsType) {

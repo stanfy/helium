@@ -406,7 +406,7 @@ class MyMsg {
     Message baseMsg = new Message(name: "Base")
     baseMsg.addField(new Field(name: "data", type: new Type(name: "int32")))
 
-    Message msg = new Message(name: "Message", parent: "Base")
+    Message msg = new Message(name: "Message", parent: baseMsg)
     msg.addField(new Field(name: "optional", type: new Type(name: "bool")))
 
     when:

@@ -439,7 +439,7 @@ public class Test {
 
   def "write class with parent"() {
     given:
-    Message msg = new Message(name: "Derived", parent: "Base")
+    Message msg = new Message(name: "Derived", parent: new Message(name: "Base"))
     msg.addField(new Field(name: "data", type: new Type(name: "int32"), required: true))
 
     when:

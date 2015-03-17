@@ -100,33 +100,4 @@ public class A
 """.trim() + '\n'
   }
 
-  def "can detect unknown message parent" () {
-    given:
-    project.type 'int32'
-    project.type 'Derived' message(parent: 'Base') {
-      status 'int32'
-    }
-
-    when:
-    generator.handle(project)
-
-    then:
-    // 'Base' not found
-    thrown(IllegalArgumentException.class)
-  }
-
-  def "respects external parents options" () {
-    given: "hierarchy with external parent"
-    project.type 'int32'
-    project.type 'BaseOne' message(parent: 'Base')
-
-    and: "external parent option"
-    options.externalParentClasses.add 'Base'
-
-    when: "parsing message hierarchy"
-    generator.handle(project)
-
-    then: "should not give an exception"
-    notThrown(IllegalArgumentException)
-  }
 }

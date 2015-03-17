@@ -1,6 +1,5 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
-import com.stanfy.helium.dsl.MessageHierarchy;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
 import com.stanfy.helium.model.Message;
@@ -22,8 +21,6 @@ import java.io.OutputStreamWriter;
  */
 public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOptions> implements Handler {
 
-  private MessageHierarchy messageHierarchy = new MessageHierarchy();
-
   public EntitiesGenerator(final File outputDirectory, final EntitiesGeneratorOptions options) {
     super(outputDirectory, options);
   }
@@ -36,9 +33,6 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
   public void handle(final Project project) {
     File targetDirectory = getPackageDirectory();
     EntitiesGeneratorOptions options = getOptions();
-
-    messageHierarchy.setExternalParentClasses(options.getExternalParentClasses());
-    messageHierarchy.buildAndValidate(project.getMessages());
 
     for (Type type : project.getTypes().all()) {
       if (!options.isTypeIncluded(type)) {
@@ -65,6 +59,7 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
       output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
       JavaClassWriter coreWriter = Writers.pojo().create(output);
       EntitiesGeneratorOptions options = getOptions();
+      // TODO external parents check here
       new MessageToJavaClass(options.getWriterWrapper().wrapWriter(coreWriter, options), options).write(type);
     } catch (IOException e) {
       throw new RuntimeException(e);
