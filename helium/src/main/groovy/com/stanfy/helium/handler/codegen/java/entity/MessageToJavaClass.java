@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
+import com.stanfy.helium.handler.codegen.java.ClassParent;
 import com.stanfy.helium.model.Descriptionable;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
@@ -30,6 +31,10 @@ final class MessageToJavaClass {
   }
 
   public void write(final Message message) throws IOException {
+    write(message, null);
+  }
+
+  public void write(final Message message, final ClassParent classParent) throws IOException {
     String packageName = options.getPackageName();
     if (packageName == null) {
       throw new IllegalStateException("Package is not defined");
@@ -65,7 +70,19 @@ final class MessageToJavaClass {
 
     // class name
     emitJavaDoc(message);
-    writer.writeClassBegin(message, message.getParent() != null ? message.getParent().getName() : null);
+
+    final String extending;
+    final String[] implementing;
+    final String messageParent = message.hasParent() ? message.getParent().getName() : null;
+    if (classParent != null) {
+      extending = classParent.extending != null ? classParent.extending : messageParent;
+      implementing = classParent.implementing;
+    } else {
+      extending = messageParent;
+      implementing = new String[]{};
+    }
+
+    writer.writeClassBegin(message, extending, implementing);
     writer.getOutput().emitEmptyLine();
 
     // fields

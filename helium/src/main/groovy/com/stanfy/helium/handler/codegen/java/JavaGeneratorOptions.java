@@ -39,6 +39,15 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
   /** Mapping for custom primitives. */
   private Map<String, String> customPrimitivesMapping = Collections.emptyMap();
 
+  /**
+   * Set of custom mapping for messages. Used when you need classes
+   * generated from messages extend custom classes and implement custom
+   * interfaces.
+   *
+   * @see com.stanfy.helium.model.Message#parent
+   */
+  private Map<String, ClassParent> customParentMapping = Collections.emptyMap();
+
   /** Whether to prettify field names. */
   private boolean prettifyNames;
 
@@ -63,6 +72,14 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
 
   public void setCustomPrimitivesMapping(final Map<String, String> customPrimitivesMapping) {
     this.customPrimitivesMapping = customPrimitivesMapping;
+  }
+
+  public Map<String, ClassParent> getCustomParentMapping() {
+    return customParentMapping;
+  }
+
+  public void setCustomParentMapping(final Map<String, ClassParent> customParentMapping) {
+    this.customParentMapping = customParentMapping;
   }
 
   public String getJavaTypeName(final Type type, final boolean sequence, final JavaWriter writer) {
