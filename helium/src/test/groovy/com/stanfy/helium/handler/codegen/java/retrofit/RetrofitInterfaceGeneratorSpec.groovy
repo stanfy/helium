@@ -136,4 +136,36 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     e.message.contains "service name"
   }
 
+  def "should write form body types"() {
+    given:
+    project.type "FormMessage" message {
+      count 'int32'
+    }
+    project.service {
+      name "FormService"
+      post "/form" spec {
+        body form("FormMessage")
+      }
+    }
+
+    when:
+    gen.handle(project)
+    def text = new File("$output/test/api/FormService.java").text
+
+    then:
+    text == """
+package test.api;
+
+import retrofit.client.Response;
+import retrofit.http.*;
+
+public interface FormService {
+
+  @POST("/form")
+  @FormUrlEncoded
+  Response postForm(@Field("count") int count);
+
+}""".trim() + '\n'
+  }
+
 }

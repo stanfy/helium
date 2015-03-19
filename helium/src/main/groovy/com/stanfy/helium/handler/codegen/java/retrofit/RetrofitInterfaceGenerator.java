@@ -4,7 +4,9 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
 import com.stanfy.helium.model.Field;
+import com.stanfy.helium.model.FormType;
 import com.stanfy.helium.model.HttpHeader;
+import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
@@ -66,6 +68,9 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
       sequence = true;
       imported = ((Sequence) imported).getItemsType();
     }
+    if (imported instanceof FormType) {
+      imported = ((FormType) type).getBase();
+    }
     String javaType = getOptions().getJavaTypeName(imported, sequence, writer);
     if (!type.isPrimitive() && getOptions().getEntitiesPackage() != null) {
       javaType = getOptions().getEntitiesPackage() + "." + javaType;
@@ -100,6 +105,10 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
           }
           if (m.getBody() != null) {
             addImport(imports, m.getBody(), writer);
+            if (m.getBody() instanceof FormType) {
+              imports.add("retrofit.http.FormUrlEncoded");
+              imports.add("retrofit.http.Field");
+            }
           }
         }
         if (m.getResponse() == null) {
@@ -137,6 +146,10 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         }
 
         writer.emitAnnotation(m.getType().toString(), stringLiteral(getTransformedPath(m)));
+
+        if (m.hasFormBody()) {
+          writer.emitAnnotation("FormUrlEncoded");
+        }
 
         String responseType = "Response";
         if (m.getResponse() != null) {
@@ -207,8 +220,18 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     }
 
     if (m.getBody() != null) {
-      res.add("@Body " + getJavaType(m.getBody(), writer));
-      res.add("body");
+      if (m.getBody() instanceof FormType) {
+        final Message message = ((FormType) m.getBody()).getBase();
+        // should think on including
+        for (Field f : message.getActiveFields()) {
+          res.add("@Field(\"" + f.getName() +"\") " + getJavaType(f.getType(), writer));
+          res.add(getOptions().getSafeParameterName(f.getCanonicalName()));
+        }
+
+      } else {
+        res.add("@Body " + getJavaType(m.getBody(), writer));
+        res.add("body");
+      }
     }
 
     return res;
