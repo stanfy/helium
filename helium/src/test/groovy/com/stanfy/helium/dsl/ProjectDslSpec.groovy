@@ -2,6 +2,7 @@ package com.stanfy.helium.dsl
 
 import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.entities.json.ClosureJsonConverter
+import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.constraints.ConstrainedType
@@ -582,4 +583,42 @@ class ProjectDslSpec extends Specification {
     dsl.serviceByName("head test").methods[0].type == MethodType.HEAD
   }
 
+  def "can handle form body by name"() {
+    when:
+    dsl.type 'int32'
+    dsl.type 'FormType' message {
+      name 'int32'
+    }
+
+    dsl.service {
+      name "formService"
+      post "/form" spec {
+        body form('FormType')
+        response 'int32'
+      }
+    }
+
+    then:
+    dsl.serviceByName("formService").methods.first().body instanceof FormType
+
+  }
+
+  def "can handle form body with closure"() {
+    when:
+    dsl.type 'int32'
+
+    dsl.service {
+      name "formService"
+      post "/form" spec {
+        body form {
+          name 'int32'
+        }
+        response 'int32'
+      }
+    }
+
+    then:
+    dsl.serviceByName("formService").methods.first().body instanceof FormType
+
+  }
 }

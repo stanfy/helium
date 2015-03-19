@@ -1,9 +1,7 @@
 package com.stanfy.helium.dsl
 
-import com.stanfy.helium.model.HttpHeader
-import com.stanfy.helium.model.Message
+import com.stanfy.helium.model.*
 import com.stanfy.helium.utils.ConfigurableProxy
-import com.stanfy.helium.model.ServiceMethod
 
 import static com.stanfy.helium.utils.DslUtils.runWithProxy
 
@@ -19,6 +17,13 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
           delegate.defineMessageType(it, (Closure<?>)arg)
         } else if (arg instanceof String) {
           delegate.defineMessageType(it, (String)arg)
+        }
+        if ("body" == it) {
+          return [
+              "form" : { Object formArg ->
+                delegate.form(formArg)
+              }
+          ]
         }
       }
     }
@@ -38,6 +43,31 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
   void defineMessageType(final String property, String messageType) {
     ServiceMethod core = getCore()
     core."$property" = getProject().types.byName(messageType)
+  }
+
+  void form(final Object args) {
+    Type typeToWrap = null
+    ServiceMethod core = getCore()
+
+    if (args instanceof String) {
+      def messageType = args as String
+      typeToWrap = getProject().types.byName(messageType)
+    } else if (args instanceof Closure) {
+      defineMessageType("body", args as Closure)
+      typeToWrap = core.body
+    }
+
+    // wrap message
+    if (typeToWrap != null) {
+      if (typeToWrap instanceof Message) {
+        core.body = new FormType(typeToWrap as Message)
+      } else {
+        throw new IllegalArgumentException("Bad arguments for form type: $args. Only message can be used as type for form")
+      }
+      return
+    }
+
+    throw new IllegalArgumentException("Bad arguments for form type: $args.")
   }
 
   void tests(final Closure<?> spec) {
