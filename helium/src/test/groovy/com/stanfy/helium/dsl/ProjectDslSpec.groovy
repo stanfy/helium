@@ -583,6 +583,8 @@ class ProjectDslSpec extends Specification {
     dsl.serviceByName("head test").methods[0].type == MethodType.HEAD
   }
 
+  //region form request content type
+
   def "can handle form body by name"() {
     when:
     dsl.type 'int32'
@@ -619,6 +621,43 @@ class ProjectDslSpec extends Specification {
 
     then:
     dsl.serviceByName("formService").methods.first().body instanceof FormType
-
   }
+
+  def "should only allow messages as form types"() {
+    when:
+    dsl.type 'int32'
+
+    dsl.service {
+      name 'formService'
+      put "/form" spec {
+        body form('int32')
+        response 'int32'
+      }
+    }
+
+    then:
+    thrown(IllegalArgumentException)
+  }
+
+  def "should not allow nested messages"() {
+    when:
+    dsl.type 'int32'
+    dsl.type "SmallMessage" message {
+      count 'int32'
+    }
+    dsl.type "BigMessage" message {
+      small "SmallMessage"
+    }
+    dsl.service {
+      name "formService"
+      post "/form" spec {
+        body form("BigMessage")
+      }
+    }
+
+    then:
+    thrown IllegalArgumentException
+  }
+
+  //endregion
 }
