@@ -4,10 +4,10 @@ package com.stanfy.helium.handler.codegen.java;
  * Represents class' parent and set of interfaces it's implementing.
  */
 public class ClassParent {
-  public final String extending;
-  public final String[] implementing;
+  private final String extending;
+  private final String[] implementing;
 
-  public ClassParent(final String extending, String... implementing) {
+  public ClassParent(final String extending, final String... implementing) {
     this.extending = extending;
     this.implementing = implementing;
   }
@@ -22,5 +22,13 @@ public class ClassParent {
 
   public static ClassParent extending(final String name, final String... interfaces) {
     return new ClassParent(name, interfaces);
+  }
+
+  public String getExtending() {
+    return extending;
+  }
+
+  public String[] getImplementing() {
+    return implementing;
   }
 }

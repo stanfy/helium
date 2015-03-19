@@ -75,8 +75,8 @@ final class MessageToJavaClass {
     final String[] implementing;
     final String messageParent = message.hasParent() ? message.getParent().getName() : null;
     if (classParent != null) {
-      extending = classParent.extending != null ? classParent.extending : messageParent;
-      implementing = classParent.implementing;
+      extending = classParent.getExtending() != null ? classParent.getExtending() : messageParent;
+      implementing = classParent.getImplementing();
     } else {
       extending = messageParent;
       implementing = new String[]{};

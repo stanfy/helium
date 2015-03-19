@@ -66,7 +66,7 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
       ClassParent classParent = null;
       if (customParentMapping.containsKey(type.getName())) {
         final ClassParent externalParent = customParentMapping.get(type.getName());
-        if (type.hasParent() && externalParent != null && externalParent.extending != null) {
+        if (type.hasParent() && externalParent != null && externalParent.getExtending() != null) {
           throw new IllegalArgumentException("Bad message type: " + type.getName()
                   + ". Message parent declared in both api specification and parent mapping.");
         }
