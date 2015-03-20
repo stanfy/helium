@@ -2,6 +2,7 @@ package com.stanfy.helium.dsl
 
 import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.entities.json.ClosureJsonConverter
+import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
@@ -657,6 +658,23 @@ class ProjectDslSpec extends Specification {
 
     then:
     thrown IllegalArgumentException
+  }
+
+  def "can set data type as body"() {
+    when:
+    dsl.type 'int32'
+
+    dsl.service {
+      name "Raw Data Service"
+
+      post "/data" spec {
+        response 'int32'
+        body data()
+      }
+    }
+
+    then:
+    dsl.serviceByName("Raw Data Service").methods.first().body instanceof DataType
   }
 
   //endregion

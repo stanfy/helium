@@ -22,6 +22,9 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
           return [
               "form" : { Object formArg ->
                 delegate.form(formArg)
+              },
+              "data" : {
+                delegate.data()
               }
           ]
         }
@@ -68,6 +71,10 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
     }
 
     throw new IllegalArgumentException("Bad arguments for form type: $args.")
+  }
+
+  void data() {
+    getCore().body = new DataType()
   }
 
   void tests(final Closure<?> spec) {
