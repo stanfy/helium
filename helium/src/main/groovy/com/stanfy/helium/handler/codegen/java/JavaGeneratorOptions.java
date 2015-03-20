@@ -46,7 +46,7 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
    *
    * @see com.stanfy.helium.model.Message#parent
    */
-  private Map<String, ClassParent> customParentMapping = Collections.emptyMap();
+  private Map<String, ClassAncestors> customParentMapping = Collections.emptyMap();
 
   /** Whether to prettify field names. */
   private boolean prettifyNames;
@@ -74,11 +74,11 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
     this.customPrimitivesMapping = customPrimitivesMapping;
   }
 
-  public Map<String, ClassParent> getCustomParentMapping() {
+  public Map<String, ClassAncestors> getCustomParentMapping() {
     return customParentMapping;
   }
 
-  public void setCustomParentMapping(final Map<String, ClassParent> customParentMapping) {
+  public void setCustomParentMapping(final Map<String, ClassAncestors> customParentMapping) {
     this.customParentMapping = customParentMapping;
   }
 

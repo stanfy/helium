@@ -2,7 +2,7 @@ package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
-import com.stanfy.helium.handler.codegen.java.ClassParent;
+import com.stanfy.helium.handler.codegen.java.ClassAncestors;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Type;
@@ -62,18 +62,22 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
       JavaClassWriter coreWriter = Writers.pojo().create(output);
       EntitiesGeneratorOptions options = getOptions();
 
-      final Map<String, ClassParent> customParentMapping = options.getCustomParentMapping();
-      ClassParent classParent = null;
+      final Map<String, ClassAncestors> customParentMapping = options.getCustomParentMapping();
+      ClassAncestors classAncestors = null;
       if (customParentMapping.containsKey(type.getName())) {
-        final ClassParent externalParent = customParentMapping.get(type.getName());
+        final ClassAncestors externalParent = customParentMapping.get(type.getName());
         if (type.hasParent() && externalParent != null && externalParent.getExtending() != null) {
-          throw new IllegalArgumentException("Bad message type: " + type.getName()
-                  + ". Message parent declared in both api specification and parent mapping.");
+          throw new IllegalArgumentException(
+                  String.format("Bad configuration for message %s. It has a parent %s, and at the same time super class is configured for code generation %s",
+                          type.getName(),
+                          type.getParent().getName(),
+                          externalParent.getExtending())
+                  );
         }
-        classParent = externalParent;
+        classAncestors = externalParent;
       }
 
-      new MessageToJavaClass(options.getWriterWrapper().wrapWriter(coreWriter, options), options).write(type, classParent);
+      new MessageToJavaClass(options.getWriterWrapper().wrapWriter(coreWriter, options), options).write(type, classAncestors);
     } catch (IOException e) {
       throw new RuntimeException(e);
     } finally {

@@ -410,10 +410,10 @@ class MyMsg {
     msg.addField(new Field(name: "optional", type: new Type(name: "bool")))
 
     when:
-    // check if everything is written
+    // Check if everything is written.
     def converter = new MessageToJavaClass(writer, options)
     converter.write(baseMsg)
-    // reset writer
+    // Reset writer to
     writer = new AndroidParcelableWriter(new PojoWriter(output), options)
     converter = new MessageToJavaClass(writer, options)
     converter.write(msg)

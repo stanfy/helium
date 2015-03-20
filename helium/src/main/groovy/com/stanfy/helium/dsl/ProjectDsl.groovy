@@ -91,7 +91,6 @@ class ProjectDsl implements Project {
     runWithProxy(new FieldsBuilder(m, this, typeResolver), spec)
     messages.add m
     updatePendingTypes(name, m, addToStructure)
-    // validate message parent
     return m
   }
 

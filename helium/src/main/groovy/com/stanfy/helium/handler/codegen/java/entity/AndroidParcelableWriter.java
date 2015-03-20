@@ -114,8 +114,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     output.emitAnnotation(Override.class);
     output.beginMethod("void", "writeToParcel", EnumSet.of(Modifier.PUBLIC), ANDROID_OS_PARCEL, "dest", "int", "options");
 
-    // we assume that if parent is specified, it's also a parcelable
-    // note: may be insert safe type check Parcelable.class.isAssignableFrom(getClass().getSupperClass())
+    // We assume that if parent is specified, it's also a parcelable.
     if (message.hasParent()) {
       output.emitStatement("super.writeToParcel(dest, options)");
     }

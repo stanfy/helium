@@ -45,8 +45,8 @@ final class Message extends Type {
   boolean isPrimitive() { return false }
 
 
-  /**Return true if parent is not null or empty.
-   *
+  /**
+   * Return true if parent is not null or empty.
    * @return true if parent is not null or empty.
    */
   boolean hasParent() {

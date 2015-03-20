@@ -377,7 +377,8 @@ class ProjectDslSpec extends Specification {
     dsl.type "MyInteger" message(parent: "123") {}
 
     then:
-    thrown IllegalArgumentException
+    def e = thrown IllegalArgumentException
+    e.message.contains "Only messages"
   }
 
   def "should check if message is parent of itself"() {
