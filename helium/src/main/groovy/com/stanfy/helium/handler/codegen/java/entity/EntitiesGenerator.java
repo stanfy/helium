@@ -2,7 +2,6 @@ package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
-import com.stanfy.helium.handler.codegen.java.ClassAncestors;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Type;
@@ -16,7 +15,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.Map;
 
 /**
  * POJO generator.
@@ -61,23 +59,7 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
       output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
       JavaClassWriter coreWriter = Writers.pojo().create(output);
       EntitiesGeneratorOptions options = getOptions();
-
-      final Map<String, ClassAncestors> customParentMapping = options.getCustomParentMapping();
-      ClassAncestors classAncestors = null;
-      if (customParentMapping.containsKey(type.getName())) {
-        final ClassAncestors externalParent = customParentMapping.get(type.getName());
-        if (type.hasParent() && externalParent != null && externalParent.getExtending() != null) {
-          throw new IllegalArgumentException(
-                  String.format("Bad configuration for message %s. It has a parent %s, and at the same time super class is configured for code generation %s",
-                          type.getName(),
-                          type.getParent().getName(),
-                          externalParent.getExtending())
-                  );
-        }
-        classAncestors = externalParent;
-      }
-
-      new MessageToJavaClass(options.getWriterWrapper().wrapWriter(coreWriter, options), options).write(type, classAncestors);
+      new MessageToJavaClass(options.getWriterWrapper().wrapWriter(coreWriter, options), options).write(type);
     } catch (IOException e) {
       throw new RuntimeException(e);
     } finally {

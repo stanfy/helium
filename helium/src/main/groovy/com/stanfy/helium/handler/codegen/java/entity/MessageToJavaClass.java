@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 
 import javax.lang.model.element.Modifier;
 
@@ -31,10 +32,6 @@ final class MessageToJavaClass {
   }
 
   public void write(final Message message) throws IOException {
-    write(message, null);
-  }
-
-  public void write(final Message message, final ClassAncestors classAncestors) throws IOException {
     String packageName = options.getPackageName();
     if (packageName == null) {
       throw new IllegalStateException("Package is not defined");
@@ -73,6 +70,21 @@ final class MessageToJavaClass {
 
     final String extending;
     final String[] implementing;
+    final Map<String, ClassAncestors> customParentMapping = options.getCustomParentMapping();
+    ClassAncestors classAncestors = null;
+    if (customParentMapping.containsKey(message.getName())) {
+      final ClassAncestors externalParent = customParentMapping.get(message.getName());
+      if (message.hasParent() && externalParent != null && externalParent.getExtending() != null) {
+        throw new IllegalArgumentException(
+                String.format("Bad configuration for message %s. It has a parent %s, and at the same time super class is configured for code generation %s",
+                        message.getName(),
+                        message.getParent().getName(),
+                        externalParent.getExtending())
+        );
+      }
+      classAncestors = externalParent;
+    }
+
     final String messageParent = message.hasParent() ? message.getParent().getName() : null;
     if (classAncestors != null) {
       extending = classAncestors.getExtending() != null ? classAncestors.getExtending() : messageParent;
