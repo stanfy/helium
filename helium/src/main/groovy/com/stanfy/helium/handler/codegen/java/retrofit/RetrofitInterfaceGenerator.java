@@ -3,6 +3,7 @@ package com.stanfy.helium.handler.codegen.java.retrofit;
 import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
+import com.stanfy.helium.model.DataType;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.FormType;
 import com.stanfy.helium.model.HttpHeader;
@@ -64,6 +65,10 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
   private String resolveJavaTypeName(final Type type, final JavaWriter writer) {
     Type imported = type;
     boolean sequence = false;
+    if (imported instanceof DataType) {
+      return "retrofit.mime.TypedOutput";
+    }
+
     if (imported instanceof Sequence) {
       sequence = true;
       imported = ((Sequence) imported).getItemsType();
@@ -103,16 +108,20 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
           if (m.getResponse() != null) {
             addImport(imports, m.getResponse(), writer);
           }
-          if (m.getBody() != null) {
-            addImport(imports, m.getBody(), writer);
-            if (m.getBody() instanceof FormType) {
-              imports.add("retrofit.http.FormUrlEncoded");
-              imports.add("retrofit.http.Field");
-            }
-          }
         }
         if (m.getResponse() == null) {
           imports.add("retrofit.client.Response");
+        }
+
+        if (m.getBody() != null) {
+          addImport(imports, m.getBody(), writer);
+          if (m.getBody() instanceof FormType) {
+            imports.add("retrofit.http.FormUrlEncoded");
+            imports.add("retrofit.http.Field");
+          }
+          if (m.getBody() instanceof DataType) {
+            imports.add("retrofit.mime.TypedOutput");
+          }
         }
       }
 
@@ -190,6 +199,9 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     String name = resolveJavaTypeName(type, writer);
     if (type instanceof Sequence) {
       return getOptions().getSequenceTypeName(name);
+    }
+    if (type instanceof DataType) {
+      return writer.compressType(name);
     }
     return name;
   }

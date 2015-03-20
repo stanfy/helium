@@ -168,4 +168,33 @@ public interface FormService {
 }""".trim() + '\n'
   }
 
+  def "should write generic data body"() {
+    given:
+    project.service {
+      name "DataService"
+      post "/data" spec {
+        body data()
+      }
+    }
+
+    when:
+    gen.handle project
+    def text = new File("$output/test/api/DataService.java").text
+
+    then:
+    text == """
+package test.api;
+
+import retrofit.client.Response;
+import retrofit.mime.TypedOutput;
+import retrofit.http.*;
+
+public interface DataService {
+
+  @POST("/data")
+  Response postData(@Body TypedOutput body);
+
+}""".trim() + '\n'
+
+  }
 }
