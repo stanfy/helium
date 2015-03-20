@@ -115,10 +115,6 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
 
         if (m.getBody() != null) {
           addImport(imports, m.getBody(), writer);
-          if (m.getBody() instanceof FormType) {
-            imports.add("retrofit.http.FormUrlEncoded");
-            imports.add("retrofit.http.Field");
-          }
           if (m.getBody() instanceof DataType) {
             imports.add("retrofit.mime.TypedOutput");
           }
@@ -236,7 +232,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         final Message message = ((FormType) m.getBody()).getBase();
         // should think on including
         for (Field f : message.getActiveFields()) {
-          res.add("@Field(\"" + f.getName() +"\") " + getJavaType(f.getType(), writer));
+          res.add("@Field(\"" + f.getName() + "\") " + getJavaType(f.getType(), writer));
           res.add(getOptions().getSafeParameterName(f.getCanonicalName()));
         }
 
