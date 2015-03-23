@@ -8,6 +8,7 @@ import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.FormType;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.MultipartType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
@@ -68,6 +69,9 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     if (imported instanceof DataType) {
       return "retrofit.mime.TypedOutput";
     }
+    if (imported instanceof MultipartType) {
+      return "java.util.Map";
+    }
 
     if (imported instanceof Sequence) {
       sequence = true;
@@ -117,6 +121,8 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
           addImport(imports, m.getBody(), writer);
           if (m.getBody() instanceof DataType) {
             imports.add("retrofit.mime.TypedOutput");
+          } else if (m.getBody() instanceof MultipartType) {
+            imports.add("java.util.Map");
           }
         }
       }
@@ -154,6 +160,9 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
 
         if (m.hasFormBody()) {
           writer.emitAnnotation("FormUrlEncoded");
+        }
+        if (m.hasMultipartBody()) {
+          writer.emitAnnotation("Multipart");
         }
 
         String responseType = "Response";
@@ -230,12 +239,15 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     if (m.getBody() != null) {
       if (m.getBody() instanceof FormType) {
         final Message message = ((FormType) m.getBody()).getBase();
-        // should think on including
+        // We should think on including parent message fields.
+        // MB message.getAllFields() ?
         for (Field f : message.getActiveFields()) {
           res.add("@Field(\"" + f.getName() + "\") " + getJavaType(f.getType(), writer));
           res.add(getOptions().getSafeParameterName(f.getCanonicalName()));
         }
-
+      } else if (m.getBody() instanceof MultipartType) {
+        res.add("@PartMap Map<String, Object>");
+        res.add("parts");
       } else {
         res.add("@Body " + getJavaType(m.getBody(), writer));
         res.add("body");

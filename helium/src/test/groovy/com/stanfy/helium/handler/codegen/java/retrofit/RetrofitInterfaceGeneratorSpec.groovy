@@ -187,4 +187,24 @@ public interface FormService {
     text.contains "@POST(\"/data\")"
     text.contains "Response postData(@Body TypedOutput body);"
   }
+
+  def "should write multipart map body"() {
+    given:
+    project.service {
+      name "MultipartService"
+      post "/multipart" spec {
+        name 'upload'
+        body multipart()
+      }
+    }
+
+    when:
+    gen.handle project
+    def text = new File("$output/test/api/MultipartService.java").text
+
+    then:
+    text.contains "@Multipart"
+    text.contains "@POST(\"/multipart\")"
+    text.contains "Response upload(@PartMap Map<String, Object> parts)"
+  }
 }

@@ -25,6 +25,9 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
               },
               "data" : {
                 delegate.data()
+              },
+              "multipart" : {
+                delegate.multipart()
               }
           ]
         }
@@ -71,6 +74,10 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
     }
 
     throw new IllegalArgumentException("Bad arguments for form type: $args.")
+  }
+
+  void multipart() {
+    getCore().body = new MultipartType()
   }
 
   void data() {

@@ -151,4 +151,8 @@ class ServiceMethod extends Descriptionable {
   boolean hasFormBody() {
     return this.@body != null && body instanceof FormType;
   }
+
+  boolean hasMultipartBody() {
+    return this.@body != null && body instanceof MultipartType;
+  }
 }
