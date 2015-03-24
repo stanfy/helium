@@ -5,6 +5,7 @@ import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
 import com.stanfy.helium.model.DataType;
 import com.stanfy.helium.model.Field;
+import com.stanfy.helium.model.FileType;
 import com.stanfy.helium.model.FormType;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Message;
@@ -14,6 +15,7 @@ import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.Type;
+import com.stanfy.helium.utils.Names;
 
 import org.apache.commons.io.IOUtils;
 
@@ -66,6 +68,9 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
   private String resolveJavaTypeName(final Type type, final JavaWriter writer) {
     Type imported = type;
     boolean sequence = false;
+    if (imported instanceof FileType) {
+      return "retrofit.mime.TypedFile";
+    }
     if (imported instanceof DataType) {
       return "retrofit.mime.TypedOutput";
     }
@@ -122,7 +127,13 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
           if (m.getBody() instanceof DataType) {
             imports.add("retrofit.mime.TypedOutput");
           } else if (m.getBody() instanceof MultipartType) {
-            imports.add("java.util.Map");
+            if (((MultipartType) m.getBody()).isGeneric()) {
+              imports.add("java.util.Map");
+            } else {
+              for (Type type : ((MultipartType) m.getBody()).getParts().values()) {
+                addImport(imports, type, writer);
+              }
+            }
           }
         }
       }
@@ -246,8 +257,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
           res.add(getOptions().getSafeParameterName(f.getCanonicalName()));
         }
       } else if (m.getBody() instanceof MultipartType) {
-        res.add("@PartMap Map<String, Object>");
-        res.add("parts");
+        addMultipartBody(writer, res, (MultipartType) m.getBody());
       } else {
         res.add("@Body " + getJavaType(m.getBody(), writer));
         res.add("body");
@@ -255,6 +265,18 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     }
 
     return res;
+  }
+
+  private void addMultipartBody(final JavaWriter writer, final ArrayList<String> res, final MultipartType body) {
+    if (body.isGeneric()) {
+      res.add("@PartMap Map<String, Object>");
+      res.add("parts");
+    } else {
+      for (String name : body.getParts().keySet()) {
+        res.add(String.format("@Part(\"%s\") %s", name, getJavaType(body.getParts().get(name), writer)));
+        res.add(Names.canonicalName(name));
+      }
+    }
   }
 
 }

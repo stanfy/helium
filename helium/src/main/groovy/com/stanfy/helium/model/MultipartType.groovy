@@ -10,19 +10,10 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class MultipartType extends Type {
 
-  final Map<String, Type> parts = new HashMap<>();
-
-  MultipartType(final Message message) {
-    if (!message) {
-      return
-    }
-    for (Field f in message.activeFields) {
-      parts.put(f.name, f.type)
-    }
-  }
-
-  MultipartType() {
-  }
+  /**
+   * Parts are returned in order of adding.
+   */
+  final Map<String, Type> parts = new LinkedHashMap<>();
 
   boolean isGeneric() {
     return parts?.isEmpty()
