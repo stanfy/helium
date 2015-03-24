@@ -9,4 +9,22 @@ import groovy.transform.CompileStatic
  */
 @CompileStatic
 class MultipartType extends Type {
+
+  final Map<String, Type> parts = new HashMap<>();
+
+  MultipartType(final Message message) {
+    if (!message) {
+      return
+    }
+    for (Field f in message.activeFields) {
+      parts.put(f.name, f.type)
+    }
+  }
+
+  MultipartType() {
+  }
+
+  boolean isGeneric() {
+    return parts?.isEmpty()
+  }
 }

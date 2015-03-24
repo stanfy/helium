@@ -3,9 +3,12 @@ package com.stanfy.helium.dsl
 import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.DataType
+import com.stanfy.helium.model.FileType
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
+import com.stanfy.helium.model.MultipartType
+import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
 import spock.lang.Specification
 
@@ -676,6 +679,63 @@ class ProjectDslSpec extends Specification {
     then:
     dsl.serviceByName("Raw Data Service").methods.first().body instanceof DataType
   }
+
+  def "can set multipart type as body"() {
+    when:
+    dsl.type 'int32'
+
+    dsl.service {
+      name 'Multipart Service'
+
+      post '/parts' spec {
+        response 'int32'
+        body multipart()
+      }
+    }
+
+    then:
+    dsl.serviceByName("Multipart Service").methods.first().body instanceof MultipartType
+  }
+
+  def "can set multipart with map as body"() {
+    when:
+    dsl.type 'int32'
+    dsl.type 'string'
+    dsl.type 'Person' message {
+      name 'string'
+      age  'int32'
+    }
+
+    dsl.service {
+      name 'Upload parts'
+
+      post '/upload' spec {
+        response 'int32'
+        body multipart {
+          title  'string'
+          number 'int32'
+          person 'Person'
+          file1  file()
+          data1  data()
+        }
+      }
+    }
+    Type body = dsl.serviceByName("Upload parts").methods.first().body
+
+    then:
+    body instanceof MultipartType
+    (body as MultipartType).parts["title"].name == 'string'
+    (body as MultipartType).parts["number"].name == 'int32'
+    (body as MultipartType).parts["person"] instanceof Message
+
+    ((body as MultipartType).parts["person"] as Message).name == 'Person'
+    ((body as MultipartType).parts["person"] as Message).fieldByName("name").type.name == 'string'
+    ((body as MultipartType).parts["person"] as Message).fieldByName('age').type.name == 'int32'
+
+    (body as MultipartType).parts["file1"] instanceof FileType
+    (body as MultipartType).parts["data1"] instanceof DataType
+  }
+
 
   //endregion
 }

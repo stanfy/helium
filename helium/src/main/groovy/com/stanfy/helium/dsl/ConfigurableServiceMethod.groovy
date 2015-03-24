@@ -20,14 +20,14 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
         }
         if ("body" == it) {
           return [
+              "multipart" : { Object partArg ->
+                delegate.multipart(partArg)
+              },
               "form" : { Object formArg ->
                 delegate.form(formArg)
               },
               "data" : {
                 delegate.data()
-              },
-              "multipart" : {
-                delegate.multipart()
               }
           ]
         }
@@ -63,21 +63,33 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
       typeToWrap = core.body
     }
 
-    // wrap message
-    if (typeToWrap != null) {
-      if (typeToWrap instanceof Message) {
-        core.body = new FormType(typeToWrap as Message)
-      } else {
-        throw new IllegalArgumentException("Bad arguments for form type: $args. Only message can be used as type for form")
-      }
-      return
+    // Wrap message to get form body.
+    if (typeToWrap == null) {
+      throw new IllegalArgumentException("Bad arguments for form type: $args.")
     }
 
-    throw new IllegalArgumentException("Bad arguments for form type: $args.")
+    if (typeToWrap instanceof Message) {
+      core.body = new FormType(typeToWrap as Message)
+    } else {
+      throw new IllegalArgumentException("Bad arguments for form type: $args. Only message can be used as type for form")
+    }
+
   }
 
-  void multipart() {
-    getCore().body = new MultipartType()
+  void multipart(final Object args) {
+    ServiceMethod core = getCore()
+    if (!args) {
+      core.body = new MultipartType()
+      return
+    }
+    if (!(args instanceof Closure<?>)) {
+      throw new IllegalArgumentException("Bad arguments for multipart type: $args.")
+    }
+
+    MultipartType multipartType = new MultipartType()
+    MultipartBuilder builder = new MultipartBuilder(multipartType, getProject().types)
+    runWithProxy(builder, args as Closure<?>)
+    core.body = multipartType
   }
 
   void data() {
