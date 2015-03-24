@@ -43,7 +43,6 @@ class TypeDsl {
     }
     if (args.containsKey("parent")) {
       dsl.updateMessageParent(msg, args.parent as String)
-//      msg.parent = args.parent
     }
     return msg
   }

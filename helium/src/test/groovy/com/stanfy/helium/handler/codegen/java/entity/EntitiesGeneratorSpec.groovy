@@ -154,7 +154,7 @@ public class Hasky extends Dog
     thrown(IllegalArgumentException)
   }
 
-  def "should allow having external interfaces when parent has parent"() {
+  def "should allow having external interfaces when message has parent"() {
     given:
     options.customParentMapping = [
         Pegasus: implementing("FlyingThing")

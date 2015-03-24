@@ -413,7 +413,7 @@ class MyMsg {
     // Check if everything is written.
     def converter = new MessageToJavaClass(writer, options)
     converter.write(baseMsg)
-    // Reset writer to
+    // Reset writer to be able to write 2 classes code at once.
     writer = new AndroidParcelableWriter(new PojoWriter(output), options)
     converter = new MessageToJavaClass(writer, options)
     converter.write(msg)
