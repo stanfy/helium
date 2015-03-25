@@ -1,6 +1,7 @@
 package com.stanfy.helium.dsl.scenario
 
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
@@ -59,6 +60,11 @@ class ScenarioDelegateSpec extends Specification {
           checked 'bool'
           name    'string'
         }
+      }
+
+      post "/upload_bytes" spec {
+        response 'Msg'
+        body data()
       }
 
       tests {
@@ -171,6 +177,15 @@ class ScenarioDelegateSpec extends Specification {
               name    'Request'
             }
           }
+          result.mustSucceed()
+        }
+
+        scenario "upload bytes" spec {
+          def strBytes = "Happy bytes string".getBytes()
+          def result = post "/upload_bytes" with {
+            body bytes(strBytes as byte[])
+          }
+
           result.mustSucceed()
         }
       }
@@ -314,8 +329,21 @@ class ScenarioDelegateSpec extends Specification {
     executor.requests.first().body.value instanceof Map
     (executor.requests.first().body.value as Map).checked == true
     (executor.requests.first().body.value as Map).name == 'Request'
+  }
+
+  def "generic data body is parsed"() {
+    when:
+    executeScenario("upload bytes", null, null)
+
+    then:
+    executor.executedMethods.size() == 1
+    executor.requests.first().body.type instanceof DataType
+    executor.requests.first().body.value instanceof Byte[]
+    executor.requests.first().body.value == "Happy bytes string".getBytes()
+
 
   }
+
   /** Executor instance. */
   private static class Executor implements ScenarioExecutor {
 

@@ -177,6 +177,13 @@ class ScenarioDelegate {
         }
         return value as Closure<?>
       }
+
+      def bytes(final Object value) {
+        if (!(value instanceof byte[])) {
+          throw new IllegalArgumentException("Not supported type ${value.getClass()} for bytes conversion")
+        }
+        return value as byte[]
+      }
     }
 
   }

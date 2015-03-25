@@ -1,5 +1,6 @@
 package com.stanfy.helium.entities
 
+import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.utils.ConfigurableMap
 import com.stanfy.helium.model.Field
@@ -56,6 +57,11 @@ class TypedEntityValueBuilder {
   }
 
   def from(final Collection<?> list) {
+    if (type instanceof DataType && list instanceof Collection<Byte>) {
+      def bytes = (list as Collection<Byte>).toArray(new byte[list.size()])
+      return bytes
+    }
+
     if (!(type instanceof Sequence)) {
       throw new IllegalArgumentException("Can use lists to build sequences only, not the $type")
     }
