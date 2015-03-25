@@ -22,4 +22,5 @@ dependencies {
     exclude group: 'org.codehaus.groovy'
   }
   testCompile 'com.google.mockwebserver:mockwebserver:20130403'
+  testCompile 'com.squareup.okhttp:mockwebserver:2.3.0'
 }
