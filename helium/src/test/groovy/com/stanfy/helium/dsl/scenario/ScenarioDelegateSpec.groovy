@@ -1,10 +1,12 @@
 package com.stanfy.helium.dsl.scenario
 
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.tests.Scenario
+import com.stanfy.helium.utils.ConfigurableMap
 import spock.lang.Specification
 
 /**
@@ -26,6 +28,7 @@ class ScenarioDelegateSpec extends Specification {
     // prepare service
     ProjectDsl dsl = new ProjectDsl()
     dsl.type 'bool'
+    dsl.type 'string'
     dsl.type 'Msg' message {
       f1 'bool'
     }
@@ -48,6 +51,14 @@ class ScenarioDelegateSpec extends Specification {
       get "/headers/example" spec {
         httpHeaders header('H1', 'v1'), 'H2'
         response 'Msg'
+      }
+
+      post "/upload_form" spec {
+        response 'Msg'
+        body form {
+          checked 'bool'
+          name    'string'
+        }
       }
 
       tests {
@@ -153,6 +164,15 @@ class ScenarioDelegateSpec extends Specification {
           }
         }
 
+        scenario "upload form" spec {
+          def result = post '/upload_form' with {
+            body form {
+              checked true
+              name    'Request'
+            }
+          }
+          result.mustSucceed()
+        }
       }
 
     }
@@ -283,6 +303,19 @@ class ScenarioDelegateSpec extends Specification {
     e.message.contains("/some/resource/@id")
   }
 
+  def "form data is parsed"() {
+    when:
+    executeScenario("upload form", null, null)
+
+    then:
+    executor.executedMethods.size() == 1
+    executor.requests.size() == 1
+    executor.requests.first().body.type instanceof FormType
+    executor.requests.first().body.value instanceof Map
+    (executor.requests.first().body.value as Map).checked == true
+    (executor.requests.first().body.value as Map).name == 'Request'
+
+  }
   /** Executor instance. */
   private static class Executor implements ScenarioExecutor {
 

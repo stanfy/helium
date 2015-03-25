@@ -1,5 +1,6 @@
 package com.stanfy.helium.entities
 
+import com.stanfy.helium.model.FormType
 import com.stanfy.helium.utils.ConfigurableMap
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
@@ -46,8 +47,8 @@ class TypedEntityValueBuilder {
   }
 
   def from(final Closure<?> spec) {
-    if (!(type instanceof Message)) {
-      throw new IllegalArgumentException("Can use closure to build messages only, not the $type")
+    if (!(type instanceof Message) && !(type instanceof FormType)) {
+      throw new IllegalArgumentException("Can use closure to build messages or forms only, not the $type")
     }
     def value = new LinkedHashMap<String, Object>()
     runWithProxy(new MessageBuilder(value, type.name, scope), spec)
@@ -79,14 +80,23 @@ class TypedEntityValueBuilder {
 
     @Override
     protected Object resolveValue(final String key, final Object arg) {
-      Message msg = (Message) type
+      Message msg
+      String msgOrForm
+      if (type instanceof FormType) {
+        msg = (type as FormType).base
+        msgOrForm = "form"
+      } else {
+        msg = type as Message
+        msgOrForm = "message ${msg.name}"
+      }
+
       Field field = msg.fieldByName(key)
       if (!field) {
-        throw new IllegalArgumentException("Unknown field $key in message $msg")
+        throw new IllegalArgumentException("Unknown field $key in $msgOrForm")
       }
       if (field.sequence) {
         if (!(arg instanceof Collection)) {
-          throw new IllegalArgumentException("Collection expected for field $key in message $msg")
+          throw new IllegalArgumentException("Collection expected for field $key in $msgOrForm")
         }
         return buildListValue(field.type, (Collection<?>)arg)
       }

@@ -2,6 +2,7 @@ package com.stanfy.helium.dsl.scenario
 
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.entities.TypedEntityValueBuilder
+import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
@@ -163,6 +164,18 @@ class ScenarioDelegate {
       }
       void parameters(final Object value) {
         params = buildTypedEntity(method.parameters, value)
+      }
+
+      // For parsing form-url-encoded, generic data (like bytes) and multipart forms.
+
+      def form(final Object value) {
+         if (!(value instanceof Closure<?>)) {
+           throw new IllegalArgumentException("Can only build forms from closures.")
+         }
+        if (!(method.body instanceof FormType)) {
+          throw new IllegalArgumentException("Method body type is not form.")
+        }
+        return value as Closure<?>
       }
     }
 

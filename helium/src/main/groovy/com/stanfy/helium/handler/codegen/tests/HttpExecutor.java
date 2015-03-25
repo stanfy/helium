@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.tests;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
@@ -13,6 +14,7 @@ import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
 import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.json.JsonConvertersPool;
 import com.stanfy.helium.entities.json.JsonEntityWriter;
+import com.stanfy.helium.model.FormType;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
@@ -107,24 +109,33 @@ class HttpExecutor implements ScenarioExecutor {
 
     RequestBody body = null;
     if (method.getType().isHasBody()) {
-      body = new RequestBody() {
-        @Override
-        public MediaType contentType() {
-          // TODO: Support different content types.
-          return MediaType.parse("application/json");
+      if (method.getBody() instanceof FormType) {
+        FormEncodingBuilder formBuilder = new FormEncodingBuilder();
+        final Map<String, Object> map = (Map<String, Object>) request.getBody().getValue();
+        for (String key : map.keySet()) {
+          formBuilder.add(key, String.valueOf(map.get(key)));
         }
-
-        @Override
-        public void writeTo(final BufferedSink sink) throws IOException {
-          TypedEntity entity = request.getBody();
-          if (entity != null) {
-            Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
-            new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(entity);
-            out.close();
+        body = formBuilder.build();
+        // TODO: Support also multipart & data
+      } else {
+        body = new RequestBody() {
+          @Override
+          public MediaType contentType() {
+            return MediaType.parse("application/json");
           }
-          sink.close();
-        }
-      };
+
+          @Override
+          public void writeTo(final BufferedSink sink) throws IOException {
+            TypedEntity entity = request.getBody();
+            if (entity != null) {
+              Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
+              new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(entity);
+              out.close();
+            }
+            sink.close();
+          }
+        };
+      }
     }
 
     Request httpRequest = new Request.Builder()
