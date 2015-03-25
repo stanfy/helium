@@ -2,6 +2,9 @@ package com.stanfy.helium.handler.codegen.java.entity
 
 import com.stanfy.helium.handler.codegen.java.BaseMessageToClassGeneratorSpec
 
+import static com.stanfy.helium.handler.codegen.java.ClassAncestors.extending
+import static com.stanfy.helium.handler.codegen.java.ClassAncestors.implementing
+
 /**
  * Tests for EntitiesGenerator.
  */
@@ -100,4 +103,71 @@ public class A
 """.trim() + '\n'
   }
 
+  def "should respect message parents"() {
+    given:
+    options.customParentMapping = [
+        Hasky: extending("Dog", "Woofer", "Fetcher")
+    ]
+    and:
+    project.type 'string'
+    project.type "Hasky" message {
+      name 'string'
+    }
+
+    when:
+    generator.handle(project)
+    def text = new File("$output/com/stanfy/helium/Hasky.java").text
+
+    then:
+    text == """
+package com.stanfy.helium;
+
+public class Hasky extends Dog
+    implements Woofer, Fetcher {
+
+  public String name;
+
+
+  @Override
+  public String toString() {
+    return "Hasky: {\\n"
+         + "  name=\\"" + name + "\\"\\n"
+         + "}";
+  }
+}""".trim() + '\n'
+  }
+
+  def "should check parent defined in dsl and external"() {
+    given:
+    options.customParentMapping = [
+        Pegasus: extending("Bird")
+    ]
+
+    and:
+    project.type 'Horse' message {}
+    project.type 'Pegasus' message(parent: 'Horse') {}
+
+    when:
+    generator.handle(project)
+
+    then:
+    thrown(IllegalArgumentException)
+  }
+
+  def "should allow having external interfaces when message has parent"() {
+    given:
+    options.customParentMapping = [
+        Pegasus: implementing("FlyingThing")
+    ]
+
+    and:
+    project.type 'Horse' message {}
+    project.type 'Pegasus' message(parent: 'Horse') {}
+
+    when:
+    generator.handle(project)
+
+    then:
+    notThrown(IllegalArgumentException)
+  }
 }

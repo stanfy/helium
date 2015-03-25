@@ -437,4 +437,33 @@ public class Test {
 """.trim() + '\n'
   }
 
+  def "write class with parent"() {
+    given:
+    Message msg = new Message(name: "Derived", parent: new Message(name: "Base"))
+    msg.addField(new Field(name: "data", type: new Type(name: "int32"), required: true))
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+public class Derived extends Base {
+
+  private int data;
+
+
+  public int getData() {
+    return this.data;
+  }
+
+  public void setData(int value) {
+    this.data = value;
+  }
+
+}
+""".trim() + '\n'
+  }
+
 }

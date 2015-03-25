@@ -87,4 +87,5 @@ public class EntitiesGeneratorOptions extends JavaGeneratorOptions {
     this.writerWrapper = writerWrapper;
   }
 
+
 }

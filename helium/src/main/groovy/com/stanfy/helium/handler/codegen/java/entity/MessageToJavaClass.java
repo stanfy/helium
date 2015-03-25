@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
+import com.stanfy.helium.handler.codegen.java.ClassAncestors;
 import com.stanfy.helium.model.Descriptionable;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 
 import javax.lang.model.element.Modifier;
 
@@ -65,7 +67,34 @@ final class MessageToJavaClass {
 
     // class name
     emitJavaDoc(message);
-    writer.writeClassBegin(message, null);
+
+    final String extending;
+    final String[] implementing;
+    final Map<String, ClassAncestors> customParentMapping = options.getCustomParentMapping();
+    ClassAncestors classAncestors = null;
+    if (customParentMapping.containsKey(message.getName())) {
+      final ClassAncestors externalParent = customParentMapping.get(message.getName());
+      if (message.hasParent() && externalParent != null && externalParent.getExtending() != null) {
+        throw new IllegalArgumentException(
+                String.format("Bad configuration for message %s. It has a parent %s, and at the same time super class is configured for code generation %s",
+                        message.getName(),
+                        message.getParent().getName(),
+                        externalParent.getExtending())
+        );
+      }
+      classAncestors = externalParent;
+    }
+
+    final String messageParent = message.hasParent() ? message.getParent().getName() : null;
+    if (classAncestors != null) {
+      extending = classAncestors.getExtending() != null ? classAncestors.getExtending() : messageParent;
+      implementing = classAncestors.getImplementing();
+    } else {
+      extending = messageParent;
+      implementing = new String[]{};
+    }
+
+    writer.writeClassBegin(message, extending, implementing);
     writer.getOutput().emitEmptyLine();
 
     // fields

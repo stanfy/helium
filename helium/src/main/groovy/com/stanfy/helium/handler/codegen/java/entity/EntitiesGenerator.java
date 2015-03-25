@@ -2,13 +2,13 @@ package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
-import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.constraints.ConstrainedType;
 import com.stanfy.helium.model.constraints.EnumConstraint;
 import com.stanfy.helium.utils.Names;
+
 import org.apache.commons.io.IOUtils;
 
 import java.io.File;
@@ -32,7 +32,7 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
   @Override
   public void handle(final Project project) {
     File targetDirectory = getPackageDirectory();
-    JavaGeneratorOptions options = getOptions();
+    EntitiesGeneratorOptions options = getOptions();
 
     for (Type type : project.getTypes().all()) {
       if (!options.isTypeIncluded(type)) {

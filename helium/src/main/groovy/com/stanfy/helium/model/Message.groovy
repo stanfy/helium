@@ -11,6 +11,8 @@ final class Message extends Type {
   /** Flag that allows to skip (ignore) all unknown fields met in response during validation in generated tests. */
   boolean skipUnknownFields
 
+  Message parent;
+
   /** Message fields. */
   private final List<Field> fields = new ArrayList<>()
 
@@ -42,4 +44,12 @@ final class Message extends Type {
 
   boolean isPrimitive() { return false }
 
+
+  /**
+   * Return true if parent is not null or empty.
+   * @return true if parent is not null or empty.
+   */
+  boolean hasParent() {
+    return parent != null
+  }
 }

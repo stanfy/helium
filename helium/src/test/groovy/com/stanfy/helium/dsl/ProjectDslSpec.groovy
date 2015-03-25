@@ -1,9 +1,9 @@
 package com.stanfy.helium.dsl
 
+import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
-import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.model.constraints.ConstrainedType
 import spock.lang.Specification
 
@@ -346,6 +346,47 @@ class ProjectDslSpec extends Specification {
     (dsl.types.byName('Type1') as Message).fields[2].name == 'field3'
     (dsl.types.byName('Type2') as Message).fields[0].name == 'field1'
 
+  }
+
+  def "can set message parents" () {
+    given:
+    dsl.type "BaseMessage" message {}
+    dsl.type "ChildMessage" message(parent: "BaseMessage") {}
+
+    expect:
+    def parent = dsl.types.byName("BaseMessage")
+    def child = dsl.types.byName("ChildMessage")
+    parent instanceof Message
+    child instanceof Message
+    !(parent as Message).hasParent()
+    (child as Message).hasParent()
+    (child as Message).getParent().name == parent.name
+  }
+
+  def "can detect unknown parents" () {
+    when:
+    dsl.type "MessageWithBadParent" message(parent: "Base") {}
+
+    then:
+    thrown(IllegalArgumentException)
+  }
+
+  def "should allow only messages as parents"() {
+    when:
+    dsl.type "123"
+    dsl.type "MyInteger" message(parent: "123") {}
+
+    then:
+    def e = thrown IllegalArgumentException
+    e.message.contains "Only messages"
+  }
+
+  def "should check if message is parent of itself"() {
+    when:
+    dsl.type "Samovar" message(parent: "Samovar") {}
+
+    then:
+    thrown IllegalArgumentException
   }
 
   def "can describe type converters"() {

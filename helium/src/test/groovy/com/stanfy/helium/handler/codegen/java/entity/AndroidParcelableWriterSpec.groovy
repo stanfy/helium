@@ -401,6 +401,121 @@ class MyMsg {
   }
 
 
+  def "write base class calls"() {
+    given:
+    Message baseMsg = new Message(name: "Base")
+    baseMsg.addField(new Field(name: "data", type: new Type(name: "int32")))
+
+    Message msg = new Message(name: "Message", parent: baseMsg)
+    msg.addField(new Field(name: "optional", type: new Type(name: "bool")))
+
+    when:
+    // Check if everything is written.
+    def converter = new MessageToJavaClass(writer, options)
+    converter.write(baseMsg)
+    // Reset writer to be able to write 2 classes code at once.
+    writer = new AndroidParcelableWriter(new PojoWriter(output), options)
+    converter = new MessageToJavaClass(writer, options)
+    converter.write(msg)
+    def resultStr = output.toString()
+
+    then:
+    resultStr == """
+package test;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Base
+    implements Parcelable {
+
+  public static final Creator<Base> CREATOR = new Creator<Base>() {
+        public Base createFromParcel(Parcel source) {
+          return new Base(source);
+        }
+        public Base[] newArray(int size) {
+          return new Base[size];
+        }
+      };
+
+  public int data;
+
+
+  public Base() {
+  }
+
+  Base(Parcel source) {
+    this.data = source.readInt();
+  }
+
+  @Override
+  public String toString() {
+    return "Base: {\\n"
+         + "  data=\\"" + data + "\\"\\n"
+         + "}";
+  }
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int options) {
+    dest.writeInt(this.data);
+  }
+
+}
+package test;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Message extends Base
+    implements Parcelable {
+
+  public static final Creator<Message> CREATOR = new Creator<Message>() {
+        public Message createFromParcel(Parcel source) {
+          return new Message(source);
+        }
+        public Message[] newArray(int size) {
+          return new Message[size];
+        }
+      };
+
+  public boolean optional;
+
+
+  public Message() {
+  }
+
+  Message(Parcel source) {
+    super(source);
+    this.optional = source.readInt() == 1;
+  }
+
+  @Override
+  public String toString() {
+    return "Message: {\\n"
+         + "  optional=\\"" + optional + "\\"\\n"
+         + "}";
+  }
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int options) {
+    super.writeToParcel(dest, options);
+    dest.writeInt(this.optional ? 1 : 0);
+  }
+
+}
+""".trim() +'\n'
+  }
+
   def "enumerations support"() {
     given:
     Message msg = new Message(name: "Test")
