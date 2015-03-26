@@ -1,6 +1,7 @@
 package com.stanfy.helium.dsl.scenario
 
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.entities.ByteArrayEntity
 import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.MethodType
@@ -338,10 +339,8 @@ class ScenarioDelegateSpec extends Specification {
     then:
     executor.executedMethods.size() == 1
     executor.requests.first().body.type instanceof DataType
-    executor.requests.first().body.value instanceof Byte[]
-    executor.requests.first().body.value == "Happy bytes string".getBytes()
-
-
+    executor.requests.first().body.value instanceof ByteArrayEntity
+    (executor.requests.first().body.value as ByteArrayEntity).bytes == "Happy bytes string".getBytes()
   }
 
   /** Executor instance. */

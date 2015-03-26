@@ -11,9 +11,11 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
+import com.stanfy.helium.entities.ByteArrayEntity;
 import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.json.JsonConvertersPool;
 import com.stanfy.helium.entities.json.JsonEntityWriter;
+import com.stanfy.helium.model.DataType;
 import com.stanfy.helium.model.FormType;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Service;
@@ -109,14 +111,27 @@ class HttpExecutor implements ScenarioExecutor {
 
     RequestBody body = null;
     if (method.getType().isHasBody()) {
+      final TypedEntity requestBody = request.getBody();
       if (method.getBody() instanceof FormType) {
         FormEncodingBuilder formBuilder = new FormEncodingBuilder();
-        final Map<String, Object> map = (Map<String, Object>) request.getBody().getValue();
+        final Map<String, Object> map = (Map<String, Object>) requestBody.getValue();
         for (String key : map.keySet()) {
           formBuilder.add(key, String.valueOf(map.get(key)));
         }
         body = formBuilder.build();
-        // TODO: Support also multipart & data
+      } else if (method.getBody() instanceof DataType) {
+        byte[] arr;
+        if (requestBody.getValue() instanceof byte[]) {
+          arr = (byte[]) requestBody.getValue();
+        } else if (requestBody.getValue() instanceof ByteArrayEntity) {
+          arr = ((ByteArrayEntity) requestBody.getValue()).getBytes();
+        } else {
+          throw new IllegalArgumentException("Type " + requestBody.getValue().getClass() + " is not supported for raw data input.");
+        }
+
+        body = RequestBody.create(MediaType.parse("application/octet-stream"), arr);
+
+        // TODO: Support also multipart
       } else {
         body = new RequestBody() {
           @Override
@@ -126,7 +141,7 @@ class HttpExecutor implements ScenarioExecutor {
 
           @Override
           public void writeTo(final BufferedSink sink) throws IOException {
-            TypedEntity entity = request.getBody();
+            TypedEntity entity = requestBody;
             if (entity != null) {
               Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
               new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(entity);

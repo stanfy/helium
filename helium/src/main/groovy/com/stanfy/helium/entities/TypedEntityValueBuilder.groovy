@@ -34,6 +34,9 @@ class TypedEntityValueBuilder {
   }
 
   def from(final Object value) {
+    if (value instanceof ByteArrayEntity && type instanceof DataType) {
+      return value as ByteArrayEntity
+    }
     if (value instanceof Closure) {
       return from((Closure<?>)value)
     }
@@ -57,11 +60,6 @@ class TypedEntityValueBuilder {
   }
 
   def from(final Collection<?> list) {
-    if (type instanceof DataType && list instanceof Collection<Byte>) {
-      def bytes = (list as Collection<Byte>).toArray(new byte[list.size()])
-      return bytes
-    }
-
     if (!(type instanceof Sequence)) {
       throw new IllegalArgumentException("Can use lists to build sequences only, not the $type")
     }

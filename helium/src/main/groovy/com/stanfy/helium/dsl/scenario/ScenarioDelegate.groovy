@@ -1,5 +1,6 @@
 package com.stanfy.helium.dsl.scenario
 
+import com.stanfy.helium.entities.ByteArrayEntity
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.entities.TypedEntityValueBuilder
 import com.stanfy.helium.model.FormType
@@ -182,7 +183,7 @@ class ScenarioDelegate {
         if (!(value instanceof byte[])) {
           throw new IllegalArgumentException("Not supported type ${value.getClass()} for bytes conversion")
         }
-        return value as byte[]
+        return new ByteArrayEntity(value as byte[])
       }
     }
 

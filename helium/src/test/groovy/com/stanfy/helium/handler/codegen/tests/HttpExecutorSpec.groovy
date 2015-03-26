@@ -18,8 +18,6 @@ class HttpExecutorSpec extends Specification {
   ProjectDsl project
   HttpExecutor executor
 
-  private static final String UPLOAD_FORM_SCENARIO = "upload Kapitoshka form"
-
   private static final String SERVICE_NAME = "Service for uploads"
 
   def setup() {
@@ -44,13 +42,24 @@ class HttpExecutorSpec extends Specification {
         }
       }
 
+      post '/upload_bytes' spec {
+        body data()
+      }
+
       tests {
-        scenario "$UPLOAD_FORM_SCENARIO" spec {
+        scenario "upload Kapitoshka form" spec {
           def res = post '/upload' with {
             body form {
               name 'Kapitoshka'
               age  '3'
             }
+          }
+        }
+
+        scenario "upload bytes string" spec {
+          def uploadBytes = "Hello. Here be dragons !".getBytes()
+          def res = post '/upload_bytes' with {
+            body bytes(uploadBytes)
           }
         }
       }
@@ -65,10 +74,9 @@ class HttpExecutorSpec extends Specification {
     mockWebServer.shutdown()
   }
 
-  def "should write form body"() {
+  def "should simple write form body"() {
     when:
-    executeScenario(UPLOAD_FORM_SCENARIO)
-    def sent = mockWebServer.takeRequest()
+    def sent = executeScenario("upload Kapitoshka form")
     String receivedBody = sent.body.readUtf8()
 
     then:
@@ -76,8 +84,21 @@ class HttpExecutorSpec extends Specification {
     receivedBody.contains 'name=Kapitoshka&age=3'
   }
 
-  private void executeScenario(final String name) {
+  def "should write simple bytes as generic body"() {
+    given:
+    def bytesToUpload = "Hello. Here be dragons !".getBytes()
+
+    when:
+    def sent = executeScenario("upload bytes string")
+    def receivedBytes = sent.body.readByteArray()
+
+    then:
+    Arrays.equals(bytesToUpload, receivedBytes)
+  }
+
+  private def executeScenario(final String name) {
     Service service = project.serviceByName(SERVICE_NAME)
     ScenarioInvoker.invokeScenario(new ScenarioDelegate(service, executor), service.testInfo.scenarioByName(name))
+    return mockWebServer.takeRequest()
   }
 }
