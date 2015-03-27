@@ -46,6 +46,13 @@ class HttpExecutorSpec extends Specification {
         body data()
       }
 
+      post '/upload_multipart' spec {
+        body multipart {
+          name 'string'
+          dragon_bytes data()
+        }
+      }
+
       tests {
         scenario "upload Kapitoshka form" spec {
           def res = post '/upload' with {
@@ -61,6 +68,18 @@ class HttpExecutorSpec extends Specification {
           def res = post '/upload_bytes' with {
             body bytes(uploadBytes)
           }
+        }
+
+        scenario "upload multipart form" spec {
+          def dragon_name = "Dragon!!!"
+          def theBytes = "123456890".getBytes()
+          def res = post "/upload_multipart" with {
+            body multipart {
+              name dragon_name
+              dragon_bytes theBytes
+            }
+          }
+          res.mustSucceed()
         }
       }
     }
@@ -94,6 +113,17 @@ class HttpExecutorSpec extends Specification {
 
     then:
     Arrays.equals(bytesToUpload, receivedBytes)
+  }
+
+  def "should upload multipart body"() {
+    when:
+    def sent = executeScenario("upload multipart form")
+    String receivedBody = sent.body.readUtf8()
+    println("Received body:\n" + receivedBody)
+
+    then:
+    receivedBody != null
+
   }
 
   private def executeScenario(final String name) {

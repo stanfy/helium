@@ -5,6 +5,7 @@ import com.google.gson.stream.JsonWriter;
 import com.squareup.okhttp.FormEncodingBuilder;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
@@ -18,12 +19,14 @@ import com.stanfy.helium.entities.json.JsonEntityWriter;
 import com.stanfy.helium.model.DataType;
 import com.stanfy.helium.model.FormType;
 import com.stanfy.helium.model.HttpHeader;
+import com.stanfy.helium.model.MultipartType;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
+import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.model.tests.MethodTestInfo;
-import okio.BufferedSink;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
@@ -31,6 +34,8 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import okio.BufferedSink;
 
 /**
  * Implements ScenarioExecutor using HTTP client.
@@ -49,6 +54,16 @@ class HttpExecutor implements ScenarioExecutor {
   HttpExecutor(final TypeResolver resolver, final OkHttpClient client) {
     this.types = resolver;
     this.client = client;
+  }
+
+  /** Return {@link com.squareup.okhttp.MediaType} of <strong>application/octet-stream</strong>. */
+  private static MediaType bytesType() {
+    return MediaType.parse("application/octet-stream");
+  }
+
+  /** Return {@link com.squareup.okhttp.MediaType} of <strong>application/json</strong>. */
+  private static MediaType jsonType() {
+    return MediaType.parse("application/json");
   }
 
   static String resolveEncoding(final Service service, final ServiceMethod method) {
@@ -132,45 +147,102 @@ class HttpExecutor implements ScenarioExecutor {
     RequestBody body;
     final TypedEntity requestBody = request.getBody();
     if (method.getBody() instanceof FormType) {
-      FormEncodingBuilder formBuilder = new FormEncodingBuilder();
-      final Map<String, Object> map = (Map<String, Object>) requestBody.getValue();
-      for (String key : map.keySet()) {
-        formBuilder.add(key, String.valueOf(map.get(key)));
-      }
-      body = formBuilder.build();
+      body = buildFormEncodedBody(requestBody);
     } else if (method.getBody() instanceof DataType) {
-      byte[] arr;
-      if (requestBody.getValue() instanceof byte[]) {
-        arr = (byte[]) requestBody.getValue();
-      } else if (requestBody.getValue() instanceof ByteArrayEntity) {
-        arr = ((ByteArrayEntity) requestBody.getValue()).getBytes();
-      } else {
-        throw new IllegalArgumentException("Type " + requestBody.getValue().getClass() + " is not supported for raw data input.");
-      }
-
-      body = RequestBody.create(MediaType.parse("application/octet-stream"), arr);
-
-      // TODO: Support also multipart
+      body = buildBytesBody(requestBody);
+    } else if (method.getBody() instanceof MultipartType) {
+      body = buildMultipartBody(requestBody);
     } else {
-      body = new RequestBody() {
-        @Override
-        public MediaType contentType() {
-          return MediaType.parse("application/json");
-        }
-
-        @Override
-        public void writeTo(final BufferedSink sink) throws IOException {
-          TypedEntity entity = requestBody;
-          if (entity != null) {
-            Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
-            new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(entity);
-            out.close();
-          }
-          sink.close();
-        }
-      };
+      body = buildJsonBody(encoding, requestBody);
     }
     return body;
+  }
+
+  private RequestBody buildJsonBody(final String encoding, final TypedEntity requestBody) {
+    return new RequestBody() {
+      @Override
+      public MediaType contentType() {
+        return jsonType();
+      }
+
+      @Override
+      public void writeTo(final BufferedSink sink) throws IOException {
+        TypedEntity entity = requestBody;
+        if (entity != null) {
+          Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
+          writeEntityWithConverters(entity, out);
+        }
+        sink.close();
+      }
+    };
+  }
+
+  private RequestBody buildBytesBody(final TypedEntity requestBody) {
+    byte[] arr;
+    if (requestBody.getValue() instanceof byte[]) {
+      arr = (byte[]) requestBody.getValue();
+    } else if (requestBody.getValue() instanceof ByteArrayEntity) {
+      arr = ((ByteArrayEntity) requestBody.getValue()).getBytes();
+    } else {
+      throw new IllegalArgumentException("Type " + requestBody.getValue().getClass() + " is not supported for raw data input.");
+    }
+
+    return RequestBody.create(bytesType(), arr);
+  }
+
+  private RequestBody buildFormEncodedBody(final TypedEntity requestBody) {
+    FormEncodingBuilder formBuilder = new FormEncodingBuilder();
+    final Map<String, Object> map = (Map<String, Object>) requestBody.getValue();
+    for (String key : map.keySet()) {
+      formBuilder.add(key, String.valueOf(map.get(key)));
+    }
+    return formBuilder.build();
+  }
+
+  @SuppressWarnings("unchecked")
+  private RequestBody buildMultipartBody(final TypedEntity requestBody) {
+    RequestBody body;
+    final MultipartBuilder mb = new MultipartBuilder();
+    final Map<String, Object> map = (Map<String, Object>) requestBody.getValue();
+
+    for (String key : map.keySet()) {
+      final Object value = map.get(key);
+      if (value instanceof byte[]) {
+        final byte[] bytes = (byte[]) value;
+
+        mb.addFormDataPart(key, null, RequestBody.create(bytesType(), bytes));
+      } else if (value instanceof ByteArrayEntity) {
+        final byte[] bytes = ((ByteArrayEntity) value).getBytes();
+
+        mb.addFormDataPart(key, null, RequestBody.create(bytesType(), bytes));
+      } else if (value instanceof File) {
+        final File file = (File) value;
+        // TODO check file extension to guess it's media type.
+
+        mb.addFormDataPart(key, file.getName(), RequestBody.create(bytesType(), file));
+      } else  {
+
+        final Type type = types.byGroovyClass(value.getClass());
+        TypedEntity wrappedEntity = new TypedEntity(type, value);
+        StringWriter out = new StringWriter();
+        try {
+          writeEntityWithConverters(wrappedEntity, out);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+
+        mb.addFormDataPart(key, out.toString());
+      }
+
+    }
+
+    body = mb.build();
+    return body;
+  }
+
+  private void writeEntityWithConverters(final TypedEntity requestBody, final Writer out) throws IOException {
+    new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write((TypedEntity<?>) requestBody);
+    out.close();
   }
 
 }
