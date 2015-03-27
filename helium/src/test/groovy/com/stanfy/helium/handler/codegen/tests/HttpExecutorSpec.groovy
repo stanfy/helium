@@ -72,7 +72,7 @@ class HttpExecutorSpec extends Specification {
 
         scenario "upload multipart form" spec {
           def dragon_name = "Dragon!!!"
-          def theBytes = "123456890".getBytes()
+          def theBytes = "1234567890".getBytes()
           def res = post "/upload_multipart" with {
             body multipart {
               name dragon_name
@@ -123,7 +123,8 @@ class HttpExecutorSpec extends Specification {
 
     then:
     receivedBody != null
-
+    receivedBody.contains "Dragon!!!"
+    receivedBody.contains "1234567890"
   }
 
   private def executeScenario(final String name) {

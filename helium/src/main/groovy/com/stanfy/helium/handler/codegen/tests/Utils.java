@@ -1,10 +1,19 @@
 package com.stanfy.helium.handler.codegen.tests;
 
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+import com.squareup.okhttp.MediaType;
+import com.stanfy.helium.entities.TypedEntity;
+import com.stanfy.helium.entities.json.JsonConvertersPool;
+import com.stanfy.helium.entities.json.JsonEntityWriter;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
+import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.model.tests.MethodTestInfo;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +21,7 @@ import java.util.Map;
 /**
  * Some tools used for tests generation.
  */
-final class Utils {
+public final class Utils {
 
   private Utils() { }
 
@@ -46,4 +55,18 @@ final class Utils {
     }
   }
 
+  /** Return {@link com.squareup.okhttp.MediaType} of <strong>application/octet-stream</strong>. */
+  public static MediaType bytesType() {
+    return MediaType.parse("application/octet-stream");
+  }
+
+  /** Return {@link com.squareup.okhttp.MediaType} of <strong>application/json</strong>. */
+  public static MediaType jsonType() {
+    return MediaType.parse("application/json");
+  }
+
+  public static void writeEntityWithConverters(final TypedEntity requestBody, final Writer out, final TypeResolver types) throws IOException {
+    new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write((TypedEntity<?>) requestBody);
+    out.close();
+  }
 }
