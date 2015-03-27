@@ -1,7 +1,9 @@
 package com.stanfy.helium.entities
 
 import com.stanfy.helium.model.DataType
+import com.stanfy.helium.model.FileType
 import com.stanfy.helium.model.FormType
+import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.utils.ConfigurableMap
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
@@ -34,8 +36,15 @@ class TypedEntityValueBuilder {
   }
 
   def from(final Object value) {
-    if (value instanceof ByteArrayEntity && type instanceof DataType) {
-      return value as ByteArrayEntity
+    if (type instanceof DataType) {
+      if (value instanceof ByteArrayEntity) {
+        return value as ByteArrayEntity
+      } else if (value instanceof byte[]) {
+        return new ByteArrayEntity(value)
+      }
+    }
+    if (type instanceof FileType && value instanceof File) {
+      return value as File
     }
     if (value instanceof Closure) {
       return from((Closure<?>)value)
@@ -51,11 +60,14 @@ class TypedEntityValueBuilder {
   }
 
   def from(final Closure<?> spec) {
-    if (!(type instanceof Message) && !(type instanceof FormType)) {
-      throw new IllegalArgumentException("Can use closure to build messages or forms only, not the $type")
-    }
     def value = new LinkedHashMap<String, Object>()
-    runWithProxy(new MessageBuilder(value, type.name, scope), spec)
+    if (type instanceof MultipartType) {
+      runWithProxy(new MultipartEntityBuilder(value, type.name, scope), spec)
+    } else if (!(type instanceof Message) && !(type instanceof FormType)) {
+      throw new IllegalArgumentException("Can use closure to build messages or forms only, not the $type")
+    } else {
+      runWithProxy(new MessageBuilder(value, type.name, scope), spec)
+    }
     return value
   }
 
@@ -105,6 +117,27 @@ class TypedEntityValueBuilder {
         return buildListValue(field.type, (Collection<?>)arg)
       }
       return new TypedEntityValueBuilder(field.type, scope).from(arg)
+    }
+  }
+
+  class MultipartEntityBuilder extends ConfigurableMap<Object> {
+
+    MultipartEntityBuilder(
+        final Map<String, Object> map, final String name, final Map<String, Object> scope) {
+      super(map, name, scope)
+    }
+
+    @Override
+    protected Object resolveValue(final String key, final Object arg) {
+      MultipartType multipartType = type as MultipartType
+      if (multipartType.isGeneric()) {
+        return arg
+      }
+      if (!multipartType.parts.containsKey(key)) {
+        throw new IllegalArgumentException("Unknown part $key in multipart form")
+      }
+      Type partType = multipartType.parts.get(key)
+      return new TypedEntityValueBuilder(partType, scope).from(arg)
     }
   }
 

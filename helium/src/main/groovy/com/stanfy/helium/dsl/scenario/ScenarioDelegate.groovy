@@ -185,6 +185,14 @@ class ScenarioDelegate {
         }
         return new ByteArrayEntity(value as byte[])
       }
+
+      def multipart(final Object value) {
+        if (!(value instanceof Closure<?>)) {
+          throw new IllegalArgumentException("Can only construct multipart objects with closures.")
+        }
+        return value as Closure<?>
+      }
+
     }
 
   }

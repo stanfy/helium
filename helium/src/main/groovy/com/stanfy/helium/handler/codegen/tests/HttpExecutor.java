@@ -111,46 +111,7 @@ class HttpExecutor implements ScenarioExecutor {
 
     RequestBody body = null;
     if (method.getType().isHasBody()) {
-      final TypedEntity requestBody = request.getBody();
-      if (method.getBody() instanceof FormType) {
-        FormEncodingBuilder formBuilder = new FormEncodingBuilder();
-        final Map<String, Object> map = (Map<String, Object>) requestBody.getValue();
-        for (String key : map.keySet()) {
-          formBuilder.add(key, String.valueOf(map.get(key)));
-        }
-        body = formBuilder.build();
-      } else if (method.getBody() instanceof DataType) {
-        byte[] arr;
-        if (requestBody.getValue() instanceof byte[]) {
-          arr = (byte[]) requestBody.getValue();
-        } else if (requestBody.getValue() instanceof ByteArrayEntity) {
-          arr = ((ByteArrayEntity) requestBody.getValue()).getBytes();
-        } else {
-          throw new IllegalArgumentException("Type " + requestBody.getValue().getClass() + " is not supported for raw data input.");
-        }
-
-        body = RequestBody.create(MediaType.parse("application/octet-stream"), arr);
-
-        // TODO: Support also multipart
-      } else {
-        body = new RequestBody() {
-          @Override
-          public MediaType contentType() {
-            return MediaType.parse("application/json");
-          }
-
-          @Override
-          public void writeTo(final BufferedSink sink) throws IOException {
-            TypedEntity entity = requestBody;
-            if (entity != null) {
-              Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
-              new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(entity);
-              out.close();
-            }
-            sink.close();
-          }
-        };
-      }
+      body = getRequestBody(method, request, encoding);
     }
 
     Request httpRequest = new Request.Builder()
@@ -165,6 +126,51 @@ class HttpExecutor implements ScenarioExecutor {
     } catch (IOException e) {
       throw new AssertionError("Cannot execute HTTP request", e);
     }
+  }
+
+  private RequestBody getRequestBody(final ServiceMethod method, final ServiceMethodRequestValues request, final String encoding) {
+    RequestBody body;
+    final TypedEntity requestBody = request.getBody();
+    if (method.getBody() instanceof FormType) {
+      FormEncodingBuilder formBuilder = new FormEncodingBuilder();
+      final Map<String, Object> map = (Map<String, Object>) requestBody.getValue();
+      for (String key : map.keySet()) {
+        formBuilder.add(key, String.valueOf(map.get(key)));
+      }
+      body = formBuilder.build();
+    } else if (method.getBody() instanceof DataType) {
+      byte[] arr;
+      if (requestBody.getValue() instanceof byte[]) {
+        arr = (byte[]) requestBody.getValue();
+      } else if (requestBody.getValue() instanceof ByteArrayEntity) {
+        arr = ((ByteArrayEntity) requestBody.getValue()).getBytes();
+      } else {
+        throw new IllegalArgumentException("Type " + requestBody.getValue().getClass() + " is not supported for raw data input.");
+      }
+
+      body = RequestBody.create(MediaType.parse("application/octet-stream"), arr);
+
+      // TODO: Support also multipart
+    } else {
+      body = new RequestBody() {
+        @Override
+        public MediaType contentType() {
+          return MediaType.parse("application/json");
+        }
+
+        @Override
+        public void writeTo(final BufferedSink sink) throws IOException {
+          TypedEntity entity = requestBody;
+          if (entity != null) {
+            Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
+            new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(entity);
+            out.close();
+          }
+          sink.close();
+        }
+      };
+    }
+    return body;
   }
 
 }
