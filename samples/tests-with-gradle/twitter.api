@@ -87,3 +87,51 @@ service {
   }
 
 }
+
+note 'Httpbin service - simply returns all data you sent back to you.'
+
+type 'BaseHttpBinResponse' message {
+  data   'string'
+  origin 'string'
+  url    'string'
+}
+
+// form request + response
+type 'Person' message {
+  name 'string'
+  age  'int32'
+}
+
+type 'PersonResponse' message(parent: 'BaseHttpBinResponse', skipUnknownFields: true) {
+  form 'Person'
+}
+
+service {
+
+  name "HttpBin"
+  location "http://httpbin.org"
+
+  post "/post" spec {
+    response "PersonResponse"
+    body form('Person')
+  }
+
+  tests {
+
+    scenario 'Send Peter' spec {
+      def peterResp = post '/post' with {
+        body form {
+          name 'Peter Heel'
+          age  '5'
+        }
+      }
+      peterResp.mustSucceed()
+
+      def resName = peterResp.body?.form?.name
+      def resAge = peterResp.body?.form?.age
+
+      assert resName == "Peter Heel"
+      assert resAge == 5
+    }
+  }
+}
