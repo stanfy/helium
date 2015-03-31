@@ -1,0 +1,128 @@
+note 'Httpbin service - simply returns all data you sent back to you.'
+
+type 'BaseHttpBinResponse' message(skipUnknownFields: true) {
+  data   'string'
+  origin 'string'
+  url    'string'
+}
+
+// Form request + response.
+type 'Person' message {
+  name 'string'
+  age  'int32'
+}
+
+type 'PersonResponse' message(parent: 'BaseHttpBinResponse', skipUnknownFields: true) {
+  form 'Person'
+}
+
+// Form post service with test.
+service {
+
+  name "FormService"
+  location "http://httpbin.org"
+
+  post "/post" spec {
+    response "PersonResponse"
+    body form('Person')
+  }
+
+
+  tests {
+
+    scenario 'Send Peter' spec {
+      def peterResp = post '/post' with {
+        body form {
+          name 'Peter Heel'
+          age  '5'
+        }
+      }
+      peterResp.mustSucceed()
+
+      def resName = peterResp.body?.form?.name
+      def resAge = peterResp.body?.form?.age
+
+      assert resName == "Peter Heel"
+      assert resAge == 5
+    }
+  }
+}
+
+// Bytes post service with test.
+service {
+
+  name "BytesService"
+  location "http://httpbin.org"
+
+  post "/post" spec {
+    response 'BaseHttpBinResponse'
+    body data()
+  }
+
+  tests {
+
+    scenario 'Send dragon bytes' spec {
+      def dragonBytes = "Dragon".getBytes()
+
+      def res = post "/post" with {
+        body bytes(dragonBytes)
+      }
+
+      res.mustSucceed()
+
+      assert res.body?.data.getBytes() == dragonBytes
+    }
+  }
+
+}
+
+// Text and file upload service.
+type 'UploadedText' message {
+  text 'string'
+}
+
+type 'UploadedFile' message {
+  file 'string'
+}
+
+type 'UploadTextAndFileResponse' message(parent: 'BaseHttpBinResponse', skipUnknownFields: true) {
+  form 'UploadedText'
+  files 'UploadedFile'
+}
+
+service {
+  name "MultipartService"
+  location "http://httpbin.org"
+
+  post "/post" spec {
+    response "UploadTextAndFileResponse"
+    body multipart {
+      text 'string'
+      file file()
+    }
+  }
+
+  tests {
+    scenario "upload a pig" spec {
+      File f = new File("pig.png")
+      System.err.println f.getAbsolutePath()
+
+      String pigName = 'This is a pig.'
+
+      def res = post "/post" with {
+        body multipart {
+          file f
+          text pigName
+        }
+      }
+
+      res.mustSucceed()
+
+      assert res.body?.form?.text.contains("This is a pig.")
+      // httpbin returns base64 encoded data
+      assert res.body?.files?.file?.contains(f.bytes.encodeBase64().toString())
+    }
+
+  }
+
+}
