@@ -14,19 +14,19 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
     ["parameters", "response", "body"].each {
       ConfigurableServiceMethod.metaClass."$it" << { Object arg ->
         if (arg instanceof Closure<?>) {
-          delegate.defineMessageType(it, (Closure<?>)arg)
+          delegate.defineMessageType(it, (Closure<?>) arg)
         } else if (arg instanceof String) {
-          delegate.defineMessageType(it, (String)arg)
+          delegate.defineMessageType(it, (String) arg)
         }
         if ("body" == it) {
           return [
-              "multipart" : { Object partArg ->
+              "multipart": { Object partArg ->
                 delegate.multipart(partArg)
               },
-              "form" : { Object formArg ->
+              "form": { Object formArg ->
                 delegate.form(formArg)
               },
-              "data" : {
+              "data": {
                 delegate.data()
               }
           ]
@@ -76,20 +76,54 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
 
   }
 
+  void multipart() {
+    multipart(null, null)
+  }
+
   void multipart(final Object args) {
     ServiceMethod core = getCore()
     if (!args) {
       core.body = new MultipartType()
       return
     }
-    if (!(args instanceof Closure<?>)) {
-      throw new IllegalArgumentException("Bad arguments for multipart type: $args.")
+    String contentType
+    Closure<?> closure
+
+    if (args.getClass().isArray()) {
+      def arr = args as Object[]
+      if (arr.length > 1) {
+        if (isString((args)) && arr[1] instanceof Closure) {
+          contentType = arr[0] as String
+          closure = arr[1] as Closure<?>
+        } else {
+          throw new IllegalArgumentException("Bad arguments for multipart type: $args.")
+        }
+
+      }
+    } else if (args instanceof Closure<?>) {
+      closure = args as Closure<?>
+      contentType = null
+    } else if (isString(args)) {
+      closure = null
+      contentType = args as String
     }
 
-    MultipartType multipartType = new MultipartType()
-    MultipartBuilder builder = new MultipartBuilder(multipartType, getProject().types)
-    runWithProxy(builder, args as Closure<?>)
-    core.body = multipartType
+    multipart(contentType, closure)
+  }
+
+  void multipart(final String contentType, final Closure<?> closure) {
+    MultipartType multipartType = (contentType != null) ? new MultipartType(contentType) : new MultipartType()
+
+    if (closure != null) {
+      MultipartBuilder builder = new MultipartBuilder(multipartType, getProject().types)
+      runWithProxy(builder, closure)
+    }
+
+    getCore().body = multipartType
+  }
+
+  public static boolean isString(args) {
+    args instanceof String || args instanceof GString
   }
 
   void data() {
