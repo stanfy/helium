@@ -749,12 +749,12 @@ class ProjectDslSpec extends Specification {
 
     then:
     body instanceof MultipartType
-    (body as MultipartType).type == MultipartType.ContentType.MIXED
+    (body as MultipartType).subtype == MultipartType.Subtype.MIXED
   }
 
   def "can set allowed multipart types"() {
     when:
-    for (MultipartType.ContentType type in MultipartType.ContentType.values()) {
+    for (MultipartType.Subtype type in MultipartType.Subtype.values()) {
       dsl.service {
         name 'Upload parts'
 
@@ -811,7 +811,7 @@ class ProjectDslSpec extends Specification {
 
     then:
     body instanceof MultipartType
-    (body as MultipartType).type == MultipartType.ContentType.FORM
+    (body as MultipartType).subtype == MultipartType.Subtype.FORM
     (body as MultipartType).parts["title"].name == 'string'
     (body as MultipartType).parts["number"].name == 'int32'
     (body as MultipartType).parts["person"] instanceof Message

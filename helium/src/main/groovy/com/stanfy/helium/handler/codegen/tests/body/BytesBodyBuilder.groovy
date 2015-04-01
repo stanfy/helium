@@ -26,15 +26,15 @@ class BytesBodyBuilder implements RequestBodyBuilder {
 
   @Override
   RequestBody build(TypeResolver types, final TypedEntity entity, String encoding) {
-    byte[] arr;
+    byte[] arr
     if (entity.getValue() instanceof byte[]) {
-      arr = (byte[]) entity.getValue();
+      arr = (byte[]) entity.getValue()
     } else if (entity.getValue() instanceof ByteArrayEntity) {
-      arr = ((ByteArrayEntity) entity.getValue()).getBytes();
+      arr = ((ByteArrayEntity) entity.getValue()).getBytes()
     } else {
-      throw new IllegalArgumentException("Type " + entity.getValue().getClass() + " is not supported for raw data input.");
+      throw new IllegalArgumentException("Type " + entity.getValue().getClass() + " is not supported for raw data input.")
     }
 
-    return RequestBody.create(bytesType(), arr);
+    return RequestBody.create(bytesType(), arr)
   }
 }

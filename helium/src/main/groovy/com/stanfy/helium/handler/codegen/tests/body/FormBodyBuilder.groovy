@@ -25,11 +25,11 @@ class FormBodyBuilder implements RequestBodyBuilder {
 
   @Override
   RequestBody build(TypeResolver types, final TypedEntity entity, String encoding) {
-    FormEncodingBuilder formBuilder = new FormEncodingBuilder();
-    final Map<String, Object> map = (Map<String, Object>) entity.getValue();
+    FormEncodingBuilder formBuilder = new FormEncodingBuilder()
+    final Map<String, Object> map = (Map<String, Object>) entity.getValue()
     for (String key : map.keySet()) {
-      formBuilder.add(key, String.valueOf(map.get(key)));
+      formBuilder.add(key, String.valueOf(map.get(key)))
     }
-    return formBuilder.build();
+    return formBuilder.build()
   }
 }

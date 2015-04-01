@@ -15,21 +15,21 @@ class MultipartType extends Type {
    */
   final Map<String, Type> parts = new LinkedHashMap<>();
 
-  final ContentType type;
+  final Subtype subtype;
 
-  MultipartType(final String type) {
-    if (!isContentTypeAllowed(type)) {
-      throw new IllegalArgumentException("Bad content type of multipart body: $type")
+  MultipartType(final String subtype) {
+    if (!isSubtypeAllowed(subtype)) {
+      throw new IllegalArgumentException("Bad content type of multipart body: $subtype")
     }
-    this.@type = ContentType.valueOf(type.toUpperCase(Locale.US))
+    this.@subtype = Subtype.valueOf(subtype.toUpperCase(Locale.US))
   }
 
   MultipartType() {
-    this.@type = ContentType.MIXED
+    this.@subtype = Subtype.MIXED
   }
 
-  static boolean isContentTypeAllowed(final String type) {
-    def types = ContentType.values().collect { ContentType ct ->
+  static boolean isSubtypeAllowed(final String type) {
+    def types = Subtype.values().collect { Subtype ct ->
       ct.representation()
     }
     return types.contains(type)
@@ -39,7 +39,12 @@ class MultipartType extends Type {
     return parts?.isEmpty()
   }
 
-  static enum ContentType {
+  /**
+   * Enum that represents subtype of multipart.
+   * For more info see <a href="http://www.w3.org/Protocols/rfc1341/7_2_Multipart.html">w3 spec</a>.
+   */
+  static enum Subtype {
+
     MIXED,
     ALTERNATIVE,
     DIGEST,

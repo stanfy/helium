@@ -17,7 +17,7 @@ import okio.BufferedSink
  * @author Nikolay Soroka (Stanfy - http://www.stanfy.com)
  */
 @PackageScope
-class JsonConverterBuilder implements RequestBodyBuilder{
+class JsonConverterBuilder implements RequestBodyBuilder {
   @Override
   boolean canBuild(final Type bodyType) {
     return true // applicable to all
@@ -28,16 +28,16 @@ class JsonConverterBuilder implements RequestBodyBuilder{
     return new RequestBody() {
       @Override
       public MediaType contentType() {
-        return Utils.jsonType();
+        return Utils.jsonType()
       }
 
       @Override
       public void writeTo(final BufferedSink sink) throws IOException {
         if (entity != null) {
-          Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
-          Utils.writeEntityWithConverters(entity, out, types);
+          Writer out = new OutputStreamWriter(sink.outputStream(), encoding)
+          Utils.writeEntityWithConverters(entity, out, types)
         }
-        sink.close();
+        sink.close()
       }
     }
   }
