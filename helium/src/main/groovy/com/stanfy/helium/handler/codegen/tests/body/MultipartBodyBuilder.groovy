@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.tests.body
 
+import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.MultipartBuilder
 import com.squareup.okhttp.RequestBody
 import com.stanfy.helium.entities.ByteArrayEntity
@@ -62,7 +63,12 @@ class MultipartBodyBuilder implements RequestBodyBuilder {
 
     }
 
+    mb.type(getMultipartType(requestBody))
     body = mb.build();
     return body;
+  }
+
+  public static MediaType getMultipartType(TypedEntity requestBody) {
+    MediaType.parse("multipart/" + (requestBody.getType() as MultipartType).type.representation())
   }
 }
