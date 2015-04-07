@@ -14,19 +14,19 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
     ["parameters", "response", "body"].each {
       ConfigurableServiceMethod.metaClass."$it" << { Object arg ->
         if (arg instanceof Closure<?>) {
-          delegate.defineMessageType(it, (Closure<?>) arg)
+          delegate.defineMessageType(it, (Closure<?>)arg)
         } else if (arg instanceof String) {
-          delegate.defineMessageType(it, (String) arg)
+          delegate.defineMessageType(it, (String)arg)
         }
         if ("body" == it) {
           return [
-              "multipart": { Object partArg ->
+              "multipart" : { Object partArg ->
                 delegate.multipart(partArg)
               },
-              "form": { Object formArg ->
+              "form" : { Object formArg ->
                 delegate.form(formArg)
               },
-              "data": {
+              "data" : {
                 delegate.data()
               }
           ]

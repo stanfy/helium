@@ -9,7 +9,7 @@ package com.stanfy.helium.entities;
  */
 public class ByteArrayEntity {
 
-  private byte[] bytes;
+  private final byte[] bytes;
 
   public ByteArrayEntity(final byte[] bytes) {
     this.bytes = bytes;
@@ -19,7 +19,4 @@ public class ByteArrayEntity {
     return bytes;
   }
 
-  public void setBytes(final byte[] bytes) {
-    this.bytes = bytes;
-  }
 }

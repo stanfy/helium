@@ -36,13 +36,11 @@ class TypedEntityValueBuilder {
   }
 
   def from(final Object value) {
-    if (type instanceof DataType) {
-      if (value instanceof ByteArrayEntity) {
-        return value as ByteArrayEntity
-      } else if (value instanceof byte[]) {
-        return new ByteArrayEntity(value)
-      }
+    def byteArrayEntity = byteArrayEntityFromDataType(value)
+    if (byteArrayEntity) {
+      return byteArrayEntity
     }
+
     if (type instanceof FileType && value instanceof File) {
       return value as File
     }
@@ -86,6 +84,28 @@ class TypedEntityValueBuilder {
       value += itemBuilder.from(it)
     }
     return value
+  }
+
+  /**
+   * Returns {@link ByteArrayEntity} if type is {@link DataType}, and value is convertible to
+   * <code>ByteArrayEntity</code>, e.g. is <code>byte[]</code> or <code>ByteArrayEntity</code>.
+   * If it's not convertible - returns null.
+   * @param value object to be converted to ByteArrayEntity
+   * @return ByteArrayEntity or null if can't convert.
+   */
+  private ByteArrayEntity byteArrayEntityFromDataType(final Object value) {
+    if (!(type instanceof DataType)) {
+      return null
+    }
+
+    if (value instanceof ByteArrayEntity) {
+      return value as ByteArrayEntity
+    }
+    if (value instanceof byte[]) {
+      return new ByteArrayEntity(value)
+    }
+    // Value is not convertible to byte array entity.
+    return null
   }
 
   class MessageBuilder extends ConfigurableMap<Object> {
