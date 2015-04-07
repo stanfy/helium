@@ -11,7 +11,7 @@ import static com.stanfy.helium.utils.DslUtils.runWithProxy
 /**
  * Builder for fields.
  */
-class FieldsBuilder {
+class FieldsBuilder extends TypeAwareBuilder {
 
   /** Type for skipped fields. */
   private static final Type IGNORABLE_TYPE = new Type(name: "_helium_ignorable_")
@@ -22,13 +22,11 @@ class FieldsBuilder {
   /** Type resolver. */
   private final ProjectDsl project
 
-  /** Type resolver. */
-  private final TypeResolver typeResolver
 
   FieldsBuilder(final Message message, final ProjectDsl project, final TypeResolver typeResolver) {
+    super(typeResolver)
     this.message = message
     this.project = project
-    this.typeResolver = typeResolver
   }
 
   @Override
@@ -103,24 +101,6 @@ class FieldsBuilder {
     return new OptionalFieldTrigger(field : f)
   }
 
-  @CompileStatic
-  private Type resolveType(final Object arg) {
-    if (arg == null) {
-      throw new IllegalArgumentException("Type is not specified");
-    }
-
-    if (arg instanceof Type) {
-      return (Type)arg
-    }
-
-    final Type type
-    if (arg instanceof Class) {
-      type = typeResolver.byGroovyClass((Class<?>)arg)
-    } else {
-      type = typeResolver.byName("$arg")
-    }
-    return type
-  }
 
   @CompileStatic
   class OptionalFieldTrigger {

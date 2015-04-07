@@ -136,4 +136,104 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     e.message.contains "service name"
   }
 
+  def "should write form body types"() {
+    given:
+    project.type "FormMessage" message {
+      count 'int32'
+    }
+    project.service {
+      name "FormService"
+      post "/form" spec {
+        body form("FormMessage")
+      }
+    }
+
+    when:
+    gen.handle(project)
+    def text = new File("$output/test/api/FormService.java").text
+
+    then:
+    text == """
+package test.api;
+
+import FormMessage;
+import retrofit.client.Response;
+import retrofit.http.*;
+
+public interface FormService {
+
+  @POST("/form")
+  @FormUrlEncoded
+  Response postForm(@Field("count") int count);
+
+}""".trim() + '\n'
+  }
+
+  def "should write generic data body"() {
+    given:
+    project.service {
+      name "DataService"
+      post "/data" spec {
+        body data()
+      }
+    }
+
+    when:
+    gen.handle project
+    def text = new File("$output/test/api/DataService.java").text
+
+    then:
+    text.contains "import retrofit.mime.TypedOutput;"
+    text.contains "@POST(\"/data\")"
+    text.contains "Response postData(@Body TypedOutput body);"
+  }
+
+  def "should write multipart map body"() {
+    given:
+    project.service {
+      name "MultipartService"
+      post "/multipart" spec {
+        name 'upload'
+        body multipart()
+      }
+    }
+
+    when:
+    gen.handle project
+    def text = new File("$output/test/api/MultipartService.java").text
+
+    then:
+    text.contains "@Multipart"
+    text.contains "@POST(\"/multipart\")"
+    text.contains "Response upload(@PartMap Map<String, Object> parts)"
+  }
+
+  def "should write multipart body with fields"() {
+    given:
+    project.type 'string'
+
+    project.service {
+      name "MultipartService"
+      post "/multipart" spec {
+        name 'upload'
+        body multipart {
+          name 'string'
+          file1 file()
+          data1 data()
+        }
+      }
+    }
+
+    when:
+    gen.handle project
+    def text = new File("$output/test/api/MultipartService.java").text
+
+    then:
+    text.contains "@Multipart"
+    text.contains "@POST(\"/multipart\")"
+    text.contains "Response upload"
+    text.contains "@Part(\"name\") String name"
+    text.contains "@Part(\"file1\") TypedFile file1"
+    text.contains "@Part(\"data1\") TypedOutput data1"
+  }
 }

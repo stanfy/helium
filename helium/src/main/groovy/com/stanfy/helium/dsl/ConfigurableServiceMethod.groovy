@@ -1,9 +1,7 @@
 package com.stanfy.helium.dsl
 
-import com.stanfy.helium.model.HttpHeader
-import com.stanfy.helium.model.Message
+import com.stanfy.helium.model.*
 import com.stanfy.helium.utils.ConfigurableProxy
-import com.stanfy.helium.model.ServiceMethod
 
 import static com.stanfy.helium.utils.DslUtils.runWithProxy
 
@@ -19,6 +17,19 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
           delegate.defineMessageType(it, (Closure<?>)arg)
         } else if (arg instanceof String) {
           delegate.defineMessageType(it, (String)arg)
+        }
+        if ("body" == it) {
+          return [
+              "multipart" : { Object partArg ->
+                delegate.multipart(partArg)
+              },
+              "form" : { Object formArg ->
+                delegate.form(formArg)
+              },
+              "data" : {
+                delegate.data()
+              }
+          ]
         }
       }
     }
@@ -38,6 +49,51 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
   void defineMessageType(final String property, String messageType) {
     ServiceMethod core = getCore()
     core."$property" = getProject().types.byName(messageType)
+  }
+
+  void form(final Object args) {
+    Type typeToWrap = null
+    ServiceMethod core = getCore()
+
+    if (args instanceof String) {
+      def messageType = args as String
+      typeToWrap = getProject().types.byName(messageType)
+    } else if (args instanceof Closure) {
+      defineMessageType("body", args as Closure)
+      typeToWrap = core.body
+    }
+
+    // Wrap message to get form body.
+    if (typeToWrap == null) {
+      throw new IllegalArgumentException("Bad arguments for form type: $args.")
+    }
+
+    if (typeToWrap instanceof Message) {
+      core.body = new FormType(typeToWrap as Message)
+    } else {
+      throw new IllegalArgumentException("Bad arguments for form type: $args. Only message can be used as type for form")
+    }
+
+  }
+
+  void multipart(final Object args) {
+    ServiceMethod core = getCore()
+    if (!args) {
+      core.body = new MultipartType()
+      return
+    }
+    if (!(args instanceof Closure<?>)) {
+      throw new IllegalArgumentException("Bad arguments for multipart type: $args.")
+    }
+
+    MultipartType multipartType = new MultipartType()
+    MultipartBuilder builder = new MultipartBuilder(multipartType, getProject().types)
+    runWithProxy(builder, args as Closure<?>)
+    core.body = multipartType
+  }
+
+  void data() {
+    getCore().body = new DataType()
   }
 
   void tests(final Closure<?> spec) {

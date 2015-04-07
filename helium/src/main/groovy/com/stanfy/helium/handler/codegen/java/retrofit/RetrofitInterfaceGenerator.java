@@ -3,13 +3,19 @@ package com.stanfy.helium.handler.codegen.java.retrofit;
 import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
+import com.stanfy.helium.model.DataType;
 import com.stanfy.helium.model.Field;
+import com.stanfy.helium.model.FileType;
+import com.stanfy.helium.model.FormType;
 import com.stanfy.helium.model.HttpHeader;
+import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.MultipartType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.Type;
+import com.stanfy.helium.utils.Names;
 
 import org.apache.commons.io.IOUtils;
 
@@ -62,9 +68,22 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
   private String resolveJavaTypeName(final Type type, final JavaWriter writer) {
     Type imported = type;
     boolean sequence = false;
+    if (imported instanceof FileType) {
+      return "retrofit.mime.TypedFile";
+    }
+    if (imported instanceof DataType) {
+      return "retrofit.mime.TypedOutput";
+    }
+    if (imported instanceof MultipartType) {
+      return "java.util.Map";
+    }
+
     if (imported instanceof Sequence) {
       sequence = true;
       imported = ((Sequence) imported).getItemsType();
+    }
+    if (imported instanceof FormType) {
+      imported = ((FormType) type).getBase();
     }
     String javaType = getOptions().getJavaTypeName(imported, sequence, writer);
     if (!type.isPrimitive() && getOptions().getEntitiesPackage() != null) {
@@ -98,12 +117,24 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
           if (m.getResponse() != null) {
             addImport(imports, m.getResponse(), writer);
           }
-          if (m.getBody() != null) {
-            addImport(imports, m.getBody(), writer);
-          }
         }
         if (m.getResponse() == null) {
           imports.add("retrofit.client.Response");
+        }
+
+        if (m.getBody() != null) {
+          addImport(imports, m.getBody(), writer);
+          if (m.getBody() instanceof DataType) {
+            imports.add("retrofit.mime.TypedOutput");
+          } else if (m.getBody() instanceof MultipartType) {
+            if (((MultipartType) m.getBody()).isGeneric()) {
+              imports.add("java.util.Map");
+            } else {
+              for (Type type : ((MultipartType) m.getBody()).getParts().values()) {
+                addImport(imports, type, writer);
+              }
+            }
+          }
         }
       }
 
@@ -137,6 +168,13 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         }
 
         writer.emitAnnotation(m.getType().toString(), stringLiteral(getTransformedPath(m)));
+
+        if (m.hasFormBody()) {
+          writer.emitAnnotation("FormUrlEncoded");
+        }
+        if (m.hasMultipartBody()) {
+          writer.emitAnnotation("Multipart");
+        }
 
         String responseType = "Response";
         if (m.getResponse() != null) {
@@ -178,6 +216,9 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     if (type instanceof Sequence) {
       return getOptions().getSequenceTypeName(name);
     }
+    if (type instanceof DataType) {
+      return writer.compressType(name);
+    }
     return name;
   }
 
@@ -207,11 +248,35 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     }
 
     if (m.getBody() != null) {
-      res.add("@Body " + getJavaType(m.getBody(), writer));
-      res.add("body");
+      if (m.getBody() instanceof FormType) {
+        final Message message = ((FormType) m.getBody()).getBase();
+        // We should think on including parent message fields.
+        // MB message.getAllFields() ?
+        for (Field f : message.getActiveFields()) {
+          res.add("@Field(\"" + f.getName() + "\") " + getJavaType(f.getType(), writer));
+          res.add(getOptions().getSafeParameterName(f.getCanonicalName()));
+        }
+      } else if (m.getBody() instanceof MultipartType) {
+        addMultipartBody(writer, res, (MultipartType) m.getBody());
+      } else {
+        res.add("@Body " + getJavaType(m.getBody(), writer));
+        res.add("body");
+      }
     }
 
     return res;
+  }
+
+  private void addMultipartBody(final JavaWriter writer, final ArrayList<String> res, final MultipartType body) {
+    if (body.isGeneric()) {
+      res.add("@PartMap Map<String, Object>");
+      res.add("parts");
+    } else {
+      for (String name : body.getParts().keySet()) {
+        res.add(String.format("@Part(\"%s\") %s", name, getJavaType(body.getParts().get(name), writer)));
+        res.add(Names.canonicalName(name));
+      }
+    }
   }
 
 }

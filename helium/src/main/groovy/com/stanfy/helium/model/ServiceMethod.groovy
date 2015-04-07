@@ -147,4 +147,12 @@ class ServiceMethod extends Descriptionable {
     result = 31 * result + type.hashCode()
     return result
   }
+
+  boolean hasFormBody() {
+    return this.@body != null && body instanceof FormType;
+  }
+
+  boolean hasMultipartBody() {
+    return this.@body != null && body instanceof MultipartType;
+  }
 }
