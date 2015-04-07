@@ -52,9 +52,7 @@ public class JsonEntityReader implements EntityReader {
       errors.add(new ValidationError(type, "Could not parse json JSON (bad structure)\n" + getFullErrorMessage(e)));
     }
 
-    TypedEntity<?> res = new TypedEntity<Type>(type, value);
-    res.setValidationError(ValidationError.wrap(type, errors, type.isPrimitive()));
-    return res;
+    return new TypedEntity<Type>(type, value, ValidationError.wrap(type, errors, type.isPrimitive()));
   }
 
 }

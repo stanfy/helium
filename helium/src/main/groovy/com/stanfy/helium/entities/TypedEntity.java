@@ -12,11 +12,16 @@ public class TypedEntity<T extends Type> {
   /** Value. */
   private final Object value;
   /** Validation error that may occur during creating entity value. */
-  private ValidationError error;
+  private final ValidationError error;
 
   public TypedEntity(final T type, final Object value) {
+    this(type, value, null);
+  }
+
+  public TypedEntity(final T type, final Object value, final ValidationError error) {
     this.type = type;
     this.value = value;
+    this.error = error;
   }
 
   public ValidationError getValidationError() {
@@ -29,10 +34,6 @@ public class TypedEntity<T extends Type> {
 
   public Object getValue() {
     return value;
-  }
-
-  public void setValidationError(final ValidationError validationError) {
-    this.error = validationError;
   }
 
 }
