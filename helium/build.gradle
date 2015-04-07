@@ -21,6 +21,5 @@ dependencies {
   testCompile('org.spockframework:spock-core:1.0-groovy-2.3') {
     exclude group: 'org.codehaus.groovy'
   }
-  testCompile 'com.google.mockwebserver:mockwebserver:20130403'
   testCompile 'com.squareup.okhttp:mockwebserver:2.3.0'
 }

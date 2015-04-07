@@ -122,7 +122,7 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
     getCore().body = multipartType
   }
 
-  public static boolean isString(args) {
+  private static boolean isString(args) {
     args instanceof String || args instanceof GString
   }
 
