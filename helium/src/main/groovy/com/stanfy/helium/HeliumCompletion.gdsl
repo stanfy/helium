@@ -59,6 +59,15 @@ contributor(serviceSpecContext) {
              namedParams: [parameter([before: 'Closure']), parameter([after: 'Closure'])]
 
     }
+
+    if (enclosingCall("spec")) {
+      method name: 'body', params: [name: 'String']
+      method name: 'body', params: [spec: 'Closure']
+
+      method name: 'response', params: [name: 'String']
+
+      method name: 'parameters', params: [spec: 'Closure']
+    }
   }
 
 }
