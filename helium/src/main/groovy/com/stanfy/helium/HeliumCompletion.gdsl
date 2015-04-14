@@ -1,0 +1,75 @@
+package com.stanfy.helium
+
+/**
+ * @author Nikolay Soroka (Stanfy - http://www.stanfy.com)
+ */
+
+// Create completion context for Helium files.
+def heliumContext = context(filetypes: ['api'], scope: scriptScope())
+
+contributor(heliumContext) {
+  // message completion
+  method name: 'note', type: 'void', params: [note: 'String']
+
+  method name: 'message',
+         type: 'Closure<?>',
+         params: [spec: 'Closure<?>'],
+         namedParams: [parameter([parent: 'String', skipUnknownFields: 'bool'])]
+
+  method name: 'service', type: 'void', params: [spec: 'Closure']
+
+  method name: 'type', type: 'void', params: [name: 'String']
+}
+
+
+final def httpMethods = [
+    GET   : false,
+    POST  : true,
+    PUT   : true,
+    DELETE: false,
+    PATCH : true,
+    HEAD  : false
+]
+
+def serviceSpecContext = context(scope: closureScope())
+
+contributor(serviceSpecContext) {
+  if (enclosingCall('service')) {
+    method name: 'name', type: 'void', params: [name: 'String']
+    method name: 'location', type: 'void', params: [name: 'String']
+    method name: 'version', type: 'void', params: [name: 'String']
+    method name: 'encoding', type: 'void', params: [name: 'String']
+
+    method name: 'spec', type: 'Closure', params: [spec: 'Closure']
+
+
+    httpMethods.keySet().each {
+      def methodType = "${it.toLowerCase()}"
+      method name: methodType.toString(),
+             type: 'com.stanfy.helium.dsl.scenario.MethodExecutionResult',
+             params: [path: String]
+
+    }
+
+    method name: 'tests', type: 'Closure', params: [spec: 'Closure']
+
+    if (enclosingCall("tests")) {
+      method name: 'scenario',
+             params: [name: 'String'],
+             namedParams: [parameter([before: 'Closure']), parameter([after: 'Closure'])]
+
+    }
+  }
+
+}
+
+contributor(context(scope: closureScope())) {
+  if (enclosingCall("scenario")) {
+
+    httpMethods.keySet().each {
+      method name: it.toLowerCase(),
+
+             params: [path: 'String']
+    }
+  }
+}
