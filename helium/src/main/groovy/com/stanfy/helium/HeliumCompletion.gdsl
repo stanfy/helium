@@ -13,14 +13,16 @@ contributor(heliumContext) {
 
   method name: 'message',
          type: 'Closure<?>',
-         params: [spec: 'Closure<?>'],
          namedParams: [parameter([parent: 'String', skipUnknownFields: 'bool'])]
 
   method name: 'service', type: 'void', params: [spec: 'Closure']
 
-  method name: 'type', type: 'void', params: [name: 'String']
-}
+  if (enclosingCall('message') || enclosingCall('parameters')) {
+    property name: 'optional', type: 'bool', doc: 'Indicates that this field is optional.'
+    property name: 'sequence', type: 'bool', doc: 'Indicates that this field is a sequence of given type.'
+  }
 
+}
 
 final def httpMethods = [
     GET   : false,
@@ -43,20 +45,20 @@ contributor(serviceSpecContext) {
     method name: 'spec', type: 'Closure', params: [spec: 'Closure']
 
 
-    httpMethods.keySet().each {
-      def methodType = "${it.toLowerCase()}"
-      method name: methodType.toString(),
-             type: 'com.stanfy.helium.dsl.scenario.MethodExecutionResult',
-             params: [path: String]
-
-    }
-
     method name: 'tests', type: 'Closure', params: [spec: 'Closure']
 
     if (enclosingCall("tests")) {
       method name: 'scenario',
              params: [name: 'String'],
              namedParams: [parameter([before: 'Closure']), parameter([after: 'Closure'])]
+
+      httpMethods.keySet().each {
+        def methodType = "${it.toLowerCase()}"
+        method name: methodType.toString(),
+            type: 'com.stanfy.helium.dsl.scenario.MethodExecutionResult',
+            params: [args: 'Object...']
+
+      }
 
     }
 
@@ -77,7 +79,6 @@ contributor(context(scope: closureScope())) {
 
     httpMethods.keySet().each {
       method name: it.toLowerCase(),
-
              params: [path: 'String']
     }
   }
