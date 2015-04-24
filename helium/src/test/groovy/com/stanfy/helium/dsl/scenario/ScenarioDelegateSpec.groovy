@@ -1,10 +1,15 @@
 package com.stanfy.helium.dsl.scenario
 
 import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.entities.ByteArrayEntity
+import com.stanfy.helium.model.DataType
+import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.MethodType
+import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.tests.Scenario
+import com.stanfy.helium.utils.ConfigurableMap
 import spock.lang.Specification
 
 /**
@@ -23,9 +28,11 @@ class ScenarioDelegateSpec extends Specification {
 
   def setup() {
 
-    // prepare service
+    //region prepare service
+
     ProjectDsl dsl = new ProjectDsl()
     dsl.type 'bool'
+    dsl.type 'string'
     dsl.type 'Msg' message {
       f1 'bool'
     }
@@ -48,6 +55,29 @@ class ScenarioDelegateSpec extends Specification {
       get "/headers/example" spec {
         httpHeaders header('H1', 'v1'), 'H2'
         response 'Msg'
+      }
+
+      post "/upload_form" spec {
+        response 'Msg'
+        body form {
+          checked 'bool'
+          name    'string'
+        }
+      }
+
+      post "/upload_bytes" spec {
+        response 'Msg'
+        body data()
+      }
+
+      post "/upload_multipart" spec {
+        body multipart {
+          name           'string'
+          my_message     'Msg'
+          inline_message 'Msg'
+          file1          file()
+          some_data      data()
+        }
       }
 
       tests {
@@ -153,9 +183,52 @@ class ScenarioDelegateSpec extends Specification {
           }
         }
 
+        scenario "upload form" spec {
+          def result = post '/upload_form' with {
+            body form {
+              checked true
+              name    'Request'
+            }
+          }
+          result.mustSucceed()
+        }
+
+        scenario "upload bytes" spec {
+          def strBytes = "Happy bytes string".getBytes()
+          def result = post "/upload_bytes" with {
+            body bytes(strBytes as byte[])
+          }
+
+          result.mustSucceed()
+        }
+
+        scenario 'upload multipart' spec {
+          def myName = "Kapitoshka"
+
+          File testFile = new File("testfile.txt")
+          FileOutputStream stream = new FileOutputStream(testFile)
+          stream.write("This sentence should be in the file.".getBytes())
+          stream.close()
+          testFile.deleteOnExit()
+
+          def someBytes = 'generic bytes data'.getBytes()
+
+          def resp = post "/upload_multipart" with {
+            body multipart {
+              name myName
+              inline_message {
+                f1 true
+              }
+              file1 testFile
+              some_data someBytes
+            }
+          }
+          resp.mustSucceed()
+        }
       }
 
     }
+    //endregion
 
     service = dsl.services[0]
     executor = new Executor()
@@ -281,6 +354,49 @@ class ScenarioDelegateSpec extends Specification {
     def e = thrown(AssertionError)
     e.message.contains("'with'")
     e.message.contains("/some/resource/@id")
+  }
+
+  def "form data is parsed"() {
+    when:
+    executeScenario("upload form", null, null)
+
+    then:
+    executor.executedMethods.size() == 1
+    executor.requests.size() == 1
+    executor.requests.first().body.type instanceof FormType
+    executor.requests.first().body.value instanceof Map
+    (executor.requests.first().body.value as Map).checked == true
+    (executor.requests.first().body.value as Map).name == 'Request'
+  }
+
+  def "generic data body is parsed"() {
+    when:
+    executeScenario("upload bytes", null, null)
+
+    then:
+    executor.executedMethods.size() == 1
+    executor.requests.first().body.type instanceof DataType
+    executor.requests.first().body.value instanceof ByteArrayEntity
+    (executor.requests.first().body.value as ByteArrayEntity).bytes == "Happy bytes string".getBytes()
+  }
+
+  def "multipart data body is parsed"() {
+    when:
+    executeScenario("upload multipart", null, null,)
+
+    then:
+    executor.executedMethods.size() == 1
+    executor.requests.first().body.type instanceof MultipartType
+    executor.requests.first().body.value instanceof Map<String, Object>
+    (executor.requests.first().body.value as Map<String, Object>).name == 'Kapitoshka'
+
+    (executor.requests.first().body.value as Map<String, Object>).file1 instanceof File
+    ((executor.requests.first().body.value as Map<String, Object>).file1 as File).text.contains "This sentence should be in the file."
+
+    (executor.requests.first().body.value as Map<String, Object>).some_data instanceof ByteArrayEntity
+    ((executor.requests.first().body.value as Map<String, Object>).some_data as ByteArrayEntity).bytes == 'generic bytes data'.getBytes()
+
+
   }
 
   /** Executor instance. */

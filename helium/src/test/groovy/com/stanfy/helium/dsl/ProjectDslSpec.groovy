@@ -736,6 +736,94 @@ class ProjectDslSpec extends Specification {
     (body as MultipartType).parts["data1"] instanceof DataType
   }
 
+  def "default multipart type is mixed"() {
+    when:
+    dsl.service {
+      name 'Upload parts'
+
+      post '/upload' spec {
+        body multipart()
+      }
+    }
+    Type body = dsl.serviceByName("Upload parts").methods.first().body
+
+    then:
+    body instanceof MultipartType
+    (body as MultipartType).subtype == MultipartType.Subtype.MIXED
+  }
+
+  def "can set allowed multipart types"() {
+    when:
+    for (MultipartType.Subtype type in MultipartType.Subtype.values()) {
+      dsl.service {
+        name 'Upload parts'
+
+        post '/upload' spec {
+          body multipart("${type.name().toLowerCase()}")
+        }
+      }
+      Type body = dsl.serviceByName("Upload parts").methods.first().body
+    }
+    then:
+    notThrown(IllegalArgumentException)
+  }
+
+  def "can detect wrong multipart type"() {
+    when:
+    dsl.service {
+      name 'Upload parts'
+
+      post '/upload' spec {
+        body multipart("abracadabra")
+     }
+    }
+
+    then:
+    def ex = thrown IllegalArgumentException
+    ex.message.contains "Bad content type of multipart body"
+
+  }
+
+  def "can set multipart with type and closure"() {
+    when:
+    dsl.type 'int32'
+    dsl.type 'string'
+    dsl.type 'Person' message {
+      name 'string'
+      age  'int32'
+    }
+
+    dsl.service {
+      name 'Upload parts'
+
+      post '/upload' spec {
+        response 'int32'
+        body multipart("form") {
+          title  'string'
+          number 'int32'
+          person 'Person'
+          file1  file()
+          data1  data()
+        }
+      }
+    }
+    Type body = dsl.serviceByName("Upload parts").methods.first().body
+
+    then:
+    body instanceof MultipartType
+    (body as MultipartType).subtype == MultipartType.Subtype.FORM
+    (body as MultipartType).parts["title"].name == 'string'
+    (body as MultipartType).parts["number"].name == 'int32'
+    (body as MultipartType).parts["person"] instanceof Message
+
+    ((body as MultipartType).parts["person"] as Message).name == 'Person'
+    ((body as MultipartType).parts["person"] as Message).fieldByName("name").type.name == 'string'
+    ((body as MultipartType).parts["person"] as Message).fieldByName('age').type.name == 'int32'
+
+    (body as MultipartType).parts["file1"] instanceof FileType
+    (body as MultipartType).parts["data1"] instanceof DataType
+
+  }
 
   //endregion
 }

@@ -1,29 +1,21 @@
 package com.stanfy.helium.handler.codegen.tests;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
 import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
-import com.stanfy.helium.entities.TypedEntity;
-import com.stanfy.helium.entities.json.JsonConvertersPool;
-import com.stanfy.helium.entities.json.JsonEntityWriter;
+import com.stanfy.helium.handler.codegen.tests.body.BuilderFactory;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.model.tests.MethodTestInfo;
-import okio.BufferedSink;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +23,7 @@ import java.util.Map;
 /**
  * Implements ScenarioExecutor using HTTP client.
  */
-class HttpExecutor implements ScenarioExecutor {
+public class HttpExecutor implements ScenarioExecutor {
 
   /** Default encoding. */
   private static final String DEFAULT_ENCODING = "UTF-8";
@@ -107,24 +99,7 @@ class HttpExecutor implements ScenarioExecutor {
 
     RequestBody body = null;
     if (method.getType().isHasBody()) {
-      body = new RequestBody() {
-        @Override
-        public MediaType contentType() {
-          // TODO: Support different content types.
-          return MediaType.parse("application/json");
-        }
-
-        @Override
-        public void writeTo(final BufferedSink sink) throws IOException {
-          TypedEntity entity = request.getBody();
-          if (entity != null) {
-            Writer out = new OutputStreamWriter(sink.outputStream(), encoding);
-            new JsonEntityWriter(out, types.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)).write(entity);
-            out.close();
-          }
-          sink.close();
-        }
-      };
+      body = getRequestBody(method, request, encoding);
     }
 
     Request httpRequest = new Request.Builder()
@@ -139,6 +114,12 @@ class HttpExecutor implements ScenarioExecutor {
     } catch (IOException e) {
       throw new AssertionError("Cannot execute HTTP request", e);
     }
+  }
+
+  private RequestBody getRequestBody(final ServiceMethod method, final ServiceMethodRequestValues request, final String encoding) {
+    final RequestBodyBuilder builder = BuilderFactory.getBuilderFor(method.getBody());
+
+    return builder.build(types, request.getBody(), encoding);
   }
 
 }

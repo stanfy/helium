@@ -1,0 +1,31 @@
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  }
+  dependencies {
+    classpath 'com.stanfy.helium:gradle-plugin:0.6.0-SNAPSHOT'
+  }
+}
+
+apply plugin: 'helium'
+
+helium {
+  specification file('httpbin.api')
+}
+
+task clean(type: Delete) {
+  delete buildDir
+}
+
+task prepare(type: Copy) {
+  from './pig.png'
+  into 'build/generated/source/helium/api-tests/httpbin/'
+}
+
+task check()
+afterEvaluate {
+  check.dependsOn 'genApiTests'
+  prepare.dependsOn 'genApiTests'
+}
