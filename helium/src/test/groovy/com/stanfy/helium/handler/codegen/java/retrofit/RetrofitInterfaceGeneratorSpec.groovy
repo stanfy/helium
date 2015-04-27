@@ -277,8 +277,8 @@ public interface FormService {
 
     then:
     text.contains "rx.Observable"
-    text.contains "Observable<SomeResponse>"
-    text.contains "Observable<SomeResponse>"
+    text.contains "Observable<SomeResponse> postAdd(@Body TheRequest body)"
+    text.contains "Observable<SomeResponse> getList(@Query(\"count\") int count, @Query(\"name\") String name)"
 
   }
 }
