@@ -5,7 +5,7 @@ import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.utils.Names;
 
 /**
- * Options for Retorfit generator.
+ * Options for Retrofit generator.
  */
 public class RetrofitGeneratorOptions extends JavaGeneratorOptions {
 
@@ -14,6 +14,9 @@ public class RetrofitGeneratorOptions extends JavaGeneratorOptions {
 
   /** Whether to use service method names to generate java method names. */
   private boolean useMethodNames;
+
+  /** Whether to wrap response types in rx.Observable generic. */
+  private boolean useRxObservables;
 
   public static RetrofitGeneratorOptions defaultOptions(final String packageName) {
     RetrofitGeneratorOptions options = new RetrofitGeneratorOptions();
@@ -39,6 +42,14 @@ public class RetrofitGeneratorOptions extends JavaGeneratorOptions {
     this.useMethodNames = useMethodNames;
   }
 
+  public boolean isUseRxObservables() {
+    return useRxObservables;
+  }
+
+  public void setUseRxObservables(final boolean useRxObservables) {
+    this.useRxObservables = useRxObservables;
+  }
+
   String getMethodName(final ServiceMethod method) {
     if (!useMethodNames || method.getName() == null) {
       return getName(method);
@@ -53,5 +64,4 @@ public class RetrofitGeneratorOptions extends JavaGeneratorOptions {
     }
     return name;
   }
-
 }

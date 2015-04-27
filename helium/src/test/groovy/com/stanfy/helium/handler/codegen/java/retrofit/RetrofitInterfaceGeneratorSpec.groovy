@@ -236,4 +236,53 @@ public interface FormService {
     text.contains "@Part(\"file1\") TypedFile file1"
     text.contains "@Part(\"data1\") TypedOutput data1"
   }
+
+  def "should respect rxObservables option"() {
+    setup:
+    project = new ProjectDsl()
+
+    project.type 'int32'
+    project.type 'string'
+    project.type 'SomeResponse' message {}
+    project.type 'TheRequest' message {}
+
+    project.service {
+      name 'ReactiveService'
+      location 'https://github.com/ReactiveX/RxJava'
+
+      post "/add" spec {
+        response 'SomeResponse'
+        body 'TheRequest'
+      }
+
+      get "/list" spec {
+        parameters {
+          count 'int32'
+          name 'string'
+        }
+        response 'SomeResponse'
+      }
+
+    }
+    options.customPrimitivesMapping = [
+      'string' : 'java.lang.String'
+    ]
+
+
+    when:
+    options.useRxObservables = true
+    and:
+    gen.handle project
+    def text = new File("$output/test/api/ReactiveService.java").text
+
+    then:
+    // TODO debug, remove
+    System.err.println "ReactiveService:"
+    System.err.println text
+
+    text.contains "rx.Observable"
+    text.contains "Observable<SomeResponse>"
+    text.contains "Observable<SomeResponse>"
+
+  }
 }
