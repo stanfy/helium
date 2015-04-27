@@ -23,6 +23,7 @@ public class RetrofitGeneratorOptions extends JavaGeneratorOptions {
     options.setPackageName(packageName);
     options.setPrettifyNames(true);
     options.setUseMethodNames(true);
+    options.setUseRxObservables(false);
     return options;
   }
 

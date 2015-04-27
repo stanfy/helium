@@ -276,10 +276,6 @@ public interface FormService {
     def text = new File("$output/test/api/ReactiveService.java").text
 
     then:
-    // TODO debug, remove
-    System.err.println "ReactiveService:"
-    System.err.println text
-
     text.contains "rx.Observable"
     text.contains "Observable<SomeResponse>"
     text.contains "Observable<SomeResponse>"

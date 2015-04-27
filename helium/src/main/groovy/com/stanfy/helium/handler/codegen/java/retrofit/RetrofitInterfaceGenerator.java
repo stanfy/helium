@@ -137,6 +137,9 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
           }
         }
       }
+      if (options.isUseRxObservables()) {
+        imports.add("rx.Observable");
+      }
 
       writer.emitImports(imports);
       writer.emitImports(RETROFIT_PACKAGE.concat("*"));
@@ -180,6 +183,10 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         if (m.getResponse() != null) {
           responseType = resolveJavaTypeName(m.getResponse(), writer);
         }
+        if (options.isUseRxObservables()) {
+          responseType = writer.compressType("Observable<" + responseType + ">");
+        }
+
         writer.beginMethod(responseType, options.getMethodName(m), EnumSet.noneOf(Modifier.class),
             resolveParameters(m, writer), Collections.<String>emptyList());
         writer.endMethod();
