@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler
 
-import com.stanfy.helium.dsl.HeliumScript
-import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.HeliumScript
+import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Project
 import org.codehaus.groovy.control.CompilerConfiguration
 

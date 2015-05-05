@@ -1,7 +1,12 @@
-package com.stanfy.helium.dsl
+package com.stanfy.helium.internal.dsl
 
 import com.stanfy.helium.handler.ScriptExtender
+import com.stanfy.helium.internal.model.tests.BehaviorDescriptionContainer
+import com.stanfy.helium.internal.model.tests.BehaviourDescription
+import com.stanfy.helium.internal.model.tests.CheckGroup
+import com.stanfy.helium.internal.model.tests.CheckableService
 import com.stanfy.helium.model.*
+import com.stanfy.helium.model.tests.BehaviourSuite
 import groovy.transform.PackageScope
 
 import java.nio.charset.Charset
@@ -11,7 +16,7 @@ import static com.stanfy.helium.utils.DslUtils.runWithProxy
 /**
  * Entry point to Helium DSL.
  */
-class ProjectDsl implements Project {
+class ProjectDsl implements Project, BehaviorDescriptionContainer {
 
   /** Services list. */
   private final List<Service> services = new ArrayList<>()
@@ -23,6 +28,9 @@ class ProjectDsl implements Project {
   private final List<Note> notes = new ArrayList<>()
   /** Included files list. */
   private final List<File> includedFiles = new ArrayList<>()
+
+  /** Behaviour specs. */
+  private final List<BehaviourDescription> behaviourDescriptions = new ArrayList<>()
 
   /** Structure. */
   private final List<StructureUnit> structure = new ArrayList<>()
@@ -138,11 +146,25 @@ class ProjectDsl implements Project {
     pendingTypeDefinitions.clear()
   }
 
+  @Override
+  void addBehaviourDescription(final BehaviourDescription d) {
+    behaviourDescriptions.add d
+  }
+
+  int checksCount() {
+    return behaviourDescriptions.size()
+  }
+
+  @Override
+  BehaviourSuite check() {
+    return new CheckGroup(behaviourDescriptions).run("Project checks")
+  }
+
   // -------- DSL methods --------
 
   public void service(final Closure<?> description) {
     applyPendingTypes()
-    Service service = new Service()
+    CheckableService service = new CheckableService()
     runWithProxy(new ConfigurableService(service, this), description)
     services.add service
     structure.add service
@@ -178,6 +200,10 @@ class ProjectDsl implements Project {
     }
     includedFiles.add specFile
     ScriptExtender.fromFile(specFile, charset).withVars(variablesBinding).handle(this)
+  }
+
+  BehaviourDescriptionBuilder describe(final String name) {
+    return new BehaviourDescriptionBuilder(name, this)
   }
 
 }

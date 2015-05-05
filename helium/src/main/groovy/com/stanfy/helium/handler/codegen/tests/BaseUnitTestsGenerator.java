@@ -7,7 +7,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import com.stanfy.helium.Helium;
-import com.stanfy.helium.dsl.ProjectDsl;
+import com.stanfy.helium.internal.dsl.ProjectDsl;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.BaseGenerator;
 import com.stanfy.helium.model.MethodType;

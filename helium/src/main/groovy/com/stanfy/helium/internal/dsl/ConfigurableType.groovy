@@ -1,4 +1,4 @@
-package com.stanfy.helium.dsl
+package com.stanfy.helium.internal.dsl
 
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter

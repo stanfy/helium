@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * Spec project.
  */
-public interface Project {
+public interface Project extends Checkable {
   /**
    * @return types resolver
    */

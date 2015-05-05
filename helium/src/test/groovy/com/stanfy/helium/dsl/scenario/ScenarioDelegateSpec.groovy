@@ -1,6 +1,6 @@
 package com.stanfy.helium.dsl.scenario
 
-import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.entities.ByteArrayEntity
 import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.FormType
@@ -9,7 +9,6 @@ import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.tests.Scenario
-import com.stanfy.helium.utils.ConfigurableMap
 import spock.lang.Specification
 
 /**

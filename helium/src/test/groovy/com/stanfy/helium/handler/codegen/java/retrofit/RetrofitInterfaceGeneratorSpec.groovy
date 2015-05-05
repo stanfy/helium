@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.retrofit
 
-import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.ProjectDsl
 import spock.lang.Specification
 /**
  * Spec for RetrofitInterfaceGenerator.

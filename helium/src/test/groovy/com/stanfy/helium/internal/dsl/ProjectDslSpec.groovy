@@ -1,7 +1,8 @@
-package com.stanfy.helium.dsl
+package com.stanfy.helium.internal.dsl
 
 import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.entities.json.ClosureJsonConverter
+import com.stanfy.helium.internal.model.tests.CheckableService
 import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.FileType
 import com.stanfy.helium.model.FormType
@@ -10,7 +11,12 @@ import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
+import com.stanfy.helium.model.tests.BehaviourCheck
+import org.joda.time.Duration
 import spock.lang.Specification
+
+import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED
+import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PASSED
 
 /**
  * Spec for DSL entry point.
@@ -585,6 +591,69 @@ class ProjectDslSpec extends Specification {
 
     then:
     dsl.serviceByName("head test").methods[0].type == MethodType.HEAD
+  }
+
+  def "can add service behaviour descriptions"() {
+    when:
+    dsl.service {
+      name "test behaviour"
+      describe "some behaviour" spec {
+        throw new UnsupportedOperationException("This code is not executed yet")
+      }
+    }
+
+    then:
+    ((CheckableService) dsl.serviceByName("test behaviour")).checksCount() == 1
+  }
+
+  def "can add project behaviour descriptions"() {
+    when:
+    dsl.describe "some behaviour" spec {
+      throw new UnsupportedOperationException("This code is not executed yet")
+    }
+    dsl.describe "some behaviour 2" spec {
+      throw new UnsupportedOperationException("This code is not executed yet")
+    }
+
+    then:
+    dsl.checksCount() == 2
+  }
+
+  def "service can be checked"() {
+    when:
+    dsl.service {
+      name "test"
+      describe "b1" spec {
+        assert 1 == 1
+      }
+      describe "b2" spec {
+        assert 1 == 0
+      }
+    }
+    def results = dsl.serviceByName("test").check()
+
+    then:
+    results.time >= Duration.ZERO
+    results.result == FAILED
+    results.children[0].result == PASSED
+    results.children[1].result == FAILED
+  }
+
+  def "project can be checked"() {
+    when:
+    dsl.describe "b1" spec {
+        assert 1 == 1
+    }
+    dsl.describe "b2" spec {
+      assert 1 == 0
+    }
+    def results = dsl.check()
+
+    then:
+    results.time >= Duration.ZERO
+    results.result == FAILED
+    results.children[0].result == PASSED
+    results.children[1].result == FAILED
   }
 
   //region form request content type

@@ -1,7 +1,8 @@
-package com.stanfy.helium.dsl
+package com.stanfy.helium.internal.dsl
 
 import com.stanfy.helium.dsl.scenario.ScenarioDelegate
 import com.stanfy.helium.dsl.scenario.ScenarioInvoker
+import com.stanfy.helium.internal.model.tests.CheckableService
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
@@ -14,7 +15,7 @@ import static com.stanfy.helium.utils.DslUtils.runWithProxy
 /**
  * Extended proxy for services configuration.
  */
-class ConfigurableService extends ConfigurableProxy<Service> {
+class ConfigurableService extends ConfigurableProxy<CheckableService> {
 
   static {
     MethodType.values().each { MethodType type ->
@@ -35,7 +36,7 @@ class ConfigurableService extends ConfigurableProxy<Service> {
     }
   }
 
-  ConfigurableService(final Service core, final ProjectDsl project) {
+  ConfigurableService(final CheckableService core, final ProjectDsl project) {
     super(core, project)
   }
 
@@ -68,6 +69,11 @@ class ConfigurableService extends ConfigurableProxy<Service> {
     Service service = getCore()
     runWithProxy(new ConfigurableServiceTestInfo(service.testInfo, getProject()), spec)
     return service.testInfo
+  }
+
+  @CompileStatic
+  BehaviourDescriptionBuilder describe(final String name) {
+    return new BehaviourDescriptionBuilder(name, getCore())
   }
 
 }

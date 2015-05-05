@@ -1,8 +1,8 @@
 package com.stanfy.helium.handler.codegen.tests
 
 import com.stanfy.helium.Helium
-import com.stanfy.helium.dsl.ProjectDsl
-import com.stanfy.helium.dsl.SpecExample
+import com.stanfy.helium.internal.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.SpecExample
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType

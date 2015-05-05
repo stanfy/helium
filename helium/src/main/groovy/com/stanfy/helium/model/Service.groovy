@@ -2,13 +2,14 @@ package com.stanfy.helium.model
 
 import com.stanfy.helium.model.tests.MethodTestInfo
 import com.stanfy.helium.model.tests.ServiceTestInfo
+import com.stanfy.helium.model.tests.BehaviourSuite
 import groovy.transform.CompileStatic
 
 /**
  * Service entity.
  */
 @CompileStatic
-class Service extends Descriptionable implements StructureUnit {
+class Service extends Descriptionable implements StructureUnit, Checkable {
 
   /** Version name. */
   String version
@@ -48,6 +49,11 @@ class Service extends Descriptionable implements StructureUnit {
     if (!location) { throw new IllegalStateException("Service location is not specified") }
     String loc = location.endsWith('/') ? location.substring(0, location.length() - 1) : location
     return "$loc/$path"
+  }
+
+  @Override
+  BehaviourSuite check() {
+    return BehaviourSuite.EMPTY
   }
 
 }

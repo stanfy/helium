@@ -1,6 +1,6 @@
 package com.stanfy.helium;
 
-import com.stanfy.helium.dsl.ProjectDsl;
+import com.stanfy.helium.internal.dsl.ProjectDsl;
 import com.stanfy.helium.handler.ClosureExtender;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.ScriptExtender;

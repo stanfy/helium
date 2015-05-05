@@ -1,4 +1,4 @@
-package com.stanfy.helium.dsl
+package com.stanfy.helium.internal.dsl
 
 import com.stanfy.helium.utils.ConfigurableStringMap
 import com.stanfy.helium.model.tests.MethodTestInfo
