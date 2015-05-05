@@ -123,18 +123,8 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         }
 
         if (m.getBody() != null) {
-          addImport(imports, m.getBody(), writer);
-          if (m.getBody() instanceof DataType) {
-            imports.add("retrofit.mime.TypedOutput");
-          } else if (m.getBody() instanceof MultipartType) {
-            if (((MultipartType) m.getBody()).isGeneric()) {
-              imports.add("java.util.Map");
-            } else {
-              for (Type type : ((MultipartType) m.getBody()).getParts().values()) {
-                addImport(imports, type, writer);
-              }
-            }
-          }
+          processImportsForBody(imports, writer, m);
+
         }
       }
       if (options.isUseRxObservables()) {
@@ -197,6 +187,29 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     } finally {
       IOUtils.closeQuietly(writer);
     }
+  }
+
+  private void processImportsForBody(final Set<String> imports, final JavaWriter writer, final ServiceMethod m) {
+    if (m.getBody() instanceof DataType) {
+      imports.add("retrofit.mime.TypedOutput");
+    }
+
+    if (m.getBody() instanceof MultipartType) {
+      final MultipartType multipartType = (MultipartType) m.getBody();
+      if (multipartType.isGeneric()) {
+        imports.add("java.util.Map");
+      } else {
+        for (Type type : multipartType.getParts().values()) {
+          addImport(imports, type, writer);
+        }
+      }
+    }
+    // Form type is an anonymous wrapper - don't import it.
+    if ((m.getBody() instanceof FormType)) {
+      return;
+    }
+
+    addImport(imports, m.getBody(), writer);
   }
 
   private void writeJavaDoc(final JavaWriter writer, final ServiceMethod m) throws IOException {

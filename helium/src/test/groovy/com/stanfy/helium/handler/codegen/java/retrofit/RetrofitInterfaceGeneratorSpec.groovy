@@ -156,7 +156,6 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     text == """
 package test.api;
 
-import FormMessage;
 import retrofit.client.Response;
 import retrofit.http.*;
 
@@ -167,6 +166,33 @@ public interface FormService {
   Response postForm(@Field("count") int count);
 
 }""".trim() + '\n'
+  }
+
+  def "should not import form body wrappers"() {
+    given: "post with form"
+
+    project.type 'string'
+    project.service {
+      name "TheService"
+
+      post "/users" spec {
+        name "register_user"
+        parameters {
+          department 'string'
+        }
+        body form {
+          firstname 'string'
+          lastname 'string'
+        }
+      }
+    }
+
+    when: "dsl is parsed"
+    gen.handle project
+    def text = new File("$output/test/api/TheService.java").text
+
+    then: "result interface should not contain invalid imports"
+    !text.contains("import post_users_body_POST;")
   }
 
   def "should write generic data body"() {
