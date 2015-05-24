@@ -2,9 +2,10 @@ package com.stanfy.helium.internal.model.tests
 
 import com.stanfy.helium.model.Checkable
 import com.stanfy.helium.model.tests.BehaviourSuite
+import com.stanfy.helium.utils.DslUtils
 
+import static com.stanfy.helium.internal.model.tests.Util.errorStack
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED
-import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PASSED
 
 final class BehaviourDescription implements Checkable {
 
@@ -13,23 +14,19 @@ final class BehaviourDescription implements Checkable {
 
   @Override
   BehaviourSuite check() {
-    StringBuilder description = new StringBuilder()
-    BehaviourSuite suite = new BehaviourSuite(name: name)
+    final  BehaviourSuite suite
     try {
-      action()
-      suite.result = PASSED
+      CheckBuilder builder = new CheckBuilder()
+      DslUtils.runWithProxy(builder, action, builder.itArgument())
+      suite = new CheckGroup(builder.makeChecks()).run(name)
     } catch (Throwable e) {
-      suite.result = FAILED
-      description.append("Unexpected error\n").append(errorStack(e))
+      suite = new BehaviourSuite(
+          name: name,
+          result: FAILED,
+          description: errorStack(e)
+      )
     }
-    suite.description = description.toString()
     return suite
-  }
-
-  private static String errorStack(final Throwable e) {
-    StringWriter out = new StringWriter()
-    e.printStackTrace(new PrintWriter(out))
-    return out.toString()
   }
 
 }

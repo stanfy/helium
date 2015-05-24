@@ -7,15 +7,13 @@ import org.joda.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED;
-import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PASSED;
-import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PENDING;
+import static com.stanfy.helium.model.tests.BehaviourCheck.Result.*;
 
 public final class CheckGroup {
 
-  private final List<BehaviourDescription> children;
+  private final List<? extends CheckableItem> children;
 
-  public CheckGroup(final List<BehaviourDescription> children) {
+  public CheckGroup(final List<? extends CheckableItem> children) {
     this.children = children;
   }
 
@@ -26,8 +24,8 @@ public final class CheckGroup {
     Duration resultDuration = Duration.ZERO;
     BehaviourCheck.Result resultType = PASSED;
     ArrayList<BehaviourCheck> childResults = new ArrayList<BehaviourCheck>(children.size());
-    for (BehaviourDescription d: children) {
-      BehaviourSuite check = d.check();
+    for (CheckableItem c: children) {
+      BehaviourCheck check = c.check();
       childResults.add(check);
       resultDuration = resultDuration.plus(check.getTime());
       switch (check.getResult()) {

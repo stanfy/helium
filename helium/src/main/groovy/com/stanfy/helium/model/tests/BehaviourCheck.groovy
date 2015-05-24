@@ -8,9 +8,9 @@ import org.joda.time.Duration
  */
 class BehaviourCheck extends Descriptionable {
 
-  Result result
+  Result result = Result.PENDING
 
-  Duration time
+  Duration time = Duration.ZERO
 
   /** Specification check result. */
   enum Result {

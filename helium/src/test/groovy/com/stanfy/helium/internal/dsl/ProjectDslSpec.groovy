@@ -17,6 +17,7 @@ import spock.lang.Specification
 
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PASSED
+import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PENDING
 
 /**
  * Spec for DSL entry point.
@@ -635,25 +636,32 @@ class ProjectDslSpec extends Specification {
     then:
     results.time >= Duration.ZERO
     results.result == FAILED
-    results.children[0].result == PASSED
+    results.children[0].result == PENDING
     results.children[1].result == FAILED
   }
 
   def "project can be checked"() {
     when:
+    int counter = 0
     dsl.describe "b1" spec {
-        assert 1 == 1
+      before { counter++ }
+      it "should be cool", { 1 == 1 }
+      it "should be great", { 2 == 2 }
+      after { counter++ }
     }
     dsl.describe "b2" spec {
       assert 1 == 0
     }
     def results = dsl.check()
+    println results.children[0].description
 
     then:
     results.time >= Duration.ZERO
     results.result == FAILED
     results.children[0].result == PASSED
     results.children[1].result == FAILED
+    results.children[1].description.contains("1 == 0")
+    counter == 4
   }
 
   //region form request content type
