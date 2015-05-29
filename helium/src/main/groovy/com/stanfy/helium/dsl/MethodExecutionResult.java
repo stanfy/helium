@@ -1,4 +1,4 @@
-package com.stanfy.helium.dsl.scenario;
+package com.stanfy.helium.dsl;
 
 import java.io.IOException;
 import java.util.List;

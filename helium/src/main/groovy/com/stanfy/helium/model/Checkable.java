@@ -1,5 +1,6 @@
 package com.stanfy.helium.model;
 
+import com.stanfy.helium.internal.MethodsExecutor;
 import com.stanfy.helium.internal.model.tests.CheckableItem;
 import com.stanfy.helium.model.tests.BehaviourSuite;
 
@@ -9,6 +10,7 @@ import com.stanfy.helium.model.tests.BehaviourSuite;
  */
 public interface Checkable extends CheckableItem {
 
-  BehaviourSuite check();
+  @SuppressWarnings("unchecked")
+  BehaviourSuite check(MethodsExecutor executor);
 
 }

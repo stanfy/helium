@@ -1,5 +1,8 @@
 package com.stanfy.helium.dsl.scenario
 
+import com.stanfy.helium.dsl.MethodExecutionResult
+import com.stanfy.helium.internal.MethodsExecutor
+import com.stanfy.helium.internal.ServiceMethodRequestValues
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.entities.ByteArrayEntity
 import com.stanfy.helium.model.DataType
@@ -399,7 +402,7 @@ class ScenarioDelegateSpec extends Specification {
   }
 
   /** Executor instance. */
-  private static class Executor implements ScenarioExecutor {
+  private static class Executor implements MethodsExecutor {
 
     /** List of executed methods. */
     List<ServiceMethod> executedMethods = []

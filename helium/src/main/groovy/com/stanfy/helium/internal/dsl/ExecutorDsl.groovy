@@ -1,8 +1,8 @@
 package com.stanfy.helium.internal.dsl
 
-import com.stanfy.helium.dsl.scenario.MethodExecutionResult
-import com.stanfy.helium.dsl.scenario.ScenarioExecutor
-import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues
+import com.stanfy.helium.dsl.MethodExecutionResult
+import com.stanfy.helium.internal.MethodsExecutor
+import com.stanfy.helium.internal.ServiceMethodRequestValues
 import com.stanfy.helium.entities.ByteArrayEntity
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.entities.TypedEntityValueBuilder
@@ -36,13 +36,13 @@ class ExecutorDsl {
   final Service service
 
   /** Executor. */
-  final ScenarioExecutor executor
+  final MethodsExecutor executor
 
   /** Intermediate results collection. */
   @PackageScope
   final LinkedList<MethodExecutionResult> intermediateResults = new LinkedList<>()
 
-  public ExecutorDsl(final Service service, final ScenarioExecutor executor) {
+  public ExecutorDsl(final Service service, final MethodsExecutor executor) {
     this.service = service
     this.executor = executor
   }

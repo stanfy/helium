@@ -1,5 +1,6 @@
 package com.stanfy.helium.internal.dsl
 
+import com.stanfy.helium.internal.MethodsExecutor
 import com.stanfy.helium.handler.ScriptExtender
 import com.stanfy.helium.internal.model.tests.BehaviorDescriptionContainer
 import com.stanfy.helium.internal.model.tests.BehaviourDescription
@@ -156,8 +157,8 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
   }
 
   @Override
-  BehaviourSuite check() {
-    return new CheckGroup(behaviourDescriptions).run("Project checks")
+  BehaviourSuite check(final MethodsExecutor executor) {
+    return new CheckGroup(behaviourDescriptions, executor).run("Project checks")
   }
 
   // -------- DSL methods --------
@@ -203,7 +204,7 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
   }
 
   BehaviourDescriptionBuilder describe(final String name) {
-    return new BehaviourDescriptionBuilder(name, this)
+    return new BehaviourDescriptionBuilder(name, this, this)
   }
 
 }

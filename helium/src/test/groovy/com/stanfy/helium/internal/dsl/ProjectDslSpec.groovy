@@ -11,13 +11,11 @@ import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
-import com.stanfy.helium.model.tests.BehaviourCheck
+import com.stanfy.helium.model.tests.BehaviourSuite
 import org.joda.time.Duration
 import spock.lang.Specification
 
-import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED
-import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PASSED
-import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PENDING
+import static com.stanfy.helium.model.tests.BehaviourCheck.Result.*
 
 /**
  * Spec for DSL entry point.
@@ -631,7 +629,7 @@ class ProjectDslSpec extends Specification {
         assert 1 == 0
       }
     }
-    def results = dsl.serviceByName("test").check()
+    def results = dsl.serviceByName("test").check(null)
 
     then:
     results.time >= Duration.ZERO
@@ -644,16 +642,15 @@ class ProjectDslSpec extends Specification {
     when:
     int counter = 0
     dsl.describe "b1" spec {
-      before { counter++ }
+      beforeEach { counter++ }
       it "should be cool", { 1 == 1 }
       it "should be great", { 2 == 2 }
-      after { counter++ }
+      afterEach { counter++ }
     }
     dsl.describe "b2" spec {
       assert 1 == 0
     }
-    def results = dsl.check()
-    println results.children[0].description
+    def results = dsl.check(null)
 
     then:
     results.time >= Duration.ZERO
@@ -662,6 +659,29 @@ class ProjectDslSpec extends Specification {
     results.children[1].result == FAILED
     results.children[1].description.contains("1 == 0")
     counter == 4
+  }
+
+  def "pending project checks"() {
+    when:
+    int counter = 0
+    dsl.describe "b1" spec {
+      beforeEach { counter++ }
+      it "should be cool and pass", { 1 == 1 }
+      xit "should ignore this failure", { 2 == 3 }
+      xit "has no implementation"
+      it "is still ignored"
+      afterEach { counter++ }
+    }
+    def results = dsl.check(null)
+
+    then:
+    (results.children[0] as BehaviourSuite).children[0]?.result == PASSED
+    (results.children[0] as BehaviourSuite).children[1]?.result == PENDING
+    (results.children[0] as BehaviourSuite).children[2]?.result == PENDING
+    (results.children[0] as BehaviourSuite).children[3]?.result == PENDING
+    results.result == PENDING
+    results.children[0].result == PENDING
+    counter == 2
   }
 
   //region form request content type

@@ -1,11 +1,12 @@
 package com.stanfy.helium.internal.model.tests
 
-import com.stanfy.helium.dsl.scenario.ScenarioExecutor
+import com.stanfy.helium.internal.MethodsExecutor
 import com.stanfy.helium.internal.dsl.ExecutorDsl
+import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Checkable
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.tests.BehaviourCheck
-import com.stanfy.helium.utils.DslUtils
+import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.joda.time.Duration
 
@@ -19,9 +20,18 @@ class CheckBuilder { //extends ExecutorDsl {
   private final ArrayList<Closure<Void>> before = new ArrayList<>()
   private final ArrayList<Closure<Void>> after = new ArrayList<>()
 
-//  CheckBuilder(Service service, ScenarioExecutor executor) {
-//    super(service, executor)
-//  }
+  private final ProjectDsl project
+  private final Service service
+  private final MethodsExecutor executor
+
+  public CheckBuilder(final ProjectDsl project, final Service service, final MethodsExecutor executor) {
+    if (project == null) {
+      throw new IllegalArgumentException("Null project")
+    }
+    this.project = project
+    this.service = service
+    this.executor = executor
+  }
 
   /**
    * Example:
@@ -46,24 +56,22 @@ class CheckBuilder { //extends ExecutorDsl {
       }
       return res
     }
-    checks.add(runner as CheckRunner)
+    checks.add(new CheckRunner(run: runner))
   }
 
   /**
    * For nested spec.
    */
   public void describe(String name, Closure<Void> spec) {
-    BehaviourDescription desc = new BehaviourDescription(name: name, action: spec)
-    checks.add({
-      return desc.check()
-    } as CheckRunner)
+    BehaviourDescription desc = new BehaviourDescription(name: name, action: spec, project: project)
+    checks.add new CheckRunner(run: { desc.check(executor) })
   }
 
-  public void before(Closure<Void> action) {
+  public void beforeEach(Closure<Void> action) {
     before.add action
   }
 
-  public void after(Closure<Void> action) {
+  public void afterEach(Closure<Void> action) {
     after.add action
   }
 
@@ -80,10 +88,7 @@ class CheckBuilder { //extends ExecutorDsl {
    * xit("x should be not zero")
    */
   public void xit(String name) {
-    def runner = {
-      return new BehaviourCheck(name: name)
-    }
-    checks.add(runner)
+    checks.add new CheckRunner(run: {new BehaviourCheck(name: name)}, skipped: true)
   }
 
   public void it(String name) {
@@ -102,14 +107,19 @@ class CheckBuilder { //extends ExecutorDsl {
     xdescribe(name)
   }
 
+  @CompileStatic
   @PackageScope List<Checkable> makeChecks() {
     return checks.collect { runner ->
       return {
         try {
-          before.each { runWithExecutor(it) }
-          return runner.run()
+          if (!runner.skipped) {
+            before.each { runWithExecutor(it) }
+          }
+          return runWithExecutor(runner.run)
         } finally {
-          after.each { runWithExecutor(it) }
+          if (!runner.skipped) {
+            after.each { runWithExecutor(it) }
+          }
         }
       } as Checkable
     }
@@ -131,8 +141,28 @@ class CheckBuilder { //extends ExecutorDsl {
     return action()
   }
 
-  private interface CheckRunner {
-    BehaviourCheck run()
+  public ExecutorDsl getService() {
+    if (service != null) {
+      return serviceDsl(service)
+    }
+    throw new IllegalStateException("There is no bound service")
+  }
+
+  public ExecutorDsl service(final String name) {
+    Service s = project.serviceByName(name)
+    if (s != null) {
+      return serviceDsl(s)
+    }
+    throw new IllegalArgumentException("Service $name does not exist")
+  }
+
+  private ExecutorDsl serviceDsl(final Service service) {
+    return new ExecutorDsl(service, executor)
+  }
+
+  private static class CheckRunner {
+    Closure<BehaviourCheck> run
+    boolean skipped
   }
 
 }

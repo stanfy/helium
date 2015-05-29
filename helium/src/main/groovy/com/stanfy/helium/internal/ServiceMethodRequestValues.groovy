@@ -1,4 +1,4 @@
-package com.stanfy.helium.dsl.scenario
+package com.stanfy.helium.internal
 
 import com.stanfy.helium.entities.TypedEntity
 import groovy.transform.CompileStatic

@@ -1,5 +1,6 @@
 package com.stanfy.helium.internal.model.tests;
 
+import com.stanfy.helium.internal.MethodsExecutor;
 import com.stanfy.helium.model.tests.BehaviourCheck;
 import com.stanfy.helium.model.tests.BehaviourSuite;
 import org.joda.time.Duration;
@@ -12,9 +13,11 @@ import static com.stanfy.helium.model.tests.BehaviourCheck.Result.*;
 public final class CheckGroup {
 
   private final List<? extends CheckableItem> children;
+  private final MethodsExecutor executor;
 
-  public CheckGroup(final List<? extends CheckableItem> children) {
+  public CheckGroup(final List<? extends CheckableItem> children, final MethodsExecutor executor) {
     this.children = children;
+    this.executor = executor;
   }
 
   public BehaviourSuite run(final String name) {
@@ -25,7 +28,7 @@ public final class CheckGroup {
     BehaviourCheck.Result resultType = PASSED;
     ArrayList<BehaviourCheck> childResults = new ArrayList<BehaviourCheck>(children.size());
     for (CheckableItem c: children) {
-      BehaviourCheck check = c.check();
+      BehaviourCheck check = c.check(executor);
       childResults.add(check);
       resultDuration = resultDuration.plus(check.getTime());
       switch (check.getResult()) {

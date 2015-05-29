@@ -1,12 +1,14 @@
-package com.stanfy.helium.dsl.scenario;
+package com.stanfy.helium.internal;
 
+import com.stanfy.helium.dsl.MethodExecutionResult;
+import com.stanfy.helium.internal.ServiceMethodRequestValues;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 
 /**
- * Executor for some scenario.
+ * Requests executor.
  */
-public interface ScenarioExecutor {
+public interface MethodsExecutor {
 
   MethodExecutionResult performMethod(Service service, ServiceMethod method, ServiceMethodRequestValues request);
 

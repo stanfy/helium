@@ -1,5 +1,6 @@
 package com.stanfy.helium.model
 
+import com.stanfy.helium.internal.MethodsExecutor
 import com.stanfy.helium.model.tests.MethodTestInfo
 import com.stanfy.helium.model.tests.ServiceTestInfo
 import com.stanfy.helium.model.tests.BehaviourSuite
@@ -52,7 +53,7 @@ class Service extends Descriptionable implements StructureUnit, Checkable {
   }
 
   @Override
-  BehaviourSuite check() {
+  BehaviourSuite check(final MethodsExecutor executor) {
     return BehaviourSuite.EMPTY
   }
 

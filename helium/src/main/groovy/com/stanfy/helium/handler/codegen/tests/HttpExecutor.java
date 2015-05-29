@@ -5,8 +5,8 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
-import com.stanfy.helium.dsl.scenario.ServiceMethodRequestValues;
+import com.stanfy.helium.internal.MethodsExecutor;
+import com.stanfy.helium.internal.ServiceMethodRequestValues;
 import com.stanfy.helium.handler.codegen.tests.body.BuilderFactory;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Service;
@@ -23,7 +23,7 @@ import java.util.Map;
 /**
  * Implements ScenarioExecutor using HTTP client.
  */
-public class HttpExecutor implements ScenarioExecutor {
+public class HttpExecutor implements MethodsExecutor {
 
   /** Default encoding. */
   private static final String DEFAULT_ENCODING = "UTF-8";

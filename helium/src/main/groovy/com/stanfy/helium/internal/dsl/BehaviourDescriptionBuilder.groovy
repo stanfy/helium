@@ -12,14 +12,16 @@ class BehaviourDescriptionBuilder {
 
   private final String name
   private final BehaviorDescriptionContainer target
+  private final ProjectDsl project
 
-  BehaviourDescriptionBuilder(final String name, final BehaviorDescriptionContainer target) {
+  BehaviourDescriptionBuilder(final String name, final BehaviorDescriptionContainer target, final ProjectDsl project) {
     this.name = name
     this.target = target
+    this.project = project
   }
 
   void spec(Closure<Void> action) {
-    target.addBehaviourDescription(new BehaviourDescription(name: name, action: action))
+    target.addBehaviourDescription(new BehaviourDescription(name: name, action: action, project: project))
   }
 
 }

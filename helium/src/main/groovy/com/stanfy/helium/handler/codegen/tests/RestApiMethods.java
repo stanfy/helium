@@ -3,7 +3,7 @@ package com.stanfy.helium.handler.codegen.tests;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Response;
 import com.stanfy.helium.Helium;
-import com.stanfy.helium.dsl.scenario.ScenarioExecutor;
+import com.stanfy.helium.internal.MethodsExecutor;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.TypeResolver;
 import com.stanfy.helium.utils.AssertionUtils;
@@ -74,7 +74,7 @@ public abstract class RestApiMethods {
     return getClass().getPackage().getName().replaceAll("\\.", "/") + "/" + TEST_SPEC_NAME;
   }
 
-  protected ScenarioExecutor createExecutor() {
+  protected MethodsExecutor createExecutor() {
     return new HttpExecutor(types, client);
   }
 

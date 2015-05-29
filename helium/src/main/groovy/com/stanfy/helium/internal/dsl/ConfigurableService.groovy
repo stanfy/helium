@@ -73,7 +73,7 @@ class ConfigurableService extends ConfigurableProxy<CheckableService> {
 
   @CompileStatic
   BehaviourDescriptionBuilder describe(final String name) {
-    return new BehaviourDescriptionBuilder(name, getCore())
+    return new BehaviourDescriptionBuilder(name, getCore(), getProject())
   }
 
 }
