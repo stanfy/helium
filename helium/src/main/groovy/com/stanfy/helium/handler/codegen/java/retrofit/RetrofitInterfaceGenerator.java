@@ -86,18 +86,25 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
       imported = ((FormType) type).getBase();
     }
     String javaType = getOptions().getJavaTypeName(imported, sequence, writer);
-    if (!type.isPrimitive() && getOptions().getEntitiesPackage() != null) {
-      javaType = getOptions().getEntitiesPackage() + "." + javaType;
+    String entitiesPackage = getOptions().getEntitiesPackage();
+    if (!type.isPrimitive() && entitiesPackage != null && !entitiesPackage.equals(getOptions().getPackageName())) {
+      javaType = entitiesPackage + "." + javaType;
     }
     return writer.compressType(javaType);
   }
 
   private void addImport(final Set<String> imports, final Type type, final JavaWriter writer) {
-    String name = resolveJavaTypeName(type, writer);
-    if (type instanceof Sequence && getOptions().getSequenceCollectionName() != null) {
-      imports.add(getOptions().getSequenceCollectionName());
+    Type importedType = type;
+    if (importedType instanceof Sequence) {
+      if (getOptions().getSequenceCollectionName() != null) {
+        imports.add(getOptions().getSequenceCollectionName());
+      }
+      importedType = ((Sequence) importedType).getItemsType();
     }
-    imports.add(name);
+    String name = resolveJavaTypeName(importedType, writer);
+    if (name.contains(".")) {
+      imports.add(name);
+    }
   }
 
   private static String getTransformedPath(final ServiceMethod m) {
@@ -113,18 +120,14 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
 
       HashSet<String> imports = new HashSet<String>();
       for (ServiceMethod m : service.getMethods()) {
-        if (options.getEntitiesPackage() != null) {
-          if (m.getResponse() != null) {
-            addImport(imports, m.getResponse(), writer);
-          }
-        }
-        if (m.getResponse() == null) {
+        if (m.getResponse() != null) {
+          addImport(imports, m.getResponse(), writer);
+        } else {
           imports.add("retrofit.client.Response");
         }
 
         if (m.getBody() != null) {
           processImportsForBody(imports, writer, m);
-
         }
       }
       if (options.isUseRxObservables()) {
