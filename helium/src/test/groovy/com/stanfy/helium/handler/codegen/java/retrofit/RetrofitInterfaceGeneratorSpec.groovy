@@ -22,6 +22,7 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     project.type 'int32' spec { }
     project.type 'AMessage' message { }
     project.type 'BMessage' message { }
+    project.type 'BList' sequence 'BMessage'
     project.service {
       name "A"
       location "http://www.stanfy.com"
@@ -45,6 +46,9 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
         response 'BMessage'
       }
 
+      get "/list" spec {
+        response 'BList'
+      }
     }
     project.service {
       name "B"
@@ -69,7 +73,7 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     text.contains("String DEFAULT_URL = \"http://www.stanfy.com\"")
   }
 
-  def "should emit imports"() {
+  def "should emit entity imports"() {
     when:
     options.entitiesPackage = "another"
     gen.handle(project)
@@ -78,6 +82,35 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     then:
     text.contains("import another.AMessage;")
     text.contains("import another.BMessage;")
+    text.contains("import retrofit.client.Response;")
+  }
+
+  def "should not emit same package entity imports"() {
+    when:
+    options.packageName = "my.pckg"
+    options.entitiesPackage = "my.pckg"
+    gen.handle(project)
+    def text = new File("$output/my/pckg/A.java").text
+
+    then:
+    !text.contains(".AMessage;")
+    !text.contains(".BMessage;")
+    !text.contains("include BMessage;")
+    !text.contains("include AMessage;")
+    text.contains("import retrofit.client.Response;")
+  }
+
+  def "should not emit entity imports if package is not specified"() {
+    when:
+    options.packageName = "my.pckg"
+    gen.handle(project)
+    def text = new File("$output/my/pckg/A.java").text
+
+    then:
+    !text.contains(".AMessage;")
+    !text.contains(".BMessage;")
+    !text.contains("import AMessage;")
+    !text.contains("import BMessage;")
     text.contains("import retrofit.client.Response;")
   }
 
