@@ -5,7 +5,7 @@ buildscript {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
   }
   dependencies {
-    classpath 'com.stanfy.helium:gradle-plugin:0.6.0-SNAPSHOT'
+    classpath 'com.stanfy.helium:gradle-plugin:0.6.0'
   }
 }
 
