@@ -6,7 +6,7 @@ buildscript {
   }
   dependencies {
     classpath 'com.android.tools.build:gradle:1.1.0'
-    classpath 'com.stanfy.helium:gradle-plugin:0.6.0'
+    classpath 'com.stanfy.helium:gradle-plugin:0.6.1-SNAPSHOT'
   }
 }
 
