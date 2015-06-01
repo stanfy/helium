@@ -1,7 +1,6 @@
 package com.stanfy.helium.handler.codegen.tests.body;
 
 import com.stanfy.helium.handler.codegen.tests.RequestBodyBuilder;
-import com.stanfy.helium.internal.ServiceMethodRequestValues;
 import com.stanfy.helium.model.Type;
 
 import java.util.HashSet;
@@ -14,7 +13,7 @@ public final class BuilderFactory {
   /**
    * Set of builder that are used by
    * {@link com.stanfy.helium.handler.codegen.tests.HttpExecutor#performMethod(com.stanfy.helium.model.Service, com.stanfy.helium.model.ServiceMethod,
-   * ServiceMethodRequestValues)}.
+   * com.stanfy.helium.internal.ServiceMethodRequestValues)}.
    */
   private static HashSet<RequestBodyBuilder> sBuilders = new HashSet<RequestBodyBuilder>();
 
@@ -28,7 +27,7 @@ public final class BuilderFactory {
    * Registers {@link com.stanfy.helium.handler.codegen.tests.RequestBodyBuilder} that
    * are used in {@link com.stanfy.helium.handler.codegen.tests.HttpExecutor#performMethod(com.stanfy.helium.model.Service,
    *  com.stanfy.helium.model.ServiceMethod,
-   *  ServiceMethodRequestValues)}
+   *  com.stanfy.helium.internal.ServiceMethodRequestValues)}
    * @param builder new builder to register
    */
   static void register(final RequestBodyBuilder builder) {

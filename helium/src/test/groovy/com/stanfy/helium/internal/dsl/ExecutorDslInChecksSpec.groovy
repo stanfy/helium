@@ -5,6 +5,10 @@ package com.stanfy.helium.internal.dsl
  */
 class ExecutorDslInChecksSpec {
 
+  ProjectDsl project
 
+  def setup() {
+    project = new ProjectDsl()
+  }
 
 }
