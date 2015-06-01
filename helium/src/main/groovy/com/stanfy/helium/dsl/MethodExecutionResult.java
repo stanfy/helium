@@ -1,7 +1,6 @@
 package com.stanfy.helium.dsl;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -9,8 +8,9 @@ import java.util.Map;
  */
 public interface MethodExecutionResult {
 
-  List<AssertionError> getInteractionErrors();
-
+  /**
+   * @see com.stanfy.helium.entities.TypedEntity#value
+   */
   Object getBody() throws IOException;
 
   Map<String, String> getHttpHeaders();

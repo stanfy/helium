@@ -114,7 +114,6 @@ class HttpResponseWrapper implements MethodExecutionResult {
     }
   }
 
-  @Override
   public List<AssertionError> getInteractionErrors() {
     return errors;
   }

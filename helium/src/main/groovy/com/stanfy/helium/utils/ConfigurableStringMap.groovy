@@ -21,10 +21,7 @@ class ConfigurableStringMap extends ConfigurableMap<String> {
 
   @Override
   protected String resolveValue(final String key, final Object arg) {
-    if (!(arg instanceof String)) {
-      throw new IllegalArgumentException("Values of ${this.name} must be strings. Got: $arg of type ${arg.class} for $name")
-    }
-    String value = (String) arg
+    String value = arg as String
     if (!value) { throw new IllegalArgumentException("Values of ${this.name} cannot be empty") }
     return value
   }
