@@ -11,7 +11,9 @@ import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
+import com.stanfy.helium.model.tests.BehaviourCheck
 import com.stanfy.helium.model.tests.BehaviourSuite
+import com.stanfy.helium.model.tests.CheckListener
 import org.joda.time.Duration
 import spock.lang.Specification
 
@@ -619,6 +621,9 @@ class ProjectDslSpec extends Specification {
   }
 
   def "service can be checked"() {
+    given:
+    def listener = Mock(CheckListener)
+
     when:
     dsl.service {
       name "test"
@@ -629,16 +634,21 @@ class ProjectDslSpec extends Specification {
         assert 1 == 0
       }
     }
-    def results = dsl.serviceByName("test").check(null)
+    def results = dsl.serviceByName("test").check(null, listener)
 
     then:
     results.time >= Duration.ZERO
     results.result == FAILED
     results.children[0].result == PENDING
     results.children[1].result == FAILED
+    3 * listener.onSuiteStarted(_ as BehaviourSuite)
+    3 * listener.onSuiteDone(_ as BehaviourSuite)
   }
 
   def "project can be checked"() {
+    given:
+    def listener = Mock(CheckListener)
+
     when:
     int counter = 0
     dsl.describe "b1" spec {
@@ -650,7 +660,7 @@ class ProjectDslSpec extends Specification {
     dsl.describe "b2" spec {
       assert 1 == 0
     }
-    def results = dsl.check(null)
+    def results = dsl.check(null, listener)
 
     then:
     results.time >= Duration.ZERO
@@ -659,9 +669,16 @@ class ProjectDslSpec extends Specification {
     results.children[1].result == FAILED
     results.children[1].description.contains("1 == 0")
     counter == 4
+    3 * listener.onSuiteStarted(_ as BehaviourSuite)
+    3 * listener.onSuiteDone(_ as BehaviourSuite)
+    2 * listener.onCheckStarted(_ as BehaviourCheck)
+    2 * listener.onCheckDone(_ as BehaviourCheck)
   }
 
   def "pending project checks"() {
+    given:
+    def listener = Mock(CheckListener)
+
     when:
     int counter = 0
     dsl.describe "b1" spec {
@@ -670,9 +687,14 @@ class ProjectDslSpec extends Specification {
       xit "should ignore this failure", { 2 == 3 }
       xit "has no implementation"
       it "is still ignored"
+
+      describe "nested" spec {
+        it "also pending"
+      }
+
       afterEach { counter++ }
     }
-    def results = dsl.check(null)
+    def results = dsl.check(null, listener)
 
     then:
     (results.children[0] as BehaviourSuite).children[0]?.result == PASSED
@@ -681,7 +703,11 @@ class ProjectDslSpec extends Specification {
     (results.children[0] as BehaviourSuite).children[3]?.result == PENDING
     results.result == PENDING
     results.children[0].result == PENDING
-    counter == 2
+    counter == 4
+    5 * listener.onCheckStarted(_ as BehaviourCheck)
+    5 * listener.onCheckDone(_ as BehaviourCheck)
+    3 * listener.onSuiteStarted(_ as BehaviourSuite)
+    3 * listener.onSuiteDone(_ as BehaviourSuite)
   }
 
   //region form request content type

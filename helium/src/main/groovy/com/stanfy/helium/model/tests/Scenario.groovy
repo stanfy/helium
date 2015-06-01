@@ -5,6 +5,7 @@ import com.stanfy.helium.model.Descriptionable
 /**
  * Test scenario.
  */
+@Deprecated
 class Scenario extends Descriptionable {
 
   /** Before action. */

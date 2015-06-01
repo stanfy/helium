@@ -3,14 +3,15 @@ package com.stanfy.helium.internal.model.tests
 import com.stanfy.helium.internal.MethodsExecutor
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.tests.BehaviourSuite
+import com.stanfy.helium.model.tests.CheckListener
 
 final class CheckableService extends Service implements BehaviorDescriptionContainer {
 
   private final List<BehaviourDescription> behaviourDescriptions = new ArrayList<>()
 
   @Override
-  BehaviourSuite check(final MethodsExecutor executor) {
-    return new CheckGroup(behaviourDescriptions, executor).run("Checks of ${this.name}")
+  BehaviourSuite check(final MethodsExecutor executor, final CheckListener listener) {
+    return new CheckGroup(behaviourDescriptions, executor, listener).run("Checks of ${this.name}")
   }
 
   @Override
