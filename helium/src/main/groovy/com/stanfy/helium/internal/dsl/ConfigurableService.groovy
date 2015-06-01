@@ -2,6 +2,8 @@ package com.stanfy.helium.internal.dsl
 
 import com.stanfy.helium.dsl.scenario.ScenarioDelegate
 import com.stanfy.helium.dsl.scenario.ScenarioInvoker
+import com.stanfy.helium.internal.model.tests.BehaviourDescription
+import com.stanfy.helium.internal.model.tests.CheckBuilder
 import com.stanfy.helium.internal.model.tests.CheckableService
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
@@ -73,7 +75,8 @@ class ConfigurableService extends ConfigurableProxy<CheckableService> {
 
   @CompileStatic
   BehaviourDescriptionBuilder describe(final String name) {
-    return new BehaviourDescriptionBuilder(name, getCore(), getProject())
+    CheckBuilder builder = BehaviourDescription.currentBuilder()
+    return builder != null ? builder.describe(name) : new BehaviourDescriptionBuilder(name, getCore(), getProject())
   }
 
 }

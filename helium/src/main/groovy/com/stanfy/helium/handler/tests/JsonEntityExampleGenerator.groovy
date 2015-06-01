@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.tests
+package com.stanfy.helium.handler.tests
 
 import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes
 import com.stanfy.helium.model.Field
@@ -7,13 +7,11 @@ import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 import groovy.json.JsonBuilder
-import groovy.transform.PackageScope
 
 /**
  * Generates JSON object based on given type examples.
  * TODO: use entity builder + writer
  */
-@PackageScope
 class JsonEntityExampleGenerator {
 
   /** Types resolver. */

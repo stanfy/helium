@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.tests;
+package com.stanfy.helium.handler.tests;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;

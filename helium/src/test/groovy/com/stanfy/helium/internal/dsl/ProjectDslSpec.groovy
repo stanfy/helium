@@ -710,6 +710,55 @@ class ProjectDslSpec extends Specification {
     3 * listener.onSuiteDone(_ as BehaviourSuite)
   }
 
+  def "project behaviour can be nested in closure"() {
+    given:
+    def listener = Mock(CheckListener)
+    when:
+    dsl.describe "pb" spec {
+      5.times { n ->
+        describe "describe $n" spec {
+          3.times { k ->
+            it("should be $k") { }
+          }
+        }
+      }
+    }
+    dsl.service {
+      name "S"
+      describe "sb" spec {
+        5.times { n ->
+          describe "describe s $n" spec {
+            3.times { k ->
+              it("should be s $k") { }
+            }
+          }
+        }
+      }
+    }
+    def pResults = dsl.check(null, listener)
+    def sResults = dsl.serviceByName("S").check(null, listener)
+
+    then:
+    dsl.checksCount() == 1
+    (dsl.serviceByName("S") as CheckableService).checksCount() == 1
+
+    pResults.children.size() == 1
+    pResults.children[0].name == "pb"
+    def pb = pResults.children[0] as BehaviourSuite
+    pb.children.size() == 5
+    pb.children[3].name == "describe 3"
+    (pb.children[2] as BehaviourSuite).children.size() == 3
+    (pb.children[2] as BehaviourSuite).children[1].name == "should be 1"
+
+    sResults.children.size() == 1
+    sResults.children[0].name == "sb"
+    def sb = sResults.children[0] as BehaviourSuite
+    sb.children.size() == 5
+    sb.children[3].name == "describe s 3"
+    (sb.children[2] as BehaviourSuite).children.size() == 3
+    (sb.children[2] as BehaviourSuite).children[1].name == "should be s 1"
+  }
+
   //region form request content type
 
   def "can handle form body by name"() {

@@ -1,10 +1,10 @@
-package com.stanfy.helium.handler.codegen.tests.body
+package com.stanfy.helium.handler.tests.body
 
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.RequestBody
 import com.stanfy.helium.entities.TypedEntity
-import com.stanfy.helium.handler.codegen.tests.RequestBodyBuilder
-import com.stanfy.helium.handler.codegen.tests.Utils
+import com.stanfy.helium.handler.tests.RequestBodyBuilder
+import com.stanfy.helium.handler.tests.Utils
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 import groovy.transform.PackageScope

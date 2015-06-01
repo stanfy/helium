@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.tests
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.handler.tests.RestApiMethods
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.dsl.SpecExample
 import com.stanfy.helium.handler.Handler

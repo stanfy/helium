@@ -1,20 +1,21 @@
-package com.stanfy.helium.handler.codegen.tests.body
+package com.stanfy.helium.handler.tests.body
 
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.MultipartBuilder
 import com.squareup.okhttp.RequestBody
 import com.stanfy.helium.entities.ByteArrayEntity
 import com.stanfy.helium.entities.TypedEntity
-import com.stanfy.helium.handler.codegen.tests.RequestBodyBuilder
+import com.stanfy.helium.handler.tests.RequestBodyBuilder
 import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 import groovy.transform.PackageScope
 
-import static com.stanfy.helium.handler.codegen.tests.Utils.*
+import static com.stanfy.helium.handler.tests.Utils.bytesType
+import static com.stanfy.helium.handler.tests.Utils.writeEntityWithConverters
 
 /**
- * {@link com.stanfy.helium.handler.codegen.tests.RequestBodyBuilder} that builds multipart body.
+ * {@link RequestBodyBuilder} that builds multipart body.
  *
  * @author Nikolay Soroka (Stanfy - http://www.stanfy.com)
  */

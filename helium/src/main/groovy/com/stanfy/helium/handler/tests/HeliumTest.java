@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.tests;
+package com.stanfy.helium.handler.tests;
 
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Interceptor;
@@ -26,16 +26,20 @@ public final class HeliumTest {
   final HeliumTestLog log;
   final OkHttpClient httpClient;
 
-  HeliumTest(final HeliumTestLog log) {
+  public HeliumTest(final HeliumTestLog log) {
     this.log = log;
-    this.httpClient = httpClient();
+    this.httpClient = createHttpClient();
+  }
+
+  public OkHttpClient httpClient() {
+    return httpClient;
   }
 
   /**
    * Provides HTTP client used in tests.
    * The client has interceptors that store request/response body in memory allowing to read them multiple times.
    */
-  private OkHttpClient httpClient() {
+  private OkHttpClient createHttpClient() {
     OkHttpClient client = new OkHttpClient();
 
     // Add logging and memory-backed request/response body.

@@ -1,9 +1,9 @@
-package com.stanfy.helium.handler.codegen.tests;
+package com.stanfy.helium.handler.tests;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Response;
 import com.stanfy.helium.Helium;
-import com.stanfy.helium.handler.codegen.tests.HeliumTestLog.DefaultLogger;
+import com.stanfy.helium.handler.tests.HeliumTestLog.DefaultLogger;
 import com.stanfy.helium.internal.MethodsExecutor;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.TypeResolver;
@@ -28,7 +28,7 @@ public abstract class RestApiMethods {
   public static final String TEST_SPEC_NAME = "test.spec";
 
   /** HTTP client instance. */
-  private final OkHttpClient client = new HeliumTest(new DefaultLogger()).httpClient;
+  private final OkHttpClient client = new HeliumTest(new DefaultLogger()).httpClient();
 
   /** Types resolver from the specification project. */
   private TypeResolver types;

@@ -56,7 +56,7 @@ class CheckBuilder implements BehaviorDescriptionContainer {
         }
       } catch (Exception e) {
         res.result = FAILED
-        res.description = errorStack(e) // TODO Consider adding message only.
+        res.description = e.message
       } finally {
         res.time = Duration.millis(System.currentTimeMillis() - startTime)
         listener.onCheckDone(res)
@@ -75,6 +75,7 @@ class CheckBuilder implements BehaviorDescriptionContainer {
 
   @Override
   void addBehaviourDescription(final BehaviourDescription desc) {
+    desc.service = service
     checks.add new CheckRunner(run: { desc.check(executor, listener) })
   }
 

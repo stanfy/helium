@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.tests;
+package com.stanfy.helium.handler.tests;
 
 import com.stanfy.helium.entities.EntityWriter;
 import com.stanfy.helium.entities.TypedEntity;
