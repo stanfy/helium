@@ -1,7 +1,7 @@
 package com.stanfy.helium.entities.json
 
 import com.stanfy.helium.Helium
-import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.entities.TypedEntityValueBuilder
 import com.stanfy.helium.model.Field

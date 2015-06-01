@@ -1,5 +1,6 @@
 package com.stanfy.helium.dsl.scenario
 
+import com.stanfy.helium.dsl.MethodExecutionResult
 import com.stanfy.helium.model.tests.Scenario
 import com.stanfy.helium.utils.DslUtils
 import groovy.transform.CompileStatic
@@ -7,6 +8,7 @@ import groovy.transform.CompileStatic
 /**
  * Helper methods for invoking scenario.
  */
+@Deprecated
 class ScenarioInvoker {
 
   /** Current scenario delegate. */

@@ -7,6 +7,7 @@ import spock.lang.Specification
  * @author Olexandr Tereshchuk - "Stanfy"
  * @since 03.07.14
  */
+@Deprecated
 class ScenarioInvokerTest extends Specification {
 
   ScenarioDelegate scenarioDelegate = new ScenarioDelegate(null, null)

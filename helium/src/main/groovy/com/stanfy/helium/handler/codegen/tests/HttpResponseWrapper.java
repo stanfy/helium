@@ -4,7 +4,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Response;
-import com.stanfy.helium.dsl.scenario.MethodExecutionResult;
+import com.stanfy.helium.dsl.MethodExecutionResult;
 import com.stanfy.helium.entities.TypedEntity;
 import com.stanfy.helium.entities.json.JsonConvertersPool;
 import com.stanfy.helium.entities.json.JsonEntityReader;
@@ -114,7 +114,6 @@ class HttpResponseWrapper implements MethodExecutionResult {
     }
   }
 
-  @Override
   public List<AssertionError> getInteractionErrors() {
     return errors;
   }

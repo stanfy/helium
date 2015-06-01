@@ -1,6 +1,6 @@
 package com.stanfy.helium
 
-import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Note
 import com.stanfy.helium.model.Type

@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.java
 
-import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.handler.Handler
 import spock.lang.Specification
 

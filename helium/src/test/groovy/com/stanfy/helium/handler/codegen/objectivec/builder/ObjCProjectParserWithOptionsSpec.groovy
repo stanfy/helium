@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.builder
 
-import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.handler.codegen.objectivec.ObjCHeaderFile
 import com.stanfy.helium.handler.codegen.objectivec.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.ObjCProject

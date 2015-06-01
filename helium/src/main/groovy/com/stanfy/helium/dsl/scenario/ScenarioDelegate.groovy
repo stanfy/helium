@@ -1,8 +1,11 @@
 package com.stanfy.helium.dsl.scenario
 
+import com.stanfy.helium.dsl.MethodExecutionResult
 import com.stanfy.helium.entities.ByteArrayEntity
 import com.stanfy.helium.entities.TypedEntity
 import com.stanfy.helium.entities.TypedEntityValueBuilder
+import com.stanfy.helium.internal.MethodsExecutor
+import com.stanfy.helium.internal.ServiceMethodRequestValues
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
@@ -18,6 +21,7 @@ import static com.stanfy.helium.utils.DslUtils.runWithProxy
 /**
  * Scenario closure delegate.
  */
+@Deprecated
 class ScenarioDelegate {
 
   static {
@@ -33,7 +37,7 @@ class ScenarioDelegate {
   final Service service
 
   /** Executor. */
-  final ScenarioExecutor executor
+  final MethodsExecutor executor
 
   /** Variables scope. */
   // TODO: tests for scopes
@@ -47,7 +51,7 @@ class ScenarioDelegate {
   @PackageScope
   final LinkedList<Throwable> reportedProblems = new LinkedList<>()
 
-  public ScenarioDelegate(final Service service, final ScenarioExecutor executor) {
+  public ScenarioDelegate(final Service service, final MethodsExecutor executor) {
     this.service = service
     this.executor = executor
   }

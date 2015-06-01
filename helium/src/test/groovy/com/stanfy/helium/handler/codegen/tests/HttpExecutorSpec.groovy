@@ -3,7 +3,7 @@ package com.stanfy.helium.handler.codegen.tests
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.mockwebserver.MockResponse
 import com.squareup.okhttp.mockwebserver.MockWebServer
-import com.stanfy.helium.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.dsl.scenario.ScenarioDelegate
 import com.stanfy.helium.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.model.Service
