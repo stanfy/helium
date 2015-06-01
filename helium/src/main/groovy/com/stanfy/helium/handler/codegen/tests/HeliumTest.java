@@ -14,8 +14,6 @@ import okio.BufferedSource;
 import okio.ByteString;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -25,18 +23,19 @@ import java.nio.charset.Charset;
  */
 public final class HeliumTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(HeliumTest.class);
+  final HeliumTestLog log;
+  final OkHttpClient httpClient;
 
-  private HeliumTest() {
-    throw new UnsupportedOperationException("no instances");
+  HeliumTest(final HeliumTestLog log) {
+    this.log = log;
+    this.httpClient = httpClient();
   }
 
   /**
    * Provides HTTP client used in tests.
    * The client has interceptors that store request/response body in memory allowing to read them multiple times.
    */
-  public static OkHttpClient httpClient() {
-    // TODO: Use one client.
+  private OkHttpClient httpClient() {
     OkHttpClient client = new OkHttpClient();
 
     // Add logging and memory-backed request/response body.
@@ -44,7 +43,7 @@ public final class HeliumTest {
       @Override
       public Response intercept(final Chain chain) throws IOException {
         Request request = chain.request();
-        LOG.info("---> HTTP {} {}", request.method(), request.urlString());
+        log.write("---> HTTP %s %s", request.method(), request.urlString());
         logHeaders(request.headers());
         if (request.body() != null) {
           Buffer bodyBuffer = new Buffer();
@@ -54,7 +53,7 @@ public final class HeliumTest {
           final MediaType contentType = request.body().contentType();
 
           logBytes(body, contentType);
-          LOG.info("---> END HTTP ({} body)", body.size());
+          log.write("---> END HTTP (%d body)", body.size());
 
           // Substitute request instance.
           request = request.newBuilder()
@@ -82,7 +81,7 @@ public final class HeliumTest {
         Response response = chain.proceed(request);
         long time = System.currentTimeMillis() - start;
 
-        LOG.info("<--- HTTP {} {} ({}ms)", request.urlString(), response.code(), time);
+        log.write("<--- HTTP %s %d (%dms)", request.urlString(), response.code(), time);
         logHeaders(response.headers());
         BufferedSource source = response.body().source();
         try {
@@ -90,7 +89,7 @@ public final class HeliumTest {
           final MediaType contentType = response.body().contentType();
 
           logBytes(body, contentType);
-          LOG.info("<--- END HTTP ({} body)", body.size());
+          log.write("<--- END HTTP (%d body)", body.size());
 
           return response.newBuilder()
               .body(new ResponseBody() {
@@ -120,22 +119,22 @@ public final class HeliumTest {
     return client;
   }
 
-  private static void logHeaders(final Headers headers) {
+  private void logHeaders(final Headers headers) {
     int count = headers.size();
     if (count == 0) {
       return;
     }
     for (int i = 0; i < count; i++) {
-      LOG.info("{}: {}", headers.name(i), headers.value(i));
+      log.write("%s: %s", headers.name(i), headers.value(i));
     }
   }
 
-  private static void logBytes(final ByteString body, final MediaType contentType) {
+  private void logBytes(final ByteString body, final MediaType contentType) {
     Charset charset = contentType != null ? contentType.charset() : null;
     if (charset == null || charset.equals(Charset.forName("UTF-8"))) {
-      LOG.info(body.utf8());
+      log.write(body.utf8());
     } else {
-      LOG.info(new String(body.toByteArray(), charset));
+      log.write(new String(body.toByteArray(), charset));
     }
   }
 
