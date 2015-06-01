@@ -3,6 +3,7 @@ package com.stanfy.helium.model.tests
 /**
  * Service test information.
  */
+@Deprecated
 class ServiceTestInfo extends TestsInfo {
 
   /** List of test scenarios. */

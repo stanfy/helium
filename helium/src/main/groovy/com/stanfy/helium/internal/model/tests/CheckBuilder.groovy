@@ -1,11 +1,13 @@
 package com.stanfy.helium.internal.model.tests
 
 import com.stanfy.helium.internal.MethodsExecutor
+import com.stanfy.helium.internal.dsl.BehaviourDescriptionBuilder
 import com.stanfy.helium.internal.dsl.ExecutorDsl
 import com.stanfy.helium.internal.dsl.ProjectDsl
-import com.stanfy.helium.model.Checkable
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.tests.BehaviourCheck
+import com.stanfy.helium.model.tests.BehaviourSuite
+import com.stanfy.helium.model.tests.CheckListener
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.joda.time.Duration
@@ -14,7 +16,7 @@ import static com.stanfy.helium.internal.model.tests.Util.errorStack
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PASSED
 
-class CheckBuilder { //extends ExecutorDsl {
+class CheckBuilder implements BehaviorDescriptionContainer {
 
   private final ArrayList<CheckRunner> checks = new ArrayList<>()
   private final ArrayList<Closure<Void>> before = new ArrayList<>()
@@ -23,14 +25,16 @@ class CheckBuilder { //extends ExecutorDsl {
   private final ProjectDsl project
   private final Service service
   private final MethodsExecutor executor
+  private final CheckListener listener
 
-  public CheckBuilder(final ProjectDsl project, final Service service, final MethodsExecutor executor) {
+  public CheckBuilder(final ProjectDsl project, final Service service, final MethodsExecutor executor, final CheckListener listener) {
     if (project == null) {
       throw new IllegalArgumentException("Null project")
     }
     this.project = project
     this.service = service
     this.executor = executor
+    this.listener = listener
   }
 
   /**
@@ -40,19 +44,22 @@ class CheckBuilder { //extends ExecutorDsl {
    */
   public void it(String name, Closure<?> action) {
     def runner = {
-      BehaviourCheck res = new BehaviourCheck(name: name, result: FAILED)
+      BehaviourCheck res = new BehaviourCheck(name: name)
+      listener.onCheckStarted(res)
       long startTime = System.currentTimeMillis()
       try {
-        def checkResult = runWithExecutor(action)
+        def checkResult = runAction(action)
         if (checkResult instanceof Boolean) {
           res.result = (checkResult as Boolean) ? PASSED : FAILED
         } else {
           res.result = PASSED
         }
       } catch (Exception e) {
+        res.result = FAILED
         res.description = errorStack(e) // TODO Consider adding message only.
       } finally {
         res.time = Duration.millis(System.currentTimeMillis() - startTime)
+        listener.onCheckDone(res)
       }
       return res
     }
@@ -62,9 +69,13 @@ class CheckBuilder { //extends ExecutorDsl {
   /**
    * For nested spec.
    */
-  public void describe(String name, Closure<Void> spec) {
-    BehaviourDescription desc = new BehaviourDescription(name: name, action: spec, project: project)
-    checks.add new CheckRunner(run: { desc.check(executor) })
+  public BehaviourDescriptionBuilder describe(String name) {
+    return new BehaviourDescriptionBuilder(name, this, project)
+  }
+
+  @Override
+  void addBehaviourDescription(final BehaviourDescription desc) {
+    checks.add new CheckRunner(run: { desc.check(executor, listener) })
   }
 
   public void beforeEach(Closure<Void> action) {
@@ -83,45 +94,57 @@ class CheckBuilder { //extends ExecutorDsl {
     xit(name)
   }
 
+  private void ignored(String name, boolean suite) {
+    def runner = { suite ? BehaviourSuite(name: name) : new BehaviourCheck(name: name) }
+    checks.add new CheckRunner(run: runner, skipped: true)
+  }
+
   /**
    * Example:
    * xit("x should be not zero")
    */
   public void xit(String name) {
-    checks.add new CheckRunner(run: {new BehaviourCheck(name: name)}, skipped: true)
+    ignored(name, false)
   }
 
   public void it(String name) {
     xit(name)
   }
 
-  public void xdescribe(String name) {
-    xit(name)
-  }
-
-  public void xdescribe(String name, Closure<Void> ignored) {
-    xdescribe(name)
-  }
-
-  public void describe(String name) {
-    xdescribe(name)
+  public def xdescribe(String name) {
+    ignored(name, true)
+    return [spec : { /* Nothing. */ }]
   }
 
   @CompileStatic
-  @PackageScope List<Checkable> makeChecks() {
+  @PackageScope List<CheckableItem> makeChecks() {
     return checks.collect { runner ->
-      return {
+      return { executor, listener ->
         try {
           if (!runner.skipped) {
-            before.each { runWithExecutor(it) }
+            before.each { runAction(it) }
           }
-          return runWithExecutor(runner.run)
+          BehaviourCheck res = (BehaviourCheck) runAction(runner.run)
+          if (runner.skipped) {
+            notifyListener(res)
+          }
+          return res
         } finally {
           if (!runner.skipped) {
-            after.each { runWithExecutor(it) }
+            after.each { runAction(it) }
           }
         }
-      } as Checkable
+      } as CheckableItem
+    }
+  }
+
+  private void notifyListener(BehaviourCheck res) {
+    if (res instanceof BehaviourSuite) {
+      listener.onSuiteStarted(res)
+      listener.onSuiteDone(res)
+    } else {
+      listener.onCheckStarted(res)
+      listener.onCheckDone(res)
     }
   }
 
@@ -135,9 +158,7 @@ class CheckBuilder { //extends ExecutorDsl {
     }
   }
 
-  private def runWithExecutor(Closure<?> action) {
-//    ExecutorDsl executor = new ExecutorDsl(this.service, this.executor)
-//    return DslUtils.runWithProxy(executor, action)
+  private static def runAction(Closure<?> action) {
     return action()
   }
 

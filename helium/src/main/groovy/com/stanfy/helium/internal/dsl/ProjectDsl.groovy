@@ -8,6 +8,7 @@ import com.stanfy.helium.internal.model.tests.CheckGroup
 import com.stanfy.helium.internal.model.tests.CheckableService
 import com.stanfy.helium.model.*
 import com.stanfy.helium.model.tests.BehaviourSuite
+import com.stanfy.helium.model.tests.CheckListener
 import groovy.transform.PackageScope
 
 import java.nio.charset.Charset
@@ -157,8 +158,8 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
   }
 
   @Override
-  BehaviourSuite check(final MethodsExecutor executor) {
-    return new CheckGroup(behaviourDescriptions, executor).run("Project checks")
+  BehaviourSuite check(final MethodsExecutor executor, final CheckListener listener) {
+    return new CheckGroup(behaviourDescriptions, executor, listener).run("Project checks")
   }
 
   // -------- DSL methods --------
