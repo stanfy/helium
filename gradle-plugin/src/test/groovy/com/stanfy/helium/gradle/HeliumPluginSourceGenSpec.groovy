@@ -279,6 +279,9 @@ class HeliumPluginSourceGenSpec extends Specification {
     project.helium.sourceGen('s1').jsonSchema.options != null
     project.helium.sourceGen('Testspec1').jsonSchema instanceof GenerateJsonSchemaTask
     project.helium.sourceGen('Testspec2').jsonSchema instanceof GenerateJsonSchemaTask
+    project.tasks.generateJsonSchema != null
+    project.tasks.generateJsonSchemaTestspec1 != null
+    project.tasks.generateJsonSchemaTestspec2 != null
   }
 
   def "source generation should support json scheme generator"() {
@@ -303,6 +306,29 @@ class HeliumPluginSourceGenSpec extends Specification {
     task != null
     task.output == project.file("../jjj")
     task.options != null
+  }
+
+  def "multiple spec trigger tasks should be created for source gen"() {
+    given:
+    project.helium {
+      File outputDir = project.file("../jjj")
+
+      specification(generateSpec("s2"))
+      sourceGen {
+        retrofit { }
+        entities { }
+      }
+    }
+
+    createTasks()
+
+    expect:
+    project.tasks["generateRetrofitS1"]
+    project.tasks["generateRetrofitS2"]
+    project.tasks["generateRetrofit"]
+    project.tasks["generateEntitiesS1"]
+    project.tasks["generateEntitiesS2"]
+    project.tasks["generateEntities"]
   }
 
 }

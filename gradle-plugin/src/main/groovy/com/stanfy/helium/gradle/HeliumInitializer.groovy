@@ -1,9 +1,12 @@
 package com.stanfy.helium.gradle
 
+import com.google.common.collect.ArrayListMultimap
+import com.google.common.collect.Multimap
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import com.stanfy.helium.gradle.tasks.GenerateApiTestsTask
 import groovy.transform.PackageScope
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.tasks.GradleBuild
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -38,6 +41,8 @@ final class HeliumInitializer {
       runApiTest.group = GROUP
     }
 
+    Multimap<String, Task> sourceGenTasksMap = ArrayListMultimap.create()
+
     config.specifications.each {
       // runApiTest
       def runTask = createApiTestTasks(it, classpath)
@@ -48,7 +53,17 @@ final class HeliumInitializer {
       // source generation
       SourceGenDslDelegate sourceGen = userConfig.getSourceGenFor(it)
       if (sourceGen != null) {
-        sourceGen.createTasks(userConfig, it, classpath, BASE_OUT_PATH, config)
+        sourceGen.createTasks(userConfig, it, classpath, BASE_OUT_PATH, config).each { key, value ->
+          sourceGenTasksMap.put key, value
+        }
+      }
+    }
+
+    sourceGenTasksMap.keys().each {
+      String taskName = "generate${it.capitalize()}"
+      if (!userConfig.project.tasks.findByName(taskName)) {
+        def task = userConfig.project.tasks.create(taskName)
+        task.dependsOn sourceGenTasksMap.get(it)
       }
     }
   }
