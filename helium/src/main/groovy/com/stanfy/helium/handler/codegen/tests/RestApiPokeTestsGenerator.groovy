@@ -2,6 +2,8 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.HeliumWriter
+import com.stanfy.helium.handler.tests.JsonEntityExampleGenerator
+import com.stanfy.helium.handler.tests.NoExamplesProvidedException
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
@@ -11,8 +13,9 @@ import groovy.transform.CompileStatic
 
 import javax.lang.model.element.Modifier
 
-import static com.stanfy.helium.handler.codegen.tests.Utils.findUnresolvedHeaders
 import static com.stanfy.helium.handler.codegen.tests.Utils.preparePokeTestInfo
+import static com.stanfy.helium.handler.tests.Utils.findUnresolvedHeaders
+import static com.stanfy.helium.handler.tests.Utils.resolveEncoding
 
 /**
  * REST API tests generator.
@@ -65,7 +68,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
       return 0
     }
 
-    String encoding = HttpExecutor.resolveEncoding(service, method)
+    String encoding = resolveEncoding(service, method)
 
     MethodGenerator gen = new MethodGenerator(out: out, service: service, method: method, testInfo: testInfo)
 

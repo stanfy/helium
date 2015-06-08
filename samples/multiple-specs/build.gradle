@@ -37,5 +37,6 @@ task clean(type: Delete) {
 
 task check()
 afterEvaluate {
-  check.dependsOn 'genApiTestsTwitter1', 'genApiTestsTwitter2', 'generateEntitiesTwitter1', 'runApiTestsTwitter2'
+  check.dependsOn 'genApiTestsTwitter1', 'genApiTestsTwitter2', 'generateEntitiesTwitter1', 'runApiTestsTwitter2',
+      'checkApiBehaviourTwitter2'
 }

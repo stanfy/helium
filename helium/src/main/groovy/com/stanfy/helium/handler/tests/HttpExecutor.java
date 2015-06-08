@@ -1,13 +1,13 @@
-package com.stanfy.helium.handler.codegen.tests;
+package com.stanfy.helium.handler.tests;
 
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
+import com.stanfy.helium.handler.tests.body.BuilderFactory;
 import com.stanfy.helium.internal.MethodsExecutor;
 import com.stanfy.helium.internal.ServiceMethodRequestValues;
-import com.stanfy.helium.handler.codegen.tests.body.BuilderFactory;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
@@ -20,13 +20,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.stanfy.helium.handler.tests.Utils.resolveEncoding;
+
 /**
  * Implements ScenarioExecutor using HTTP client.
  */
 public class HttpExecutor implements MethodsExecutor {
-
-  /** Default encoding. */
-  private static final String DEFAULT_ENCODING = "UTF-8";
 
   /** Type resolver. */
   private final TypeResolver types;
@@ -37,17 +36,6 @@ public class HttpExecutor implements MethodsExecutor {
   HttpExecutor(final TypeResolver resolver, final OkHttpClient client) {
     this.types = resolver;
     this.client = client;
-  }
-
-  static String resolveEncoding(final Service service, final ServiceMethod method) {
-    String encoding = method.getEncoding();
-    if (encoding == null) {
-      encoding = service.getEncoding();
-    }
-    if (encoding == null) {
-      encoding = DEFAULT_ENCODING;
-    }
-    return encoding;
   }
 
   private static Headers prepareHeaders(final MethodTestInfo testInfo, final ServiceMethod method,

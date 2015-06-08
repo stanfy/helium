@@ -14,10 +14,17 @@ import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED
 
 final class BehaviourDescription implements Checkable {
 
+  private static final CheckBuilderStack BUILDERS = new CheckBuilderStack();
+
   ProjectDsl project
   Service service
   String name
   Closure<Void> action
+
+  static CheckBuilder currentBuilder() {
+    def stack = BUILDERS.get()
+    return stack.empty ? null : stack.last()
+  }
 
   @Override
   BehaviourSuite check(final MethodsExecutor executor, final CheckListener listener) {
@@ -26,6 +33,7 @@ final class BehaviourDescription implements Checkable {
     BehaviourSuite res = null
     try {
       CheckBuilder builder = new CheckBuilder(project, service, executor, listener)
+      BUILDERS.get().add(builder)
       DslUtils.runWithProxy(builder, action, builder.itArgument())
       return (res = new CheckGroup(builder.makeChecks(), executor, listener).run(name))
     } catch (Throwable e) {
@@ -35,9 +43,17 @@ final class BehaviourDescription implements Checkable {
       return res
     } finally {
       res.setTime(Duration.millis(System.currentTimeMillis() - startTime))
+      def stack = BUILDERS.get()
+      stack.remove(stack.size() - 1)
       if (errored) {
         listener.onSuiteDone(res)
       }
+    }
+  }
+
+  private static class CheckBuilderStack extends ThreadLocal<ArrayList<CheckBuilder>> {
+    protected ArrayList<CheckBuilder> initialValue() {
+      return new ArrayList<CheckBuilder>(5);
     }
   }
 

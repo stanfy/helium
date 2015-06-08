@@ -1,9 +1,9 @@
-package com.stanfy.helium.handler.codegen.tests;
+package com.stanfy.helium.handler.tests;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-interface HeliumTestLog {
+public interface HeliumTestLog {
 
   void write(String fmt, Object... args);
 

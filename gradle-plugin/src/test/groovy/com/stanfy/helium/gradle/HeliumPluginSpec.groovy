@@ -63,6 +63,8 @@ class HeliumPluginSpec extends Specification {
     project.tasks.findByName('runApiTestsS1') != null
     project.tasks.findByName('genApiTestsS2') != null
     project.tasks.findByName('runApiTestsS2') != null
+    project.tasks.findByName('checkApiBehaviourS1') != null
+    project.tasks.findByName('checkApiBehaviourS2') != null
   }
 
   def "passes variables to tasks"() {

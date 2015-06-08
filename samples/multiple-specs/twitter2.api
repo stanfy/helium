@@ -21,6 +21,35 @@ service {
     response 'SearchResponse'
   }
 
+  describe "tweets search" spec {
+    ['#androiddev', 'stanfy'].each { query ->
+
+      describe "searching $query" spec {
+        def searchResponse = service.get "search/tweets.json" with {
+          parameters {
+            q query
+            count 2
+            include_entities false
+          }
+        }
+
+        it "should succeed", {
+          searchResponse.mustSucceed()
+        }
+
+        it("should return 2 results") { searchResponse.body.statuses?.size() == 2 }
+        it("should contain user information") {
+          searchResponse.body.statuses?.every { it.user != null }
+        }
+
+        it("should return 200 status code") {
+          assert searchResponse.statusCode == 200 : "Got status $searchResponse.statusCode"
+        }
+      }
+
+    }
+  }
+
   tests {
     httpHeaders {
       'Authorization' "Bearer AAAAAAAAAAAAAAAAAAAAAJ3PVgAAAAAA%2BPcuieQDv6hOE9SyWM2AOWjIloc%3DU2fCluURs5dnG5A3WaaVhNgiBjXKkV5lynvoquGu7ediOCRWiF"

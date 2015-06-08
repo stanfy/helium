@@ -4,6 +4,7 @@ import com.google.common.collect.ArrayListMultimap
 import com.google.common.collect.Multimap
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import com.stanfy.helium.gradle.tasks.GenerateApiTestsTask
+import com.stanfy.helium.gradle.tasks.RunBehaviourSpecsTask
 import groovy.transform.PackageScope
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -22,6 +23,7 @@ final class HeliumInitializer {
 
   private static final String BASE_OUT_PATH = "generated/source/helium"
   private static final String TESTS_OUT_PATH = "$BASE_OUT_PATH/api-tests"
+  private static final String SPEC_CHECK_OUT_PATH = "reports/helium"
 
   /** Config object. */
   private final HeliumExtension config
@@ -46,8 +48,10 @@ final class HeliumInitializer {
     config.specifications.each {
       // runApiTest
       def runTask = createApiTestTasks(it, classpath)
+      def specCheckTask = runBehaviourSpecsTask(it, classpath)
       if (runApiTest) {
         runApiTest.dependsOn runTask
+        runApiTest.dependsOn specCheckTask
       }
 
       // source generation
@@ -99,6 +103,19 @@ final class HeliumInitializer {
     LOG.debug "runApiTests task: dir=$runTestsTask.dir"
 
     return runTestsTask
+  }
+
+  private RunBehaviourSpecsTask runBehaviourSpecsTask(final File specification, final URL[] classpath) {
+    Project project = userConfig.project
+    def specName = specName(specification)
+    def res = project.tasks.create(taskName("checkApiBehaviour", specification, config), RunBehaviourSpecsTask)
+    res.configure {
+      group = GROUP
+      description = "Run API behaviour specifications for '$specName'"
+    }
+    def outputDir = new File(project.buildDir, SPEC_CHECK_OUT_PATH.concat("/$specName"))
+    configureHeliumTask(res, specification, outputDir, classpath, userConfig)
+    return res
   }
 
   public static void configureHeliumTask(BaseHeliumTask task, File specification, File output,
