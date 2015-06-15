@@ -45,6 +45,10 @@ service {
         it("should return 200 status code") {
           assert searchResponse.statusCode == 200 : "Got status $searchResponse.statusCode"
         }
+
+        it "pending spec"
+        xit "another pending spec", { false }
+
       }
 
     }

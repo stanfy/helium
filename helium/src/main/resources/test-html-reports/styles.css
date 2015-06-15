@@ -1,0 +1,98 @@
+/*
+  Colors and font taken from Jasmine.
+ */
+
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+.helium-html-report {
+  background-color: #eee;
+  padding: 8px;
+  margin: 0px;
+  font-size: 0.75em;
+  font-family: Monaco, "Lucida Console", monospace;
+  line-height: 0.75em;
+  color: #333;
+}
+
+.helium-html-report a {
+  text-decoration: none;
+}
+.helium-html-report a.expandable:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.helium-html-report .summary {
+  margin-top: 0.5em;
+  margin-bottom: 1.5em;
+}
+
+.helium-html-report ul.results {
+  list-style-type: none;
+  margin-left: 14px;
+  padding-top: 0;
+  padding-left: 0;
+}
+.helium-html-report .results li.failed a { color: #ca3a11; }
+.helium-html-report .results li.pending a { color: #ba9d37; }
+.helium-html-report .results li.passed a { color: #007069; }
+
+.helium-html-report .results .details { display: none; }
+.helium-html-report .results li.failed .details { display: block; }
+
+.helium-html-report p, .helium-html-report h1, .helium-html-report li a {
+  margin: 0px;
+  line-height: 1.2em;
+}
+.helium-html-report h2 {
+  line-height: 1em;
+  font-size: 1.2em;
+}
+
+.helium-html-report .symbol-summary {
+  padding-left: 9px;
+  padding-right: 9px;
+}
+
+.helium-html-report .symbol-summary { overflow: hidden; *zoom: 1; margin: 14px 0; }
+.helium-html-report .symbol-summary li { display: inline-block; height: 8px; width: 14px; font-size: 16px; }
+.helium-html-report .symbol-summary li.passed { font-size: 14px; }
+.helium-html-report .symbol-summary li.passed:before { color: #007069; content: "\02022"; }
+.helium-html-report .symbol-summary li.failed { line-height: 9px; }
+.helium-html-report .symbol-summary li.failed:before { color: #ca3a11; content: "\d7"; font-weight: bold; margin-left: -1px; }
+.helium-html-report .symbol-summary li.disabled { font-size: 14px; }
+.helium-html-report .symbol-summary li.disabled:before { color: #bababa; content: "\02022"; }
+.helium-html-report .symbol-summary li.pending { line-height: 17px; }
+.helium-html-report .symbol-summary li.pending:before { color: #ba9d37; content: "*"; }
+.helium-html-report .symbol-summary li.empty { font-size: 14px; }
+.helium-html-report .symbol-summary li.empty:before { color: #ba9d37; content: "\02022"; }
+.helium-html-report .bar { line-height: 28px; font-size: 14px; display: block; color: #eee; }
+.helium-html-report .bar.failed { background-color: #ca3a11; }
+.helium-html-report .bar.passed { background-color: #007069; }
+.helium-html-report .bar.skipped { background-color: #bababa; }
+.helium-html-report .bar.errored { background-color: #ca3a11; }
+.helium-html-report .bar.menu { background-color: #fff; color: #aaa; }
+.helium-html-report .bar.menu a { color: #333; }
+.helium-html-report .bar a { color: white; }
+.helium-html-report.spec-list .bar.menu.failure-list, .helium-html-report.spec-list .results .failures { display: none; }
+.helium-html-report.failure-list .bar.menu.spec-list, .helium-html-report.failure-list .summary { display: none; }
+.helium-html-report .running-alert { background-color: #666; }
+.helium-html-report .results { margin-top: 14px; }
+.helium-html-report.showDetails .summaryMenuItem { font-weight: normal; text-decoration: inherit; }
+.helium-html-report.showDetails .summaryMenuItem:hover { text-decoration: underline; }
+.helium-html-report.showDetails .detailsMenuItem { font-weight: bold; text-decoration: underline; }
+.helium-html-report.showDetails .summary { display: none; }
+.helium-html-report.showDetails #details { display: block; }
+.helium-html-report .summaryMenuItem { font-weight: bold; text-decoration: underline; }
+.helium-html-report .description + .suite { margin-top: 0; }
+.helium-html-report .suite { margin-top: 14px; }
+.helium-html-report .suite a { color: #333; }
+.helium-html-report .failures .spec-detail { margin-bottom: 28px; }
+.helium-html-report .failures .spec-detail .description { background-color: #ca3a11; }
+.helium-html-report .failures .spec-detail .description a { color: white; }
+.helium-html-report .result-message { padding-top: 14px; color: #333; white-space: pre; }
+.helium-html-report .result-message span.result { display: block; }
+.helium-html-report .stack-trace { margin: 5px 0 0 0; max-height: 224px; overflow: auto; line-height: 18px; color: #666; border: 1px solid #ddd; background: white; white-space: pre; }

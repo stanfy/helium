@@ -5,10 +5,9 @@ package com.stanfy.helium.handler.tests;
  */
 public final class BehaviorSpecRunnerOptions {
 
-  static final String DIR_JUNIT = "junit";
-
   boolean logToStdOut;
   boolean junitReport = true;
+  boolean htmlReport = true;
 
   public BehaviorSpecRunnerOptions logToStdOut(final boolean value) {
     this.logToStdOut = value;
@@ -17,6 +16,11 @@ public final class BehaviorSpecRunnerOptions {
 
   public BehaviorSpecRunnerOptions junitReport(final boolean value) {
     this.junitReport = value;
+    return this;
+  }
+
+  public BehaviorSpecRunnerOptions htmlReport(final boolean value) {
+    this.htmlReport = value;
     return this;
   }
 
