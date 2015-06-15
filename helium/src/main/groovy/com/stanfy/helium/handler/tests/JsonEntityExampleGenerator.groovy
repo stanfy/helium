@@ -58,6 +58,9 @@ class JsonEntityExampleGenerator {
 
   private static def cast(final Object example, final Type type) {
     Class<?> groovyClass = JavaPrimitiveTypes.javaClass(type)
+    if (groovyClass == null) {
+      return example;
+    }
     return example.asType(groovyClass)
   }
 
