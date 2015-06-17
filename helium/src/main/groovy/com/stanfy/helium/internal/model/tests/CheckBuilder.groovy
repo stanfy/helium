@@ -52,7 +52,7 @@ class CheckBuilder implements BehaviorDescriptionContainer {
         } else {
           res.result = PASSED
         }
-      } catch (Exception e) {
+      } catch (Throwable e) {
         res.result = FAILED
         res.description = e.message
       } finally {
