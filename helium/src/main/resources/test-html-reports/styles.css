@@ -41,7 +41,6 @@ body {
 .helium-html-report .results li.passed a { color: #007069; }
 
 .helium-html-report .results .details { display: none; }
-.helium-html-report .results li.failed .details { display: block; }
 
 .helium-html-report p, .helium-html-report h1, .helium-html-report li a {
   margin: 0px;
