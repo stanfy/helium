@@ -13,7 +13,7 @@ public class ClassAncestors {
   }
 
   public static ClassAncestors extending(final String name) {
-    return extending(name, (String[]) null);
+    return extending(name, new String[]{});
   }
 
   public static ClassAncestors implementing(final String... interfaces) {
