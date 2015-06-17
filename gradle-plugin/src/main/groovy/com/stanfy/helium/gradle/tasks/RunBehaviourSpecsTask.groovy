@@ -19,8 +19,12 @@ class RunBehaviourSpecsTask extends BaseHeliumTask<BehaviorSpecRunnerOptions> {
 
     def runner = new BehaviorSpecRunner(options, output)
     helium.processBy(runner)
-    if (!ignoreFailures && !runner.passed()) {
-      throw new GradleException("Behaviour checks failed! See report at $output/html/index.html")
+    if (!runner.passed()) {
+      def message = "Behaviour checks failed! See report at $output/html/index.html"
+      if (!ignoreFailures) {
+        throw new GradleException(message)
+      }
+      project.logger.warn(message)
     }
   }
 
