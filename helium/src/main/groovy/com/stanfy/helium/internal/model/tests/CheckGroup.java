@@ -53,7 +53,11 @@ public final class CheckGroup {
       res.setResult(resultType);
     } catch (Throwable e) {
       res.setResult(FAILED);
-      res.setDescription(Util.errorStack(e));
+      if (e instanceof AssertionError) {
+        res.setDescription(e.getMessage());
+      } else {
+        res.setDescription(Util.errorStack(e));
+      }
     } finally {
       res.setChildren(childResults);
       res.setTime(resultDuration);
