@@ -5,7 +5,6 @@ import com.stanfy.helium.model.tests.BehaviourSuite;
 import com.stanfy.helium.model.tests.CheckListener;
 import okio.BufferedSink;
 
-import java.io.Closeable;
 import java.io.IOException;
 
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED;
@@ -13,7 +12,7 @@ import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED;
 /**
  * Logs spec execution progress and HTTP details.
  */
-final class BehaviourLogger implements HeliumTestLog, CheckListener, Closeable {
+final class BehaviourLogger implements HeliumTestLog, CheckListener {
 
   private static final String INDENT = "  ";
 
@@ -96,8 +95,4 @@ final class BehaviourLogger implements HeliumTestLog, CheckListener, Closeable {
     write("\n");
   }
 
-  @Override
-  public void close() throws IOException {
-    output.close();
-  }
 }

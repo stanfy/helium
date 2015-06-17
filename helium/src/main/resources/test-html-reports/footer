@@ -1,0 +1,13 @@
+  <script>
+    function detailsExpand() {
+      var details = this.parentNode.getElementsByClassName('details')[0];
+      var val = details.style.display;
+      details.style.display = val == 'block' ? 'none' : 'block';
+    }
+    var expandable = document.getElementsByClassName('expandable');
+    for (var i = 0; i < expandable.length; i++) {
+      expandable[i].onclick = detailsExpand;
+    }
+  </script>
+  </body>
+</html>

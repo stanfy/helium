@@ -1,0 +1,12 @@
+<section class="helium-html-report">
+  <h1>{{name}}</h1>
+  <div class="summary">{{totalCount}} checks, {{failuresCount}} failures</div>
+  {{#failedChildren}}
+  <h2>Failures</h2>
+  <div class="results failed">
+    {{> children.html}}
+  </div>
+  {{/failedChildren}}
+  <h2>All results</h2>
+  {{> children.html}}
+</section>

@@ -11,50 +11,35 @@ import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PENDING
 
 @PackageScope
-class JUnitReportGenerator implements HeliumTestLog, CheckListener {
+class JUnitReportGenerator extends HeliumTestLogMemory implements CheckListener {
 
-  private final Map<BehaviourSuite, StringBuilder> outputs = [:]
-  private ArrayList<StringBuilder> currentOut = new ArrayList<>(3)
+  private ArrayList<BehaviourCheck> currentSuite = new ArrayList<>(3)
   private int depth
+
+  @Override
+  protected BehaviourCheck currentCheck() {
+    return currentSuite.empty ? null : currentSuite.last()
+  }
 
   @Override
   void onSuiteStarted(final BehaviourSuite suite) {
     if (depth < 2) {
-      currentOut << new StringBuilder()
-      outputs[suite] = currentOut.last()
+      currentSuite << suite
     }
     depth++
   }
 
   @Override
-  void onCheckStarted(final BehaviourCheck check) {
-
-  }
-
+  void onCheckStarted(final BehaviourCheck check) { }
   @Override
-  void onCheckDone(final BehaviourCheck check) {
-
-  }
+  void onCheckDone(final BehaviourCheck check) { }
 
   @Override
   void onSuiteDone(final BehaviourSuite suite) {
     depth--
     if (depth < 2) {
-      currentOut.pop()
+      currentSuite.pop()
     }
-  }
-
-  @Override
-  void write(String fmt, Object... args) {
-    if (currentOut.empty) {
-      throw new IllegalStateException("No current output (d=$depth, oc=${outputs.size()})")
-    }
-    if (args.length > 0) {
-      currentOut.last() << String.format(fmt, args)
-    } else {
-      currentOut.last() << fmt
-    }
-    currentOut.last() << "\n"
   }
 
   private void collectDescription(final StringBuilder out, final BehaviourCheck check) {
@@ -84,14 +69,14 @@ class JUnitReportGenerator implements HeliumTestLog, CheckListener {
             collectDescription(desc, check)
             failure(desc.toString())
           }
-          def out = outputs.get(check)
+          def out = log(check)
           if (out) {
             "system-out"(out.toString())
           }
         }
       }
 
-      def out = outputs.get(suite)
+      def out = log(suite)
       if (out) {
         "system-out"(out.toString())
       }

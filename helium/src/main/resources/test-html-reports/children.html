@@ -1,0 +1,18 @@
+<ul class="results">
+  {{#children}}
+  <li class="{{status}}">
+    <a {{#hasDetails}}class="expandable"{{/hasDetails}}>{{title}}</a>
+    {{#hasDetails}}
+    <div class="details">
+      <pre>{{details}}</pre>
+    </div>
+    {{/hasDetails}}
+    {{#failed}}
+    <div class="failure">
+      <pre>{{description}}</pre>
+    </div>
+    {{/failed}}
+    {{> children.html}}
+  </li>
+  {{/children}}
+</ul>
