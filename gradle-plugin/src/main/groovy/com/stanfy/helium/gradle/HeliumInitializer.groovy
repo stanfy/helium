@@ -112,6 +112,7 @@ final class HeliumInitializer {
     res.configure {
       group = GROUP
       description = "Run API behaviour specifications for '$specName'"
+      ignoreFailures = config.ignoreFailures
     }
     def outputDir = new File(project.buildDir, SPEC_CHECK_OUT_PATH.concat("/$specName"))
     configureHeliumTask(res, specification, outputDir, classpath, userConfig)

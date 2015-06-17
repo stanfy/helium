@@ -9,6 +9,8 @@ import org.gradle.api.GradleException
  */
 class RunBehaviourSpecsTask extends BaseHeliumTask<BehaviorSpecRunnerOptions> {
 
+  boolean ignoreFailures
+
   @Override
   protected void doIt() {
     if (options == null) {
@@ -17,7 +19,7 @@ class RunBehaviourSpecsTask extends BaseHeliumTask<BehaviorSpecRunnerOptions> {
 
     def runner = new BehaviorSpecRunner(options, output)
     helium.processBy(runner)
-    if (!runner.passed()) {
+    if (!ignoreFailures && !runner.passed()) {
       throw new GradleException("Behaviour checks failed! See report at $output/html/index.html")
     }
   }
