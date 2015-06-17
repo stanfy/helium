@@ -12,7 +12,6 @@ import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.joda.time.Duration
 
-import static com.stanfy.helium.internal.model.tests.Util.errorStack
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PASSED
 
@@ -43,9 +42,8 @@ class CheckBuilder implements BehaviorDescriptionContainer {
    * it("message should not be null", { assert msg != nil })
    */
   public void it(String name, Closure<?> action) {
+    BehaviourCheck res = new BehaviourCheck(name: name)
     def runner = {
-      BehaviourCheck res = new BehaviourCheck(name: name)
-      listener.onCheckStarted(res)
       long startTime = System.currentTimeMillis()
       try {
         def checkResult = runAction(action)
@@ -59,11 +57,10 @@ class CheckBuilder implements BehaviorDescriptionContainer {
         res.description = e.message
       } finally {
         res.time = Duration.millis(System.currentTimeMillis() - startTime)
-        listener.onCheckDone(res)
       }
       return res
     }
-    checks.add(new CheckRunner(run: runner))
+    checks.add(new CheckRunner(check: res, run: runner))
   }
 
   /**
@@ -120,26 +117,28 @@ class CheckBuilder implements BehaviorDescriptionContainer {
   @CompileStatic
   @PackageScope List<CheckableItem> makeChecks() {
     return checks.collect { runner ->
-      return { executor, listener ->
+      return { executor, CheckListener listener ->
         try {
           if (!runner.skipped) {
+            if (runner.check) { listener.onCheckStarted(runner.check) }
             before.each { runAction(it) }
           }
           BehaviourCheck res = (BehaviourCheck) runAction(runner.run)
           if (runner.skipped) {
-            notifyListener(res)
+            notifySkippedListener(res)
           }
           return res
         } finally {
           if (!runner.skipped) {
             after.each { runAction(it) }
+            if (runner.check) { listener.onCheckDone(runner.check) }
           }
         }
       } as CheckableItem
     }
   }
 
-  private void notifyListener(BehaviourCheck res) {
+  private void notifySkippedListener(BehaviourCheck res) {
     if (res instanceof BehaviourSuite) {
       listener.onSuiteStarted(res)
       listener.onSuiteDone(res)
@@ -183,6 +182,7 @@ class CheckBuilder implements BehaviorDescriptionContainer {
   }
 
   private static class CheckRunner {
+    BehaviourCheck check
     Closure<BehaviourCheck> run
     boolean skipped
   }

@@ -80,7 +80,7 @@ final class HtmlRenderer extends HeliumTestLogMemory implements CheckListener {
     return children;
   }
 
-  public void renderTo(final BehaviourSuite suite, final BufferedSink sink) throws IOException {
+  SuiteScope buildScope(final BehaviourSuite suite) {
     SuiteScope scope = new SuiteScope(suite);
     String rootLog = log(suite);
     if (rootLog.length() > 0) {
@@ -89,7 +89,11 @@ final class HtmlRenderer extends HeliumTestLogMemory implements CheckListener {
         scope.failedChildren.get("children").get(0).prependDetails(rootLog);
       }
     }
-    mustache(SUITE, scope, sink);
+    return scope;
+  }
+
+  public void renderTo(final BehaviourSuite suite, final BufferedSink sink) throws IOException {
+    mustache(SUITE, buildScope(suite), sink);
   }
 
   @Override
