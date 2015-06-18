@@ -172,9 +172,9 @@ final class MessageToJavaClass {
 
           if (options.getSequenceCollectionName() == null && field.isSequence()) {
             if (field.getType().isPrimitive()) {
-              toString = "Arrays.toString(" + options.getName(field) + ")";
+              toString = "Arrays.toString(" + options.getSafeFieldName(field) + ")";
             } else {
-              toString = "Arrays.deepToString(" + options.getName(field) + ")";
+              toString = "Arrays.deepToString(" + options.getSafeFieldName(field) + ")";
             }
           } else {
             toString = fieldName + ".toString()";
