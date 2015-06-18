@@ -100,7 +100,7 @@ public class HttpExecutor implements MethodsExecutor {
       Response response = client.newCall(httpRequest).execute();
       return new HttpResponseWrapper(types, response, method.getResponse());
     } catch (IOException e) {
-      throw new AssertionError("Cannot execute HTTP request", e);
+      throw new AssertionError("Cannot execute HTTP request: " + e.getMessage(), e);
     }
   }
 

@@ -12,6 +12,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.joda.time.Duration
 
+import static com.stanfy.helium.internal.model.tests.Util.errorStack
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.FAILED
 import static com.stanfy.helium.model.tests.BehaviourCheck.Result.PASSED
 
@@ -25,6 +26,8 @@ class CheckBuilder implements BehaviorDescriptionContainer {
   private final Service service
   private final MethodsExecutor executor
   private final CheckListener listener
+
+  private final Map<Service, ExecutorDsl> executorDsls = [:]
 
   public CheckBuilder(final ProjectDsl project, final Service service, final MethodsExecutor executor, final CheckListener listener) {
     if (project == null) {
@@ -54,7 +57,7 @@ class CheckBuilder implements BehaviorDescriptionContainer {
         }
       } catch (Throwable e) {
         res.result = FAILED
-        res.description = e.message
+        res.description = e instanceof AssertionError ? e.message : errorStack(e)
       } finally {
         res.time = Duration.millis(System.currentTimeMillis() - startTime)
       }
@@ -118,12 +121,13 @@ class CheckBuilder implements BehaviorDescriptionContainer {
   @PackageScope List<CheckableItem> makeChecks() {
     return checks.collect { runner ->
       return { executor, CheckListener listener ->
+        BehaviourCheck res = null
         try {
           if (!runner.skipped) {
             if (runner.check) { listener.onCheckStarted(runner.check) }
             before.each { runAction(it) }
           }
-          BehaviourCheck res = (BehaviourCheck) runAction(runner.run)
+          res = (BehaviourCheck) runAction(runner.run)
           if (runner.skipped) {
             notifySkippedListener(res)
           }
@@ -131,6 +135,9 @@ class CheckBuilder implements BehaviorDescriptionContainer {
         } finally {
           if (!runner.skipped) {
             after.each { runAction(it) }
+            if (res) {
+              analyzeIntermediateErrors(res)
+            }
             if (runner.check) { listener.onCheckDone(runner.check) }
           }
         }
@@ -138,7 +145,21 @@ class CheckBuilder implements BehaviorDescriptionContainer {
     }
   }
 
-  private void notifySkippedListener(BehaviourCheck res) {
+  private void analyzeIntermediateErrors(final BehaviourCheck res) {
+    def allErrors = executorDsls.values().intermediateResults.flatten()
+        .collect { it.interactionErrors ? it.interactionErrors : [] }.flatten()
+    if (!allErrors.empty) {
+      StringBuilder errorsMessage = new StringBuilder()
+      allErrors.each {
+        errorsMessage << it.message
+        errorsMessage << "-------------\n"
+      }
+      res.result = FAILED
+      res.description = (res.description ? res.description + "\n" : "") + errorsMessage
+    }
+  }
+
+  private void notifySkippedListener(final BehaviourCheck res) {
     if (res instanceof BehaviourSuite) {
       listener.onSuiteStarted(res)
       listener.onSuiteDone(res)
@@ -178,7 +199,13 @@ class CheckBuilder implements BehaviorDescriptionContainer {
   }
 
   private ExecutorDsl serviceDsl(final Service service) {
-    return new ExecutorDsl(service, executor)
+    ExecutorDsl dsl = executorDsls[service]
+    if (dsl) {
+      return dsl
+    }
+    dsl = new ExecutorDsl(service, executor)
+    executorDsls[service] = dsl
+    return dsl
   }
 
   private static class CheckRunner {

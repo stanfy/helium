@@ -207,6 +207,10 @@ class ExecutorDslSpec extends Specification {
       return willSucceed
     }
 
+    @Override
+    List<AssertionError> getInteractionErrors() {
+      return []
+    }
   }
 
 }
