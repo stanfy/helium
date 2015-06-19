@@ -58,6 +58,18 @@ class JsonEntityWriterSpec extends Specification {
     out.toString() == '{"f1":2,"f2":[true,false]}'
   }
 
+  def "skips sequences when they are null"() {
+    when:
+    Message m = new Message(name: 'Msg')
+    m.addField(new Field(name: 'f1', type: new Type(name: 'int32')))
+    m.addField(new Field(name: 'f2', type: new Type(name: 'bool'), sequence: true))
+    m.addField(new Field(name: 'f3', type: new Type(name: 'bool'), sequence: true))
+    writer.write(new TypedEntity(m, [f1: 2, f2: [true, false]]))
+
+    then:
+    out.toString() == '{"f1":2,"f2":[true,false]}'
+  }
+
   def "can write some complex messages"() {
     given:
     dsl.type 'SomeMessage' message {

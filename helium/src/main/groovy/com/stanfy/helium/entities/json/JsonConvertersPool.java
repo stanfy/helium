@@ -97,6 +97,9 @@ public class JsonConvertersPool extends ConvertersPool<JsonReader, JsonWriter> {
     @Override
     protected void writeSequenceField(final String name, final Type itemType, final List<?> value, final JsonWriter out)
         throws IOException {
+      if (value == null) {
+        return;
+      }
       out.name(name);
       Sequence seq = new Sequence();
       seq.setItemsType(itemType);
