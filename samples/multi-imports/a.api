@@ -1,0 +1,3 @@
+note "a"
+include "$baseDir/c.api"
+type 'A' message { }

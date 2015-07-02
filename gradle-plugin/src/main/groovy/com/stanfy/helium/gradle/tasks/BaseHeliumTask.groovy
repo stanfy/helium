@@ -41,8 +41,7 @@ abstract class BaseHeliumTask<T> extends DefaultTask {
         }
       }
       if (input) {
-        File baseDir = input.parentFile
-        heliumInstance.set "baseDir", baseDir from input
+        heliumInstance.from input
       }
     }
     return heliumInstance
