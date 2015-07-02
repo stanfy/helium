@@ -943,7 +943,7 @@ class ProjectDslSpec extends Specification {
         name 'Upload parts'
 
         post '/upload' spec {
-          body multipart("${type.name().toLowerCase()}")
+          body multipart("${type.representation()}")
         }
       }
       Type body = dsl.serviceByName("Upload parts").methods.first().body
@@ -982,7 +982,7 @@ class ProjectDslSpec extends Specification {
 
       post '/upload' spec {
         response 'int32'
-        body multipart("form") {
+        body multipart("form-data") {
           title  'string'
           number 'int32'
           person 'Person'
@@ -995,7 +995,7 @@ class ProjectDslSpec extends Specification {
 
     then:
     body instanceof MultipartType
-    (body as MultipartType).subtype == MultipartType.Subtype.FORM
+    (body as MultipartType).subtype == MultipartType.Subtype.FORM_DATA
     (body as MultipartType).parts["title"].name == 'string'
     (body as MultipartType).parts["number"].name == 'int32'
     (body as MultipartType).parts["person"] instanceof Message

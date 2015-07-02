@@ -24,8 +24,8 @@ task prepare(type: Copy) {
   into 'build/generated/source/helium/api-tests/httpbin/'
 }
 
-task check()
+task check(dependsOn: prepare)
 afterEvaluate {
-  check.dependsOn 'genApiTests'
+  check.dependsOn 'runApiTests', 'checkApiBehaviour'
   prepare.dependsOn 'genApiTests'
 }

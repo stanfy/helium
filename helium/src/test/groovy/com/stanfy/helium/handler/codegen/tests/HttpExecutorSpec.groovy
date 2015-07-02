@@ -48,7 +48,7 @@ class HttpExecutorSpec extends Specification {
       }
 
       post '/upload_multipart' spec {
-        body multipart('form') {
+        body multipart('form-data') {
           name 'string'
           dragon_bytes data()
         }
@@ -124,7 +124,7 @@ class HttpExecutorSpec extends Specification {
 
     then:
     println("Recieved headers: " + sent.headers)
-    sent.getHeader("Content-Type").contains "multipart/form"
+    sent.getHeader("Content-Type").startsWith "multipart/form-data"
     receivedBody != null
     receivedBody.contains "Dragon!!!"
     receivedBody.contains "1234567890"

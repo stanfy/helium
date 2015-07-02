@@ -21,7 +21,7 @@ class MultipartType extends Type {
     if (!isSubtypeAllowed(subtype)) {
       throw new IllegalArgumentException("Bad content type of multipart body: $subtype")
     }
-    this.@subtype = Subtype.valueOf(subtype.toUpperCase(Locale.US))
+    this.@subtype = Subtype.from(subtype)
   }
 
   MultipartType() {
@@ -49,7 +49,19 @@ class MultipartType extends Type {
     ALTERNATIVE,
     DIGEST,
     PARALLEL,
-    FORM
+    FORM_DATA{
+      @Override
+      String representation() {
+        return 'form-data'
+      }
+    }
+
+    public static Subtype from(final String str) {
+      if ('form-data'.equalsIgnoreCase(str)) {
+        return FORM_DATA
+      }
+      return valueOf(str.toUpperCase(Locale.US))
+    }
 
     public String representation() {
       this.name().toLowerCase()
