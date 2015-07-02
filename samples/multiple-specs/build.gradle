@@ -28,6 +28,7 @@ helium {
 
   variables {
     host 'api.twitter.com'
+    baseDir projectDir
   }
 }
 

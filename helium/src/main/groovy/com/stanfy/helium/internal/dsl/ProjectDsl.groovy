@@ -200,8 +200,10 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
         specFile = new File(path)
       }
     }
-    includedFiles.add specFile
-    ScriptExtender.fromFile(specFile, charset).withVars(variablesBinding).handle(this)
+    if (!includedFiles.contains(specFile)) {
+      includedFiles.add specFile
+      ScriptExtender.fromFile(specFile, charset).withVars(variablesBinding).handle(this)
+    }
   }
 
   BehaviourDescriptionBuilder describe(final String name) {

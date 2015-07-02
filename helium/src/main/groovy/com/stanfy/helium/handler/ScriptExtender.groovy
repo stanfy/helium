@@ -21,6 +21,8 @@ class ScriptExtender implements Handler {
   private final HeliumScript initScript
   /** Source. */
   private final GroovyCodeSource initSource
+  /** Base directory for the script. */
+  private final File baseDir
 
   /** Defined variables. */
   private Binding vars
@@ -28,6 +30,7 @@ class ScriptExtender implements Handler {
   public ScriptExtender(final HeliumScript script) {
     this.initScript = script
     this.initSource = null
+    this.baseDir = null;
   }
 
   public ScriptExtender(final Reader scriptReader) {
@@ -37,17 +40,22 @@ class ScriptExtender implements Handler {
   public ScriptExtender(final Reader scriptReader, final String name, final String path) {
     this.initSource = new GroovyCodeSource(scriptReader, name, path)
     this.initScript = null
+    this.baseDir = new File(path)
   }
 
   public static ScriptExtender fromFile(final File scriptFile, final Charset encoding) throws IOException {
     return new ScriptExtender(
         new InputStreamReader(new FileInputStream(scriptFile), encoding),
-        scriptFile.getName().replaceAll(/\W+/, "_"), DEFAULT_USER_PATH
+        scriptFile.getName().replaceAll(/\W+/, "_"),
+        scriptFile.parentFile.absolutePath
     )
   }
 
   ScriptExtender withVars(final Binding vars) {
-    this.vars = vars
+    this.vars = new Binding(new HashMap(vars.getVariables()))
+    if (baseDir && !this.vars.hasVariable("baseDir")) {
+      this.vars.setVariable("baseDir", baseDir)
+    }
     return this
   }
 
