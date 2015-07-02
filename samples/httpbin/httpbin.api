@@ -96,33 +96,28 @@ service {
 
   post "/post" spec {
     response "UploadTextAndFileResponse"
-    body multipart {
+    body multipart('form-data') {
       text 'string'
       file file()
     }
   }
 
-  tests {
-    scenario "upload a pig" spec {
-      File f = new File("pig.png")
-      System.err.println f.getAbsolutePath()
+  describe "upload pig" spec {
+    File f = new File("$baseDir/pig.png")
+    System.err.println f.getAbsolutePath()
 
-      String pigName = 'This is a pig.'
+    String pigName = 'This is a pig.'
 
-      def res = post "/post" with {
-        body multipart {
-          file f
-          text pigName
-        }
+    def res = service.post "/post" with {
+      body multipart {
+        file f
+        text pigName
       }
-
-      res.mustSucceed()
-
-      assert res.body?.form?.text.contains("This is a pig.")
-      // httpbin returns base64 encoded data
-      assert res.body?.files?.file?.contains(f.bytes.encodeBase64().toString())
     }
 
+    it("must succeed") { res.mustSucceed() }
+    it("submits text") { res.body?.form?.text.contains("This is a pig.") }
+    it("submits file") { res.body?.files?.file?.contains(f.bytes.encodeBase64().toString()) }
   }
 
 }
