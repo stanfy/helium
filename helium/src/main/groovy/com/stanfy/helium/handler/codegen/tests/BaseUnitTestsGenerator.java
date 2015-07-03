@@ -48,6 +48,8 @@ abstract class BaseUnitTestsGenerator implements Handler {
   /** Protected method. */
   protected static final Set<Modifier> PROTECTED = Collections.singleton(Modifier.PROTECTED);
 
+  private final String prefix;
+
   /** Output directory. */
   private final File srcOutput;
 
@@ -57,7 +59,8 @@ abstract class BaseUnitTestsGenerator implements Handler {
   /** Package name for tests. */
   private final String packageName;
 
-  public BaseUnitTestsGenerator(final File srcOutput, final File resourcesOutput, final String packageName) {
+  public BaseUnitTestsGenerator(final File srcOutput, final File resourcesOutput, final String packageName,
+                                final String prefix) {
     checkDirectory(srcOutput, "Sources output");
     if (resourcesOutput != null) {
       checkDirectory(resourcesOutput, "Resources output");
@@ -66,6 +69,7 @@ abstract class BaseUnitTestsGenerator implements Handler {
     this.srcOutput = srcOutput;
     this.resourcesOutput = resourcesOutput == null ? srcOutput : resourcesOutput;
     this.packageName = packageName == null ? DEFAULT_PACKAGE_NAME : packageName;
+    this.prefix = prefix;
   }
 
   private static void checkDirectory(final File dir, final String name) {
@@ -110,7 +114,7 @@ abstract class BaseUnitTestsGenerator implements Handler {
   }
 
   File getSpecFile() {
-    return new File(getResourcesPackageDir(), RestApiMethods.TEST_SPEC_NAME);
+    return new File(getResourcesPackageDir(), RestApiMethods.TEST_SPEC_NAME + "-" + prefix);
   }
 
   protected void startTest(final JavaWriter java, final Service service, final Project project) throws IOException {
@@ -124,6 +128,10 @@ abstract class BaseUnitTestsGenerator implements Handler {
         )
         .emitStaticImports(Assertions.class.getName() + ".assertThat")
         .beginType(getClassName(service), "class", PUBLIC, RestApiMethods.class.getSimpleName());
+
+    java.beginConstructor(PUBLIC);
+    emitConstructorCode(java);
+    java.endConstructor();
 
     java.emitAnnotation(Override.class);
     java.beginMethod("void", "prepareVariables", PROTECTED, "final Helium", "helium");
@@ -141,6 +149,8 @@ abstract class BaseUnitTestsGenerator implements Handler {
     java.endMethod();
     java.emitEmptyLine();
   }
+
+  protected void emitConstructorCode(final JavaWriter java) { }
 
   protected File getTestFile(final String className) {
     return new File(getSourcesPackageDir(), className + ".java");

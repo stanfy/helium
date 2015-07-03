@@ -44,7 +44,7 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
   def "should rewrite spec for tests"() {
     when:
     runExampleGenerator()
-    File specFile = findFile { it.name == RestApiMethods.TEST_SPEC_NAME }
+    File specFile = findFile { it.name == RestApiMethods.TEST_SPEC_NAME + "-poke" }
 
     then:
     specFile != null
@@ -55,7 +55,7 @@ class RestApiPokeTestsGeneratorSpec extends Specification {
   def "generated spec must be able to be interpreted"() {
     when:
     runExampleGenerator()
-    File specFile = findFile { it.name == RestApiMethods.TEST_SPEC_NAME }
+    File specFile = findFile { it.name == RestApiMethods.TEST_SPEC_NAME + "-poke" }
     Type userProfile = null
     new Helium().from(specFile).processBy({ Project project ->
       userProfile = project.types.byName('UserProfile')

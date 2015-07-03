@@ -34,7 +34,7 @@ public abstract class RestApiMethods {
   private TypeResolver types;
 
   public RestApiMethods() {
-    this.types = loadDefaultTestSpec().getTypes();
+    this.types = loadDefaultTestSpec("scenario").getTypes();
   }
 
   public RestApiMethods(final TypeResolver types) {
@@ -54,8 +54,8 @@ public abstract class RestApiMethods {
     }
   }
 
-  protected Project loadDefaultTestSpec() {
-    String path = getSpecPath();
+  protected Project loadDefaultTestSpec(final String prefix) {
+    String path = getSpecPath(prefix);
     InputStream input = getClass().getClassLoader().getResourceAsStream(path);
     if (input == null) {
       throw new IllegalStateException("Test spec not found in cp at " + path);
@@ -71,8 +71,8 @@ public abstract class RestApiMethods {
     }
   }
 
-  private String getSpecPath() {
-    return getClass().getPackage().getName().replaceAll("\\.", "/") + "/" + TEST_SPEC_NAME;
+  private String getSpecPath(final String prefix) {
+    return getClass().getPackage().getName().replaceAll("\\.", "/") + "/" + TEST_SPEC_NAME + "-" + prefix;
   }
 
   protected MethodsExecutor createExecutor() {

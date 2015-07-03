@@ -31,7 +31,7 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
     this(scenariosFile, srcOutput, resourcesOutput, null);
   }
   public ScenarioTestsGenerator(final File scenariosFile, final File srcOutput, final File resourcesOutput, final String packageName) {
-    super(srcOutput, resourcesOutput, packageName);
+    super(srcOutput, resourcesOutput, packageName, "scenario");
     if (!scenariosFile.exists()) {
       throw new IllegalArgumentException("Scenarios file does not exist")
     }
@@ -58,15 +58,19 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
 
   }
 
-  private static String replaceVarsInSpec(final File file, final Map<File, String> map, final Project project) {
+  private String replaceVarsInSpec(final File file, final Map<File, String> map, final Project project) {
     def text = file.getText("UTF-8")
     if (project instanceof ProjectDsl) {
+      GroovyShell shell = null
       if (project.variablesBinding.hasVariable("baseDir")) {
-        GroovyShell shell = new GroovyShell(project.variablesBinding)
-        text = text.replaceAll(/include\s+(["'].+?["'])/) { fullLine, arg ->
-          String path = shell.evaluate(arg as String) as String
-          return "include \"\$baseDir/${map[new File(path)]}\""
-        }
+        shell = new GroovyShell(project.variablesBinding)
+      }
+      def defaultBaseDir = scenariosFile.parentFile
+      text = text.replaceAll(/include\s+(["'].+?["'])/) { fullLine, arg ->
+        File f = (shell
+            ? new File(shell.evaluate(arg as String) as String)
+            : new File(defaultBaseDir, (arg as String)['$baseDir/'.length() + 1..-2]))
+        return "include \"\$baseDir/${map[f]}\""
       }
     }
     return text
@@ -100,19 +104,18 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
   }
 
   @Override
+  protected void emitConstructorCode(final JavaWriter java) {
+    java.emitStatement("this.proxy = new ${ScenarioDelegate.canonicalName}(service, createExecutor())")
+  }
+
+  @Override
   protected void startTest(final JavaWriter writer, final Service service, final Project project) throws IOException {
     super.startTest(writer, service, project)
     writer.emitField(Service.name, "service")
     writer.emitField(ScenarioDelegate.canonicalName, "proxy", EnumSet.of(Modifier.PRIVATE))
 
-    writer.beginMethod(null, getClassName(service), PUBLIC)
-    writer.emitStatement("super()")
-    writer.emitStatement("this.proxy = new ${ScenarioDelegate.canonicalName}(service, createExecutor())")
-    writer.endMethod()
-    writer.emitEmptyLine()
-
-    writer.beginMethod(Project.name, "loadDefaultTestSpec", PROTECTED)
-    writer.emitStatement("${Project.name} project = super.loadDefaultTestSpec()")
+    writer.beginMethod(Project.name, "loadDefaultTestSpec", PROTECTED, "String", "prefix")
+    writer.emitStatement("${Project.name} project = super.loadDefaultTestSpec(prefix)")
     writer.emitStatement("this.service = project.serviceByName(%s)", stringLiteral(service.name))
     writer.emitStatement("return project")
     writer.endMethod()

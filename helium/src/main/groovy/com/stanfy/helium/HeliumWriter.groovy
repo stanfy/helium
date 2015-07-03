@@ -115,21 +115,25 @@ class HeliumWriter implements Closeable {
     }
     writeLine "$field.name {"
     incIndent()
-    writeLine "type '${field.type.name}'"
-    writeLine "required $field.required"
-    if (field.sequence) {
-      writeLine "sequence $field.sequence"
-    }
-    if (field.examples) {
-      StringBuilder examplesString = new StringBuilder()
-      examplesString << "["
-      field.examples.each { Object example ->
-        String v = example instanceof String ? JavaWriter.stringLiteral((String) example) : String.valueOf(example)
-        examplesString << v << ", "
+    if (field.skip) {
+      writeLine 'skip true'
+    } else {
+      writeLine "type '${field.type.name}'"
+      writeLine "required $field.required"
+      if (field.sequence) {
+        writeLine "sequence $field.sequence"
       }
-      examplesString.delete(examplesString.length() - 2, examplesString.length())
-      examplesString << "]"
-      writeLine "examples $examplesString"
+      if (field.examples) {
+        StringBuilder examplesString = new StringBuilder()
+        examplesString << "["
+        field.examples.each { Object example ->
+          String v = example instanceof String ? JavaWriter.stringLiteral((String) example) : String.valueOf(example)
+          examplesString << v << ", "
+        }
+        examplesString.delete(examplesString.length() - 2, examplesString.length())
+        examplesString << "]"
+        writeLine "examples $examplesString"
+      }
     }
     decIndent()
     writeLine "}"
