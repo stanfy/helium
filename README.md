@@ -3,7 +3,7 @@ Helium
 
 Helium is a DSL for REST API specifications and also a Java API for processing descriptions written in this language.
 The main goal of this project is to create a single source of truth about some REST API. Taking a spec as an input,
-Helium generates a lot of useful staff that can be used to rapidly develop REST clients.
+Helium generates a lot of useful stuff that can be used to rapidly develop REST clients.
 ![Diagram](docs/helium.png)
 
 [![Build Status](https://travis-ci.org/stanfy/helium.png?branch=master)](https://travis-ci.org/stanfy/helium)
