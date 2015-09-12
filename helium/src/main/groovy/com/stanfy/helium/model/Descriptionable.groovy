@@ -1,6 +1,6 @@
 package com.stanfy.helium.model
 
-import com.stanfy.helium.utils.Names
+import com.stanfy.helium.internal.utils.Names
 import groovy.transform.CompileStatic
 
 /**

@@ -1,6 +1,6 @@
 package com.stanfy.helium.internal.dsl
 
-import com.stanfy.helium.entities.json.ClosureJsonConverter
+import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
@@ -8,7 +8,7 @@ import com.stanfy.helium.model.constraints.ConstrainedType
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 
-import static com.stanfy.helium.utils.DslUtils.runWithProxy
+import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
 
 /**
  * DSL for type declarations.

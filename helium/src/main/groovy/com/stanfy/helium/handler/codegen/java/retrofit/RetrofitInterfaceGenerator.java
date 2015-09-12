@@ -15,7 +15,7 @@ import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.Type;
-import com.stanfy.helium.utils.Names;
+import com.stanfy.helium.internal.utils.Names;
 
 import org.apache.commons.io.IOUtils;
 
@@ -33,8 +33,8 @@ import java.util.Set;
 import javax.lang.model.element.Modifier;
 
 import static com.squareup.javawriter.JavaWriter.stringLiteral;
-import static com.stanfy.helium.utils.Names.canonicalName;
-import static com.stanfy.helium.utils.Names.prettifiedName;
+import static com.stanfy.helium.internal.utils.Names.canonicalName;
+import static com.stanfy.helium.internal.utils.Names.prettifiedName;
 import static javax.lang.model.element.Modifier.PUBLIC;
 
 /**

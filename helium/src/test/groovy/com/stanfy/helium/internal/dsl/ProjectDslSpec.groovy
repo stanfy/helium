@@ -1,7 +1,7 @@
 package com.stanfy.helium.internal.dsl
 
 import com.stanfy.helium.DefaultTypesLoader
-import com.stanfy.helium.entities.json.ClosureJsonConverter
+import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
 import com.stanfy.helium.internal.model.tests.CheckableService
 import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.FileType

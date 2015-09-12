@@ -5,8 +5,8 @@ import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
 import com.stanfy.helium.model.constraints.Constraint
-import com.stanfy.helium.utils.ConfigurableProxy
-import com.stanfy.helium.utils.DslUtils
+import com.stanfy.helium.internal.utils.ConfigurableProxy
+import com.stanfy.helium.internal.utils.DslUtils
 import groovy.transform.PackageScope
 
 /**

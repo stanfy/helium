@@ -1,6 +1,6 @@
 package com.stanfy.helium
 
-import com.stanfy.helium.handler.ClosureExtender
+import com.stanfy.helium.internal.handler.ClosureExtender
 import com.stanfy.helium.model.Project
 import groovy.transform.PackageScope
 

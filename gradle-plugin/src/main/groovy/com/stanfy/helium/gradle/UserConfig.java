@@ -1,6 +1,6 @@
 package com.stanfy.helium.gradle;
 
-import com.stanfy.helium.utils.Names;
+import com.stanfy.helium.internal.utils.Names;
 
 import org.apache.commons.io.FilenameUtils;
 import org.gradle.api.Project;

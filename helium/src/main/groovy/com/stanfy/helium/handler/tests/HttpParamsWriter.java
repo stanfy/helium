@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.tests;
 
-import com.stanfy.helium.entities.EntityWriter;
-import com.stanfy.helium.entities.TypedEntity;
+import com.stanfy.helium.internal.entities.EntityWriter;
+import com.stanfy.helium.internal.entities.TypedEntity;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 

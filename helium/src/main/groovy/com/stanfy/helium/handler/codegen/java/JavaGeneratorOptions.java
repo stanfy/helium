@@ -9,7 +9,7 @@ import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.constraints.ConstrainedType;
 import com.stanfy.helium.model.constraints.EnumConstraint;
-import com.stanfy.helium.utils.Names;
+import com.stanfy.helium.internal.utils.Names;
 
 import java.util.Arrays;
 import java.util.Collections;

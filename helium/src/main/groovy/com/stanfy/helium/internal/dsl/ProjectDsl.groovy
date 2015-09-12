@@ -1,7 +1,7 @@
 package com.stanfy.helium.internal.dsl
 
 import com.stanfy.helium.internal.MethodsExecutor
-import com.stanfy.helium.handler.ScriptExtender
+import com.stanfy.helium.internal.handler.ScriptExtender
 import com.stanfy.helium.internal.model.tests.BehaviorDescriptionContainer
 import com.stanfy.helium.internal.model.tests.BehaviourDescription
 import com.stanfy.helium.internal.model.tests.CheckGroup
@@ -13,7 +13,7 @@ import groovy.transform.PackageScope
 
 import java.nio.charset.Charset
 
-import static com.stanfy.helium.utils.DslUtils.runWithProxy
+import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
 
 /**
  * Entry point to Helium DSL.

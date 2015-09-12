@@ -2,7 +2,7 @@ package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.internal.SourceCodeGenerators
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
-import com.stanfy.helium.utils.DslUtils
+import com.stanfy.helium.internal.utils.DslUtils
 import groovy.transform.PackageScope
 import org.gradle.api.Task
 

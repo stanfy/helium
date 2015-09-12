@@ -1,6 +1,6 @@
 package com.stanfy.helium.internal.dsl
 
-import com.stanfy.helium.handler.ScriptExtender
+import com.stanfy.helium.internal.handler.ScriptExtender
 import spock.lang.Specification
 
 /**

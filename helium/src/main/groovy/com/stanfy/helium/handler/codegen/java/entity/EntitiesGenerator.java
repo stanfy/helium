@@ -7,7 +7,7 @@ import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.constraints.ConstrainedType;
 import com.stanfy.helium.model.constraints.EnumConstraint;
-import com.stanfy.helium.utils.Names;
+import com.stanfy.helium.internal.utils.Names;
 
 import org.apache.commons.io.IOUtils;
 

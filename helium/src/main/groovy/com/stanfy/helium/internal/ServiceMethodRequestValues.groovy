@@ -1,6 +1,6 @@
 package com.stanfy.helium.internal
 
-import com.stanfy.helium.entities.TypedEntity
+import com.stanfy.helium.internal.entities.TypedEntity
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import groovy.transform.PackageScopeTarget

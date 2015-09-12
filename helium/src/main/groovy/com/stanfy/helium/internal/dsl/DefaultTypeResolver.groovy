@@ -3,9 +3,9 @@ package com.stanfy.helium.internal.dsl
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
 import com.stanfy.helium.DefaultType
-import com.stanfy.helium.entities.ConvertersPool
-import com.stanfy.helium.entities.json.ClosureJsonConverter
-import com.stanfy.helium.entities.json.JsonConvertersPool
+import com.stanfy.helium.internal.entities.ConvertersPool
+import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
+import com.stanfy.helium.internal.entities.json.JsonConvertersPool
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 

@@ -2,7 +2,7 @@ package com.stanfy.helium.handler.codegen.java.retrofit;
 
 import com.stanfy.helium.handler.codegen.java.JavaGeneratorOptions;
 import com.stanfy.helium.model.ServiceMethod;
-import com.stanfy.helium.utils.Names;
+import com.stanfy.helium.internal.utils.Names;
 
 /**
  * Options for Retrofit generator.

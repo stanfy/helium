@@ -5,8 +5,8 @@ import com.squareup.okhttp.mockwebserver.MockResponse
 import com.squareup.okhttp.mockwebserver.MockWebServer
 import com.stanfy.helium.handler.tests.HttpExecutor
 import com.stanfy.helium.internal.dsl.ProjectDsl
-import com.stanfy.helium.dsl.scenario.ScenarioDelegate
-import com.stanfy.helium.dsl.scenario.ScenarioInvoker
+import com.stanfy.helium.internal.dsl.scenario.ScenarioDelegate
+import com.stanfy.helium.internal.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.model.Service
 import spock.lang.Specification
 

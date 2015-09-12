@@ -6,7 +6,7 @@ import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 import groovy.transform.CompileStatic
 
-import static com.stanfy.helium.utils.DslUtils.runWithProxy
+import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
 
 /**
  * Builder for fields.

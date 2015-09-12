@@ -5,7 +5,7 @@ import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.constraints.ConstrainedType;
-import com.stanfy.helium.utils.Names;
+import com.stanfy.helium.internal.utils.Names;
 
 import java.io.IOException;
 import java.util.Arrays;

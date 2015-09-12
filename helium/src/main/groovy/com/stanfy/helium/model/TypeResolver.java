@@ -1,6 +1,6 @@
 package com.stanfy.helium.model;
 
-import com.stanfy.helium.entities.ConvertersPool;
+import com.stanfy.helium.internal.entities.ConvertersPool;
 
 /**
  * Operates with types.

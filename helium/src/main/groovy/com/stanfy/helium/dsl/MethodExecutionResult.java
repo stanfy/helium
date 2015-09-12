@@ -9,9 +9,6 @@ import java.util.Map;
  */
 public interface MethodExecutionResult {
 
-  /**
-   * @see com.stanfy.helium.entities.TypedEntity#value
-   */
   Object getBody() throws IOException;
 
   Map<String, String> getHttpHeaders();

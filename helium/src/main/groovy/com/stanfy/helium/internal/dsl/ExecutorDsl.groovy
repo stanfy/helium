@@ -3,20 +3,20 @@ package com.stanfy.helium.internal.dsl
 import com.stanfy.helium.dsl.MethodExecutionResult
 import com.stanfy.helium.internal.MethodsExecutor
 import com.stanfy.helium.internal.ServiceMethodRequestValues
-import com.stanfy.helium.entities.ByteArrayEntity
-import com.stanfy.helium.entities.TypedEntity
-import com.stanfy.helium.entities.TypedEntityValueBuilder
+import com.stanfy.helium.internal.entities.ByteArrayEntity
+import com.stanfy.helium.internal.entities.TypedEntity
+import com.stanfy.helium.internal.entities.TypedEntityValueBuilder
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.Type
-import com.stanfy.helium.utils.ConfigurableStringMap
-import com.stanfy.helium.utils.Names
+import com.stanfy.helium.internal.utils.ConfigurableStringMap
+import com.stanfy.helium.internal.utils.Names
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 
-import static com.stanfy.helium.utils.DslUtils.runWithProxy
+import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
 
 /**
  * DSL for invoking requests.

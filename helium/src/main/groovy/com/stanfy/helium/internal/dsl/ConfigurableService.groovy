@@ -1,7 +1,7 @@
 package com.stanfy.helium.internal.dsl
 
-import com.stanfy.helium.dsl.scenario.ScenarioDelegate
-import com.stanfy.helium.dsl.scenario.ScenarioInvoker
+import com.stanfy.helium.internal.dsl.scenario.ScenarioDelegate
+import com.stanfy.helium.internal.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.internal.model.tests.BehaviourDescription
 import com.stanfy.helium.internal.model.tests.CheckBuilder
 import com.stanfy.helium.internal.model.tests.CheckableService
@@ -9,10 +9,10 @@ import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.tests.ServiceTestInfo
-import com.stanfy.helium.utils.ConfigurableProxy
+import com.stanfy.helium.internal.utils.ConfigurableProxy
 import groovy.transform.CompileStatic
 
-import static com.stanfy.helium.utils.DslUtils.runWithProxy
+import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
 
 /**
  * Extended proxy for services configuration.

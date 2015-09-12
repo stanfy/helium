@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.stanfy.helium.utils.Names.canonicalName;
-import static com.stanfy.helium.utils.Names.prettifiedName;
+import static com.stanfy.helium.internal.utils.Names.canonicalName;
+import static com.stanfy.helium.internal.utils.Names.prettifiedName;
 
 /**
  * Created by ptaykalo on 8/25/14.

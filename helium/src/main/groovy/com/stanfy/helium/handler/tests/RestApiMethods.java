@@ -7,7 +7,7 @@ import com.stanfy.helium.handler.tests.HeliumTestLog.DefaultLogger;
 import com.stanfy.helium.internal.MethodsExecutor;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.TypeResolver;
-import com.stanfy.helium.utils.AssertionUtils;
+import com.stanfy.helium.internal.utils.AssertionUtils;
 import org.junit.runner.RunWith;
 
 import java.io.File;

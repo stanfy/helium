@@ -6,7 +6,7 @@ import com.stanfy.helium.model.Checkable
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.tests.BehaviourSuite
 import com.stanfy.helium.model.tests.CheckListener
-import com.stanfy.helium.utils.DslUtils
+import com.stanfy.helium.internal.utils.DslUtils
 import org.joda.time.Duration
 
 import static com.stanfy.helium.internal.model.tests.Util.errorStack

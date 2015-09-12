@@ -1,9 +1,9 @@
 package com.stanfy.helium.internal.dsl
 
 import com.stanfy.helium.model.*
-import com.stanfy.helium.utils.ConfigurableProxy
+import com.stanfy.helium.internal.utils.ConfigurableProxy
 
-import static com.stanfy.helium.utils.DslUtils.runWithProxy
+import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
 
 /**
  * Extended proxy for ServiceMethod.

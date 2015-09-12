@@ -2,7 +2,7 @@ package com.stanfy.helium.handler.tests.body
 
 import com.squareup.okhttp.FormEncodingBuilder
 import com.squareup.okhttp.RequestBody
-import com.stanfy.helium.entities.TypedEntity
+import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.handler.tests.RequestBodyBuilder
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.Type

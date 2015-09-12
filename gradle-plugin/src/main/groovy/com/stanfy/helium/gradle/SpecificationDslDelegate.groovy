@@ -1,6 +1,6 @@
 package com.stanfy.helium.gradle
 
-import com.stanfy.helium.utils.DslUtils
+import com.stanfy.helium.internal.utils.DslUtils
 
 /**
  * DSL for per-specification rules:

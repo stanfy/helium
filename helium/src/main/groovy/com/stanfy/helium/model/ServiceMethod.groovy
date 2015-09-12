@@ -1,7 +1,7 @@
 package com.stanfy.helium.model
 
 import com.stanfy.helium.model.tests.MethodTestInfo
-import com.stanfy.helium.utils.Names
+import com.stanfy.helium.internal.utils.Names
 import groovy.transform.CompileStatic
 
 import java.util.regex.Pattern

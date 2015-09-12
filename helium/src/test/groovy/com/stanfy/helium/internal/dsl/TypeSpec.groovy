@@ -1,10 +1,10 @@
 package com.stanfy.helium.internal.dsl
 
 import com.stanfy.helium.model.Type
-import com.stanfy.helium.utils.ConfigurableProxy
+import com.stanfy.helium.internal.utils.ConfigurableProxy
 import spock.lang.Specification
 
-import static com.stanfy.helium.utils.DslUtils.runWithProxy
+import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
 
 /**
  * Spec for Type.

@@ -5,12 +5,12 @@ import com.google.gson.stream.JsonWriter;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Response;
 import com.stanfy.helium.dsl.MethodExecutionResult;
-import com.stanfy.helium.entities.TypedEntity;
-import com.stanfy.helium.entities.json.JsonConvertersPool;
-import com.stanfy.helium.entities.json.JsonEntityReader;
+import com.stanfy.helium.internal.entities.TypedEntity;
+import com.stanfy.helium.internal.entities.json.JsonConvertersPool;
+import com.stanfy.helium.internal.entities.json.JsonEntityReader;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.TypeResolver;
-import com.stanfy.helium.utils.AssertionUtils;
+import com.stanfy.helium.internal.utils.AssertionUtils;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;

@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.java;
 
 import com.stanfy.helium.handler.codegen.BaseGenerator;
-import com.stanfy.helium.utils.Names;
+import com.stanfy.helium.internal.utils.Names;
 
 import java.io.File;
 

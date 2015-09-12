@@ -14,7 +14,7 @@ import com.stanfy.helium.handler.codegen.BaseGenerator;
 import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Service;
-import com.stanfy.helium.utils.Names;
+import com.stanfy.helium.internal.utils.Names;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
