@@ -49,6 +49,13 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
       get "/list" spec {
         response 'BList'
       }
+
+      get '/array/parameters' spec {
+        name 'Check array parameters'
+        parameters {
+          state 'int32' sequence
+        }
+      }
     }
     project.service {
       name "B"
@@ -340,4 +347,24 @@ public interface FormService {
     text.contains "Observable<SomeResponse> getList(@Query(\"count\") int count, @Query(\"name\") String name)"
 
   }
+
+  def "should respect sequences in request parameters"() {
+    when:
+    gen.handle(project)
+    def text = new File("$output/test/api/A.java").text
+
+    then:
+    text.contains 'Response checkArrayParameters(@Query("state") List<Integer> state)'
+  }
+
+  def "should respect sequences in request parameters (arrays)"() {
+    when:
+    options.useArraysForSequences()
+    gen.handle(project)
+    def text = new File("$output/test/api/A.java").text
+
+    then:
+    text.contains 'Response checkArrayParameters(@Query("state") int[] state)'
+  }
+
 }

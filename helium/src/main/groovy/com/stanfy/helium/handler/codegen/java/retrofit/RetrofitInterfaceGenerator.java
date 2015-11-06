@@ -65,9 +65,9 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
 
   }
 
-  private String resolveJavaTypeName(final Type type, final JavaWriter writer) {
+  private String resolveJavaTypeName(final Type type, final JavaWriter writer, final boolean seq) {
     Type imported = type;
-    boolean sequence = false;
+    boolean sequence = seq;
     if (imported instanceof FileType) {
       return "retrofit.mime.TypedFile";
     }
@@ -101,7 +101,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
       }
       importedType = ((Sequence) importedType).getItemsType();
     }
-    String name = resolveJavaTypeName(importedType, writer);
+    String name = resolveJavaTypeName(importedType, writer, false);
     if (name.contains(".")) {
       imports.add(name);
     }
@@ -174,7 +174,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
 
         String responseType = "Response";
         if (m.getResponse() != null) {
-          responseType = resolveJavaTypeName(m.getResponse(), writer);
+          responseType = resolveJavaTypeName(m.getResponse(), writer, false);
         }
         if (options.isUseRxObservables()) {
           responseType = writer.compressType("Observable<" + responseType + ">");
@@ -234,11 +234,8 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     }
   }
 
-  private String getJavaType(final Type type, final JavaWriter writer) {
-    String name = resolveJavaTypeName(type, writer);
-    if (type instanceof Sequence) {
-      return getOptions().getSequenceTypeName(name);
-    }
+  private String getJavaType(final Type type, final JavaWriter writer, final boolean sequence) {
+    String name = resolveJavaTypeName(type, writer, sequence);
     if (type instanceof DataType) {
       return writer.compressType(name);
     }
@@ -265,7 +262,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
 
     if (m.getParameters() != null) {
       for (Field f : m.getParameters().getActiveFields()) {
-        res.add("@Query(\"" + f.getName() + "\") " + getJavaType(f.getType(), writer));
+        res.add("@Query(\"" + f.getName() + "\") " + getJavaType(f.getType(), writer, f.getSequence()));
         res.add(getOptions().getSafeParameterName(f.getCanonicalName()));
       }
     }
@@ -276,13 +273,13 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         // We should think on including parent message fields.
         // MB message.getAllFields() ?
         for (Field f : message.getActiveFields()) {
-          res.add("@Field(\"" + f.getName() + "\") " + getJavaType(f.getType(), writer));
+          res.add("@Field(\"" + f.getName() + "\") " + getJavaType(f.getType(), writer, f.getSequence()));
           res.add(getOptions().getSafeParameterName(f.getCanonicalName()));
         }
       } else if (m.getBody() instanceof MultipartType) {
         addMultipartBody(writer, res, (MultipartType) m.getBody());
       } else {
-        res.add("@Body " + getJavaType(m.getBody(), writer));
+        res.add("@Body " + getJavaType(m.getBody(), writer, false));
         res.add("body");
       }
     }
@@ -296,7 +293,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
       res.add("parts");
     } else {
       for (String name : body.getParts().keySet()) {
-        res.add(String.format("@Part(\"%s\") %s", name, getJavaType(body.getParts().get(name), writer)));
+        res.add(String.format("@Part(\"%s\") %s", name, getJavaType(body.getParts().get(name), writer, false)));
         res.add(Names.canonicalName(name));
       }
     }

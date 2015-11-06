@@ -7,23 +7,24 @@ import com.stanfy.helium.sample.retrofit.api.User;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.Assert.*;
 
 import static org.mockito.Mockito.*;
 
-public class TwitterApiSetupTest {
+public class SampleTest {
 
   @Test
   public void setupTest() {
-    assertNotNull(TwitterApiSetup.setup());
+    assertNotNull(Sample.setup());
   }
 
   @Test
   public void itCanFailOnCompileStep() {
     MyBackend api = mock(MyBackend.class);
     //noinspection UnusedAssignment
-    SearchResponse resp = api.searchPosts("test", 1);
+    SearchResponse resp = api.searchPosts("test", 1, Arrays.asList(1, 2));
     resp = new SearchResponse();
     resp.statuses = new ArrayList<Post>();
     Post post = new Post();

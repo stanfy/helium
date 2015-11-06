@@ -35,6 +35,7 @@ service {
     parameters {
       query 'string'
       count 'int32' optional
+      options 'int32' sequence
     }
     response 'SearchResponse'
   }
