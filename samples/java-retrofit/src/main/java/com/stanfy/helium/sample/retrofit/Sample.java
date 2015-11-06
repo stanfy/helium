@@ -4,10 +4,12 @@ import com.stanfy.helium.sample.retrofit.api.MyBackend;
 
 import retrofit.RestAdapter;
 
+import java.util.Arrays;
+
 /**
  * Creates a {@link retrofit.RestAdapter} and API implementation.
  */
-public class TwitterApiSetup {
+public class Sample {
 
   public static MyBackend setup() {
     return new RestAdapter.Builder()
