@@ -8,6 +8,7 @@ import com.stanfy.helium.model.Message;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,6 +27,12 @@ class HttpParamsWriter implements EntityWriter {
     this.encoding = encoding;
   }
 
+  private void writePair(String name, String value) throws IOException {
+    out.write(URLEncoder.encode(name, encoding));
+    out.write("=");
+    out.write(URLEncoder.encode(value, encoding));
+  }
+
   @Override
   public void write(final TypedEntity entity) throws IOException {
     if (!(entity.getType() instanceof Message)) {
@@ -42,13 +49,23 @@ class HttpParamsWriter implements EntityWriter {
       if (!f.getType().isPrimitive()) {
         throw new IllegalStateException("Field " + name + " is not primitive");
       }
-      Object value = values.get(name);
-      out.write(URLEncoder.encode(name, encoding));
-      out.write("=");
-      out.write(URLEncoder.encode(String.valueOf(value), encoding));
       count--;
-      if (count != 0) {
-        out.write('&');
+      if (f.isSequence()) {
+        @SuppressWarnings("unchecked")
+        List<Object> array = (List<Object>) values.get(name);
+        int arrayCount = array.size();
+        for (Object value : array) {
+          writePair(name, String.valueOf(value));
+          arrayCount--;
+          if (count != 0 || arrayCount != 0) {
+            out.write('&');
+          }
+        }
+      } else {
+        writePair(name, String.valueOf(values.get(name)));
+        if (count != 0) {
+          out.write('&');
+        }
       }
     }
 
