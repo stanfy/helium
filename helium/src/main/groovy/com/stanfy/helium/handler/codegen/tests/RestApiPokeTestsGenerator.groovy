@@ -4,7 +4,6 @@ import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.HeliumWriter
 import com.stanfy.helium.handler.tests.JsonEntityExampleGenerator
 import com.stanfy.helium.handler.tests.NoExamplesProvidedException
-import com.stanfy.helium.internal.dsl.FieldsBuilder
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod

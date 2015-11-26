@@ -1,7 +1,7 @@
 package com.stanfy.helium.gradle.tasks;
 
-import com.stanfy.helium.handler.codegen.objectivec.ObjCEntitiesGenerator;
-import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions;
 
 /**
  * Generates Obj-C code (in dev).

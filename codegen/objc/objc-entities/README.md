@@ -1,0 +1,1 @@
+Generator of Obj-C code producing classes that correspond to data types defined in specs.

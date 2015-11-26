@@ -72,11 +72,11 @@ class HttpExecutorSpec extends Specification {
         }
 
         scenario "upload multipart form" spec {
-          def dragon_name = "Dragon!!!"
+          def dragonName = "Dragon!!!"
           def theBytes = "1234567890".getBytes()
           def res = post "/upload_multipart" with {
             body multipart {
-              name dragon_name
+              name dragonName
               dragon_bytes theBytes
             }
           }

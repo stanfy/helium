@@ -1,6 +1,6 @@
 package com.stanfy.helium.internal.dsl.scenario
 
-import com.stanfy.helium.dsl.MethodExecutionResult
+import com.stanfy.helium.model.behaviour.MethodExecutionResult
 import com.stanfy.helium.model.tests.Scenario
 import com.stanfy.helium.internal.utils.DslUtils
 import groovy.transform.CompileStatic

@@ -5,7 +5,6 @@ import com.stanfy.helium.DefaultType
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.dsl.scenario.ScenarioDelegate
 import com.stanfy.helium.internal.dsl.scenario.ScenarioInvoker
-import com.stanfy.helium.handler.codegen.internal.UniqueName
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.tests.Scenario

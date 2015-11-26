@@ -125,7 +125,7 @@ class CheckBuilder implements BehaviorDescriptionContainer {
         try {
           if (!runner.skipped) {
             if (runner.check) { listener.onCheckStarted(runner.check) }
-            before.each { runAction(it) }
+            this.before.each { runAction(it) }
           }
           res = (BehaviourCheck) runAction(runner.run)
           if (runner.skipped) {
@@ -134,7 +134,7 @@ class CheckBuilder implements BehaviorDescriptionContainer {
           return res
         } finally {
           if (!runner.skipped) {
-            after.each { runAction(it) }
+            this.after.each { runAction(it) }
             if (res) {
               analyzeIntermediateErrors(res)
             }

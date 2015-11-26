@@ -1,7 +1,5 @@
 package com.stanfy.helium.internal.dsl.scenario
 
-import com.stanfy.helium.internal.dsl.scenario.ScenarioDelegate
-import com.stanfy.helium.internal.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.model.tests.Scenario
 import spock.lang.Specification
 

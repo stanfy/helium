@@ -4,8 +4,10 @@ apply plugin: 'maven'
 apply plugin: 'checkstyle'
 apply plugin: 'codenarc'
 
+apply from: file("$rootDir/gradle/common.gradle")
+
 dependencies {
-  compile 'org.codehaus.groovy:groovy-all:2.3.9'
+  compile 'org.codehaus.groovy:groovy-all:2.4.4'
 
   compile 'com.squareup:javawriter:2.5.0'
   compile 'com.squareup.okhttp:okhttp:2.3.0'
@@ -19,8 +21,5 @@ dependencies {
   compile 'joda-time:joda-time:2.7'
   compile 'com.github.spullara.mustache.java:compiler:0.8.17'
 
-  testCompile('org.spockframework:spock-core:1.0-groovy-2.3') {
-    exclude group: 'org.codehaus.groovy'
-  }
   testCompile 'com.squareup.okhttp:mockwebserver:2.3.0'
 }
