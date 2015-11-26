@@ -4,8 +4,6 @@ import com.google.gson.stream.JsonReader
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.entities.ConvertersPool
 import com.stanfy.helium.internal.entities.TypedEntity
-import com.stanfy.helium.internal.entities.json.JsonConvertersPool
-import com.stanfy.helium.internal.entities.json.JsonEntityReader
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type

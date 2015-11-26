@@ -1,12 +1,10 @@
 package com.stanfy.helium.internal.dsl.scenario
 
-import com.stanfy.helium.dsl.MethodExecutionResult
+import com.stanfy.helium.model.behaviour.MethodExecutionResult
 import com.stanfy.helium.internal.MethodsExecutor
 import com.stanfy.helium.internal.ServiceMethodRequestValues
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.entities.ByteArrayEntity
-import com.stanfy.helium.internal.dsl.scenario.ScenarioDelegate
-import com.stanfy.helium.internal.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.MethodType

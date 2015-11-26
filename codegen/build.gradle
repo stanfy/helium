@@ -1,0 +1,7 @@
+subprojects { p ->
+  p.plugins.withType(JavaPlugin) {
+    p.dependencies {
+      compile project(':helium')
+    }
+  }
+}

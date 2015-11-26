@@ -1,6 +1,6 @@
 package com.stanfy.helium.internal.dsl
 
-import com.stanfy.helium.dsl.MethodExecutionResult
+import com.stanfy.helium.model.behaviour.MethodExecutionResult
 import com.stanfy.helium.internal.MethodsExecutor
 import com.stanfy.helium.internal.ServiceMethodRequestValues
 import com.stanfy.helium.internal.entities.ByteArrayEntity

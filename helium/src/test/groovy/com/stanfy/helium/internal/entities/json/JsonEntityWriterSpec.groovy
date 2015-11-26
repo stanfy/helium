@@ -4,7 +4,6 @@ import com.stanfy.helium.Helium
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.internal.entities.TypedEntityValueBuilder
-import com.stanfy.helium.internal.entities.json.JsonEntityWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type

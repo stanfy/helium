@@ -4,8 +4,8 @@ import com.stanfy.helium.Helium
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGenerator
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
-import com.stanfy.helium.handler.codegen.objectivec.ObjCEntitiesGenerator
-import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions
 
 /**
  * Main entry point.

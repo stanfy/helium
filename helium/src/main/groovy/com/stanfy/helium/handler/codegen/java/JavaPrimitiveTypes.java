@@ -54,7 +54,7 @@ public final class JavaPrimitiveTypes {
     if (primitive == boolean.class) {
       return Boolean.class;
     }
-    throw new IllegalArgumentException("Cannot handle " + primitive);
+    throw new IllegalArgumentException("Cannot box " + primitive);
   }
 
 }

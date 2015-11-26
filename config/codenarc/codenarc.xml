@@ -20,6 +20,7 @@
     <exclude name='ExplicitHashSetInstantiation'/>
     <exclude name='ExplicitCallToAndMethod'/>
     <exclude name='ExplicitCallToOrMethod'/>
+    <exclude name='ComparisonOfTwoConstants'/>
   </ruleset-ref>
   <ruleset-ref path='rulesets/braces.xml'/>
   <ruleset-ref path='rulesets/imports.xml'>
