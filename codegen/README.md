@@ -1,7 +1,7 @@
 Adding a new code generator
 ===========================
 
-Code generators are organized in separate modules each located at `{lang}/{targe}`.
+Code generators are organized in separate modules each located at `{lang}/{target}`.
 For example, a JSON scheme generator path is `json/json-scheme`.
 
 In order to add a new code generator module, create a new directory and 
@@ -42,7 +42,7 @@ public class MyLangCodeGenerator implements Handler {
 }
 ```
 
-The `Project` class is a facade that allows you access the specification model created with
+The [Project](https://github.com/stanfy/helium/blob/master/helium/src/main/groovy/com/stanfy/helium/model/Project.java) class is a facade that allows you access the specification model created with
 Helium DSL. You can list all services or declared types, service methods and do whatever you need wit them,
 
 When your class implementation is ready and tested, you can consider adding it to 
