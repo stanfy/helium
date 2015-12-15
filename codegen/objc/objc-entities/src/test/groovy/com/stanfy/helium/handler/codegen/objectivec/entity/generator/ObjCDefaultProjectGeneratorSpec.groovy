@@ -1,13 +1,9 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
-import com.stanfy.helium.dsl.ProjectDsl
-import com.stanfy.helium.handler.codegen.objectivec.ObjCProjectGenerator
-import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions
-import com.stanfy.helium.handler.codegen.objectivec.builder.DefaultObjCProjectBuilder
-import com.stanfy.helium.handler.codegen.objectivec.mapper.sfobjectmapping.ObjCSFObjectMapper
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.DefaultObjCProjectBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMapper
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Type
 import org.apache.commons.io.FileUtils

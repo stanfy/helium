@@ -1,6 +1,10 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity;
 
+import com.stanfy.helium.handler.Handler;
+import com.stanfy.helium.handler.codegen.BaseGenerator;
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.DefaultObjCProjectBuilder;
+import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.ObjCMapper;
+import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMapper;
 import com.stanfy.helium.model.Project;
 
 import java.io.File;

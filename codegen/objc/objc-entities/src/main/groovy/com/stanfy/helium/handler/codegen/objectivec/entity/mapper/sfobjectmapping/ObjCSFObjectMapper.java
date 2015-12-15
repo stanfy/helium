@@ -1,16 +1,17 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping;
 
-import com.stanfy.helium.handler.codegen.objectivec.ObjCHeaderFile;
-import com.stanfy.helium.handler.codegen.objectivec.ObjCImplementationFile;
-import com.stanfy.helium.handler.codegen.objectivec.ObjCProject;
-import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions;
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClass;
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassDefinition;
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCClassImplementation;
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCImportPart;
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCPropertyDefinition;
-import com.stanfy.helium.handler.codegen.objectivec.file.ObjCStringSourcePart;
-import com.stanfy.helium.handler.codegen.objectivec.mapper.ObjCMapper;
+
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCHeaderFile;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCImplementationFile;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClass;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassDefinition;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassImplementation;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition;
+import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.ObjCMapper;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCImportPart;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCStringSourcePart;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
