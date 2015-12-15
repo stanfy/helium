@@ -1,7 +1,7 @@
 package com.stanfy.helium.gradle.tasks
 
 import com.stanfy.helium.Helium
-import com.stanfy.helium.dsl.HeliumScript
+import com.stanfy.helium.internal.dsl.HeliumScript
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -41,8 +41,7 @@ abstract class BaseHeliumTask<T> extends DefaultTask {
         }
       }
       if (input) {
-        File baseDir = input.parentFile
-        heliumInstance.set "baseDir", baseDir from input
+        heliumInstance.from input
       }
     }
     return heliumInstance

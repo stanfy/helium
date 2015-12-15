@@ -2,8 +2,9 @@ package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.internal.SourceCodeGenerators
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
-import com.stanfy.helium.utils.DslUtils
+import com.stanfy.helium.internal.utils.DslUtils
 import groovy.transform.PackageScope
+import org.gradle.api.Task
 
 import static com.stanfy.helium.gradle.UserConfig.specName
 
@@ -25,7 +26,8 @@ class SourceGenDslDelegate {
     SourceCodeGenerators.GENERATORS.each { String name, def params ->
       // configuration method
       meta."$name" << { Closure<?> config ->
-        setDelegate(name, new GeneratorDslDelegate(genOptions: params.optionsFactory()))
+        def options = params.optionsFactory()
+        setDelegate(name, new GeneratorDslDelegate(genOptions: options))
         DslUtils.runWithProxy(getDelegate(name), config)
       }
     }
@@ -55,9 +57,14 @@ class SourceGenDslDelegate {
     delegatesMap[name] = generator
   }
 
+  /**
+   * Create source generation tasks for the defined specification.
+   * @return a map {@code }
+   */
   @PackageScope
-  void createTasks(final UserConfig userConfig, final File specification, final URL[] classpath,
-                   final String basePath, final HeliumExtension config) {
+  Map<String, Task> createTasks(final UserConfig userConfig, final File specification, final URL[] classpath,
+                                            final String basePath, final HeliumExtension config) {
+    def tasksMap = [:]
     delegatesMap.each { String name, GeneratorDslDelegate delegate ->
       if (!delegate) {
         return
@@ -69,10 +76,12 @@ class SourceGenDslDelegate {
           HeliumInitializer.taskName("generate${name.capitalize()}", specification, config),
           SourceCodeGenerators.GENERATORS[name].task as Class<? extends BaseHeliumTask>
       )
+      tasksMap.put name, task
       HeliumInitializer.configureHeliumTask(task, specification, delegate.output, classpath, userConfig)
-      task.options = delegate.genOptions
+      task.setOptions delegate.genOptions
       config.sourceGen(specification)[name] = task
     }
+    return tasksMap
   }
 
   static final class GeneratorDslDelegate {

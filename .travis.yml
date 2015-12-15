@@ -1,21 +1,35 @@
-language: java
+language: android
+
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
+
+sudo: false
+
+cache:
+  directories:
+    - $HOME/.gradle
+    - $HOME/.android
+
+android:
+  components:
+    - build-tools-22.0.1
+    - android-22
+  licenses:
+    - android-sdk-license-5be876d5
+
 env:
   global:
   - secure: "N65Gr043MKcOCsRGTaG4Agk+MxTV/QXUU753Z7jgLqaz6oGugtb25oh7fuQ5OrSuF/XV2AXJaM03++2Wa3Xadp4CCA/ciJUMFhmy5KY/PLzpnNtFO0HY0B1IPS79fvsLKNnMaQTW46hnQWIvsXCfTjqzXIZ612ZcQxFdYZEUpns="
   - secure: "W6QGZAbSdKkLJQ53hDs5LXRNNCQnv18W40/h2vkEdoImIJ3pZX/gTbycmS0D3x7Ev8BsgjH0/jaK+BeTRmABBs2U7jld7XN690O3dkHTSONRVcRk9litCpvBDnzlt6EaMjvYZSzJ4YPBefG1MFtw+dJkZ5sO6k1J81zaOAXSI90="
-
-before_install:
-- sudo apt-get update
-- sudo apt-get install -qq libstdc++6:i386 lib32z1 --fix-missing
-- export COMPONENTS=build-tools-19.1.0,android-19,extra-android-m2repository
-- curl -L https://raw.github.com/embarkmobile/android-sdk-installer/version-1/android-sdk-installer | bash /dev/stdin --install=$COMPONENTS
-- source ~/.android-sdk-installer/env
+  - JAVA_OPTS=-XX:MaxPermSize=1024m
 
 install:
-- TERM=dumb ./gradlew -q assemble
+- TERM=dumb ./gradlew -q -s clean assemble
 
 script:
-- TERM=dumb ./gradlew --continue check install integrationTests
+- TERM=dumb ./gradlew -s --continue check install integrationTests
 
 after_success:
 - ./scripts/deploy_to_maven.sh

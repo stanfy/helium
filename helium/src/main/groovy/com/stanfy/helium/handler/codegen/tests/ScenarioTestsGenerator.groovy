@@ -2,15 +2,17 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.DefaultType
-import com.stanfy.helium.dsl.ProjectDsl
-import com.stanfy.helium.dsl.scenario.ScenarioDelegate
-import com.stanfy.helium.dsl.scenario.ScenarioInvoker
+import com.stanfy.helium.internal.dsl.ProjectDsl
+import com.stanfy.helium.internal.dsl.scenario.ScenarioDelegate
+import com.stanfy.helium.internal.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.tests.Scenario
 import groovy.transform.CompileStatic
 
 import javax.lang.model.element.Modifier
+
+import static com.squareup.javawriter.JavaWriter.stringLiteral
 
 /**
  * Generator for scenario tests.
@@ -28,7 +30,7 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
     this(scenariosFile, srcOutput, resourcesOutput, null);
   }
   public ScenarioTestsGenerator(final File scenariosFile, final File srcOutput, final File resourcesOutput, final String packageName) {
-    super(srcOutput, resourcesOutput, packageName);
+    super(srcOutput, resourcesOutput, packageName, "scenario");
     if (!scenariosFile.exists()) {
       throw new IllegalArgumentException("Scenarios file does not exist")
     }
@@ -55,39 +57,65 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
 
   }
 
+  private String replaceVarsInSpec(final File file, final Map<File, String> map, final Project project) {
+    def text = file.getText("UTF-8")
+    if (project instanceof ProjectDsl) {
+      GroovyShell shell = null
+      if (project.variablesBinding.hasVariable("baseDir")) {
+        shell = new GroovyShell(project.variablesBinding)
+      }
+      def defaultBaseDir = scenariosFile.parentFile
+      text = text.replaceAll(/include\s+(["'].+?["'])/) { fullLine, arg ->
+        File f = (shell
+            ? new File(shell.evaluate(arg as String) as String)
+            : new File(defaultBaseDir, (arg as String)['$baseDir/'.length() + 1..-2]))
+        return "include \"\$baseDir/${map[f]}\""
+      }
+    }
+    return text
+  }
+
   private void copy(final Project project) {
-    // XXX temp solution
+    def includeMap = [:]
+    project.includedFiles.each { File includedSpec ->
+      String name = UniqueName.from(includedSpec)
+      includeMap[includedSpec] = name
+    }
+    includeMap.each { key, value ->
+      File file = key as File
+      String name = value as String
+      new File(getResourcesPackageDir(), name).withWriter(UTF_8) { Writer out ->
+        out << "// $file.absolutePath\n\n"
+        out << replaceVarsInSpec(file, includeMap, project)
+      }
+    }
     specFile.withWriter(UTF_8) { Writer out ->
       DefaultType.values().each { DefaultType type ->
-        out << "type '${type.langName}'\n"
-      }
-
-      if (project instanceof ProjectDsl) {
-        Binding vars = project.variablesBinding
-        vars.variables.each { key, value ->
-          out << "def $key = \"${value}\"\n"
+        try {
+          project.types.byName(type.langName)
+          out << "type '${type.langName}'\n"
+        } catch (IllegalArgumentException ignored) {
+          // no such type
         }
       }
-
-      out << scenariosFile.getText(UTF_8)
+      out << replaceVarsInSpec(scenariosFile, includeMap, project)
     }
   }
 
   @Override
-  protected void startTest(final JavaWriter writer, final Service service) throws IOException {
-    super.startTest(writer, service)
+  protected void emitConstructorCode(final JavaWriter java) {
+    java.emitStatement("this.proxy = new ${ScenarioDelegate.canonicalName}(service, createExecutor())")
+  }
+
+  @Override
+  protected void startTest(final JavaWriter writer, final Service service, final Project project) throws IOException {
+    super.startTest(writer, service, project)
     writer.emitField(Service.name, "service")
     writer.emitField(ScenarioDelegate.canonicalName, "proxy", EnumSet.of(Modifier.PRIVATE))
 
-    writer.beginMethod(null, getClassName(service), PUBLIC)
-    writer.emitStatement("super()")
-    writer.emitStatement("this.proxy = new ${ScenarioDelegate.canonicalName}(service, createExecutor())")
-    writer.endMethod()
-    writer.emitEmptyLine()
-
-    writer.beginMethod(Project.name, "loadDefaultTestSpec", PROTECTED)
-    writer.emitStatement("${Project.name} project = super.loadDefaultTestSpec()")
-    writer.emitStatement("this.service = project.serviceByName(%s)", JavaWriter.stringLiteral(service.name))
+    writer.beginMethod(Project.name, "loadDefaultTestSpec", PROTECTED, "String", "prefix")
+    writer.emitStatement("${Project.name} project = super.loadDefaultTestSpec(prefix)")
+    writer.emitStatement("this.service = project.serviceByName(%s)", stringLiteral(service.name))
     writer.emitStatement("return project")
     writer.endMethod()
     writer.emitEmptyLine()
@@ -101,7 +129,7 @@ public class ScenarioTestsGenerator extends BaseUnitTestsGenerator {
     writer.beginMethod("void", scenario.canonicalName, Collections.<Modifier>singleton(Modifier.PUBLIC))
 
     writer.emitStatement("${Scenario.canonicalName} scenario = service.getTestInfo().scenarioByName(%s)",
-        JavaWriter.stringLiteral(scenario.name))
+        stringLiteral(scenario.name))
     writer.emitStatement("${ScenarioInvoker.canonicalName}.invokeScenario(proxy, scenario)")
 
     writer.endMethod()

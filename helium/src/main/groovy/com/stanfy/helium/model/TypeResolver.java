@@ -1,6 +1,6 @@
 package com.stanfy.helium.model;
 
-import com.stanfy.helium.entities.ConverterFactory;
+import com.stanfy.helium.internal.entities.ConvertersPool;
 
 /**
  * Operates with types.
@@ -15,6 +15,6 @@ public interface TypeResolver {
 
   Iterable<Type> all();
 
-  <I, O> ConverterFactory<I, O> findConverters(final String format);
+  <I, O> ConvertersPool<I, O> findConverters(final String format);
 
 }

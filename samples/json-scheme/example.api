@@ -1,0 +1,18 @@
+type "channel" spec {
+  description "Channel name"
+  constraints("string") {
+    enumeration "beta", "dev", "stable"
+  }
+}
+
+type "BuildInfo" message {
+
+  versionCode 'int32'
+  ch "channel"
+  environment(type: 'string') {
+    constraints {
+      enumeration 'dev', 'prod'
+    }
+  }
+
+}

@@ -1,6 +1,6 @@
 package com.stanfy.helium.model
 
-import com.stanfy.helium.utils.Names
+import com.stanfy.helium.internal.utils.Names
 import groovy.transform.CompileStatic
 
 /**
@@ -22,6 +22,10 @@ class Descriptionable {
   @Override
   String toString() {
     return "${getClass().simpleName}($name)"
+  }
+
+  void setDescription(final String desc) {
+    this.@description = desc ? desc.trim() : null
   }
 
 }

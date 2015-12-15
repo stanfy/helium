@@ -1,9 +1,9 @@
 package com.stanfy.helium;
 
-import com.stanfy.helium.dsl.ProjectDsl;
-import com.stanfy.helium.handler.ClosureExtender;
+import com.stanfy.helium.internal.handler.ClosureExtender;
 import com.stanfy.helium.handler.Handler;
-import com.stanfy.helium.handler.ScriptExtender;
+import com.stanfy.helium.internal.handler.ScriptExtender;
+import com.stanfy.helium.internal.dsl.ProjectDsl;
 import com.stanfy.helium.model.Project;
 import groovy.lang.Closure;
 

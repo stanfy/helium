@@ -2,9 +2,18 @@ apply plugin: 'groovy'
 apply plugin: 'signing'
 apply plugin: 'maven'
 apply plugin: 'checkstyle'
+apply plugin: 'codenarc'
+
+apply from: file("$rootDir/gradle/common.gradle")
 
 dependencies {
   compile project(':helium')
+  compile project(':codegen:java:java-entities')
+  compile project(':codegen:java:java-constants')
+  compile project(':codegen:java:retrofit')
+  compile project(':codegen:objc:objc-entities')
+  compile project(':codegen:json:json-schema')
+
   compile 'commons-cli:commons-cli:1.2'
 }
 

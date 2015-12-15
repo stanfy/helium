@@ -2,6 +2,8 @@ package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.HeliumWriter
+import com.stanfy.helium.handler.tests.JsonEntityExampleGenerator
+import com.stanfy.helium.handler.tests.NoExamplesProvidedException
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
@@ -11,8 +13,9 @@ import groovy.transform.CompileStatic
 
 import javax.lang.model.element.Modifier
 
-import static com.stanfy.helium.handler.codegen.tests.Utils.findUnresolvedHeaders
 import static com.stanfy.helium.handler.codegen.tests.Utils.preparePokeTestInfo
+import static com.stanfy.helium.handler.tests.Utils.findUnresolvedHeaders
+import static com.stanfy.helium.handler.tests.Utils.resolveEncoding
 
 /**
  * REST API tests generator.
@@ -28,7 +31,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     this(srcOutput, resourcesOutput, null);
   }
   public RestApiPokeTestsGenerator(final File srcOutput, final File resourcesOutput, final String packageName) {
-    super(srcOutput, resourcesOutput, packageName);
+    super(srcOutput, resourcesOutput, packageName, "poke");
   }
 
   @Override
@@ -65,7 +68,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
       return 0
     }
 
-    String encoding = HttpExecutor.resolveEncoding(service, method)
+    String encoding = resolveEncoding(service, method)
 
     MethodGenerator gen = new MethodGenerator(out: out, service: service, method: method, testInfo: testInfo)
 
@@ -100,7 +103,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
       if (requestUriReady && !method.hasBody()) {
         // can make an example
         gen.method("_example", parametrizedUri) {
-          gen.expectSuccess(encoding)
+          gen.expectSuccess()
         }
       }
 
@@ -118,7 +121,7 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
       if (testInfo.useExamples) {
         try {
           gen.method("_example", parametrizedUri, entitiesGenerator.generate(method.body).toString()) {
-            gen.expectSuccess(encoding)
+            gen.expectSuccess()
           }
         } catch (NoExamplesProvidedException ignored) {
           // ignore
@@ -139,21 +142,26 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
 
     int count
 
-    private void emitHeaders() {
+    private void createRequest(final String uri, final String body) {
+      // TODO: Support more content types.
+      out.emitStatement("MediaType requestContentType = MediaType.parse(%s)",
+          JavaWriter.stringLiteral("application/json"))
+      out.emitStatement("""
+        Request.Builder rb = new Request.Builder()
+            .method(%s, ${body != null ? 'RequestBody.create(requestContentType, %s)' : '%s'})
+            .url(%s)
+      """.trim(),
+          JavaWriter.stringLiteral(method.type.toString()),
+          body != null ? JavaWriter.stringLiteral(body) : null,
+          JavaWriter.stringLiteral(uri))
       testInfo.httpHeaders.each { String key, String value ->
-        out.emitStatement('request.addHeader(%s, %s)', JavaWriter.stringLiteral(key), JavaWriter.stringLiteral(value))
+        out.emitStatement('rb.header(%s, %s)', JavaWriter.stringLiteral(key), JavaWriter.stringLiteral(value))
       }
+      out.emitStatement("Request request = rb.build()")
     }
 
-    private void sendRequestBody(final String uri, final String body) {
-      out.emitStatement("HttpRequestBase request = createHttpRequest(MethodType.%s)", method.type.toString())
-      out.emitStatement('request.setURI(new URI(%s))', JavaWriter.stringLiteral(uri))
-      if (body) {
-        out.emitStatement('HttpEntity requestEntity = new StringEntity(%s)', JavaWriter.stringLiteral(body))
-        out.emitStatement('((HttpEntityEnclosingRequestBase)request).setEntity(requestEntity)')
-      }
-      emitHeaders()
-      out.emitStatement('HttpResponse response = send(request)')
+    private void invokeRequest() {
+      out.emitStatement("Response response = getClient().newCall(request).execute()")
     }
 
     private void startTestMethod(String nameSuffix) {
@@ -170,14 +178,15 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
 
     void method(final String suffix, final String url, final String requestBody, final Closure<?> methodBody) {
       startTestMethod(suffix)
-      sendRequestBody(url, requestBody)
+      createRequest(url, requestBody)
+      invokeRequest()
       methodBody.call()
       out.endMethod()
     }
 
-    void expectSuccess(final String encoding) {
+    void expectSuccess() {
       validateStatusCode(true)
-      validateBody(encoding)
+      validateBody()
     }
 
     void expectClientError() {
@@ -185,13 +194,12 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
     }
 
     private void validateStatusCode(final boolean success) {
-      out.emitStatement('validateStatus(request, response, %s)', success ? "true" : "false")
+      out.emitStatement('validateStatus(response, %s)', success ? "true" : "false")
     }
 
-    private void validateBody(final String encoding) {
+    private void validateBody() {
       if (method.response) {
-        out.emitStatement('validate(request, response, "%s", %s)', encoding,
-            JavaWriter.stringLiteral(method.response.name))
+        out.emitStatement('validate(response, %s)', JavaWriter.stringLiteral(method.response.name))
       }
     }
 

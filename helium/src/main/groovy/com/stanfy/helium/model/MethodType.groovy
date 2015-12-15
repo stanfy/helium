@@ -12,7 +12,8 @@ enum MethodType {
   POST(true),
   PUT(true),
   DELETE(false),
-  PATCH(true)
+  PATCH(true),
+  HEAD(false)
 
   /** Whether request has body. */
   final boolean hasBody

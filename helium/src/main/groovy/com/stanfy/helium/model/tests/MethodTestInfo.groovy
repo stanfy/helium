@@ -16,10 +16,11 @@ class MethodTestInfo extends TestsInfo {
     headersMap.putAll(globalInfo.httpHeaders)
     headersMap.putAll(httpHeaders)
 
+    boolean globalUseExamples = globalInfo.useExamples == null ? false : globalInfo.useExamples
+    boolean globalBadInput = globalInfo.generateBadInputTests == null ? false : globalInfo.generateBadInputTests
     return new MethodTestInfo(
-      useExamples: this.useExamples == null ? !!globalInfo.useExamples : this.useExamples,
-      generateBadInputTests: this.generateBadInputTests == null
-          ? !!globalInfo.generateBadInputTests : this.generateBadInputTests,
+      useExamples: this.useExamples == null ? globalUseExamples : this.useExamples,
+      generateBadInputTests: this.generateBadInputTests == null ? globalBadInput : this.generateBadInputTests,
       pathExample: pathExample,
       httpHeaders: headersMap
     )

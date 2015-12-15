@@ -4,14 +4,34 @@ import com.stanfy.helium.Helium
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGenerator
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
-import com.stanfy.helium.handler.codegen.objectivec.ObjCEntitiesGenerator
-import com.stanfy.helium.handler.codegen.objectivec.ObjcEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions
 
 /**
  * Main entry point.
  */
 class Main {
 
+  /**
+   * This is a map of command line options to Helium spec handlers.
+   * If you want to add  new handler invoked by a user with
+   * <pre>
+   *   java helium-cli.jar -my-handler -Hfoo=value
+   * </pre>
+   * add the following entry to this map:
+   * <pre>
+   *   'my-handler': [
+   *     description: 'These notes will be displayed in command line help',
+   *     properties: [
+   *       'foo': 'Document your parameter'
+   *     ],
+   *     // Output is defined as -o <dir> in the command line.
+   *     factory: { def options, File output ->
+   *       return new MyHandler(options.requiredProperty('foo'), output)
+   *     }
+   *   ]
+   * </pre>
+   */
   private static final def HANDLERS = [
       "java-entities" : [
           description: "Generate Java entity classes",

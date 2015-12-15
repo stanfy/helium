@@ -1,7 +1,6 @@
 package com.stanfy.helium.gradle
 
 import com.android.build.gradle.AppPlugin
-import com.android.build.gradle.BasePlugin
 import com.android.build.gradle.api.BaseVariant
 import com.stanfy.helium.gradle.internal.SourceCodeGenerators
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
@@ -18,7 +17,8 @@ class AndroidPlugin implements Plugin<Project> {
   void apply(final Project project) {
     project.apply plugin: HeliumPlugin
 
-    if (!project.plugins.withType(BasePlugin.class)) {
+    if (!project.plugins.hasPlugin("com.android.application")
+        && !project.plugins.hasPlugin("com.android.library")) {
       throw new GradleException("Android plugin is not applied");
     }
 

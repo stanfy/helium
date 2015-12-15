@@ -5,7 +5,7 @@ buildscript {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
   }
   dependencies {
-    classpath 'com.stanfy.helium:gradle-plugin:0.5.5-SNAPSHOT'
+    classpath 'com.stanfy.helium:gradle-plugin:0.8.0-SNAPSHOT'
   }
 }
 
@@ -28,6 +28,7 @@ helium {
 
   variables {
     host 'api.twitter.com'
+    baseDir projectDir
   }
 }
 
@@ -37,5 +38,6 @@ task clean(type: Delete) {
 
 task check()
 afterEvaluate {
-  check.dependsOn 'genApiTestsTwitter1', 'genApiTestsTwitter2', 'generateEntitiesTwitter1', 'runApiTestsTwitter2'
+  check.dependsOn 'genApiTestsTwitter1', 'genApiTestsTwitter2', 'generateEntitiesTwitter1', 'runApiTestsTwitter2',
+      'checkApiBehaviourTwitter2'
 }

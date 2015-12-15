@@ -5,8 +5,8 @@ buildscript {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:0.12.2'
-    classpath 'com.stanfy.helium:gradle-plugin:0.5.5-SNAPSHOT'
+    classpath 'com.android.tools.build:gradle:1.2.2'
+    classpath 'com.stanfy.helium:gradle-plugin:0.8.0-SNAPSHOT'
   }
 }
 
@@ -14,12 +14,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'helium-android'
 
 android {
-  compileSdkVersion 19
-  buildToolsVersion "19.1.0"
+  compileSdkVersion 22
+  buildToolsVersion "22.0.1"
 
   defaultConfig {
     minSdkVersion 14
-    targetSdkVersion 19
+    targetSdkVersion 22
   }
 
   compileOptions {
@@ -33,14 +33,15 @@ repositories {
 }
 
 dependencies {
-  compile 'com.google.code.gson:gson:2.2.4'
-  compile 'com.squareup.retrofit:retrofit:1.6.1'
+  compile 'com.google.code.gson:gson:2.3.1'
+  compile 'com.squareup.retrofit:retrofit:1.8.0'
 }
 
 // import some classes to be able to customize source generation
 import javax.lang.model.element.Modifier
 import static com.stanfy.helium.handler.codegen.java.entity.Writers.*
 import com.stanfy.helium.handler.codegen.java.constants.ConstantNameConverter
+import static com.stanfy.helium.handler.codegen.java.ClassAncestors.*
 
 helium {
   specification file('src/api/twitter.api')
@@ -77,6 +78,10 @@ helium {
             timestamp: "java.util.Date"
         ]
 
+        // Add custom inheritance mapping for generated entities.
+        customParentMapping = [
+          Base: extending("com.stanfy.helium.sample.android.BaseModel")
+        ]
         // Force using Java arrays instead of collections for sequences:
         // currently the only option supported by androidParcelable() feature.
         useArraysForSequences()

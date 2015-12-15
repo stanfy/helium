@@ -1,0 +1,5 @@
+type 'B' message { }
+note "b"
+include "$baseDir/../a.api"
+// This should be ignored.
+include "$baseDir/../c.api"

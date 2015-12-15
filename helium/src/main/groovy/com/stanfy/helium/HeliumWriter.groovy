@@ -4,9 +4,9 @@ import com.squareup.javawriter.JavaWriter
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
-import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Note
 import com.stanfy.helium.model.Project
+import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.StructureUnit
@@ -115,21 +115,25 @@ class HeliumWriter implements Closeable {
     }
     writeLine "$field.name {"
     incIndent()
-    writeLine "type '${field.type.name}'"
-    writeLine "required $field.required"
-    if (field.sequence) {
-      writeLine "sequence $field.sequence"
-    }
-    if (field.examples) {
-      StringBuilder examplesString = new StringBuilder()
-      examplesString << "["
-      field.examples.each { Object example ->
-        String v = example instanceof String ? JavaWriter.stringLiteral(example) : String.valueOf(example)
-        examplesString << v << ", "
+    if (field.skip) {
+      writeLine 'skip true'
+    } else {
+      writeLine "type '${field.type.name}'"
+      writeLine "required $field.required"
+      if (field.sequence) {
+        writeLine "sequence $field.sequence"
       }
-      examplesString.delete(examplesString.length() - 2, examplesString.length())
-      examplesString << "]"
-      writeLine "examples $examplesString"
+      if (field.examples) {
+        StringBuilder examplesString = new StringBuilder()
+        examplesString << "["
+        field.examples.each { Object example ->
+          String v = example instanceof String ? JavaWriter.stringLiteral((String) example) : String.valueOf(example)
+          examplesString << v << ", "
+        }
+        examplesString.delete(examplesString.length() - 2, examplesString.length())
+        examplesString << "]"
+        writeLine "examples $examplesString"
+      }
     }
     decIndent()
     writeLine "}"
@@ -254,8 +258,8 @@ class HeliumWriter implements Closeable {
   }
 
   private void emitTestsInfoDetails(final TestsInfo testsInfo) {
-    writeLine "useExamples ${!!testsInfo.useExamples}"
-    writeLine "generateBadInputTests ${!!testsInfo.generateBadInputTests}"
+    writeLine "useExamples ${testsInfo.useExamples == null ? false : testsInfo.useExamples}"
+    writeLine "generateBadInputTests ${testsInfo.generateBadInputTests == null ? false : testsInfo.generateBadInputTests}"
     if (!testsInfo.httpHeaders.isEmpty()) {
       writeStringsMap "httpHeaders", testsInfo.httpHeaders
     }

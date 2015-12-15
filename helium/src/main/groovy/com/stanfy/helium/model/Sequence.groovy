@@ -1,9 +1,12 @@
 package com.stanfy.helium.model
 
+import groovy.transform.CompileStatic
+
 /**
  * Sequence of something.
  */
-class Sequence extends Type {
+@CompileStatic
+final class Sequence extends Type {
 
   /** Items type. */
   Type itemsType

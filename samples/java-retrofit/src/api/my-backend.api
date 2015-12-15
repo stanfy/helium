@@ -14,6 +14,15 @@ type "SearchResponse" message {
   search_metadata(skip: true)
 }
 
+type "BaseResponse" message {
+  code   'int32'
+  status 'string'
+}
+
+type "UserMessage" message(parent: "BaseResponse") {
+  data 'string'
+}
+
 service {
 
   name "My Backend"
@@ -26,6 +35,7 @@ service {
     parameters {
       query 'string'
       count 'int32' optional
+      options 'int32' sequence
     }
     response 'SearchResponse'
   }

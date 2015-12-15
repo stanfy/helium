@@ -1,8 +1,8 @@
 package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
-import com.stanfy.helium.utils.ConfigurableStringMap
-import com.stanfy.helium.utils.DslUtils
+import com.stanfy.helium.internal.utils.ConfigurableStringMap
+import com.stanfy.helium.internal.utils.DslUtils
 import groovy.transform.PackageScope
 import org.gradle.api.GradleException
 
@@ -13,7 +13,7 @@ import static com.stanfy.helium.gradle.UserConfig.specName
  */
 class HeliumExtension {
 
-  public static final String VERSION = "0.5.5-SNAPSHOT"
+  public static final String VERSION = "0.8.0-SNAPSHOT"
 
   /** Tasks group. */
   public static final String GROUP = "Helium"
