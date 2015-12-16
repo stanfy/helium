@@ -18,15 +18,15 @@ public abstract class ObjCFile implements ObjCSourcePart {
     this.name = name;
   }
 
-  /*
-  Returns file name
+  /**
+   * Returns file name
    */
   public String getName() {
     return name;
   }
 
-  /*
-  File extension :)
+  /**
+   * File extension :)
    */
   public abstract String getExtension();
 

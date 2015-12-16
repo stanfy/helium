@@ -3,10 +3,10 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.builder;
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCHeaderFile;
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCImplementationFile;
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject;
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions;
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClass;
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassDefinition;
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassImplementation;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassInterface;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCImplementationFileSourcePart;
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
@@ -18,13 +18,12 @@ import java.util.Map;
 
 /**
  * Created by ptaykalo on 8/17/14.
- *
  */
 public class DefaultObjCProjectBuilder implements ObjCProjectBuilder {
 
-  /*
-     Type transformer to transform correct Objc types from Helium API
-     */
+  /**
+   * Type transformer to transform correct Objc types from Helium API
+   */
   private ObjCTypeTransformer typeTransformer = new ObjCTypeTransformer();
   private ObjCPropertyNameTransformer nameTransformer = new ObjCPropertyNameTransformer();
 
@@ -38,20 +37,20 @@ public class DefaultObjCProjectBuilder implements ObjCProjectBuilder {
     return nameTransformer;
   }
 
-  /*
-  Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
+  /**
+   * Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
    */
   @Override
   public ObjCProject build(final Project project) {
     return build(project, null);
   }
 
-  /*
-  Performs parsing / translation of Helium DSL Proejct Structure to Objective-C Project structure
-  Uses specified options for the generation @see ObjCProjectParserOptions
+  /**
+   * Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
+   * Uses specified options for the generation @see ObjCProjectParserOptions
    */
   @Override
-  public ObjCProject build(final Project project, final ObjcEntitiesOptions options) {
+  public ObjCProject build(final Project project, final ObjCEntitiesOptions options) {
     ObjCProject objCProject = new ObjCProject();
 
     // Register all messages first
@@ -92,8 +91,8 @@ public class DefaultObjCProjectBuilder implements ObjCProjectBuilder {
 
       ObjCClass objCClass = new ObjCClass(fileName);
 
-      ObjCClassDefinition classDefinition = new ObjCClassDefinition(fileName);
-      ObjCClassImplementation classImplementation = new ObjCClassImplementation(fileName);
+      ObjCClassInterface classDefinition = new ObjCClassInterface(fileName);
+      ObjCImplementationFileSourcePart classImplementation = new ObjCImplementationFileSourcePart(fileName);
 
       HashSet<String> usedPropertyNames = new HashSet<String>();
       for (Field field : message.getActiveFields()) {

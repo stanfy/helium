@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.properties
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.DefaultObjCProjectBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition
@@ -17,12 +17,12 @@ class ObjCProjectParserPropertiesSpec extends Specification {
   DefaultObjCProjectBuilder parser;
   ProjectDsl project;
   ObjCProject objCProject
-  ObjcEntitiesOptions options
+  ObjCEntitiesOptions options
 
   def setup() {
     project = new ProjectDsl()
     parser = new DefaultObjCProjectBuilder()
-    options = new ObjcEntitiesOptions();
+    options = new ObjCEntitiesOptions();
   }
 
   //        project.type "A" message { }

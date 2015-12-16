@@ -10,7 +10,7 @@ import java.io.Writer;
 
 /**
  * Created by ptaykalo on 8/17/14
- * Generates files, based on pased in ObjCProject.
+ * Generates files, based on based in ObjCProject.
  */
 public class ObjCProjectGenerator {
 

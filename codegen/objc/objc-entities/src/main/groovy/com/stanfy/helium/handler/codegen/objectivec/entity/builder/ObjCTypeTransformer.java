@@ -13,11 +13,11 @@ import java.util.HashMap;
  */
 final class ObjCTypeTransformer {
 
-  /*
-  This hashmap holds information about Helium API -> Objective-C type conversions
+  /**
+   * This hashMap holds information about Helium API -> Objective-C type conversions
    */
-  private HashMap<String, String> typesMapping =  new HashMap<String, String>();
-  private HashMap<String, AccessModifier> accessMapping =  new HashMap<String, AccessModifier>();
+  private HashMap<String, String> typesMapping = new HashMap<String, String>();
+  private HashMap<String, AccessModifier> accessMapping = new HashMap<String, AccessModifier>();
 
   public ObjCTypeTransformer() {
     this.registerRefTypeTransformation("string", "NSString", AccessModifier.COPY);
@@ -49,9 +49,9 @@ final class ObjCTypeTransformer {
     accessMapping.put(heliumTypeName, accessModifier);
   }
 
-  /*
-    Returns Objective-C type for specified Helium API Type
-     */
+  /**
+   * Returns Objective-C type for specified Helium API Type
+   */
   public String objCType(final Type heliumAPIType) {
     return this.objCType(heliumAPIType, false);
   }
@@ -70,8 +70,8 @@ final class ObjCTypeTransformer {
     return heliumAPIType.getName();
   }
 
-  /*
-  Returns access modifier for specified helium type
+  /**
+   * Returns access modifier for specified helium type
    */
   public AccessModifier accessorModifierForType(final Type heliumAPIType) {
 

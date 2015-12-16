@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Options for a handler that generated Obj-C entities.
  */
-public class ObjcEntitiesOptions extends GeneratorOptions {
+public class ObjCEntitiesOptions extends GeneratorOptions {
 
   /** Class names prefix. */
   private String prefix = "HE";
@@ -17,7 +17,7 @@ public class ObjcEntitiesOptions extends GeneratorOptions {
    * Map that contains mappings for custom Helium Types. i.e. timestamp -> NSDate.
    * It is used for generating custom(complex) types.
    */
-  private Map<String, String> customTypesMappings =  new HashMap<String, String>();
+  private Map<String, String> customTypesMappings = new HashMap<String, String>();
 
   public void setPrefix(final String prefix) {
     this.prefix = prefix;

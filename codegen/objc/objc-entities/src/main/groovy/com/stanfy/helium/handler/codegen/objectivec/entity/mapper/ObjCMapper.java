@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.mapper;
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject;
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions;
 import com.stanfy.helium.model.Project;
 
 /**
@@ -11,10 +11,10 @@ import com.stanfy.helium.model.Project;
  */
 public interface ObjCMapper {
 
-  /*
-  Updated specified |project| by adding additional file(s), those contain code that
-  should map items from the DSL to the Classes, defined in project.
+  /**
+   * Updated specified |project| by adding additional file(s), those contain code that
+   * should map items from the DSL to the Classes, defined in project.
    */
   // TODO: replace with more generic options
-  void generateMappings(final ObjCProject project, final Project projectDSL, final ObjcEntitiesOptions options);
+  void generateMappings(final ObjCProject project, final Project projectDSL, final ObjCEntitiesOptions options);
 }

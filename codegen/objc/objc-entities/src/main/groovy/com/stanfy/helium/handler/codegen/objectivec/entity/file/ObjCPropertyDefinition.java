@@ -21,30 +21,30 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
   }
 
 
-  /*
-  Property name
-  */
+  /**
+   * Property name
+   */
   private String name;
 
-  /*
-  Property result type (this is the type, which will be simply translated to the output)
-  so, in case of ObjC - it should be NSString, and NSArray... etc
+  /**
+   * Property result type (this is the type, which will be simply translated to the output)
+   * so, in case of ObjC - it should be NSString, and NSArray... etc
    */
   private String type;
 
-  /*
-  Access modifier for property AccessModifier.STRONG - for default value
+  /**
+   * Access modifier for property AccessModifier.STRONG - for default value
    */
-  private AccessModifier accessModifier;
+  private AccessModifier accessModifier = AccessModifier.STRONG;
 
-  /*
-  By default we'll create non-atomic modifier
+  /**
+   * By default we'll create non-atomic modifier
    */
-  private AtomicModifier atomicModifier;
+  private AtomicModifier atomicModifier = AtomicModifier.NONATOMIC;
 
-  /*
-    Additional comment
-     */
+  /**
+   * Additional comment
+   */
   private String comment;
 
   /**
@@ -58,12 +58,10 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
    */
   private boolean isSequence;
 
-
-
   /**
    * Holds information for item type, that will be presented in this property.
    * Property type can be "NSArray / NSSet" etc
-   * This proeprty will hold type of actual items, those are inthis property
+   * This property will hold type of actual items, those are in this property
    */
   private String sequenceType;
 
@@ -104,9 +102,7 @@ public class ObjCPropertyDefinition implements ObjCSourcePart {
     return name;
   }
 
-  public String getType() {
-    return type;
-  }
+  public String getType() { return type; }
 
   public Field getCorrespondingField() {
     return correspondingField;

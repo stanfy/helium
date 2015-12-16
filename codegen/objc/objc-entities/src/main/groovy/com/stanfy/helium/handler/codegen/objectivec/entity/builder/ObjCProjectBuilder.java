@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.builder;
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject;
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions;
 import com.stanfy.helium.model.Project;
 
 /**
@@ -18,19 +18,18 @@ public interface ObjCProjectBuilder {
 
   /**
    * Returns transformer, that is responsible for generation valid names for properties
-   *
    */
   ObjCPropertyNameTransformer getNameTransformer();
 
-  /*
-    Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
-     */
+  /**
+   * Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
+   */
   ObjCProject build(final Project project);
 
-  /*
-    Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
-    Uses specified options for the generation @see ObjCProjectParserOptions
-     */
+  /**
+   * Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
+   * Uses specified options for the generation @see ObjCProjectParserOptions
+   */
   // TODO replace with more generic options
-  ObjCProject build(final Project project, final ObjcEntitiesOptions options);
+  ObjCProject build(final Project project, final ObjCEntitiesOptions options);
 }

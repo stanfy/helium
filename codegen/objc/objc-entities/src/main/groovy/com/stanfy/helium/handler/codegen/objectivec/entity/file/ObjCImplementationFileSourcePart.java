@@ -6,27 +6,27 @@ import java.util.ArrayList;
  * Created by ptaykalo on 8/17/14.
  * Simple block that know how to serialize ObjC Class Implementation
  */
-public class ObjCClassImplementation implements ObjCSourcePart {
+public class ObjCImplementationFileSourcePart implements ObjCSourcePart {
 
-  /*
-  Class Name
+  /**
+   * Class Name
    */
-  private String className;
-  private ArrayList<ObjCSourcePart> importSourceParts =  new ArrayList<ObjCSourcePart>();
+  private String filename;
+  private ArrayList<ObjCImportPart> importSourceParts =  new ArrayList<ObjCImportPart>();
   private ArrayList<ObjCSourcePart> bodySourceParts =  new ArrayList<ObjCSourcePart>();
 
-  public ObjCClassImplementation(final String className) {
-    this.className = className;
+  public ObjCImplementationFileSourcePart(final String filename) {
+    this.filename = filename;
   }
 
-  public String getClassName() {
-    return className;
+  public String getFilename() {
+    return filename;
   }
 
   /**
   Adds specified source part to the top part (before @implementation)
    */
-  public void addImportSourcePart(final ObjCSourcePart sourcePart) {
+  public void addImportSourcePart(final ObjCImportPart sourcePart) {
     importSourceParts.add(sourcePart);
   }
   /**
@@ -40,11 +40,11 @@ public class ObjCClassImplementation implements ObjCSourcePart {
   public String asString() {
     // TODO use some templates
     StringBuilder bld = new StringBuilder();
-    bld.append("#import \"").append(className).append(".h\"\n");
+    bld.append("#import \"").append(filename).append(".h\"\n");
     for (ObjCSourcePart sourcePart : importSourceParts) {
       bld.append(sourcePart.asString()).append("\n");
     }
-    bld.append("@implementation ").append(className).append("\n");
+    bld.append("@implementation ").append(filename).append("\n");
     for (ObjCSourcePart sourcePart : bodySourceParts) {
       bld.append(sourcePart.asString()).append("\n");
     }

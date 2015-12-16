@@ -10,7 +10,7 @@ import static com.stanfy.helium.internal.utils.Names.prettifiedName;
 /**
  * Created by ptaykalo on 8/25/14.
  * Transform property names for specified class
- * It updateing words those could possibly be
+ * Updates original property names to another, name those aren't keywords in Objective-C
  */
 final class ObjCPropertyNameTransformer {
 

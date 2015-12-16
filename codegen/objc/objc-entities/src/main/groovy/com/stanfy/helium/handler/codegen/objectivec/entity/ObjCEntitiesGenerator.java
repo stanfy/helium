@@ -12,12 +12,12 @@ import java.io.File;
 /**
  * Created by ptaykalo on 8/25/14.
  */
-public class ObjCEntitiesGenerator extends BaseGenerator<ObjcEntitiesOptions> implements Handler {
+public class ObjCEntitiesGenerator extends BaseGenerator<ObjCEntitiesOptions> implements Handler {
 
   private DefaultObjCProjectBuilder projectBuilder;
   private ObjCMapper mapper;
 
-  public ObjCEntitiesGenerator(final File outputFile, final ObjcEntitiesOptions options) {
+  public ObjCEntitiesGenerator(final File outputFile, final ObjCEntitiesOptions options) {
     super(outputFile, options);
     this.projectBuilder = new DefaultObjCProjectBuilder();
     this.mapper = new ObjCSFObjectMapper(); // TODO create class from (class name?)

@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectGenerator
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.DefaultObjCProjectBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMapper
 import com.stanfy.helium.internal.dsl.ProjectDsl
@@ -52,7 +52,7 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
 
   def "should generate implementation parts with prefixes from options"() {
     when:
-    def options = new ObjcEntitiesOptions()
+    def options = new ObjCEntitiesOptions()
     this.project = parser.build(projectDSL, options);
     generator = new ObjCProjectGenerator(output, this.project);
 
@@ -71,7 +71,7 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
 
   def "should generate mappings parts with prefixes from options"() {
     when:
-    def options = new ObjcEntitiesOptions()
+    def options = new ObjCEntitiesOptions()
     this.project = parser.build(projectDSL, options);
     def mapper = new ObjCSFObjectMapper();
     mapper.generateMappings(project, projectDSL, options);

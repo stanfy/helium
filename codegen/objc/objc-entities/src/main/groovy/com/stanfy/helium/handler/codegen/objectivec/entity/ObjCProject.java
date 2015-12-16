@@ -12,16 +12,16 @@ import java.util.List;
  */
 public class ObjCProject {
 
-  /*
-  Files those are contained in this project. Each should have an unique name
+  /**
+   * Files those are contained in this project. Each should have an unique name
    */
   private ArrayList<ObjCFile> files = new ArrayList<ObjCFile>();
-  /*
-  Classes that this project contains
+  /**
+   * Classes that this project contains
    */
   private ArrayList<ObjCClass> classes = new ArrayList<ObjCClass>();
-  /*
-  Holds mapping form DSL Type names to classes, that this proejct contains
+  /**
+   * Holds mapping form DSL Type names to classes, that this project contains
    */
   private HashMap<String, ObjCClass> classesByTypes = new HashMap<String, ObjCClass>();
 
@@ -41,8 +41,8 @@ public class ObjCProject {
     classes.add(objCClass);
   }
 
-  /*
-  Adds class, and bounds it to the specified DSL Type
+  /**
+   * Adds class, and bounds it to the specified DSL Type
    */
   public void addClass(final ObjCClass objCClass, final String dslType) {
     classes.add(objCClass);

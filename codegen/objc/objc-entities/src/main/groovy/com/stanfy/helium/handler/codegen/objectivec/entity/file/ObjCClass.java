@@ -6,20 +6,21 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.file;
  */
 public class ObjCClass {
 
-  /*
-  Class name is unique in the project, since objC still doesn't have normal packages or namespaces
+  /**
+   * Class name is unique in the project, since objC still doesn't have normal packages or namespaces
    */
   private String name;
-  /*
-  Link to class implementation part.
-  This part lives in the ObjCImplementationFile
+  /**
+   * Link to class implementation part.
+   * This part lives in the ObjCImplementationFile
    */
-  private ObjCClassImplementation implementation;
-    /*
-  Link to class definition part.
-  This part lives in the ObjCCDefinitionFile
+  private ObjCImplementationFileSourcePart implementation;
+
+  /**
+   * Link to class definition part.
+   * This part lives in the ObjCCDefinitionFile
    */
-  private ObjCClassDefinition definition;
+  private ObjCClassInterface definition;
 
   public ObjCClass(final String name) {
     this.name = name;
@@ -29,17 +30,15 @@ public class ObjCClass {
     return name;
   }
 
-  public ObjCClassImplementation getImplementation() {
-    return implementation;
-  }
-  public void setImplementation(final ObjCClassImplementation implementation) {
+  public ObjCImplementationFileSourcePart getImplementation() { return implementation; }
+
+  public void setImplementation(final ObjCImplementationFileSourcePart implementation) {
     this.implementation = implementation;
   }
 
-  public ObjCClassDefinition getDefinition() {
-    return definition;
-  }
-  public void setDefinition(final ObjCClassDefinition definition) {
+  public ObjCClassInterface getDefinition() { return definition; }
+
+  public void setDefinition(final ObjCClassInterface definition) {
     this.definition = definition;
   }
 }

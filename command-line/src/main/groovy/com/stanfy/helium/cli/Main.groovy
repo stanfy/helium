@@ -5,7 +5,7 @@ import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGenerator
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 
 /**
  * Main entry point.
@@ -53,7 +53,7 @@ class Main {
               ],
 
               factory: { def options, File output ->
-                  ObjcEntitiesOptions genOptions = new ObjcEntitiesOptions()
+                  ObjCEntitiesOptions genOptions = new ObjCEntitiesOptions()
                   genOptions.prefix = requiredProperty(options, "prefix");
                   genOptions.customTypesMappings = mapProperty(options, "customMapping")
                   return new ObjCEntitiesGenerator(output, genOptions)

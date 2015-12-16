@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassDefinition
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassInterface
 import spock.lang.Specification
 
 import java.util.regex.Pattern
@@ -10,10 +10,10 @@ import java.util.regex.Pattern
  */
 class ObjCClassDefinitionGenerator extends Specification {
 
-  ObjCClassDefinition classDefinition;
+  ObjCClassInterface classDefinition;
 
   def setup() {
-    classDefinition = new ObjCClassDefinition("S");
+    classDefinition = new ObjCClassInterface("S");
   }
 
   def "should generate external classes parts"() {

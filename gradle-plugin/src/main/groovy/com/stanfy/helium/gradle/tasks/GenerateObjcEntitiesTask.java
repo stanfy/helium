@@ -1,12 +1,12 @@
 package com.stanfy.helium.gradle.tasks;
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator;
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions;
 
 /**
  * Generates Obj-C code (in dev).
  */
-public class GenerateObjcEntitiesTask extends BaseHeliumTask<ObjcEntitiesOptions> {
+public class GenerateObjcEntitiesTask extends BaseHeliumTask<ObjCEntitiesOptions> {
 
   @Override
   protected void doIt() {

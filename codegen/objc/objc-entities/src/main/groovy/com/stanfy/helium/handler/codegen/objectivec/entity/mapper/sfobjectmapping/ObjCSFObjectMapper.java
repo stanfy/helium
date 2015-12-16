@@ -1,13 +1,14 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping;
 
-
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCHeaderFile;
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCImplementationFile;
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject;
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions;
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions;
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClass;
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassDefinition;
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassImplementation;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassInterface;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCImplementationFileSourcePart;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCMethodImplementationSourcePart;
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCMethodImplementationSourcePart.*;
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition;
 import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.ObjCMapper;
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCImportPart;
@@ -28,12 +29,12 @@ public class ObjCSFObjectMapper implements ObjCMapper {
   public static final String MAPPINGS_FILENAME = "HeliumMappings";
 
   @Override
-  public void generateMappings(final ObjCProject project, final Project projectDSL, final ObjcEntitiesOptions options) {
+  public void generateMappings(final ObjCProject project, final Project projectDSL, final ObjCEntitiesOptions options) {
 
     String className = options.getPrefix() + MAPPINGS_FILENAME;
     ObjCClass resultingClass = new ObjCClass(className);
-    resultingClass.setDefinition(new ObjCClassDefinition(className));
-    resultingClass.setImplementation(new ObjCClassImplementation(className));
+    resultingClass.setDefinition(new ObjCClassInterface(className));
+    resultingClass.setImplementation(new ObjCImplementationFileSourcePart(className));
 
     ObjCHeaderFile header = new ObjCHeaderFile(className);
     header.addSourcePart(resultingClass.getDefinition());
@@ -47,10 +48,10 @@ public class ObjCSFObjectMapper implements ObjCMapper {
       if (objCClass == null) {
         continue;
       }
+      ObjCMethodImplementationSourcePart initializeMethod = new ObjCMethodImplementationSourcePart("initialize", ObjCMethodType.CLASS, "void");
       // get property definitions
       StringBuilder contentsBuilder = new StringBuilder();
       // Get the implementation
-      contentsBuilder.append("+(void)initialize {").append("\n");
       contentsBuilder.append("    [self setMappingInfo:").append("\n");
 
       for (ObjCPropertyDefinition prop : objCClass.getDefinition().getPropertyDefinitions()) {
@@ -70,12 +71,13 @@ public class ObjCSFObjectMapper implements ObjCMapper {
 
       }
       contentsBuilder.append("    nil];").append("\n");
-      contentsBuilder.append("}").append("\n");
+      initializeMethod.addSourcePart(new ObjCStringSourcePart(contentsBuilder.toString()));
 
-      objCClass.getImplementation().addImportSourcePart(new ObjCImportPart("SFMapping"));
-      objCClass.getImplementation().addImportSourcePart(new ObjCImportPart("NSObject+SFMapping"));
+      ObjCImplementationFileSourcePart implementationfile = objCClass.getImplementation();
+      implementationfile.addImportSourcePart(new ObjCImportPart("SFMapping"));
+      implementationfile.addImportSourcePart(new ObjCImportPart("NSObject+SFMapping"));
 
-      objCClass.getImplementation().addBodySourcePart(new ObjCStringSourcePart(contentsBuilder.toString()));
+      implementationfile.addBodySourcePart(initializeMethod);
 
     }
     project.addFile(header);

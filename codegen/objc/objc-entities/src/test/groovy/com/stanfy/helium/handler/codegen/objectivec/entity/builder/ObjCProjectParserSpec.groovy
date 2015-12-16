@@ -3,8 +3,8 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.builder
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCHeaderFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassDefinition
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassImplementation
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCImplementationFileSourcePart
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import spock.lang.Specification
 
@@ -86,8 +86,8 @@ class ObjCProjectParserSpec extends Specification{
     def implementationFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCImplementationFile ? file : null })
     def definitionFiles = objCProject.getFiles().findResults({ file -> return file instanceof ObjCHeaderFile ? file : null })
     then:
-    implementationFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCClassImplementation}})
-    definitionFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCClassDefinition}})
+    implementationFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCImplementationFileSourcePart}})
+    definitionFiles.every ({ file -> file.getSourceParts().any{ sourcePart -> sourcePart instanceof ObjCClassInterface}})
   }
 
   def "should generate Classes each of those have definition and implementation"() {
@@ -107,7 +107,7 @@ class ObjCProjectParserSpec extends Specification{
 
     then:
     objCProject.getClasses() != null
-    objCProject.getClasses().every({ objCClass -> objCClass.getDefinition().getClassName() == objCClass.getName() && objCClass.getImplementation().getClassName() == objCClass.getName()});
+    objCProject.getClasses().every({ objCClass -> objCClass.getDefinition().getClassName() == objCClass.getName() && objCClass.getImplementation().getFilename() == objCClass.getName()});
   }
 
   def "should generate register types for all messages in the project"() {
