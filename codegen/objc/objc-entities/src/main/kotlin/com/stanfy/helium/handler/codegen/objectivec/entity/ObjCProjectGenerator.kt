@@ -1,6 +1,5 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity;
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCFile
 import org.apache.commons.io.IOUtils
 import java.io.File
 import java.io.FileOutputStream

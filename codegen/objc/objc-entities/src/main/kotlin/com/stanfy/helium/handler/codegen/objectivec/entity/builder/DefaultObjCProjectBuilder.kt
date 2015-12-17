@@ -8,7 +8,6 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassInterface
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCImplementationFileSourcePart
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition
-import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 

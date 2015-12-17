@@ -1,9 +1,7 @@
-package com.stanfy.helium.handler.codegen.objectivec.entity.file;
+package com.stanfy.helium.handler.codegen.objectivec.entity.file
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.ArrayList
+import java.util.HashSet
 
 /**
  * Created by ptaykalo on 8/17/14.
@@ -19,16 +17,16 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
 
   override fun asString(): String {
     // TODO use some templates
-    val bld = StringBuilder();
+    val bld = StringBuilder()
     for (externalClass in externalClassDeclaration) {
-      bld.append("@class ").append(externalClass).append(";\n");
+      bld.append("@class ").append(externalClass).append(";\n")
     }
-    bld.append("@interface ").append(className).append(" : NSObject").append("\n");
+    bld.append("@interface ").append(className).append(" : NSObject").append("\n")
     for (propertyDefinition in propertyDefinitions) {
-      bld.append(propertyDefinition.asString()).append("\n");
+      bld.append(propertyDefinition.asString()).append("\n")
     }
-    bld.append("@end");
-    return bld.toString();
+    bld.append("@end")
+    return bld.toString()
   }
 
 
@@ -36,13 +34,13 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
    * Adds specified property definition to this class
    */
   public fun addPropertyDefinition(property: ObjCPropertyDefinition) {
-    propertyDefinitions.add(property);
+    propertyDefinitions.add(property)
   }
 
   /**
    * Adds external class declaration string. This one should be transformed to "@class |externalClass|" in the eneratir
    */
   public fun addExternalClassDeclaration(externalClass: String) {
-    externalClassDeclaration.add(externalClass);
+    externalClassDeclaration.add(externalClass)
   }
 }

@@ -3,7 +3,6 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.builder
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCSourcePart
 
 import java.util.ArrayList
-import java.util.List
 
 /**
  * Created by ptaykalo on 8/17/14.

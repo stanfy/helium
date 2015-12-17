@@ -15,16 +15,19 @@ public class ObjCProject {
   /**
    * Files those are contained in this project. Each should have an unique name
    */
-  public var files = ArrayList<ObjCFile>();
+  public var files = ArrayList<ObjCFile>()
+    private set
   /**
    * Classes that this project contains
    */
   public var classes = ArrayList<ObjCClass>()
+    private set
+
   /**
    * Holds mapping form DSL Type names to classes, that this project contains
    */
   public var classesByTypes = HashMap<String, ObjCClass>()
-
+    private set
 
   public fun addFile(file: ObjCFile) {
     files.add(file);

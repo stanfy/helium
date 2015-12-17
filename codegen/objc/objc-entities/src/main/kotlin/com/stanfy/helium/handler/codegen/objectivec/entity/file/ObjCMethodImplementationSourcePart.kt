@@ -1,8 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.file;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*
 
 /**
  * Created by paultaykalo on 12/16/15.
