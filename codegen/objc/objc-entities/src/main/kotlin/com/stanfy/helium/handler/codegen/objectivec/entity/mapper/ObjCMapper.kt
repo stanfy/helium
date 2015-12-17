@@ -12,7 +12,7 @@ import com.stanfy.helium.model.Project;
 public interface ObjCMapper {
 
   /**
-   * Updated specified |project| by adding additional file(s), those contain code that
+   * Updated specified |project| by adding additional filetree(s), those contain code that
    * should map items from the DSL to the Classes, defined in project.
    */
   // TODO: replace with more generic options

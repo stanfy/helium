@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassInterface
 import spock.lang.Specification
 
 import java.util.regex.Pattern

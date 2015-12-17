@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.objectivec.entity.file
+package com.stanfy.helium.handler.codegen.objectivec.entity.filetree
 
 import java.util.ArrayList
 
@@ -6,8 +6,9 @@ import java.util.ArrayList
  * Created by ptaykalo on 8/17/14.
  * Simple block that know how to serialize ObjC Class Implementation
  */
-public class ObjCImplementationFileSourcePart(val filename: String) : ObjCSourcePart {
+public class ObjCClassImplementation(val filename: String) : ObjCSourcePart {
 
+  // TODO : Dependencies
   private val importSourceParts = ArrayList<ObjCImportPart>()
   private val bodySourceParts = ArrayList<ObjCSourcePart>()
 

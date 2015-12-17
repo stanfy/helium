@@ -1,11 +1,12 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCHeaderFile
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCImplementationFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.*
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCMethodImplementationSourcePart.ObjCMethodType
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodImplementationSourcePart
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.*
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodImplementationSourcePart.ObjCMethodType
 import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.ObjCMapper
 import com.stanfy.helium.model.Project
 
@@ -21,19 +22,13 @@ public class ObjCSFObjectMapper : ObjCMapper {
 
   override fun generateMappings(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
     val className = options.prefix + MAPPINGS_FILENAME
-    val resultingClass = ObjCClass(className)
-    resultingClass.definition = ObjCClassInterface(className)
-    resultingClass.implementation = ObjCImplementationFileSourcePart(className)
-
-    val header = ObjCHeaderFile(className)
-    header.addSourcePart(resultingClass.definition as ObjCClassInterface)
-
-    val implementation = ObjCImplementationFile(className)
-    implementation.addSourcePart(resultingClass.implementation as ObjCImplementationFileSourcePart)
+    val resultingClass = ObjCClass(className, ObjCClassInterface(className), ObjCClassImplementation(className))
+    val header = ObjCHeaderFile(className, resultingClass.definition.asString())
+    val implementation = ObjCImplementationFile(className, resultingClass.implementation.asString())
 
     // Generate all them all
     for (m in projectDSL.messages) {
-      val objCClass = project.getClassForType(m.name) ?: continue
+      val objCClass = project.classStructure.getClassForType(m.name) ?: continue
 
       val initializeMethod = ObjCMethodImplementationSourcePart("initialize", ObjCMethodType.CLASS, "void")
       // get property definitions
@@ -41,7 +36,7 @@ public class ObjCSFObjectMapper : ObjCMapper {
       // Get the implementation
       contentsBuilder.append("    [self setMappingInfo:").append("\n")
 
-      for (prop in objCClass.definition!!.propertyDefinitions) {
+      for (prop in objCClass.definition.propertyDefinitions) {
         contentsBuilder.append("      [SFMapping ")
         val field = prop.correspondingField
         if (field != null) {
@@ -60,15 +55,15 @@ public class ObjCSFObjectMapper : ObjCMapper {
       contentsBuilder.append("    nil]").append("\n")
       initializeMethod.addSourcePart(ObjCStringSourcePart(contentsBuilder.toString()))
 
-      val implementationfile = objCClass.implementation!!
+      val implementationfile = objCClass.implementation
       implementationfile.addImportSourcePart(ObjCImportPart("SFMapping"))
       implementationfile.addImportSourcePart(ObjCImportPart("NSObject+SFMapping"))
 
       implementationfile.addBodySourcePart(initializeMethod)
 
     }
-    project.addFile(header)
-    project.addFile(implementation)
+    project.fileStructure.addFile(header)
+    project.fileStructure.addFile(implementation)
 
   }
 

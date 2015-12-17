@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCHeaderFile
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCImplementationFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectGenerator
 import spock.lang.Specification
@@ -17,10 +17,10 @@ abstract class ObjCProjectGeneratorSpec<T extends ObjCProjectGenerator> extends 
 
   def setup() {
     project = new ObjCProject()
-    project.addFile(new ObjCHeaderFile("A"));
-    project.addFile(new ObjCHeaderFile("B"));
-    project.addFile(new ObjCImplementationFile("A"));
-    project.addFile(new ObjCImplementationFile("B"));
+    project.fileStructure.addFile(new ObjCHeaderFile("A"));
+    project.fileStructure.addFile(new ObjCHeaderFile("B"));
+    project.fileStructure.addFile(new ObjCImplementationFile("A"));
+    project.fileStructure.addFile(new ObjCImplementationFile("B"));
 
     output = File.createTempDir()
     println output

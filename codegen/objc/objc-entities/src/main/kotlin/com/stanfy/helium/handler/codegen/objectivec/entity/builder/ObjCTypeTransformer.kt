@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.builder
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.AccessModifier
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type

@@ -14,12 +14,12 @@ public interface ObjCProjectBuilder {
    * Returns type transformer, which is responsible for convertation.
    * Of types, described in Porject DSL to ObjC types.
    */
-  public fun getTypeTransformer():ObjCTypeTransformer
+  public val typeTransformer:ObjCTypeTransformer
 
   /**
    * Returns transformer, that is responsible for generation valid names for properties
    */
-  public fun getNameTransformer():ObjCPropertyNameTransformer
+  public val nameTransformer:ObjCPropertyNameTransformer
 
   /**
    * Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure

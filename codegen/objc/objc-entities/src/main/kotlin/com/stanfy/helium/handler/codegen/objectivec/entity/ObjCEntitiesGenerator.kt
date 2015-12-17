@@ -18,7 +18,7 @@ public class ObjCEntitiesGenerator(outputDirectory: File?, options: ObjCEntities
   override fun handle(project: Project?) {
     val objCProject = projectBuilder.build(project!!, options)
     mapper.generateMappings(objCProject, project, options)
-    ObjCProjectGenerator(outputDirectory, objCProject).generate()
+    ObjCProjectGenerator(outputDirectory, objCProject.fileStructure).generate()
   }
 
 }

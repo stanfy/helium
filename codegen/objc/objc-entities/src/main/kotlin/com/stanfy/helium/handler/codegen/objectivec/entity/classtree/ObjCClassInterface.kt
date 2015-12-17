@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.objectivec.entity.file
+package com.stanfy.helium.handler.codegen.objectivec.entity.filetree
 
 import java.util.ArrayList
 import java.util.HashSet

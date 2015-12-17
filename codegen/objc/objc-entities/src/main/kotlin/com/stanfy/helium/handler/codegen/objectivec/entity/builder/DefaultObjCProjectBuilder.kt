@@ -1,13 +1,13 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.builder;
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCHeaderFile
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCImplementationFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClass
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassInterface
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCImplementationFileSourcePart
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassImplementation
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 
@@ -16,15 +16,9 @@ import com.stanfy.helium.model.Project
  */
 public class DefaultObjCProjectBuilder : ObjCProjectBuilder {
 
-  private val _nameTransformer = ObjCPropertyNameTransformer()
-  override fun getNameTransformer(): ObjCPropertyNameTransformer {
-    return _nameTransformer;
-  }
+  override public val nameTransformer = ObjCPropertyNameTransformer()
 
-  private val _typeTransformer = ObjCTypeTransformer()
-  override fun getTypeTransformer(): ObjCTypeTransformer {
-    return _typeTransformer
-  }
+  override public val typeTransformer = ObjCTypeTransformer()
 
   /**
    * Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
@@ -47,7 +41,7 @@ public class DefaultObjCProjectBuilder : ObjCProjectBuilder {
         .forEach { message ->
           val messageName = message.name
           val className = (options?.prefix ?: "") + messageName
-          _typeTransformer.registerRefTypeTransformation(messageName, className)
+          typeTransformer.registerRefTypeTransformation(messageName, className)
 
           // check for custom mappings
           val customTypeMappings = options?.customTypesMappings?.entries
@@ -55,9 +49,9 @@ public class DefaultObjCProjectBuilder : ObjCProjectBuilder {
             for ((heliumType, objcType) in customTypeMappings) {
               if (objcType.contains("*")) {
                 val validObjectiveCString = objcType.replace("*", "").trim()
-                _typeTransformer.registerRefTypeTransformation(heliumType, validObjectiveCString);
+                typeTransformer.registerRefTypeTransformation(heliumType, validObjectiveCString);
               } else {
-                _typeTransformer.registerSimpleTransformation(heliumType, objcType);
+                typeTransformer.registerSimpleTransformation(heliumType, objcType);
               }
             }
           }
@@ -65,30 +59,29 @@ public class DefaultObjCProjectBuilder : ObjCProjectBuilder {
 
     project.messages
         .forEach { message ->
-          val filename = (options?.prefix ?: "") + message.name
-          val objCClass = ObjCClass(filename)
-
-          val classDefinition = ObjCClassInterface(filename)
-          val classImplementation = ObjCImplementationFileSourcePart(filename)
+          val className = (options?.prefix ?: "") + message.name
+          val classDefinition = ObjCClassInterface(className)
+          val classImplementation = ObjCClassImplementation(className)
+          val objCClass = ObjCClass(className, classDefinition, classImplementation)
 
           var usedPropertyNames = hashSetOf<String>()
           message.activeFields
               .map { field ->
-                val propertyName = _nameTransformer.propertyNameFrom(field.name, usedPropertyNames)
+                val propertyName = nameTransformer.propertyNameFrom(field.name, usedPropertyNames)
                 val heliumAPIType = field.type
-                val propertyType = _typeTransformer.objCType(heliumAPIType, field.isSequence)
+                val propertyType = typeTransformer.objCType(heliumAPIType, field.isSequence)
                 if (heliumAPIType is Message && !field.isSequence) {
                   classDefinition.addExternalClassDeclaration(propertyType.replace("*", "").replace(" ",""));
                 }
 
-                val accessModifier = _typeTransformer.accessorModifierForType(heliumAPIType)
+                val accessModifier = typeTransformer.accessorModifierForType(heliumAPIType)
                 val property = ObjCPropertyDefinition(propertyName, propertyType, accessModifier)
                 property.correspondingField = field
 
                 if (field.isSequence) {
-                  property.comment = " sequence of " + _typeTransformer.objCType(heliumAPIType, false) + " items"
+                  property.comment = " sequence of " + typeTransformer.objCType(heliumAPIType, false) + " items"
                   property.isSequence = true
-                  property.sequenceType = _typeTransformer.objCType(heliumAPIType, false).replace("*", "").replace(" ","")
+                  property.sequenceType = typeTransformer.objCType(heliumAPIType, false).replace("*", "").replace(" ","")
                 }
                 // Update used Names
                 usedPropertyNames.add(propertyName)
@@ -100,17 +93,12 @@ public class DefaultObjCProjectBuilder : ObjCProjectBuilder {
                 classDefinition.addPropertyDefinition(property);
               }
 
-          objCClass.definition = classDefinition;
-          objCClass.implementation = classImplementation;
+          objCProject.classStructure.addClass(objCClass, message.name);
+          val headerFile = ObjCHeaderFile(className, classDefinition.asString());
+          val implementationFile = ObjCImplementationFile(className, classImplementation.asString());
 
-          objCProject.addClass(objCClass, message.name);
-          val headerFile = ObjCHeaderFile(filename);
-          val implementationFile = ObjCImplementationFile(filename);
-          headerFile.addSourcePart(classDefinition);
-          implementationFile.addSourcePart(classImplementation);
-
-          objCProject.addFile(headerFile);
-          objCProject.addFile(implementationFile);
+          objCProject.fileStructure.addFile(headerFile);
+          objCProject.fileStructure.addFile(implementationFile);
         }
 
     return objCProject

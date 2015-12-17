@@ -1,7 +1,8 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassInterface
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import spock.lang.Specification
 
 /**
@@ -16,7 +17,7 @@ class ObjCClassDefinitionSpec extends Specification {
   def setup() {
     project = new ObjCProject();
     fileName = "test"
-    headerFile = new ObjCHeaderFile(fileName);
+    headerFile = new ObjCHeaderFile(fileName, "");
 
   }
 

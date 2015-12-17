@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.objectivec.entity.file;
+package com.stanfy.helium.handler.codegen.objectivec.entity.filetree;
 
 import com.stanfy.helium.model.Field;
 
@@ -63,6 +63,7 @@ public class ObjCPropertyDefinition : ObjCSourcePart {
    */
   public var comment: String? = null;
 
+  //TODO :  Remove it from here
   /**
    * the Helium filed, from which this property was generated
    */

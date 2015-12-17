@@ -1,6 +1,11 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassStructure
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassImplementation
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFileStructure
 import spock.lang.Specification
 
 /**
@@ -9,41 +14,45 @@ import spock.lang.Specification
 class ObjCProjectSpec extends Specification {
 
   ObjCProject project;
+  ObjCProjectFileStructure projectFileStructure;
+  ObjCProjectClassStructure projectClassStructure;
 
   def setup() {
     project = new ObjCProject();
+    projectFileStructure = project.fileStructure
+    projectClassStructure = project.classStructure
   }
 
   def "should add files"() {
     when:
-    project.addFile(new ObjCHeaderFile("header"));
+    projectFileStructure.addFile(new ObjCHeaderFile("header", ""));
 
     then:
-    project.getFiles().size() == 1
+    projectFileStructure.files.size() == 1
 
   }
 
   def "should add classes"() {
     when:
-    project.addClass(new ObjCClass("Class"));
+    projectClassStructure.addClass(new ObjCClass("Class", new ObjCClassInterface(""), new ObjCClassImplementation("")));
 
     then:
-    project.getClasses().size() == 1
-    project.getClasses().get(0).getName() == "Class"
+    projectClassStructure.getClasses().size() == 1
+    projectClassStructure.getClasses().get(0).getName() == "Class"
   }
 
   def "should add classes for specific DSL Types"() {
     when:
-    def addedClass = new ObjCClass("Class")
+    def addedClass = new ObjCClass("Class", new ObjCClassInterface(""), new ObjCClassImplementation(""))
 
     def dslTypeName = "SomeDSLType"
-    project.addClass(addedClass, dslTypeName);
+    projectClassStructure.addClass(addedClass, dslTypeName);
 
     then:
-    project.getClasses().size() == 1
-    project.getClasses().get(0).getName() == "Class"
-    project.getClassForType(dslTypeName) != null
-    project.getClassForType(dslTypeName) == addedClass
+    projectClassStructure.getClasses().size() == 1
+    projectClassStructure.getClasses().get(0).getName() == "Class"
+    projectClassStructure.getClassForType(dslTypeName) != null
+    projectClassStructure.getClassForType(dslTypeName) == addedClass
   }
 
 

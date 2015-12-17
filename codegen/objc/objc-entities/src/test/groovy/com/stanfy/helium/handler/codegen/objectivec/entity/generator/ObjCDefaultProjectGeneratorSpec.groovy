@@ -33,7 +33,7 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
     parser = new DefaultObjCProjectBuilder();
     this.project = parser.build(projectDSL);
 
-    generator = new ObjCProjectGenerator(output, this.project);
+    generator = new ObjCProjectGenerator(output, this.project.fileStructure);
   }
 
   def "should generate implementation parts"() {
@@ -54,7 +54,7 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
     when:
     def options = new ObjCEntitiesOptions()
     this.project = parser.build(projectDSL, options);
-    generator = new ObjCProjectGenerator(output, this.project);
+    generator = new ObjCProjectGenerator(output, this.project.fileStructure);
 
     generator.generate();
 
@@ -75,7 +75,7 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
     this.project = parser.build(projectDSL, options);
     def mapper = new ObjCSFObjectMapper();
     mapper.generateMappings(project, projectDSL, options);
-    generator = new ObjCProjectGenerator(output, this.project);
+    generator = new ObjCProjectGenerator(output, this.project.fileStructure);
     generator.generate();
 
     def fileAHeader = new File("$output/" + options.prefix +"A.h")

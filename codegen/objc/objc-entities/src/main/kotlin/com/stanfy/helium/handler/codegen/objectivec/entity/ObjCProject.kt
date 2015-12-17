@@ -1,7 +1,9 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity;
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCFile
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClass;
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassStructure
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClass;
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFileStructure
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,39 +15,12 @@ import java.util.HashMap;
 public class ObjCProject {
 
   /**
-   * Files those are contained in this project. Each should have an unique name
+   * Project's file structure
    */
-  public var files = ArrayList<ObjCFile>()
-    private set
-  /**
-   * Classes that this project contains
-   */
-  public var classes = ArrayList<ObjCClass>()
-    private set
+  public val fileStructure = ObjCProjectFileStructure()
 
   /**
-   * Holds mapping form DSL Type names to classes, that this project contains
+   * Projects class structure
    */
-  public var classesByTypes = HashMap<String, ObjCClass>()
-    private set
-
-  public fun addFile(file: ObjCFile) {
-    files.add(file);
-  }
-
-  public fun addClass(objCClass: ObjCClass) {
-    classes.add(objCClass);
-  }
-
-  /**
-   * Adds class, and bounds it to the specified DSL Type
-   */
-  public fun addClass(objCClass: ObjCClass, dslType: String) {
-    classes.add(objCClass);
-    classesByTypes.put(dslType, objCClass);
-  }
-
-  public fun getClassForType(dslTypeName: String): ObjCClass? {
-    return classesByTypes.get(dslTypeName);
-  }
+  public val classStructure = ObjCProjectClassStructure()
 }

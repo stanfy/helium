@@ -1,8 +1,8 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.AccessModifier
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.AtomicModifier
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AtomicModifier
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import spock.lang.Specification
 
 /**

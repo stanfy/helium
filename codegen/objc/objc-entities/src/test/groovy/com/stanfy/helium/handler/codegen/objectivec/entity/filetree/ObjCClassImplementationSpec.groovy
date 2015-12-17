@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.objectivec.entity.file
+package com.stanfy.helium.handler.codegen.objectivec.entity.filetree
 
 import spock.lang.Specification
 
@@ -7,10 +7,10 @@ import spock.lang.Specification
  */
 class ObjCClassImplementationSpec extends Specification {
 
-  private ObjCImplementationFileSourcePart impl
+  private ObjCClassImplementation impl
 
   def setup() {
-    impl = new ObjCImplementationFileSourcePart("TestClass")
+    impl = new ObjCClassImplementation("TestClass")
   }
 
   def "serialized correctly"() {

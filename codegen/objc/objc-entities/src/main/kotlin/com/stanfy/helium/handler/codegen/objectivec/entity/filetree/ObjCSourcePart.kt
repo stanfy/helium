@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.objectivec.entity.file;
+package com.stanfy.helium.handler.codegen.objectivec.entity.filetree;
 
 /**
  * Created by ptaykalo on 8/17/14.
