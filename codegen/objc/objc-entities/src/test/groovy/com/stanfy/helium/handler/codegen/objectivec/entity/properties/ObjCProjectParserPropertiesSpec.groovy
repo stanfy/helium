@@ -3,6 +3,8 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.properties
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.DefaultObjCProjectBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.AccessModifier
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.AtomicModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition
 import com.stanfy.helium.internal.dsl.ProjectDsl
@@ -72,7 +74,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     then:
     aClass.definition != null
     aClass.definition.propertyDefinitions.size() == 1
-    aClass.definition.propertyDefinitions.get(0).getAtomicModifier() == ObjCPropertyDefinition.AtomicModifier.NONATOMIC;
+    aClass.definition.propertyDefinitions.get(0).getAtomicModifier() == AtomicModifier.NONATOMIC;
   }
 
   def "should generate string properties with NSString type"() {
@@ -107,7 +109,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     aClass.definition != null
     aClass.definition.propertyDefinitions.size() == 1
     // TODO - move to the options ?
-    aClass.definition.propertyDefinitions.get(0).getAccessModifier() == ObjCPropertyDefinition.AccessModifier.COPY;
+    aClass.definition.propertyDefinitions.get(0).accessModifier == AccessModifier.COPY;
   }
 
 }

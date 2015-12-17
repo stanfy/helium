@@ -4,6 +4,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCHeaderFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.file.AccessModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassInterface
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCImplementationFileSourcePart
 import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition
@@ -181,7 +182,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
     objCProject.getClasses().size() == 1
     propertyDefinitions.size() == 1
     propertyDefinitions.get(0).type == "NSDate *"
-    propertyDefinitions.get(0).accessModifier == ObjCPropertyDefinition.AccessModifier.STRONG
+    propertyDefinitions.get(0).accessModifier == AccessModifier.STRONG
 
   }
 
@@ -212,7 +213,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification{
     objCProject.getClasses().size() == 1
     propertyDefinitions.size() == 1
     propertyDefinitions.get(0).type == "somePrimitive"
-    propertyDefinitions.get(0).accessModifier == ObjCPropertyDefinition.AccessModifier.ASSIGN
+    propertyDefinitions.get(0).accessModifier == AccessModifier.ASSIGN
 
   }
 

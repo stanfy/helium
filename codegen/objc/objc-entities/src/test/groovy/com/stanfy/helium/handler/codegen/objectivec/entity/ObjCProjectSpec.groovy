@@ -16,7 +16,7 @@ class ObjCProjectSpec extends Specification {
 
   def "should add files"() {
     when:
-    project.addFile(new ObjCHeaderFile());
+    project.addFile(new ObjCHeaderFile("header"));
 
     then:
     project.getFiles().size() == 1
