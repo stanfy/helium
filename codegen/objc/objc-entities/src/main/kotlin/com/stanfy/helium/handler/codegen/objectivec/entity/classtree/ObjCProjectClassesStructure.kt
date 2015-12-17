@@ -6,7 +6,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClass
  * Created by paultaykalo on 12/17/15.
  */
 
-public class ObjCProjectClassStructure {
+public class ObjCProjectClassesStructure {
   /**
    * Classes that this project contains
    */

@@ -10,12 +10,10 @@ import spock.lang.Specification
  */
 class ObjCClassDefinitionSpec extends Specification {
 
-  ObjCProject project;
   ObjCHeaderFile headerFile
   private String fileName
 
   def setup() {
-    project = new ObjCProject();
     fileName = "test"
     headerFile = new ObjCHeaderFile(fileName, "");
 

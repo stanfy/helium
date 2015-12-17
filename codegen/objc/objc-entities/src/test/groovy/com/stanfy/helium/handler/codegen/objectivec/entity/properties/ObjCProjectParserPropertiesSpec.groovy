@@ -1,7 +1,8 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.properties
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
-import com.stanfy.helium.handler.codegen.objectivec.entity.builder.DefaultObjCProjectBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultClassStructureBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AtomicModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClass
@@ -13,14 +14,14 @@ import spock.lang.Specification
  */
 class ObjCProjectParserPropertiesSpec extends Specification {
 
-  DefaultObjCProjectBuilder parser;
+  ObjCDefaultClassStructureBuilder classStructureBuilder;
   ProjectDsl project;
-  ObjCProject objCProject
+  ObjCProjectClassesStructure classStructure
   ObjCEntitiesOptions options
 
   def setup() {
     project = new ProjectDsl()
-    parser = new DefaultObjCProjectBuilder()
+    classStructureBuilder = new ObjCDefaultClassStructureBuilder()
     options = new ObjCEntitiesOptions();
   }
 
@@ -34,11 +35,11 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    objCProject = parser.build(project, options);
+    classStructure = classStructureBuilder.build(project, options);
 
     then:
-    objCProject != null
-    objCProject.classStructure.getClasses().size() == 1
+    classStructure != null
+    classStructure.getClasses().size() == 1
   }
 
   def "should generate ObjCProject with class and property"() {
@@ -49,8 +50,8 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    objCProject = parser.build(project, options);
-    ObjCClass aClass = objCProject.classStructure.getClasses().get(0);
+    classStructure = classStructureBuilder.build(project, options);
+    ObjCClass aClass = classStructure.getClasses().get(0);
 
     then:
     aClass.definition != null
@@ -65,8 +66,8 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    objCProject = parser.build(project, options);
-    ObjCClass aClass = objCProject.classStructure.getClasses().get(0);
+    classStructure = classStructureBuilder.build(project, options);
+    ObjCClass aClass = classStructure.getClasses().get(0);
 
     then:
     aClass.definition != null
@@ -82,8 +83,8 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    objCProject = parser.build(project, options);
-    ObjCClass aClass = objCProject.classStructure.getClasses().get(0);
+    classStructure = classStructureBuilder.build(project, options);
+    ObjCClass aClass = classStructure.getClasses().get(0);
 
     then:
     aClass.definition != null
@@ -99,8 +100,8 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    objCProject = parser.build(project, options);
-    ObjCClass aClass = objCProject.classStructure.getClasses().get(0);
+    classStructure = classStructureBuilder.build(project, options);
+    ObjCClass aClass = classStructure.getClasses().get(0);
 
     then:
     aClass.definition != null

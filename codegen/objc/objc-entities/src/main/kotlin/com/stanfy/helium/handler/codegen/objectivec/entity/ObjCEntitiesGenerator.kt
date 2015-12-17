@@ -2,7 +2,7 @@ package com.stanfy.helium.handler.codegen.objectivec.entity;
 
 import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.handler.codegen.BaseGenerator
-import com.stanfy.helium.handler.codegen.objectivec.entity.builder.DefaultObjCProjectBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultProjectBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMapper
 import com.stanfy.helium.model.Project
 import java.io.File
@@ -12,7 +12,7 @@ import java.io.File
  */
 public class ObjCEntitiesGenerator(outputDirectory: File?, options: ObjCEntitiesOptions?) : BaseGenerator<ObjCEntitiesOptions>(outputDirectory, options), Handler {
 
-  private val projectBuilder = DefaultObjCProjectBuilder()
+  private val projectBuilder = ObjCDefaultProjectBuilder()
   private val mapper = ObjCSFObjectMapper()
 
   override fun handle(project: Project?) {
