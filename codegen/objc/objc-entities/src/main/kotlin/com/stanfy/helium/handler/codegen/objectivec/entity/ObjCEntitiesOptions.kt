@@ -15,6 +15,6 @@ public class ObjCEntitiesOptions : GeneratorOptions() {
    * Map that contains mappings for custom Helium Types. i.e. timestamp -> NSDate.
    * It is used for generating custom(complex) types.
    */
-  public var customTypesMappings = hashMapOf<String, ObjCType>()
+  public var customTypesMappings = mapOf<String, String>()
 
 }

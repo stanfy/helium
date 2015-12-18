@@ -6,6 +6,7 @@ import com.stanfy.helium.handler.codegen.java.entity.EntitiesGenerator
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
 
 /**
  * Main entry point.
@@ -49,7 +50,7 @@ class Main {
               description: "Generate Objective-C entity classes",
               properties: [
                       "prefix": "Prefix for generated classes. Required.",
-                      "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:OBJC_TYPE"
+                      "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:OBJC_TYPE(:IS_REFERENCE)"
               ],
 
               factory: { def options, File output ->

@@ -166,7 +166,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     }
 
     def customTypesMappings = new HashMap<>()
-    customTypesMappings["A"] = new ObjCType("NSDate")
+    customTypesMappings["A"] = "NSDate *"
     builderOptions.customTypesMappings = customTypesMappings;
 
     classStructure = classStructureBuilder.build(project, builderOptions);
@@ -197,7 +197,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     }
 
     def customTypesMappings = new HashMap<>()
-    customTypesMappings["A"] = new ObjCType("somePrimitive", false)
+    customTypesMappings["A"] = "somePrimitive"
     builderOptions.customTypesMappings = customTypesMappings;
 
     classStructure = classStructureBuilder.build(project, builderOptions);

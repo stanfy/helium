@@ -43,8 +43,10 @@ public class ObjCDefaultClassStructureBuilder : ObjCClassStructureBuilder {
           val customTypeMappings = options?.customTypesMappings?.entries
           if (customTypeMappings != null) {
             for ((heliumType, objcType) in customTypeMappings) {
-              val accessModifier = if (objcType.isReference)  AccessModifier.STRONG else AccessModifier.ASSIGN
-              typeTransformer.registerTransformation(heliumType, objcType, accessModifier);
+              val isReference = objcType.contains("*")
+              val name = objcType.replace(" ","").replace("*","")
+              val accessModifier = if (isReference || name == "id")  AccessModifier.STRONG else AccessModifier.ASSIGN
+              typeTransformer.registerTransformation(heliumType, ObjCType(name, isReference), accessModifier);
             }
           }
         }
@@ -72,7 +74,6 @@ public class ObjCDefaultClassStructureBuilder : ObjCClassStructureBuilder {
 
                 if (field.isSequence) {
                   val itemType = typeTransformer.objCType(heliumAPIType, false)
-                  property.comment = " sequence of $itemType items"
                   property.isSequence = true
                   property.sequenceType = itemType
                 }
