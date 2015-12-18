@@ -31,7 +31,6 @@ public class ObjCTypeTransformer {
     this.registerSimpleTransformation("float32", "double")
     this.registerSimpleTransformation("float64", "double")
     this.registerSimpleTransformation("double", "double")
-
   }
 
   public fun registerSimpleTransformation(heliumTypeName: String, objectiveCTypeName: String) {

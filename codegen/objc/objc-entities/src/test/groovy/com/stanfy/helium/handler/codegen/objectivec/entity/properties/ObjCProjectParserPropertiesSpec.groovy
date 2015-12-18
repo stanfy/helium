@@ -1,11 +1,10 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.properties
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultClassStructureBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AtomicModifier
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Type
 import spock.lang.Specification

@@ -1,5 +1,7 @@
-package com.stanfy.helium.handler.codegen.objectivec.entity.filetree
+package com.stanfy.helium.handler.codegen.objectivec.entity.classtree
 
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImportPart
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCSourcePart
 import java.util.ArrayList
 
 /**

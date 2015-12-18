@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import spock.lang.Specification

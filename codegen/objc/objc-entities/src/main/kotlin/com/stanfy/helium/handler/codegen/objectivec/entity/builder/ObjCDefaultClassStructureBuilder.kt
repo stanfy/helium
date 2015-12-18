@@ -2,9 +2,9 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.builder;
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClass
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassImplementation
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassImplementation
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
@@ -69,7 +69,7 @@ public class ObjCDefaultClassStructureBuilder : ObjCClassStructureBuilder {
                 val heliumAPIType = field.type
                 val propertyType = typeTransformer.objCType(heliumAPIType, field.isSequence)
                 if (heliumAPIType is Message && !field.isSequence) {
-                  classDefinition.addExternalClassDeclaration(propertyType.replace("*", "").replace(" ", ""));
+                  objCClass.addForwardDeclaration(propertyType.replace("*", "").replace(" ", ""));
                 }
 
                 val accessModifier = typeTransformer.accessorModifierForType(heliumAPIType)

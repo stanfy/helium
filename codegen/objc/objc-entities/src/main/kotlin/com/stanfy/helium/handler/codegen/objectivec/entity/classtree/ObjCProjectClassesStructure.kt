@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.classtree
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
 
 /**
  * Created by paultaykalo on 12/17/15.

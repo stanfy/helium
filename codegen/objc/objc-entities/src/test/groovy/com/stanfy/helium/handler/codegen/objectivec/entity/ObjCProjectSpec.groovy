@@ -1,10 +1,10 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClass
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCClassImplementation
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassImplementation
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
 import spock.lang.Specification
 
@@ -27,7 +27,6 @@ class ObjCProjectSpec extends Specification {
 
     then:
     filesStructure.files.size() == 1
-
   }
 
   def "should add classes"() {

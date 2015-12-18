@@ -4,6 +4,10 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCHeaderFileBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassImplementation
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodImplementationSourcePart
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.*
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodImplementationSourcePart.ObjCMethodType
@@ -23,7 +27,8 @@ public class ObjCSFObjectMapper : ObjCMapper {
   override fun generateMappings(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
     val className = options.prefix + MAPPINGS_FILENAME
     val resultingClass = ObjCClass(className, ObjCClassInterface(className), ObjCClassImplementation(className))
-    val header = ObjCHeaderFile(className, resultingClass.definition.asString())
+    val headerContent = ObjCHeaderFileBuilder().build(resultingClass, options)
+    val header = ObjCHeaderFile(className, headerContent)
     val implementation = ObjCImplementationFile(className, resultingClass.implementation.asString())
 
     // Generate all them all
