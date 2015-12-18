@@ -1,17 +1,13 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
-import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCHeaderFileBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectStructureGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassImplementation
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethod
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodImplementationSourcePart
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.*
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodImplementationSourcePart.ObjCMethodType
-import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.ObjCMapper
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodSourcePart
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSourcePart
 import com.stanfy.helium.model.Project
 
 /**
@@ -21,17 +17,20 @@ import com.stanfy.helium.model.Project
  * Generated classes will could be used with
  * https://github.com/stanfy/SFObjectMapping
  */
-public class ObjCSFObjectMapper : ObjCMapper {
+public class ObjCSFObjectMappingsGenerator : ObjCProjectStructureGenerator {
   public val MAPPINGS_FILENAME = "HeliumMappings"
 
-  override fun generateMappings(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
+  override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
     val mappingsClassName = options.prefix + MAPPINGS_FILENAME
-    val mappingsClass = ObjCClass(mappingsClassName, ObjCClassInterface(mappingsClassName), ObjCClassImplementation(mappingsClassName))
+    val mappingsClass = ObjCClass(mappingsClassName)
+    project.classStructure.addClass(mappingsClass)
+
     mappingsClass.implementation.importClassWithName("SFMapping")
     mappingsClass.implementation.importClassWithName("NSObject+SFMapping")
 
-    val initializeMethod = ObjCMethodImplementationSourcePart("initialize", ObjCMethodType.CLASS, "void")
-    mappingsClass.implementation.addBodySourcePart(initializeMethod)
+    val initializeMethod = ObjCMethod("initialize", ObjCMethod.ObjCMethodType.CLASS, "void")
+    val initializeMethodSourcePart = ObjCMethodImplementationSourcePart(initializeMethod)
+    mappingsClass.implementation.addBodySourcePart(initializeMethodSourcePart)
 
     // get property definitions
     val contentsBuilder = StringBuilder()
@@ -64,8 +63,7 @@ public class ObjCSFObjectMapper : ObjCMapper {
 
     }
 
-    initializeMethod.addSourcePart(ObjCStringSourcePart(contentsBuilder.toString()))
-    project.classStructure.addClass(mappingsClass)
+    initializeMethodSourcePart.addSourcePart(ObjCStringSourcePart(contentsBuilder.toString()))
 
   }
 

@@ -14,6 +14,10 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
   public var propertyDefinitions = arrayListOf<ObjCPropertyDefinition>()
     private set
 
+  public var methods = arrayListOf<ObjCMethod>()
+    private set
+
+
   override fun asString(): String {
     // TODO use some templates
     val bld = StringBuilder()
@@ -21,6 +25,10 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
     for (propertyDefinition in propertyDefinitions) {
       bld.append(propertyDefinition.asString()).append("\n")
     }
+    for (method in methods) {
+      bld.append(ObjCMethodDeclarationSourcePart(method).asString()).append("\n")
+    }
+
     bld.append("@end")
     return bld.toString()
   }
@@ -31,5 +39,12 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
    */
   public fun addPropertyDefinition(property: ObjCPropertyDefinition) {
     propertyDefinitions.add(property)
+  }
+
+  /**
+   * Adds speciied method definition to this class
+   */
+  public fun addMethod(method: ObjCMethod) {
+    methods.add(method)
   }
 }

@@ -4,7 +4,8 @@ import com.stanfy.helium.handler.Handler
 import com.stanfy.helium.handler.codegen.BaseGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultFileStructureBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultProjectBuilder
-import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMapper
+import com.stanfy.helium.handler.codegen.objectivec.entity.httpclient.afnetworking.ObjCAFNetworkingHTTPClientGenerator
+import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMappingsGenerator
 import com.stanfy.helium.model.Project
 import java.io.File
 
@@ -14,11 +15,13 @@ import java.io.File
 public class ObjCEntitiesGenerator(outputDirectory: File?, options: ObjCEntitiesOptions?) : BaseGenerator<ObjCEntitiesOptions>(outputDirectory, options), Handler {
 
   private val projectBuilder = ObjCDefaultProjectBuilder()
-  private val mapper = ObjCSFObjectMapper()
+  private val mapper = ObjCSFObjectMappingsGenerator()
+  private val client = ObjCAFNetworkingHTTPClientGenerator()
 
   override fun handle(project: Project?) {
     val objCProject = projectBuilder.build(project!!, options)
-    mapper.generateMappings(objCProject, project, options)
+    mapper.generate(objCProject, project, options)
+    client.generate(objCProject, project, options)
     val fileStructureBuilder = ObjCDefaultFileStructureBuilder()
     val filesStructure = fileStructureBuilder.build(objCProject.classStructure)
     ObjCProjectGenerator(outputDirectory, filesStructure).generate()

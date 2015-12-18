@@ -1,7 +1,5 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.classtree;
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImportPart
-
 /**
  * Created by ptaykalo on 8/17/14.
  * Simple object structure that holds information about objectiveC class
@@ -9,6 +7,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImportPa
 public class ObjCClass(val name: String, val definition: ObjCClassInterface,
                        val implementation: ObjCClassImplementation) {
 
+  constructor(name:String):this(name, ObjCClassInterface(name), ObjCClassImplementation(name))
   public var forwardDeclarations = hashSetOf<String>()
     private set
 

@@ -10,7 +10,7 @@ import com.stanfy.helium.model.Project
 /**
  * Created by ptaykalo on 8/17/14.
  */
-public class ObjCDefaultClassStructureBuilder : ObjCClassStructureBuilder {
+public class ObjCDefaultClassStructureBuilder : ObjCBuilder<Project, ObjCProjectClassesStructure> {
 
   public val nameTransformer = ObjCPropertyNameTransformer()
 

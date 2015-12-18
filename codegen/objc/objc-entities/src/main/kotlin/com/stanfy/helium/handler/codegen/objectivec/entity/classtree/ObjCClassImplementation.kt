@@ -31,6 +31,12 @@ public class ObjCClassImplementation(val filename: String) : ObjCSourcePart {
     bodySourceParts.add(sourcePart)
   }
 
+  /**
+   * Adds method implementation part to the
+   */
+  public fun addMethod(method:ObjCMethod) {
+    addBodySourcePart(ObjCMethodImplementationSourcePart(method))
+  }
 
 
   override fun asString(): String {

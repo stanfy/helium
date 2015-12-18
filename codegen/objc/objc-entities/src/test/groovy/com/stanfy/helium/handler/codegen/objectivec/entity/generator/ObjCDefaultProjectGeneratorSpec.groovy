@@ -7,7 +7,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultFi
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultProjectBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
-import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMapper
+import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMappingsGenerator
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Type
 import org.apache.commons.io.FileUtils
@@ -82,10 +82,10 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
     when:
     def options = new ObjCEntitiesOptions()
     classStructure = classStructureBuilder.build(projectDSL, options);
-    def mapper = new ObjCSFObjectMapper();
+    def mapper = new ObjCSFObjectMappingsGenerator();
     projectBuilder = new ObjCDefaultProjectBuilder()
     def theProject = projectBuilder.build(projectDSL, options)
-    mapper.generateMappings(theProject, projectDSL, options);
+    mapper.generate(theProject, projectDSL, options);
     filesStructure = fileStructureBuilder.build(theProject.classStructure)
     generator = new ObjCProjectGenerator(output, filesStructure);
     generator.generate();
