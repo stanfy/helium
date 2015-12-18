@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.filetree;
 
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
 import com.stanfy.helium.model.Field;
 
 public enum class AccessModifier {
@@ -21,16 +22,16 @@ public enum class AtomicModifier {
  */
 public class ObjCPropertyDefinition : ObjCSourcePart {
 
-  constructor(name: String, type: String) :
+  constructor(name: String, type: ObjCType) :
   this(name, type, AccessModifier.STRONG, AtomicModifier.NONATOMIC) {
 
   }
 
-  constructor(name: String, type: String, accessModifier: AccessModifier) :
+  constructor(name: String, type: ObjCType, accessModifier: AccessModifier) :
   this(name, type, accessModifier, AtomicModifier.NONATOMIC) {
   }
 
-  constructor(name: String, type: String, accessModifier: AccessModifier, atomicModifier: AtomicModifier) {
+  constructor(name: String, type: ObjCType, accessModifier: AccessModifier, atomicModifier: AtomicModifier) {
     this.name = name;
     this.type = type;
     this.accessModifier = accessModifier;
@@ -46,7 +47,7 @@ public class ObjCPropertyDefinition : ObjCSourcePart {
    * Property result type (this is the type, which will be simply translated to the output)
    * so, in case of ObjC - it should be NSString, and NSArray... etc
    */
-  public var type: String;
+  public var type: ObjCType;
 
   /**
    * Access modifier for property AccessModifier.STRONG - for default value
@@ -80,7 +81,7 @@ public class ObjCPropertyDefinition : ObjCSourcePart {
    * Property type can be "NSArray / NSSet" etc
    * This property will hold type of actual items, those are in this property
    */
-  public var sequenceType: String? = null;
+  public var sequenceType: ObjCType? = null;
 
 
   override fun asString(): String {

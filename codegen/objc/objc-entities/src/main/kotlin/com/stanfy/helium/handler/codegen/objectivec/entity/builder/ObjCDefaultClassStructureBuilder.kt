@@ -1,10 +1,8 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.builder;
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassImplementation
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.*
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
@@ -39,18 +37,14 @@ public class ObjCDefaultClassStructureBuilder : ObjCClassStructureBuilder {
         .forEach { message ->
           val messageName = message.name
           val className = (options?.prefix ?: "") + messageName
-          typeTransformer.registerRefTypeTransformation(messageName, className)
+          typeTransformer.registerTransformation(messageName, ObjCType(className))
 
           // check for custom mappings
           val customTypeMappings = options?.customTypesMappings?.entries
           if (customTypeMappings != null) {
             for ((heliumType, objcType) in customTypeMappings) {
-              if (objcType.contains("*")) {
-                val validObjectiveCString = objcType.replace("*", "").trim()
-                typeTransformer.registerRefTypeTransformation(heliumType, validObjectiveCString);
-              } else {
-                typeTransformer.registerSimpleTransformation(heliumType, objcType);
-              }
+              val accessModifier = if (objcType.isReference)  AccessModifier.STRONG else AccessModifier.ASSIGN
+              typeTransformer.registerTransformation(heliumType, objcType, accessModifier);
             }
           }
         }
@@ -68,8 +62,8 @@ public class ObjCDefaultClassStructureBuilder : ObjCClassStructureBuilder {
                 val propertyName = nameTransformer.propertyNameFrom(field.name, usedPropertyNames)
                 val heliumAPIType = field.type
                 val propertyType = typeTransformer.objCType(heliumAPIType, field.isSequence)
-                if (heliumAPIType is Message && !field.isSequence) {
-                  objCClass.addForwardDeclaration(propertyType.replace("*", "").replace(" ", ""));
+                if (propertyType.isReference) {
+                  objCClass.addForwardDeclaration(propertyType.name);
                 }
 
                 val accessModifier = typeTransformer.accessorModifierForType(heliumAPIType)
@@ -77,9 +71,10 @@ public class ObjCDefaultClassStructureBuilder : ObjCClassStructureBuilder {
                 property.correspondingField = field
 
                 if (field.isSequence) {
-                  property.comment = " sequence of " + typeTransformer.objCType(heliumAPIType, false) + " items"
+                  val itemType = typeTransformer.objCType(heliumAPIType, false)
+                  property.comment = " sequence of $itemType items"
                   property.isSequence = true
-                  property.sequenceType = typeTransformer.objCType(heliumAPIType, false).replace("*", "").replace(" ", "")
+                  property.sequenceType = itemType
                 }
                 // Update used Names
                 usedPropertyNames.add(propertyName)

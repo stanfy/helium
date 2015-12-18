@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.builder
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
 import com.stanfy.helium.internal.dsl.ProjectDsl
@@ -110,7 +111,8 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     classStructure = classStructureBuilder.build(project, builderOptions);
 
     expect:
-    classStructureBuilder.getTypeTransformer().objCType(project.getTypes().byName(message)) == builderOptions.prefix + message + " *";
+    classStructureBuilder.getTypeTransformer().objCType(project.getTypes().byName(message)).name == builderOptions.prefix + message;
+    classStructureBuilder.getTypeTransformer().objCType(project.getTypes().byName(message)).isReference;
 
     where:
     message << ["A", "B", "C"]
@@ -164,7 +166,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     }
 
     def customTypesMappings = new HashMap<>()
-    customTypesMappings["A"] = "NSDate *"
+    customTypesMappings["A"] = new ObjCType("NSDate")
     builderOptions.customTypesMappings = customTypesMappings;
 
     classStructure = classStructureBuilder.build(project, builderOptions);
@@ -174,7 +176,8 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     then:
     classStructure.getClasses().size() == 1
     propertyDefinitions.size() == 1
-    propertyDefinitions.get(0).type == "NSDate *"
+    propertyDefinitions.get(0).type.name == "NSDate"
+    propertyDefinitions.get(0).type.isReference
     propertyDefinitions.get(0).accessModifier == AccessModifier.STRONG
 
   }
@@ -194,7 +197,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     }
 
     def customTypesMappings = new HashMap<>()
-    customTypesMappings["A"] = "somePrimitive"
+    customTypesMappings["A"] = new ObjCType("somePrimitive", false)
     builderOptions.customTypesMappings = customTypesMappings;
 
     classStructure = classStructureBuilder.build(project, builderOptions);
@@ -203,7 +206,8 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     then:
     classStructure.getClasses().size() == 1
     propertyDefinitions.size() == 1
-    propertyDefinitions.get(0).type == "somePrimitive"
+    propertyDefinitions.get(0).type.name == "somePrimitive"
+    !propertyDefinitions.get(0).type.reference
     propertyDefinitions.get(0).accessModifier == AccessModifier.ASSIGN
 
   }

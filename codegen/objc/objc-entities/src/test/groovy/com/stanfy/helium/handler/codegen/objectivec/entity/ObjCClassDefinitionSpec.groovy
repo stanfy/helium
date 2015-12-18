@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import spock.lang.Specification
@@ -22,7 +23,7 @@ class ObjCClassDefinitionSpec extends Specification {
   def "should add sourceParts"() {
     when:
     ObjCClassInterface classDefinition = new ObjCClassInterface(fileName);
-    ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", "type");
+    ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", new ObjCType("type"));
     classDefinition.addPropertyDefinition(propertyDefinition)
 
     then:
@@ -32,7 +33,7 @@ class ObjCClassDefinitionSpec extends Specification {
   def "should generate contents of properties sourceParts when repersented as string"() {
     when:
     ObjCClassInterface classDefinition = new ObjCClassInterface(fileName);
-    ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", "type");
+    ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", new ObjCType("type"));
     classDefinition.addPropertyDefinition(propertyDefinition)
 
     then:

@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.builder
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -25,7 +26,8 @@ class ObjCProjectTypeTransformerSpec extends Specification {
     def accessorModifierForType = typeTransformer.accessorModifierForType(string)
 
     then:
-    objCType == "NSString *";
+    objCType.name == "NSString"
+    objCType.isReference
     accessorModifierForType == AccessModifier.COPY
   }
 
@@ -37,7 +39,8 @@ class ObjCProjectTypeTransformerSpec extends Specification {
     def accessorModifierForType = typeTransformer.accessorModifierForType(type)
 
     expect:
-    objCType == objcType
+    objCType.name == objcType
+    !objCType.isReference
     accessorModifierForType == accessModifier;
 
     where:
@@ -66,7 +69,8 @@ class ObjCProjectTypeTransformerSpec extends Specification {
     def accessorModifierForType = typeTransformer.accessorModifierForType(longType)
 
     expect:
-    objCType == "NSInteger"
+    objCType.name == "NSInteger"
+    !objCType.isReference
     accessorModifierForType == AccessModifier.ASSIGN;
   }
 
@@ -77,9 +81,26 @@ class ObjCProjectTypeTransformerSpec extends Specification {
     def accessorModifierForType = typeTransformer.accessorModifierForType(sequence)
 
     then:
-    objCType == "NSArray *";
+    objCType.name == "NSArray";
+    objCType.isReference
     accessorModifierForType == AccessModifier.STRONG
   }
+
+  def "should use NSArray with generic for sequence sub-type"() {
+    def sequence = new Sequence(name: "somename", itemsType: new Type(name: "string"))
+    when:
+    def objCType = typeTransformer.objCType(sequence)
+    def accessorModifierForType = typeTransformer.accessorModifierForType(sequence)
+
+    then:
+    objCType.name == "NSArray"
+    objCType.isReference
+    objCType.genericOf
+    objCType.genericOf.name == "NSString"
+    objCType.genericOf.isReference
+    accessorModifierForType == AccessModifier.STRONG
+  }
+
 
   def "should use fall back to helium type name for unknown type"() {
     def message = new Message(name: "AS")
@@ -88,7 +109,7 @@ class ObjCProjectTypeTransformerSpec extends Specification {
     def accessorModifierForType = typeTransformer.accessorModifierForType(message)
 
     then:
-    objCType == "AS";
+    objCType.name == "AS";
     accessorModifierForType == AccessModifier.STRONG
   }
 
@@ -96,24 +117,26 @@ class ObjCProjectTypeTransformerSpec extends Specification {
   def "should use registered type transoformation if exists"() {
     def message = new Message(name: "AS")
     when:
-    typeTransformer.registerRefTypeTransformation("AS", "SomePrefix_AS");
+    typeTransformer.registerTransformation("AS", new ObjCType("SomePrefix_AS"));
     def objCType = typeTransformer.objCType(message)
     def accessorModifierForType = typeTransformer.accessorModifierForType(message)
 
     then:
-    objCType == "SomePrefix_AS *";
+    objCType.name == "SomePrefix_AS";
+    objCType.isReference
     accessorModifierForType == AccessModifier.STRONG
   }
 
   def "should user correct access modifier if such was registered"() {
     def message = new Message(name: "AS")
     when:
-    typeTransformer.registerRefTypeTransformation("AS", "SomePrefix_AS", AccessModifier.WEAK);
+    typeTransformer.registerTransformation("AS", new ObjCType("SomePrefix_BS"), AccessModifier.WEAK);
     def objCType = typeTransformer.objCType(message)
     def accessorModifierForType = typeTransformer.accessorModifierForType(message)
 
     then:
-    objCType == "SomePrefix_AS *";
+    objCType.name == "SomePrefix_BS";
+    objCType.isReference
     accessorModifierForType == AccessModifier.WEAK
   }
 

@@ -88,7 +88,8 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     then:
     aClass.definition != null
     aClass.definition.propertyDefinitions.size() == 1
-    aClass.definition.propertyDefinitions.get(0).getType().equals("NSString *");
+    aClass.definition.propertyDefinitions.get(0).getType().name == "NSString"
+    aClass.definition.propertyDefinitions.get(0).getType().isReference
   }
 
   def "should generate string properties with NSString type and copy modifier"() {
