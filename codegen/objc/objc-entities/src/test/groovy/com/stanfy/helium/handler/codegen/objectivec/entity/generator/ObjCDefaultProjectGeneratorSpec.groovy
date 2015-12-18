@@ -83,11 +83,11 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
     def options = new ObjCEntitiesOptions()
     classStructure = classStructureBuilder.build(projectDSL, options);
     def mapper = new ObjCSFObjectMapper();
-    filesStructure = fileStructureBuilder.build(classStructure)
     projectBuilder = new ObjCDefaultProjectBuilder()
-    project = projectBuilder.build(projectDSL, options)
-    mapper.generateMappings(project, projectDSL, options);
-    generator = new ObjCProjectGenerator(output, this.project.fileStructure);
+    def theProject = projectBuilder.build(projectDSL, options)
+    mapper.generateMappings(theProject, projectDSL, options);
+    filesStructure = fileStructureBuilder.build(theProject.classStructure)
+    generator = new ObjCProjectGenerator(output, filesStructure);
     generator.generate();
 
     def fileAHeader = new File("$output/" + options.prefix +"A.h")

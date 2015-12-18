@@ -21,12 +21,17 @@ public class ObjCClassImplementation(val filename: String) : ObjCSourcePart {
     importSourceParts.add(sourcePart)
   }
 
+  public fun importClassWithName(className:String) {
+    this.addImportSourcePart(ObjCImportPart(className))
+  }
   /**
   Adds specified source part to the central part (inside @implementation)
    */
   public fun addBodySourcePart(sourcePart: ObjCSourcePart) {
     bodySourceParts.add(sourcePart)
   }
+
+
 
   override fun asString(): String {
     val bld = StringBuilder()

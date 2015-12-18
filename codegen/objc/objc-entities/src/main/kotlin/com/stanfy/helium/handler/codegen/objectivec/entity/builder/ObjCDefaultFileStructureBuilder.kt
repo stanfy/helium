@@ -19,7 +19,8 @@ class ObjCDefaultFileStructureBuilder : ObjCFileStructureBuilder {
   override fun build(from: ObjCProjectClassesStructure, options: ObjCEntitiesOptions?): ObjCProjectFilesStructure {
     val result = ObjCProjectFilesStructure()
     from.classes.forEach { objcClass ->
-      val headerFile = ObjCHeaderFile(objcClass.name, objcClass.definition.asString())
+      var headerBuilder =ObjCHeaderFileBuilder()
+      val headerFile = ObjCHeaderFile(objcClass.name, headerBuilder.build(objcClass,options))
       val implementationFile = ObjCImplementationFile(objcClass.name, objcClass.implementation.asString())
       result.addFile(headerFile)
       result.addFile(implementationFile)

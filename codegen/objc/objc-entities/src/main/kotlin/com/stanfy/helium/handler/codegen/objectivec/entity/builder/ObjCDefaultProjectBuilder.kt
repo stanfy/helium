@@ -10,7 +10,6 @@ import com.stanfy.helium.model.Project
 class ObjCDefaultProjectBuilder : ObjCProjectBuilder {
 
   val classStructureBuilder = ObjCDefaultClassStructureBuilder()
-  val fileStructureBuilder = ObjCDefaultFileStructureBuilder()
 
   override fun build(from: Project): ObjCProject {
     return this.build(from, null)
@@ -19,8 +18,7 @@ class ObjCDefaultProjectBuilder : ObjCProjectBuilder {
   override fun build(from: Project, options: ObjCEntitiesOptions?): ObjCProject {
     val project = from
     val classStructure = classStructureBuilder.build(project, options)
-    var fileStructure  =fileStructureBuilder.build(classStructure, options)
-    return ObjCProject(classStructure, fileStructure)
+    return ObjCProject(classStructure)
   }
 
 }

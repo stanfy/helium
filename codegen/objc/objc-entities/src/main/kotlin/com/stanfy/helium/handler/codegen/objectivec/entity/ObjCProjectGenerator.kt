@@ -11,10 +11,10 @@ import java.io.Writer
  * Created by ptaykalo on 8/17/14
  * Generates files, based on based in ObjCProject.
  */
-public class ObjCProjectGenerator(val output: File, val project: ObjCProjectFilesStructure) {
+public class ObjCProjectGenerator(val output: File, val filesStructure: ObjCProjectFilesStructure) {
 
   public fun generate() {
-    for (file in project.files) {
+    for (file in filesStructure.files) {
       val classFile = File(output, file.name + "." + file.getExtension())
       var output: Writer? = null
       try {

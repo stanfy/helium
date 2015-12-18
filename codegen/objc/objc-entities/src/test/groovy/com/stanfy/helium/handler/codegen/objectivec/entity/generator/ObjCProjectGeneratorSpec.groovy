@@ -13,16 +13,16 @@ import spock.lang.Specification
  */
 // TODO: implement or remove
 abstract class ObjCProjectGeneratorSpec<T extends ObjCProjectGenerator> extends Specification {
-  ObjCProject project
+  ObjCProjectFilesStructure project
   File output
   T generator
 
   def setup() {
-    project = new ObjCProject(new ObjCProjectClassesStructure(), new ObjCProjectFilesStructure())
-    project.fileStructure.addFile(new ObjCHeaderFile("A"));
-    project.fileStructure.addFile(new ObjCHeaderFile("B"));
-    project.fileStructure.addFile(new ObjCImplementationFile("A"));
-    project.fileStructure.addFile(new ObjCImplementationFile("B"));
+    project = new ObjCProjectFilesStructure()
+    project.addFile(new ObjCHeaderFile("A"));
+    project.addFile(new ObjCHeaderFile("B"));
+    project.addFile(new ObjCImplementationFile("A"));
+    project.addFile(new ObjCImplementationFile("B"));
 
     output = File.createTempDir()
     println output
