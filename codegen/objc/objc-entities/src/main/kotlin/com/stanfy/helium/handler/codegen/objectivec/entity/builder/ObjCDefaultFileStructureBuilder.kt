@@ -25,6 +25,17 @@ class ObjCDefaultFileStructureBuilder : ObjCFileStructureBuilder {
       result.addFile(headerFile)
       result.addFile(implementationFile)
     }
+    from.pregeneratedClasses.forEach { objcClass ->
+      if (objcClass.header != null) {
+        val headerFile = ObjCHeaderFile(objcClass.name, objcClass.header)
+        result.addFile(headerFile)
+      }
+      if (objcClass.implementation != null) {
+        val implementationFile = ObjCImplementationFile(objcClass.name, objcClass.implementation)
+        result.addFile(implementationFile)
+      }
+    }
+
     return result
   }
 

@@ -76,6 +76,9 @@ public class ObjCDefaultClassStructureBuilder : ObjCBuilder<Project, ObjCProject
                   val itemType = typeTransformer.objCType(heliumAPIType, false)
                   property.isSequence = true
                   property.sequenceType = itemType
+                  if (itemType.isReference) {
+                    objCClass.addForwardDeclaration(itemType.name)
+                  }
                 }
                 // Update used Names
                 usedPropertyNames.add(propertyName)
