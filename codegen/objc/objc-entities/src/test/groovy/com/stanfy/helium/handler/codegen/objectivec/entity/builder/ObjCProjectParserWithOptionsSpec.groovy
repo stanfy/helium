@@ -2,7 +2,6 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.builder
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
 import com.stanfy.helium.internal.dsl.ProjectDsl
@@ -125,9 +124,9 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     def cClass = classStructure.getClasses().find { it.getDefinition().getClassName().contains("C") }
 
     then:
-    !cClass.forwardDeclarations.contains(builderOptions.prefix + "B") // Sequence
-    cClass.forwardDeclarations.contains(builderOptions.prefix + "A")
-    !cClass.forwardDeclarations.contains(builderOptions.prefix + "C")
+    !cClass.getMethodsForwardDeclarations.contains(builderOptions.prefix + "B") // Sequence
+    cClass.getMethodsForwardDeclarations.contains(builderOptions.prefix + "A")
+    !cClass.getMethodsForwardDeclarations.contains(builderOptions.prefix + "C")
 
   }
 

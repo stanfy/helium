@@ -65,7 +65,7 @@ public class ObjCDefaultClassStructureBuilder : ObjCBuilder<Project, ObjCProject
                 val heliumAPIType = field.type
                 val propertyType = typeTransformer.objCType(heliumAPIType, field.isSequence)
                 if (propertyType.isReference) {
-                  objCClass.addForwardDeclaration(propertyType.name);
+                  objCClass.addClassForwardDeclaration(propertyType.name);
                 }
 
                 val accessModifier = typeTransformer.accessorModifierForType(heliumAPIType)
@@ -77,7 +77,7 @@ public class ObjCDefaultClassStructureBuilder : ObjCBuilder<Project, ObjCProject
                   property.isSequence = true
                   property.sequenceType = itemType
                   if (itemType.isReference) {
-                    objCClass.addForwardDeclaration(itemType.name)
+                    objCClass.addClassForwardDeclaration(itemType.name)
                   }
                 }
                 // Update used Names

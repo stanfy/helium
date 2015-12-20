@@ -6,6 +6,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectStructureG
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCPropertyNameTransformer
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCTypeTransformer
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.*
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImportPart
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSourcePart
 import com.stanfy.helium.internal.utils.Names
@@ -17,7 +18,7 @@ import com.stanfy.helium.model.ServiceMethod
  * Created by paultaykalo on 12/18/15.
  *
  */
-class ObjCHTTPClientGenerator :ObjCProjectStructureGenerator {
+class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
 
   // TODO : Ibject theser values to the generator
   public val nameTransformer = ObjCPropertyNameTransformer()
@@ -25,65 +26,56 @@ class ObjCHTTPClientGenerator :ObjCProjectStructureGenerator {
 
   override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
     projectDSL.services.forEach { service ->
-      val mappingsClassName = options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "Client"
+      val httpClientClassName = options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "Client"
       val cancellableOperationClassName = options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "CancelableOperation"
-      addPregeneratedClientWithName(project, service, mappingsClassName,cancellableOperationClassName)
-      val mappingsClass = ObjCClass(mappingsClassName)
-      project.classStructure.addClass(mappingsClass)
+      addPregeneratedClientWithName(project, service, httpClientClassName, cancellableOperationClassName)
+      val httpClientClass = ObjCClass(httpClientClassName)
+      project.classStructure.addClass(httpClientClass)
 
+      val apiClassName = options.prefix + Names.prettifiedName(Names.canonicalName(service.name))
+      val apiClass = ObjCClass(apiClassName)
+      project.classStructure.addClass(apiClass)
 
-      addInitMethodForService(mappingsClass, service)
+      addInitMethodForService(service,apiClass, httpClientClassName)
+      addCancellableDependencyForService(apiClass, cancellableOperationClassName)
       service.methods.forEach { method ->
-        addServiceMethodForService(mappingsClass, method)
+        addServiceMethodForService(apiClass, method, cancellableOperationClassName)
       }
     }
-
   }
 
-  private fun addPregeneratedClientWithName(project:ObjCProject, service: Service, httpClientClassName: String, cancelableOperationClassName: String) {
-    val implementation = httpClientImplementation(httpClientClassName, service, cancelableOperationClassName)
-    val header = httpClientHeader(cancelableOperationClassName, httpClientClassName)
-    project.classStructure.pregeneratedClasses.add(ObjCPregeneratedClass(httpClientClassName, header, implementation))
-
-    val cancellableOperationHeader = cancelableOperationHeader(cancelableOperationClassName)
-    project.classStructure.pregeneratedClasses.add(ObjCPregeneratedClass(cancelableOperationClassName,cancellableOperationHeader,null))
+  private fun addCancellableDependencyForService(apiClass: ObjCClass, cancellableOperationClassName: String) {
+    apiClass.addProtocolForwardDeclaration(cancellableOperationClassName)
+    apiClass.implementation.importClassWithName(cancellableOperationClassName)
   }
 
-  private fun cancelableOperationHeader(cancelableOperationClassName: String): String {
-    return """
-      #import <Foundation/Foundation.h>
-      /**
-       * Protocol used for the ability to cancel some long running operations such as
-       * Network requests
-       */
-      @protocol $cancelableOperationClassName <NSObject>
-
-      /**
-       * Cancels operation
-       */
-      - (void)cancel;
-      @end
-    """
-  }
-
-
-  private fun addInitMethodForService(mappingsClass: ObjCClass, service: Service) {
+  private fun addInitMethodForService(service:Service, apiClass: ObjCClass, httpClientClassName: String) {
     // Version and location setup
-    mappingsClass.definition.addPropertyDefinition(ObjCPropertyDefinition("version", ObjCType("NSString", isReference = true)))
-    mappingsClass.definition.addPropertyDefinition(ObjCPropertyDefinition("name", ObjCType("NSString", isReference = true)))
-    mappingsClass.definition.addPropertyDefinition(ObjCPropertyDefinition("baseURL", ObjCType("NSURL", isReference = true)))
-    mappingsClass.definition.addPropertyDefinition(ObjCPropertyDefinition("urlSession", ObjCType("NSURLSession", isReference = true)))
+    apiClass.addClassForwardDeclaration(httpClientClassName)
+    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("version", ObjCType("NSString", isReference = true)))
+    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("name", ObjCType("NSString", isReference = true)))
+    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("httpClient", ObjCType(httpClientClassName, isReference = true)))
 
     val initMethod = ObjCMethod("init", ObjCMethod.ObjCMethodType.INSTANCE, "id")
     val initMethodImplementationSourcePart = ObjCMethodImplementationSourcePart(initMethod)
     initMethodImplementationSourcePart.addSourcePart(ObjCStringSourcePart(
+        """
+        self = [super init];
+        if (self) {
+            self.httpClient = [$httpClientClassName new];
+            self.version = [self.httpClient version];
+            self.name = @"${service.name}";
+        }
+        return self;
+        """
     ));
-    mappingsClass.implementation.addBodySourcePart(initMethodImplementationSourcePart)
+    apiClass.implementation.addBodySourcePart(initMethodImplementationSourcePart)
+    apiClass.implementation.importClassWithName(httpClientClassName)
   }
 
-  private fun addServiceMethodForService(mappingsClass: ObjCClass, method: ServiceMethod) {
+  private fun addServiceMethodForService(mappingsClass: ObjCClass, method: ServiceMethod, cancellableOperationClassName: String) {
     val methodName = Names.prettifiedName(Names.canonicalName(method.name)).decapitalize()
-    val serviceMethod = ObjCMethod(methodName, ObjCMethod.ObjCMethodType.INSTANCE, "void")
+    val serviceMethod = ObjCMethod(methodName, ObjCMethod.ObjCMethodType.INSTANCE, "id<$cancellableOperationClassName>")
 
     // Injecting Path Parameters to method
     if (method.pathParameters != null) {
@@ -105,6 +97,31 @@ class ObjCHTTPClientGenerator :ObjCProjectStructureGenerator {
     mappingsClass.definition.addMethod(serviceMethod)
   }
 
+  private fun addPregeneratedClientWithName(project: ObjCProject, service: Service, httpClientClassName: String, cancelableOperationClassName: String) {
+    val implementation = httpClientImplementation(httpClientClassName, service, cancelableOperationClassName)
+    val header = httpClientHeader(cancelableOperationClassName, httpClientClassName)
+    project.classStructure.pregeneratedClasses.add(ObjCPregeneratedClass(httpClientClassName, header, implementation))
+
+    val cancellableOperationHeader = cancelableOperationHeader(cancelableOperationClassName)
+    project.classStructure.pregeneratedClasses.add(ObjCPregeneratedClass(cancelableOperationClassName, cancellableOperationHeader, null))
+  }
+
+  private fun cancelableOperationHeader(cancelableOperationClassName: String): String {
+    return """
+      #import <Foundation/Foundation.h>
+      /**
+       * Protocol used for the ability to cancel some long running operations such as
+       * Network requests
+       */
+      @protocol $cancelableOperationClassName <NSObject>
+
+      /**
+       * Cancels operation
+       */
+      - (void)cancel;
+      @end
+    """
+  }
 
   private fun httpClientHeader(cancelableOperationClassName: String, httpClientClassName: String): String {
     val header = """
@@ -115,6 +132,8 @@ class ObjCHTTPClientGenerator :ObjCProjectStructureGenerator {
     @interface $httpClientClassName : NSObject
     @property (nonatomic, strong, readonly) NSURLSession *urlSession;
     @property (nonatomic, strong, readonly) NSURL *baseURL;
+    @property(nonatomic, copy, readonly) NSString *name;
+    @property(nonatomic, copy, readonly) NSString *version;
 
     - (id <$cancelableOperationClassName>)sendRequestWithDescription:(NSString *)description
                                                         path:(NSString *)path

@@ -11,15 +11,25 @@ public class ObjCClass(override val name: String, val definition: ObjCClassInter
                        val implementation: ObjCClassImplementation) : ObjCClassType {
 
   constructor(name:String):this(name, ObjCClassInterface(name), ObjCClassImplementation(name))
-  public var forwardDeclarations = hashSetOf<String>()
+  public var classesForwardDeclarations = hashSetOf<String>()
+    private set
+
+  public var protocolsForwardDeclarations = hashSetOf<String>()
     private set
 
   /**
-   * Adds external class declaration string. This one should be transformed to "@class |externalClass|" in the eneratir
+   * Adds external class declaration string. This one should be transformed to "@class |externalClass|" in the source
    */
-  public fun addForwardDeclaration(externalClass: String) {
-    forwardDeclarations.add(externalClass)
+  public fun addClassForwardDeclaration(externalClass: String) {
+    classesForwardDeclarations.add(externalClass)
   }
+  /**
+   * Adds external protocol declaration string. This one should be transformed to "@protocl |externalProtocol|" in the source
+   */
+  public fun addProtocolForwardDeclaration(externalProtocol: String) {
+    protocolsForwardDeclarations.add(externalProtocol)
+  }
+
 
 }
 
