@@ -6,6 +6,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectStructureG
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCPropertyNameTransformer
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCTypeTransformer
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.*
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSourcePart
 import com.stanfy.helium.internal.utils.Names
@@ -27,6 +28,27 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
   private var generationOptions:ObjCEntitiesOptions? = null;
 
   override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
+
+    // TODO: Pass in type transofrmer to the generator
+    projectDSL.messages
+        .filter { message ->
+          !message.anonymous && options.isTypeIncluded(message)
+        }
+        .forEach { message ->
+          val messageName = message.name
+          val className = options.prefix + messageName
+          typeTransformer.registerTransformation(messageName, ObjCType(className))
+
+          // check for custom mappings
+          val customTypeMappings = options.customTypesMappings.entries
+          for ((heliumType, objcType) in customTypeMappings) {
+            val isReference = objcType.contains("*")
+            val name = objcType.replace(" ", "").replace("*", "")
+            val accessModifier = if (isReference || name == "id") AccessModifier.STRONG else AccessModifier.ASSIGN
+            typeTransformer.registerTransformation(heliumType, ObjCType(name, isReference), accessModifier);
+          }
+        }
+
     this.generationOptions = options
     projectDSL.services.forEach { service ->
       addPregeneratedClientWithName(project, service)
@@ -55,13 +77,16 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
   private fun addInitMethodForService(service: Service, apiClass: ObjCClass) {
     val httpClientClassName = this.httpClientClassNameForService(service, this.generationOptions!!)
     val responseSerializerClassName = this.responsSerializerClassNameForService(service, this.generationOptions!!)
+    val requestSerializerClassName = this.requestSerializerClassName(service, this.generationOptions!!)
     // Version and location setup
     apiClass.addClassForwardDeclaration(httpClientClassName)
     apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("version", ObjCType("NSString", isReference = true)))
     apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("name", ObjCType("NSString", isReference = true)))
     apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("httpClient", ObjCType(httpClientClassName, isReference = true)))
     apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("responseDeserializer", ObjCType("NSObject<$responseSerializerClassName>", isReference = true)))
+    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("requestBodySerializer", ObjCType("NSObject<$requestSerializerClassName>", isReference = true)))
     apiClass.protocolsForwardDeclarations.add(responseSerializerClassName)
+    apiClass.protocolsForwardDeclarations.add(requestSerializerClassName)
 
     val initMethod = ObjCMethod("init", ObjCMethod.ObjCMethodType.INSTANCE, "id")
     val initMethodImplementationSourcePart = ObjCMethodImplementationSourcePart(initMethod)
@@ -123,6 +148,24 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
       }
     }
 
+    // check body parameter for put methods
+    var body = "nil"
+    val bodyBuilder = StringBuilder()
+    if (method.hasBody()) {
+      val objcClass = project.classStructure.getClassForType(method.body.name)
+      var bodyType:String
+      if (objcClass == null) {
+        bodyType = typeTransformer.objCType(method.body).toString()
+      } else {
+        bodyType = "${objcClass.name} *"
+      }
+      serviceMethod.addParameter(bodyType, "body")
+      body = "serializedBody"
+      bodyBuilder.append("""
+        NSData * $body = [self.requestBodySerializer serializeRequestBody:body];
+      """)
+    }
+
     var responseType = "id"
     var responseClassType = "NSObject"
     if (method.response is Message) {
@@ -136,7 +179,7 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
     serviceMethod.addParameter("void (^)(${responseType})", "success")
     serviceMethod.addParameter("void (^)(NSError *)", "failure")
 
-    // HTPP Method
+    // HTTP Method
     val httpMethod = method.type.name.toUpperCase()
 
     // Method implementation
@@ -145,11 +188,12 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
         """
     ${pathBuilder.toString()}
     ${paramsBuilder.toString()}
+    ${bodyBuilder.toString()}
     return [self.httpClient
         sendRequestWithDescription:@"${method.name}"
                               path:_path
                         parameters:_params
-                              body:nil
+                              body:$body
                            headers:nil
                             method:@"$httpMethod"
                       successBlock:[self deserializationBlockForClass:[$responseClassType class] successBlock:success failureBlock:failure]
@@ -188,12 +232,16 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
     return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "ResponseSerializer"
   }
 
+  private fun requestSerializerClassName(service: Service, options: ObjCEntitiesOptions): String {
+    return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "RequestBodySerializer"
+  }
 
 
   private fun addDeserializationLogicForService(service:Service, apiClass: ObjCClass) {
     val responseSerializerClassName = this.responsSerializerClassNameForService(service, this.generationOptions!!)
+    val requestSerializerClassName = this.requestSerializerClassName(service, this.generationOptions!!)
 
-    apiClass.definition.addBodySourcePart(ObjCStringSourcePart(
+    apiClass.definition.addBodySourcePart(
         """
 @protocol $responseSerializerClassName <NSObject>
 @optional
@@ -203,7 +251,19 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
 - (id)deserializeResponse:(NSHTTPURLResponse *)response data:(NSData *)rawData toClass:(Class)clz forRequest:(NSURLRequest *)request error:(NSError **)error;
 @end
         """
-    ))
+    )
+
+    apiClass.definition.addBodySourcePart(
+        """
+@protocol $requestSerializerClassName <NSObject>
+@optional
+/**
+ * Serializes request body from specified class to NSData *
+ */
+- (NSData *)serializeRequestBody:(id)body;
+@end
+        """
+    )
 
     apiClass.implementation.addBodySourcePart(ObjCStringSourcePart(
         """

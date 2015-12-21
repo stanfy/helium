@@ -5,7 +5,7 @@ import com.stanfy.helium.handler.codegen.BaseGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultFileStructureBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultProjectBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.httpclient.urlsession.ObjCHTTPClientGenerator
-import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCMantleMappingsGenerator
+import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.mantle.ObjCMantleMappingsGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMappingsGenerator
 import com.stanfy.helium.model.Project
 import java.io.File

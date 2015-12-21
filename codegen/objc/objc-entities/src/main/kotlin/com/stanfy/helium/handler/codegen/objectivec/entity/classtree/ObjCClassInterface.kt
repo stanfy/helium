@@ -3,7 +3,7 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.classtree
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImportPart
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCSourcePart
-import java.util.*
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSourcePart
 
 /**
  * Created by ptaykalo on 8/17/14.
@@ -29,6 +29,9 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
    */
   public fun addBodySourcePart(sourcePart: ObjCSourcePart) {
     bodySourceParts.add(sourcePart)
+  }
+  public fun addBodySourcePart(string: String) {
+    bodySourceParts.add(ObjCStringSourcePart(string))
   }
 
   /**

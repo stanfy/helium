@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping
+package com.stanfy.helium.handler.codegen.objectivec.entity.mapper.mantle
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
@@ -27,27 +27,6 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
       objCClass.definition.implementedProtocols.add("MTLJSONSerializing")
       objCClass.definition.importFrameworkWithName("Mantle")
 
-//      """
-//      + (NSDictionary *)JSONKeyPathsByPropertyKey {
-//    return @{ @"affiliateId" : @"affiliate_id",
-//              @"checkInDate" : @"checkin",
-//             @"checkOutDate" : @"checkout",
-//       @"confirmationNumber" : @"confirmation_num",
-//               @"keychainId" : @"keychain_id",
-//                 @"fullName" : @"full_name",
-//         @"guestPhoneNumber" : @"phone",
-//             @"modifiedDate" : @"modified",
-//            @"lockInstalled" : @"lock_installed",
-//           @"numberOfNights" : @"num_nights",
-//            @"reservationId" : @"id",
-//               @"roomNumber" : @"room_number",
-//                 @"roomType" : @"room_type",
-//                    @"state" : @"state",
-//                    @"token" : @"token",
-//                @"affiliate" : @"affiliate" };
-//}
-//
-//      """
       val contentsBuilder = StringBuilder()
 
       val jsonMappingsMethod = ObjCMethod("JSONKeyPathsByPropertyKey", ObjCMethod.ObjCMethodType.CLASS, "NSDictionary *")
@@ -61,7 +40,7 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
         if (field != null) {
           if (field.isSequence) {
             val itemClass = prop.sequenceType!!.name
-            var valueTransformerMethod = ObjCMethod(prop.name + "JSONTransformer",ObjCMethod.ObjCMethodType.CLASS, "NSValueTransformer *" )
+            var valueTransformerMethod = ObjCMethod(prop.name + "JSONTransformer", ObjCMethod.ObjCMethodType.CLASS, "NSValueTransformer *")
             var valueTransformerMethodImpl = ObjCMethodImplementationSourcePart(valueTransformerMethod)
             valueTransformerMethodImpl.addSourcePart("""
             return [MTLValueTransformer mtl_JSONArrayTransformerWithModelClass:[$itemClass class]];
@@ -80,12 +59,8 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
         }
 
       }
-
       contentsBuilder.append(" };")
-
       jsonMappingsMethodImpl.addSourcePart(ObjCStringSourcePart(contentsBuilder.toString()))
-
     }
-
   }
 }
