@@ -4,7 +4,6 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.*
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
-import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 
 /**

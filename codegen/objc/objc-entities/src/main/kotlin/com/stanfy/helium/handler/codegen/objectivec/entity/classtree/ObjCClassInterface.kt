@@ -9,6 +9,8 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCSourcePa
  */
 public class ObjCClassInterface(val className: String) : ObjCSourcePart {
 
+  public val bodySourceParts = arrayListOf<ObjCSourcePart>()
+
   public var superClassName: String = "NSObject"
 
   public var propertyDefinitions = arrayListOf<ObjCPropertyDefinition>()
@@ -17,10 +19,19 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
   public var methods = arrayListOf<ObjCMethod>()
     private set
 
+  /**
+  Adds specified source part to the central part (inside @implementation)
+   */
+  public fun addBodySourcePart(sourcePart: ObjCSourcePart) {
+    bodySourceParts.add(sourcePart)
+  }
 
   override fun asString(): String {
     // TODO use some templates
     val bld = StringBuilder()
+    for (sourcePart in bodySourceParts) {
+      bld.append(sourcePart.asString()).append("\n")
+    }
     bld.append("@interface ").append(className).append(" : ").append(superClassName).append("\n")
     for (propertyDefinition in propertyDefinitions) {
       bld.append(propertyDefinition.asString()).append("\n")
