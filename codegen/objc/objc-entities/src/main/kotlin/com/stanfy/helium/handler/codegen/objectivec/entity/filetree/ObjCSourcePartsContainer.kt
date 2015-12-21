@@ -18,6 +18,14 @@ public open class ObjCSourcePartsContainer : ObjCSourcePart {
   public fun addSourcePart(sourcePart: ObjCSourcePart) {
     sourceParts.add(sourcePart);
   }
+  /**
+   * Adds string source part to current container
+   * @param sourcePart source part that need to be rendered as a part of container
+   */
+  public fun addSourcePart(sourcePart: String) {
+    sourceParts.add(ObjCStringSourcePart(sourcePart));
+  }
+
 
   override fun asString(): String {
     val bld = StringBuilder();

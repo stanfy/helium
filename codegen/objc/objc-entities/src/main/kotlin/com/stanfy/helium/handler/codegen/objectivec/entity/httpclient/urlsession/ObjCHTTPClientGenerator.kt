@@ -159,7 +159,6 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
         """
     ));
     apiClass.implementation.addBodySourcePart(serviceMethodImplementation)
-//    mappingsClass.implementation.addMethod(serviceMethod)
     apiClass.definition.addMethod(serviceMethod)
     apiClass.implementation.importClassWithName(responseClassType)
   }

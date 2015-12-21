@@ -32,6 +32,10 @@ public class ObjCPropertyNameTransformer {
     if (currPropertyName == "id") {
       currPropertyName = "ID"
     }
+    if (currPropertyName == "description") {
+      currPropertyName = "descr"
+    }
+
     if (!isNameAllowed(currPropertyName, nonAllowedNames)) {
       currPropertyName += "Field"
     }
@@ -43,6 +47,9 @@ public class ObjCPropertyNameTransformer {
 
     if (resultName == "id") {
       resultName = "ID"
+    }
+    if (resultName == "description") {
+      resultName = "descr"
     }
 
     while (!isNameAllowed(resultName, nonAllowedNames)) {

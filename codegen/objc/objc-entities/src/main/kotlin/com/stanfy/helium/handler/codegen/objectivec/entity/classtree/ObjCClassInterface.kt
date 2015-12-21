@@ -1,7 +1,9 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.classtree
 
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImportPart
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCSourcePart
+import java.util.*
 
 /**
  * Created by ptaykalo on 8/17/14.
@@ -9,9 +11,12 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCSourcePa
  */
 public class ObjCClassInterface(val className: String) : ObjCSourcePart {
 
+  public val importSourceParts = arrayListOf<ObjCImportPart>()
+
   public val bodySourceParts = arrayListOf<ObjCSourcePart>()
 
   public var superClassName: String = "NSObject"
+  public val implementedProtocols = hashSetOf<String>()
 
   public var propertyDefinitions = arrayListOf<ObjCPropertyDefinition>()
     private set
@@ -26,13 +31,34 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
     bodySourceParts.add(sourcePart)
   }
 
+  /**
+  Adds specified source part to the top part (before @implementation)
+   */
+  public fun addImportSourcePart(sourcePart: ObjCImportPart) {
+    importSourceParts.add(sourcePart)
+  }
+
+  public fun importClassWithName(className:String) {
+    this.addImportSourcePart(ObjCImportPart(className))
+  }
+  public fun importFrameworkWithName(className:String) {
+    this.addImportSourcePart(ObjCImportPart(className, true))
+  }
+
+
   override fun asString(): String {
     // TODO use some templates
     val bld = StringBuilder()
     for (sourcePart in bodySourceParts) {
       bld.append(sourcePart.asString()).append("\n")
     }
-    bld.append("@interface ").append(className).append(" : ").append(superClassName).append("\n")
+    bld.append("@interface ").append(className).append(" : ").append(superClassName)
+    if (implementedProtocols.size > 0) {
+      bld.append("<")
+      bld.append(implementedProtocols.joinToString())
+      bld.append(">")
+    }
+    bld.append("\n")
     for (propertyDefinition in propertyDefinitions) {
       bld.append(propertyDefinition.asString()).append("\n")
     }

@@ -16,6 +16,9 @@ class ObjCHeaderFileBuilder : ObjCBuilder<ObjCClass, String> {
 
   override fun build(from: ObjCClass, options: ObjCEntitiesOptions?): String {
     val builder = StringBuilder()
+    from.definition.importSourceParts.forEach { s ->
+      builder.append(s.asString()).append("\n")
+    }
     from.classesForwardDeclarations.forEach { s ->
       builder.append("@class ").append(s).append(";\n")
     }

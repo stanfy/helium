@@ -22,16 +22,16 @@ public class ObjCTypeTransformer {
 
   constructor() {
     this.registerTransformation("string", ObjCType("NSString"), AccessModifier.COPY)
-    this.registerTransformation("int32", ObjCType("NSInteger", isReference = false), AccessModifier.ASSIGN)
-    this.registerTransformation("int64", ObjCType("NSInteger", isReference = false), AccessModifier.ASSIGN)
-    this.registerTransformation("long", ObjCType("NSInteger", isReference = false), AccessModifier.ASSIGN)
-    this.registerTransformation("int", ObjCType("NSInteger", isReference = false), AccessModifier.ASSIGN)
-    this.registerTransformation("boolean", ObjCType("BOOL", isReference = false), AccessModifier.ASSIGN)
-    this.registerTransformation("bool", ObjCType("BOOL", isReference = false), AccessModifier.ASSIGN)
-    this.registerTransformation("float", ObjCType("double", isReference = false), AccessModifier.ASSIGN)
-    this.registerTransformation("float32", ObjCType("double", isReference = false), AccessModifier.ASSIGN)
-    this.registerTransformation("float64", ObjCType("double", isReference = false), AccessModifier.ASSIGN)
-    this.registerTransformation("double", ObjCType("double", isReference = false), AccessModifier.ASSIGN)
+    this.registerTransformation("int32", ObjCType("NSNumber"), AccessModifier.STRONG)
+    this.registerTransformation("int64", ObjCType("NSNumber"), AccessModifier.STRONG)
+    this.registerTransformation("long", ObjCType("NSNumber"), AccessModifier.STRONG)
+    this.registerTransformation("int", ObjCType("NSNumber"), AccessModifier.STRONG)
+    this.registerTransformation("boolean", ObjCType("NSNumber"), AccessModifier.STRONG)
+    this.registerTransformation("bool", ObjCType("NSNumber"), AccessModifier.STRONG)
+    this.registerTransformation("float", ObjCType("NSNumber"), AccessModifier.STRONG)
+    this.registerTransformation("float32", ObjCType("NSNumber"), AccessModifier.STRONG)
+    this.registerTransformation("float64", ObjCType("NSNumber"), AccessModifier.STRONG)
+    this.registerTransformation("double", ObjCType("NSNumber"), AccessModifier.STRONG)
   }
 
   public fun registerTransformation(heliumTypeName: String, objectiveCType: ObjCType, accessModifier: AccessModifier = AccessModifier.ASSIGN) {

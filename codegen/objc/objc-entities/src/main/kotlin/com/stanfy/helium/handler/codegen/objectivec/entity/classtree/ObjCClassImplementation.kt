@@ -11,7 +11,7 @@ import java.util.ArrayList
 public class ObjCClassImplementation(val filename: String) : ObjCSourcePart {
 
   // TODO : Dependencies
-  private val importSourceParts = ArrayList<ObjCImportPart>()
+  private val importSourceParts = hashSetOf<ObjCImportPart>()
   private val bodySourceParts = ArrayList<ObjCSourcePart>()
 
   /**
