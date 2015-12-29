@@ -47,7 +47,17 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
             """)
             objCClass.implementation.addBodySourcePart(valueTransformerMethodImpl)
             objCClass.implementation.importClassWithName(itemClass)
-
+          } else if (!prop.type.isFoundationType()){
+            val propClass = prop.type.name
+            var valueTransformerMethod = ObjCMethod(prop.name + "JSONTransformer", ObjCMethod.ObjCMethodType.CLASS, "NSValueTransformer *")
+            var valueTransformerMethodImpl = ObjCMethodImplementationSourcePart(valueTransformerMethod)
+            valueTransformerMethodImpl.addSourcePart("""
+            return [MTLValueTransformer mtl_JSONDictionaryTransformerWithModelClass:[$propClass class]];
+            """)
+            objCClass.implementation.addBodySourcePart(valueTransformerMethodImpl)
+            objCClass.implementation.importClassWithName(propClass)
+            contentsBuilder.append(""" @"${prop.name}" : @"${field.name}",
+            """)
           } else {
             contentsBuilder.append(""" @"${prop.name}" : @"${field.name}",
             """)

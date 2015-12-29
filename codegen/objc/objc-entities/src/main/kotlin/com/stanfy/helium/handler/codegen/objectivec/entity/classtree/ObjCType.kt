@@ -12,6 +12,13 @@ data class ObjCType (val name:String, val isReference:Boolean){
    */
   var genericOf:ObjCType? = null
 
+  /**
+   * I hope noone will name their classes with NS prefix :)
+   */
+  fun isFoundationType():Boolean {
+    return name.startsWith("NS")
+  }
+
   override fun toString(): String {
     val bld = StringBuilder()
     bld.append(name)
