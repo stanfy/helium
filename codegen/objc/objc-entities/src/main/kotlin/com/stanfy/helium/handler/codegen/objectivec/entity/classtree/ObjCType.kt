@@ -3,20 +3,20 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.classtree
 /**
  * Created by paultaykalo on 12/18/15.
  */
-data class ObjCType (val name:String, val isReference:Boolean){
+data class ObjCType(val name: String, val isReference: Boolean) {
 
-  public constructor(name:String):this(name, isReference = true)
+  public constructor(name: String) : this(name, isReference = true)
 
   /**
    * Type can be generic of some other type
    */
-  var genericOf:ObjCType? = null
+  var genericOf: ObjCType? = null
 
   /**
-   * I hope noone will name their classes with NS prefix :)
+   * I hope no one will name their classes with NS prefix :)
    */
-  fun isFoundationType():Boolean {
-    return name.startsWith("NS")
+  fun isFoundationType(): Boolean {
+    return name.startsWith("NS") || name == "id"
   }
 
   override fun toString(): String {

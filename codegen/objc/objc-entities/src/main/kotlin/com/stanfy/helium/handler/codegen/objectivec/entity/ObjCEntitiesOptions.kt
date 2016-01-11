@@ -17,4 +17,11 @@ public class ObjCEntitiesOptions : GeneratorOptions() {
    */
   public var customTypesMappings = mapOf<String, String>()
 
+  /**
+   * Map that contains custom value transformers for Mantle entities generators
+   * This is useful, when JSON have some strange format, and we cannot be sure about it
+   * structure, so custom transformers are needed for class
+   */
+  public var customValueTransformers = mapOf<String, String>()
+
 }
