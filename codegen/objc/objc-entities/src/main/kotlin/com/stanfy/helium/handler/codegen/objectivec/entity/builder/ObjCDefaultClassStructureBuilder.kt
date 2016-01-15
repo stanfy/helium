@@ -45,7 +45,7 @@ public class ObjCDefaultClassStructureBuilder : ObjCBuilder<Project, ObjCProject
               val isReference = objcType.contains("*")
               val name = objcType.replace(" ","").replace("*","")
               val accessModifier = if (isReference || name == "id")  AccessModifier.STRONG else AccessModifier.ASSIGN
-              typeTransformer.registerTransformation(heliumType, ObjCType(name, isReference), accessModifier);
+              typeTransformer.registerTransformation(heliumType, ObjCType(name, isReference, true), accessModifier);
             }
           }
         }

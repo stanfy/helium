@@ -3,10 +3,14 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.mapper.mantle
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectStructureGenerator
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethod
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodImplementationSourcePart
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCPregeneratedClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSourcePart
+import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.Project
+import com.stanfy.helium.model.Service
 
 /**
  * Created by ptaykalo on 9/2/14.
@@ -33,6 +37,8 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
       val jsonMappingsMethodImpl = ObjCMethodImplementationSourcePart(jsonMappingsMethod)
       objCClass.implementation.addBodySourcePart(jsonMappingsMethodImpl)
 
+      val customValueTransformerProtocolName = options.prefix + "CustomValueTransformerProtocol"
+
       // Get the implementation
       contentsBuilder.append(" return @{\n")
       for (prop in objCClass.definition.propertyDefinitions) {
@@ -47,23 +53,28 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
             """)
             objCClass.implementation.addBodySourcePart(valueTransformerMethodImpl)
             objCClass.implementation.importClassWithName(itemClass)
-          } else if (!prop.type.isFoundationType()){
+          } else if (!prop.type.isFoundationType()) {
             val propClass = prop.type.name
             var valueTransformerMethod = ObjCMethod(prop.name + "JSONTransformer", ObjCMethod.ObjCMethodType.CLASS, "NSValueTransformer *")
             var valueTransformerMethodImpl = ObjCMethodImplementationSourcePart(valueTransformerMethod)
-            val customValueTranformer = options.customValueTransformers[propClass]
-            if (customValueTranformer != null) {
+            val customValueTransformer = options.customValueTransformers[propClass]
+            var propClassString = if (prop.type.isCustom) {
+              "NSClassFromString(@\"$propClass\")"
+            } else {
+              objCClass.implementation.importClassWithName(propClass)
+              "[$propClass class]"
+            }
+            if (customValueTransformer != null) {
+              objCClass.implementation.importClassWithName(customValueTransformerProtocolName)
               valueTransformerMethodImpl.addSourcePart("""
-              return [$customValueTranformer valueTransformerWithModelOfClass:[$propClass class]];
+              return [(id<$customValueTransformerProtocolName>)NSClassFromString(@"$customValueTransformer") valueTransformerWithModelOfClass:$propClassString];
              """)
-              objCClass.implementation.importClassWithName(customValueTranformer)
             } else {
               valueTransformerMethodImpl.addSourcePart("""
-            return [MTLValueTransformer mtl_JSONDictionaryTransformerWithModelClass:[$propClass class]];
+            return [MTLValueTransformer mtl_JSONDictionaryTransformerWithModelClass:$propClassString];
             """)
             }
             objCClass.implementation.addBodySourcePart(valueTransformerMethodImpl)
-            objCClass.implementation.importClassWithName(propClass)
             contentsBuilder.append(""" @"${prop.name}" : @"${field.name}",
             """)
           } else {
@@ -80,5 +91,19 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
       contentsBuilder.append(" };")
       jsonMappingsMethodImpl.addSourcePart(ObjCStringSourcePart(contentsBuilder.toString()))
     }
+
+    // Generate protocol for custom mapping
+    addCustomMantleValueTransformerProtocol(project, options)
+  }
+
+  private fun addCustomMantleValueTransformerProtocol(project: ObjCProject, options: ObjCEntitiesOptions) {
+    val protocolName = options.prefix + "CustomValueTransformerProtocol"
+    project.classStructure.addSourceCodeClass(ObjCPregeneratedClass(protocolName, header =
+        """
+@protocol $protocolName <NSObject>
++ (NSValueTransformer*)valueTransformerWithModelOfClass:(Class)modelClass;
+@end
+        """
+    , implementation = null));
   }
 }

@@ -21,7 +21,7 @@ import com.stanfy.helium.model.ServiceMethod
  */
 class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
 
-  // TODO : Ibject theser values to the generator
+  // TODO : Inject these values to the generator
   public val nameTransformer = ObjCPropertyNameTransformer()
   public val typeTransformer = ObjCTypeTransformer()
 
@@ -45,7 +45,7 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
             val isReference = objcType.contains("*")
             val name = objcType.replace(" ", "").replace("*", "")
             val accessModifier = if (isReference || name == "id") AccessModifier.STRONG else AccessModifier.ASSIGN
-            typeTransformer.registerTransformation(heliumType, ObjCType(name, isReference), accessModifier);
+            typeTransformer.registerTransformation(heliumType, ObjCType(name, isReference, true), accessModifier);
           }
         }
 
@@ -76,17 +76,23 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
 
   private fun addInitMethodForService(service: Service, apiClass: ObjCClass) {
     val httpClientClassName = this.httpClientClassNameForService(service, this.generationOptions!!)
-    val responseSerializerClassName = this.responsSerializerClassNameForService(service, this.generationOptions!!)
-    val requestSerializerClassName = this.requestSerializerClassName(service, this.generationOptions!!)
     // Version and location setup
     apiClass.addClassForwardDeclaration(httpClientClassName)
     apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("version", ObjCType("NSString", isReference = true)))
     apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("name", ObjCType("NSString", isReference = true)))
     apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("httpClient", ObjCType(httpClientClassName, isReference = true)))
-    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("responseDeserializer", ObjCType("NSObject<$responseSerializerClassName>", isReference = true)))
-    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("requestBodySerializer", ObjCType("NSObject<$requestSerializerClassName>", isReference = true)))
-    apiClass.protocolsForwardDeclarations.add(responseSerializerClassName)
-    apiClass.protocolsForwardDeclarations.add(requestSerializerClassName)
+
+    apiClass.definition.addComplexPropertySourcePart("""
+    /**
+     * Block that called to transform response data to the provided destination class
+     */
+    @property(nonatomic, copy) id (^responseDeserializerBlock)(NSHTTPURLResponse * response, NSData * responseData, Class destinationClass, NSURLRequest * request, NSError ** error);
+    /**
+     * bloch that is being called when object request body need to be transformed to NSData
+     */
+    @property(nonatomic, copy) NSData *(^requestBodySerializerBlock)(id bodyToSerialize, NSError ** error);
+    """)
+
 
     val initMethod = ObjCMethod("init", ObjCMethod.ObjCMethodType.INSTANCE, "id")
     val initMethodImplementationSourcePart = ObjCMethodImplementationSourcePart(initMethod)
@@ -162,7 +168,17 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
       serviceMethod.addParameter(bodyType, "body")
       body = "serializedBody"
       bodyBuilder.append("""
-        NSData * $body = [self.requestBodySerializer serializeRequestBody:body];
+        NSData * $body = nil;
+        NSError * serializeRequestBodyError = nil;
+        if (self.requestBodySerializerBlock) {
+            $body = self.requestBodySerializerBlock(body,&serializeRequestBodyError);
+        }
+        if (!$body) {
+           if (failure) {
+              failure(serializeRequestBodyError);
+           }
+           return nil;
+        }
       """)
     }
 
@@ -225,9 +241,6 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
   private fun httpClientClassNameForService(service:Service, options: ObjCEntitiesOptions):String {
     return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "Client"
   }
-  private fun requestInterceptorClassNameForService(service: Service, options: ObjCEntitiesOptions): String {
-    return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "RequestInterceptor"
-  }
   private fun responsSerializerClassNameForService(service: Service, options: ObjCEntitiesOptions): String {
     return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "ResponseSerializer"
   }
@@ -236,43 +249,16 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
     return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "RequestBodySerializer"
   }
 
-
   private fun addDeserializationLogicForService(service:Service, apiClass: ObjCClass) {
-    val responseSerializerClassName = this.responsSerializerClassNameForService(service, this.generationOptions!!)
-    val requestSerializerClassName = this.requestSerializerClassName(service, this.generationOptions!!)
-
-    apiClass.definition.addBodySourcePart(
-        """
-@protocol $responseSerializerClassName <NSObject>
-@optional
-/**
- * Deserializes response into specified class
- */
-- (id)deserializeResponse:(NSHTTPURLResponse *)response data:(NSData *)rawData toClass:(Class)clz forRequest:(NSURLRequest *)request error:(NSError **)error;
-@end
-        """
-    )
-
-    apiClass.definition.addBodySourcePart(
-        """
-@protocol $requestSerializerClassName <NSObject>
-@optional
-/**
- * Serializes request body from specified class to NSData *
- */
-- (NSData *)serializeRequestBody:(id)body;
-@end
-        """
-    )
 
     apiClass.implementation.addBodySourcePart(ObjCStringSourcePart(
         """
         - (void (^)(NSHTTPURLResponse *, NSData *, NSURLRequest *))deserializationBlockForClass:(Class)clz successBlock:(void (^)(id))successBlock failureBlock:(void (^)(NSError *))failureBlock {
     return ^(NSHTTPURLResponse *response, NSData *rawData, NSURLRequest *request) {
         id result = rawData;
-        if (self.responseDeserializer && [self.responseDeserializer respondsToSelector:@selector(deserializeResponse:data:toClass:forRequest:error:)]) {
-            NSError * serializationError = nil;
-            result = [self.responseDeserializer deserializeResponse:response data:rawData toClass:clz forRequest:request error:&serializationError];
+        if (self.responseDeserializerBlock) {
+            NSError *serializationError = nil;
+            result = self.responseDeserializerBlock(response, rawData, clz, request, &serializationError);
             if (!result) {
                 if (serializationError) {
                     if (failureBlock) {
@@ -313,27 +299,22 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
   private fun httpClientHeaderForService(service: Service): String {
     val cancellableOperationClassName = this.cancelableOperationClassNameForService(service,this.generationOptions!!)
     val httpClientClassName = this.httpClientClassNameForService(service, this.generationOptions!!)
-    val requestInterceptorName = this.requestInterceptorClassNameForService(service, this.generationOptions!!)
 
     val header = """
     #import <Foundation/Foundation.h>
 
     @protocol $cancellableOperationClassName;
-    @protocol $requestInterceptorName <NSObject>
-    @optional
-    /**
-     * Intercepts request os any additional information can be added to it
-     */
-    - (void)interceptRequest:(NSMutableURLRequest *)request;
-    @end
-
 
     @interface $httpClientClassName : NSObject
     @property (nonatomic, strong, readonly) NSURLSession *urlSession;
     @property (nonatomic, strong, readonly) NSURL *baseURL;
     @property(nonatomic, copy, readonly) NSString *name;
     @property(nonatomic, copy, readonly) NSString *version;
-    @property(nonatomic, strong) NSObject<$requestInterceptorName> * requestInterceptor;
+    /**
+     * Block that will be called right before sending to the server.
+     * Any additional information can be added to it, using this block
+     */
+    @property(nonatomic, copy) void (^requestInterceptBlock)(NSMutableURLRequest * request);
 
     - (id <$cancellableOperationClassName>)sendRequestWithDescription:(NSString *)description
                                                         path:(NSString *)path
@@ -421,8 +402,8 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
             [mutableRequest addValue:obj forHTTPHeaderField:key];
         }];
 
-        if (self.requestInterceptor && [self.requestInterceptor respondsToSelector:@selector(interceptRequest:)]) {
-            [self.requestInterceptor interceptRequest:mutableRequest];
+        if (self.requestInterceptBlock) {
+            self.requestInterceptBlock(mutableRequest);
         }
 
         NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:mutableRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {

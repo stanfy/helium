@@ -21,6 +21,9 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
   public var propertyDefinitions = arrayListOf<ObjCPropertyDefinition>()
     private set
 
+  public var complexPropertiesSourceParts = arrayListOf<ObjCSourcePart>()
+    private set
+
   public var methods = arrayListOf<ObjCMethod>()
     private set
 
@@ -48,6 +51,15 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
     this.addImportSourcePart(ObjCImportPart(className, true))
   }
 
+  /**
+  Adds specified source part to the central part (class @interface)
+   */
+  public fun addComplexPropertySourcePart(sourcePart: ObjCSourcePart) {
+    complexPropertiesSourceParts.add(sourcePart)
+  }
+  public fun addComplexPropertySourcePart(string: String) {
+    complexPropertiesSourceParts.add(ObjCStringSourcePart(string))
+  }
 
   override fun asString(): String {
     // TODO use some templates
@@ -65,6 +77,10 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
     for (propertyDefinition in propertyDefinitions) {
       bld.append(propertyDefinition.asString()).append("\n")
     }
+    for (sourcePart in complexPropertiesSourceParts) {
+      bld.append(sourcePart.asString()).append("\n")
+    }
+
     for (method in methods) {
       bld.append(ObjCMethodDeclarationSourcePart(method).asString()).append("\n")
     }
