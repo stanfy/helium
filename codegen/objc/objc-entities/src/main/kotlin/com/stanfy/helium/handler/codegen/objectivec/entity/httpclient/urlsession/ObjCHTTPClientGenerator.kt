@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.httpclient.urlsession
 
+import com.github.mustachejava.DefaultMustacheFactory
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectStructureGenerator
@@ -14,40 +15,25 @@ import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
+import java.io.StringWriter
 
 /**
  * Created by paultaykalo on 12/18/15.
  *
  */
-class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
+class ObjCHTTPClientGenerator: ObjCProjectStructureGenerator  {
 
-  // TODO : Inject these values to the generator
-  public val nameTransformer = ObjCPropertyNameTransformer()
-  public val typeTransformer = ObjCTypeTransformer()
+  private var typeTransformer: ObjCTypeTransformer
+  private var nameTransformer: ObjCPropertyNameTransformer
+
+  public constructor(typeTransformer:ObjCTypeTransformer, nameTransformer: ObjCPropertyNameTransformer) : super() {
+    this.typeTransformer = typeTransformer;
+    this.nameTransformer = nameTransformer;
+  }
 
   private var generationOptions:ObjCEntitiesOptions? = null;
 
   override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
-
-    // TODO: Pass in type transofrmer to the generator
-    projectDSL.messages
-        .filter { message ->
-          !message.anonymous && options.isTypeIncluded(message)
-        }
-        .forEach { message ->
-          val messageName = message.name
-          val className = options.prefix + messageName
-          typeTransformer.registerTransformation(messageName, ObjCType(className))
-
-          // check for custom mappings
-          val customTypeMappings = options.customTypesMappings.entries
-          for ((heliumType, objcType) in customTypeMappings) {
-            val isReference = objcType.contains("*")
-            val name = objcType.replace(" ", "").replace("*", "")
-            val accessModifier = if (isReference || name == "id") AccessModifier.STRONG else AccessModifier.ASSIGN
-            typeTransformer.registerTransformation(heliumType, ObjCType(name, isReference, true), accessModifier);
-          }
-        }
 
     this.generationOptions = options
     projectDSL.services.forEach { service ->
@@ -78,9 +64,9 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
     val httpClientClassName = this.httpClientClassNameForService(service, this.generationOptions!!)
     // Version and location setup
     apiClass.addClassForwardDeclaration(httpClientClassName)
-    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("version", ObjCType("NSString", isReference = true)))
-    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("name", ObjCType("NSString", isReference = true)))
-    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("httpClient", ObjCType(httpClientClassName, isReference = true)))
+    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("version", ObjCType("NSString")))
+    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("name", ObjCType("NSString")))
+    apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("httpClient", ObjCType(httpClientClassName)))
 
     apiClass.definition.addComplexPropertySourcePart("""
     /**
@@ -224,29 +210,39 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
   }
 
   private fun addPregeneratedClientWithName(project: ObjCProject, service: Service) {
-    val httpClientClassName = this.httpClientClassNameForService(service, this.generationOptions!!)
-    val cancellableOperationClassName = this.cancelableOperationClassNameForService(service,this.generationOptions!!)
-    val implementation = httpClientImplementationForService(service)
-    val header = httpClientHeaderForService(service)
-    project.classStructure.pregeneratedClasses.add(ObjCPregeneratedClass(httpClientClassName, header, implementation))
+    val httpClientClassName = httpClientClassNameForService(service, this.generationOptions!!)
+    val cancellableOperationClassName = cancelableOperationClassNameForService(service, this.generationOptions!!)
 
-    val cancellableOperationHeader = cancelableOperationHeaderForService(service)
-    project.classStructure.pregeneratedClasses.add(ObjCPregeneratedClass(cancellableOperationClassName, cancellableOperationHeader, null))
+    val templateObject: Any = object : Any() {
+      val cancelableOperationClassName:String  = cancellableOperationClassName
+      val httpClientClassName:String = httpClientClassName
+      val service:Service = service
+    }
+
+    project.classStructure.pregeneratedClasses.add(
+        ObjCPregeneratedClass(httpClientClassName,
+            generatedTemplateWithName("HTTPClientHeader.mustache", templateObject),
+            generatedTemplateWithName("HTTPClientImplementation.mustache", templateObject)))
+
+    project.classStructure.pregeneratedClasses.add(
+        ObjCPregeneratedClass(cancellableOperationClassName,
+            generatedTemplateWithName("CancelableOperationHeader.mustache", templateObject),
+            null))
   }
 
+  private fun generatedTemplateWithName(templateName:String, templateObject:Any):String {
+    val mustacheFactory = DefaultMustacheFactory()
+    val mustache = mustacheFactory.compile(templateName)
+    val stringWriter = StringWriter()
+    mustache.execute(stringWriter, templateObject)
+    return stringWriter.toString()
+  }
   private fun cancelableOperationClassNameForService(service:Service, options: ObjCEntitiesOptions):String {
     return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "CancelableOperation"
   }
 
   private fun httpClientClassNameForService(service:Service, options: ObjCEntitiesOptions):String {
     return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "Client"
-  }
-  private fun responsSerializerClassNameForService(service: Service, options: ObjCEntitiesOptions): String {
-    return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "ResponseSerializer"
-  }
-
-  private fun requestSerializerClassName(service: Service, options: ObjCEntitiesOptions): String {
-    return options.prefix + Names.prettifiedName(Names.canonicalName(service.name)) + "RequestBodySerializer"
   }
 
   private fun addDeserializationLogicForService(service:Service, apiClass: ObjCClass) {
@@ -277,180 +273,5 @@ class ObjCHTTPClientGenerator : ObjCProjectStructureGenerator {
     ))
   }
 
-  private fun cancelableOperationHeaderForService(service:Service): String {
-    val cancellableOperationClassName = this.cancelableOperationClassNameForService(service,this.generationOptions!!)
-
-    return """
-      #import <Foundation/Foundation.h>
-      /**
-       * Protocol used for the ability to cancel some long running operations such as
-       * Network requests
-       */
-      @protocol $cancellableOperationClassName <NSObject>
-
-      /**
-       * Cancels operation
-       */
-      - (void)cancel;
-      @end
-    """
-  }
-
-  private fun httpClientHeaderForService(service: Service): String {
-    val cancellableOperationClassName = this.cancelableOperationClassNameForService(service,this.generationOptions!!)
-    val httpClientClassName = this.httpClientClassNameForService(service, this.generationOptions!!)
-
-    val header = """
-    #import <Foundation/Foundation.h>
-
-    @protocol $cancellableOperationClassName;
-
-    @interface $httpClientClassName : NSObject
-    @property (nonatomic, strong, readonly) NSURLSession *urlSession;
-    @property (nonatomic, strong, readonly) NSURL *baseURL;
-    @property(nonatomic, copy, readonly) NSString *name;
-    @property(nonatomic, copy, readonly) NSString *version;
-    /**
-     * Block that will be called right before sending to the server.
-     * Any additional information can be added to it, using this block
-     */
-    @property(nonatomic, copy) void (^requestInterceptBlock)(NSMutableURLRequest * request);
-
-    - (id <$cancellableOperationClassName>)sendRequestWithDescription:(NSString *)description
-                                                        path:(NSString *)path
-                                                  parameters:(NSDictionary *)parameters
-                                                        body:(id)body
-                                                     headers:(NSDictionary *)headers
-                                                      method:(NSString *)method
-                                                successBlock:(void (^)(NSHTTPURLResponse *response, NSData *rawData, NSURLRequest * request))successBlock
-                                                failureBlock:(void (^)(NSError *error))failureBlock;
-
-    @end
-
-    """
-    return header
-  }
-
-
-  private fun httpClientImplementationForService(service: Service): String {
-    val httpClientClassName = this.httpClientClassNameForService(service, this.generationOptions!!)
-    val cancellableOperationClassName = this.cancelableOperationClassNameForService(service,this.generationOptions!!)
-
-    val implementation =
-        """
-    #import "$httpClientClassName.h"
-    #import "$cancellableOperationClassName.h"
-
-    @interface $httpClientClassName ()
-    @property(nonatomic, strong) NSURLSession *urlSession;
-    @property(nonatomic, strong) NSURL *baseURL;
-    @property(nonatomic, copy) NSString *name;
-    @property(nonatomic, copy) NSString *version;
-    @end
-
-    @implementation $httpClientClassName
-
-    - (id)init {
-        self = [super init];
-        if (self) {
-            self.version = @"${service.version}";
-            self.name = @"${service.name}";
-            self.baseURL = [NSURL URLWithString:@"${service.location}"];
-            self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
-        }
-        return self;
-    }
-
-    - (id <$cancellableOperationClassName>)sendRequestWithDescription:(NSString *)description
-                                                        path:(NSString *)path
-                                                  parameters:(NSDictionary *)parameters
-                                                        body:(id)body
-                                                     headers:(NSDictionary *)headers
-                                                      method:(NSString *)method
-                                                successBlock:(void (^)(NSHTTPURLResponse *response, NSData *rawData, NSURLRequest * request))successBlock
-                                                failureBlock:(void (^)(NSError *error))failureBlock {
-
-
-        NSURL *url = self.baseURL;
-        NSMutableString *actualPath = [@"" mutableCopy];
-        if (path) {
-            actualPath = [path mutableCopy];
-        }
-        if (parameters && parameters.count) {
-            NSMutableString *query = [NSMutableString string];
-            if ([path rangeOfString:@"?"].location == NSNotFound) {
-                [query appendString:@"?"];
-            } else {
-                [query appendString:@"&"];
-            }
-            [query appendString:[self URLQueryWithParameters:parameters]];
-            [actualPath appendString:query];
-        }
-
-        // If we changed actual get part
-        if ([actualPath length]) {
-            url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", self.baseURL, actualPath]];
-        }
-
-        NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url];
-        mutableRequest.HTTPMethod = method;
-        if (body) {
-            mutableRequest.HTTPBody = body;
-        }
-
-        [headers enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
-            [mutableRequest addValue:obj forHTTPHeaderField:key];
-        }];
-
-        if (self.requestInterceptBlock) {
-            self.requestInterceptBlock(mutableRequest);
-        }
-
-        NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:mutableRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
-
-            dispatch_async(dispatch_get_main_queue(), ^{
-
-                // Skip cancelled errors
-                if (error && error.code == NSURLErrorCancelled && [error.domain isEqualToString:NSURLErrorDomain]) {
-                    return;
-                }
-
-                if (error) {
-                    failureBlock(error);
-                    return;
-                }
-                successBlock((NSHTTPURLResponse *) response, data, mutableRequest);
-            });
-        }];
-        [dataTask resume];
-        return (id <$cancellableOperationClassName>) dataTask;
-    }
-
-    - (NSString *)URLQueryWithParameters:(NSDictionary *)parameters {
-        NSMutableString *result = [NSMutableString string];
-        NSArray *keys = [parameters allKeys];
-        for (NSString *key in keys) {
-            id value = parameters[key];
-            NSString *encodedKey = [self URLEncodedString:[key description]];
-            if ([result length]) {
-                [result appendString:@"&"];
-            }
-            [result appendFormat:@"%@=%@", encodedKey, [self URLEncodedString:[value description]]];
-        }
-        return result;
-    }
-
-    - (NSString *)URLEncodedString:(NSString *)string {
-        CFStringRef encoded = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-            (__bridge CFStringRef) string,
-            NULL,
-            CFSTR("!*'\"();:@&=+$,/?%#[]% "),
-            kCFStringEncodingUTF8);
-        return CFBridgingRelease(encoded);
-    }
-    @end
-   """
-    return implementation
-  }
 
 }

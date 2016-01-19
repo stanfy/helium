@@ -11,9 +11,13 @@ import com.stanfy.helium.model.Project
  */
 public class ObjCDefaultClassStructureBuilder : ObjCBuilder<Project, ObjCProjectClassesStructure> {
 
-  public val nameTransformer = ObjCPropertyNameTransformer()
+  private var typeTransformer: ObjCTypeTransformer
+  private var nameTransformer: ObjCPropertyNameTransformer
 
-  public val typeTransformer = ObjCTypeTransformer()
+  public constructor(typeTransformer:ObjCTypeTransformer, nameTransformer: ObjCPropertyNameTransformer) : super() {
+    this.typeTransformer = typeTransformer;
+    this.nameTransformer = nameTransformer;
+  }
 
   /**
    * Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure
@@ -63,7 +67,7 @@ public class ObjCDefaultClassStructureBuilder : ObjCBuilder<Project, ObjCProject
                 val propertyName = nameTransformer.propertyNameFrom(field.name, usedPropertyNames)
                 val heliumAPIType = field.type
                 val propertyType = typeTransformer.objCType(heliumAPIType, field.isSequence)
-                if (propertyType.isReference) {
+                if (propertyType.isReference && !propertyType.isFoundationType()) {
                   objCClass.addClassForwardDeclaration(propertyType.name);
                 }
 

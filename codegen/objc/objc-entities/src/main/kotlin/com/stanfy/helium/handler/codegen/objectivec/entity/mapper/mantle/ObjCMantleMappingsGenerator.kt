@@ -3,14 +3,11 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.mapper.mantle
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectStructureGenerator
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethod
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodImplementationSourcePart
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCPregeneratedClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSourcePart
-import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.Project
-import com.stanfy.helium.model.Service
 
 /**
  * Created by ptaykalo on 9/2/14.
@@ -22,14 +19,13 @@ import com.stanfy.helium.model.Service
 public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
   override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
 
-
     // get property definitions
     // Generate all them all
     for (m in projectDSL.messages) {
       val objCClass = project.classStructure.getClassForType(m.name) ?: continue
       objCClass.definition.superClassName = "MTLModel"
       objCClass.definition.implementedProtocols.add("MTLJSONSerializing")
-      objCClass.definition.importFrameworkWithName("Mantle")
+      objCClass.definition.importFrameworkWithName("Mantle/Mantle")
 
       val contentsBuilder = StringBuilder()
 

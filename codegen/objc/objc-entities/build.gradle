@@ -5,6 +5,7 @@ buildscript {
   }
   dependencies {
     classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    classpath group: 'com.github.spullara.mustache.java', name: 'compiler', version: '0.8.12'
   }
 }
 repositories {

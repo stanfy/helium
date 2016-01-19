@@ -9,7 +9,15 @@ import com.stanfy.helium.model.Project
  */
 class ObjCDefaultProjectBuilder : ObjCProjectBuilder {
 
-  val classStructureBuilder = ObjCDefaultClassStructureBuilder()
+  private val typeTransformer: ObjCTypeTransformer
+  private val nameTransformer: ObjCPropertyNameTransformer
+  private val classStructureBuilder: ObjCDefaultClassStructureBuilder
+
+  public constructor(typeTransformer: ObjCTypeTransformer, nameTransformer: ObjCPropertyNameTransformer) : super() {
+    this.typeTransformer = typeTransformer;
+    this.nameTransformer = nameTransformer;
+    this.classStructureBuilder = ObjCDefaultClassStructureBuilder(this.typeTransformer, nameTransformer);
+  }
 
   override fun build(from: Project): ObjCProject {
     return this.build(from, null)

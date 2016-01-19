@@ -1,0 +1,13 @@
+#import <Foundation/Foundation.h>
+/**
+* Protocol used for the ability to cancel some long running operations such as
+* Network requests
+*/
+@protocol {{cancelableOperationClassName}} <NSObject>
+
+/**
+* Cancels operation
+*/
+- (void)cancel;
+
+@end
