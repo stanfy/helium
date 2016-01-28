@@ -22,7 +22,7 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
     // get property definitions
     // Generate all them all
     for (m in projectDSL.messages) {
-      val objCClass = project.classStructure.getClassForType(m.name) ?: continue
+      val objCClass = project.classesTree.getClassForType(m.name) ?: continue
       objCClass.definition.superClassName = "MTLModel"
       objCClass.definition.implementedProtocols.add("MTLJSONSerializing")
       objCClass.definition.importFrameworkWithName("Mantle/Mantle")
@@ -94,7 +94,7 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
 
   private fun addCustomMantleValueTransformerProtocol(project: ObjCProject, options: ObjCEntitiesOptions) {
     val protocolName = options.prefix + "CustomValueTransformerProtocol"
-    project.classStructure.addSourceCodeClass(ObjCPregeneratedClass(protocolName, header =
+    project.classesTree.addSourceCodeClass(ObjCPregeneratedClass(protocolName, header =
         """
 @protocol $protocolName <NSObject>
 + (NSValueTransformer*)valueTransformerWithModelOfClass:(Class)modelClass;

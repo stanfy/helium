@@ -7,15 +7,14 @@ public interface  ObjCClassType {
  * Created by ptaykalo on 8/17/14.
  * Simple object structure that holds information about objectiveC class
  */
-public class ObjCClass(override val name: String, val definition: ObjCClassInterface,
+public class ObjCClass(override val name: String,
+                       val definition: ObjCClassInterface,
                        val implementation: ObjCClassImplementation) : ObjCClassType {
 
   constructor(name:String):this(name, ObjCClassInterface(name), ObjCClassImplementation(name))
-  public var classesForwardDeclarations = hashSetOf<String>()
-    private set
 
-  public var protocolsForwardDeclarations = hashSetOf<String>()
-    private set
+  public val classesForwardDeclarations = hashSetOf<String>()
+  public val protocolsForwardDeclarations = hashSetOf<String>()
 
   /**
    * Adds external class declaration string. This one should be transformed to "@class |externalClass|" in the source
@@ -23,6 +22,10 @@ public class ObjCClass(override val name: String, val definition: ObjCClassInter
   public fun addClassForwardDeclaration(externalClass: String) {
     classesForwardDeclarations.add(externalClass)
   }
+  public fun addClassForwardDeclarations(externalClass: List<String>) {
+    classesForwardDeclarations.addAll(externalClass)
+  }
+
   /**
    * Adds external protocol declaration string. This one should be transformed to "@protocl |externalProtocol|" in the source
    */
@@ -32,7 +35,6 @@ public class ObjCClass(override val name: String, val definition: ObjCClassInter
 
 
 }
-
 
 public class ObjCPregeneratedClass(override val name:String, val header:String?, val implementation:String?) :ObjCClassType {
 

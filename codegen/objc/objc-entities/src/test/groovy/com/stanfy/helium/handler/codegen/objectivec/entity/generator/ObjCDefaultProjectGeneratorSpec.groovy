@@ -5,7 +5,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultClassStructureBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultFileStructureBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultProjectBuilder
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesTree
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
 import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMappingsGenerator
 import com.stanfy.helium.internal.dsl.ProjectDsl
@@ -21,7 +21,7 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
   ObjCDefaultClassStructureBuilder classStructureBuilder;
   ObjCDefaultFileStructureBuilder fileStructureBuilder;
   ObjCDefaultProjectBuilder projectBuilder;
-  ObjCProjectClassesStructure classStructure
+  ObjCProjectClassesTree classStructure
   ObjCProjectFilesStructure filesStructure
 
   def setup() {
@@ -86,7 +86,7 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
     projectBuilder = new ObjCDefaultProjectBuilder()
     def theProject = projectBuilder.build(projectDSL, options)
     mapper.generate(theProject, projectDSL, options);
-    filesStructure = fileStructureBuilder.build(theProject.classStructure)
+    filesStructure = fileStructureBuilder.build(theProject.getClassesTree)
     generator = new ObjCProjectGenerator(output, filesStructure);
     generator.generate();
 

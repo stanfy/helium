@@ -5,27 +5,17 @@ import java.util.*
 /**
  * Created by paultaykalo on 12/18/15.
  */
-class ObjCMethod {
+class ObjCMethod(val name: String, val methodType: ObjCMethod.ObjCMethodType, var returnType: String) {
+
   public enum class ObjCMethodType {
     CLASS,
     INSTANCE
   }
 
+  constructor(name: String) : this(name, ObjCMethodType.INSTANCE, "void")
+
+
   data class ParameterPair(val type: String, val name: String)
-
-
-  var methodType = ObjCMethodType.INSTANCE;
-
-  /**
-   * Method name
-   */
-  public var name: String = ""
-    private set
-
-  /**
-   * Method return type. simple string is used
-   */
-  var returnType: String = "void";
 
   /**
    * List of parameters
@@ -34,16 +24,6 @@ class ObjCMethod {
    */
   val parameters = ArrayList<ParameterPair>();
 
-
-  constructor(name: String) :
-  this(name, ObjCMethodType.INSTANCE, "void") {
-  }
-
-  constructor(name: String, methodType: ObjCMethod.ObjCMethodType, returnType: String) {
-    this.methodType = methodType;
-    this.name = name;
-    this.returnType = returnType;
-  }
 
   /**
    * Adds parameter to the list of parameters

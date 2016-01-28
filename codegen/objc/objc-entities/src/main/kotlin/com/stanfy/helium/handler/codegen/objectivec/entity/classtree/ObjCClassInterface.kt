@@ -12,20 +12,15 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSo
 public class ObjCClassInterface(val className: String) : ObjCSourcePart {
 
   public val importSourceParts = arrayListOf<ObjCImportPart>()
-
   public val bodySourceParts = arrayListOf<ObjCSourcePart>()
 
   public var superClassName: String = "NSObject"
   public val implementedProtocols = hashSetOf<String>()
 
-  public var propertyDefinitions = arrayListOf<ObjCPropertyDefinition>()
-    private set
+  public val propertyDefinitions = arrayListOf<ObjCPropertyDefinition>()
+  public val complexPropertiesSourceParts = arrayListOf<ObjCSourcePart>()
 
-  public var complexPropertiesSourceParts = arrayListOf<ObjCSourcePart>()
-    private set
-
-  public var methods = arrayListOf<ObjCMethod>()
-    private set
+  public val methods = arrayListOf<ObjCMethod>()
 
   /**
   Adds specified source part to the central part (inside @implementation)
@@ -95,6 +90,10 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
    */
   public fun addPropertyDefinition(property: ObjCPropertyDefinition) {
     propertyDefinitions.add(property)
+  }
+
+  public fun addPropertyDefinitionsList(properties: List<ObjCPropertyDefinition>) {
+    propertyDefinitions.addAll(properties)
   }
 
   /**

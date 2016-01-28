@@ -1,9 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImplementationFile
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
 import spock.lang.Specification

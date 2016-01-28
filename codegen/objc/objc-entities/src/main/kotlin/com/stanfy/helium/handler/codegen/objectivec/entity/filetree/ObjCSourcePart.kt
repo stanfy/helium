@@ -11,3 +11,15 @@ public interface ObjCSourcePart {
    */
   fun asString(): String;
 }
+
+
+/**
+ * Simplest objc Source part, which  simply returns contents
+ */
+public class ObjCStringSourcePart(val contents: String = "") : ObjCSourcePart {
+
+  override fun asString(): String {
+    return contents;
+  }
+
+}

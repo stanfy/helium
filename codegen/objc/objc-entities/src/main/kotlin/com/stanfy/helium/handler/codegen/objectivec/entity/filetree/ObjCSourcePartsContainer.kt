@@ -1,15 +1,12 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.filetree;
 
-import java.util.ArrayList;
-
 /**
  * Created by paultaykalo on 12/16/15.
  * Class that can have another source parts
  */
 public open class ObjCSourcePartsContainer : ObjCSourcePart {
 
-  public var sourceParts = ArrayList<ObjCSourcePart>()
-    private set
+  public val sourceParts = arrayListOf<ObjCSourcePart>()
 
   /**
    * Adds source part to current container
@@ -18,6 +15,7 @@ public open class ObjCSourcePartsContainer : ObjCSourcePart {
   public fun addSourcePart(sourcePart: ObjCSourcePart) {
     sourceParts.add(sourcePart);
   }
+
   /**
    * Adds string source part to current container
    * @param sourcePart source part that need to be rendered as a part of container
@@ -25,7 +23,6 @@ public open class ObjCSourcePartsContainer : ObjCSourcePart {
   public fun addSourcePart(sourcePart: String) {
     sourceParts.add(ObjCStringSourcePart(sourcePart));
   }
-
 
   override fun asString(): String {
     val bld = StringBuilder();

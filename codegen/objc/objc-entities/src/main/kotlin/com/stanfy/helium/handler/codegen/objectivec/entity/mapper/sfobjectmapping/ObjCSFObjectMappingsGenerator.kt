@@ -23,7 +23,7 @@ public class ObjCSFObjectMappingsGenerator : ObjCProjectStructureGenerator {
   override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
     val mappingsClassName = options.prefix + MAPPINGS_FILENAME
     val mappingsClass = ObjCClass(mappingsClassName)
-    project.classStructure.addClass(mappingsClass)
+    project.classesTree.addClass(mappingsClass)
 
     mappingsClass.implementation.importClassWithName("SFMapping")
     mappingsClass.implementation.importClassWithName("NSObject+SFMapping")
@@ -37,7 +37,7 @@ public class ObjCSFObjectMappingsGenerator : ObjCProjectStructureGenerator {
 
     // Generate all them all
     for (m in projectDSL.messages) {
-      val objCClass = project.classStructure.getClassForType(m.name) ?: continue
+      val objCClass = project.classesTree.getClassForType(m.name) ?: continue
       mappingsClass.implementation.importClassWithName(objCClass.name)
 
       // Get the implementation

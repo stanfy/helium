@@ -5,23 +5,20 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.classtree
  * Created by paultaykalo on 12/17/15.
  */
 
-public class ObjCProjectClassesStructure {
+public class ObjCProjectClassesTree {
   /**
    * Classes that this project contains
    */
-  public var classes = arrayListOf<ObjCClass>()
-    private set
+  public val classes = arrayListOf<ObjCClass>()
   /**
    * Classes that this project contains
    */
-  public var pregeneratedClasses = arrayListOf<ObjCPregeneratedClass>()
-    private set
+  public val pregeneratedClasses = arrayListOf<ObjCPregeneratedClass>()
 
   /**
    * Holds mapping form DSL Type names to classes, that this project contains
    */
-  public var classesByTypes = hashMapOf<String, ObjCClass>()
-    private set
+  public val classesByTypes = hashMapOf<String, ObjCClass>()
 
   public fun addClass(objCClass: ObjCClass) {
     classes.add(objCClass);

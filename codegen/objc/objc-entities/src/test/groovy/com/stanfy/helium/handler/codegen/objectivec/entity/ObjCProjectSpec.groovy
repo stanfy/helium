@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesTree
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
@@ -14,11 +14,11 @@ import spock.lang.Specification
 class ObjCProjectSpec extends Specification {
 
   ObjCProjectFilesStructure filesStructure;
-  ObjCProjectClassesStructure classStructure;
+  ObjCProjectClassesTree classStructure;
 
   def setup() {
     filesStructure = new ObjCProjectFilesStructure()
-    classStructure = new ObjCProjectClassesStructure()
+    classStructure = new ObjCProjectClassesTree()
   }
 
   def "should add files"() {

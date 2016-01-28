@@ -12,6 +12,11 @@ import java.util.HashMap
  * Created by ptaykalo on 8/25/14.
  * Performs transformation of the Helium API type to the Objective-C Type
  */
+
+public data class ObjCTypeTransformation(val heliumType: String,
+                                         val objectiveCType: ObjCType,
+                                         val accessModifier: AccessModifier = AccessModifier.ASSIGN)
+
 public class ObjCTypeTransformer {
 
   /**
@@ -34,14 +39,20 @@ public class ObjCTypeTransformer {
     this.registerTransformation("double", ObjCType("NSNumber"), AccessModifier.STRONG)
   }
 
+  public fun registerTransformations(transformations: List<ObjCTypeTransformation>) {
+    transformations.forEach { t -> this.registerTransformation(t) }
+  }
+
+  public fun registerTransformation(transformation: ObjCTypeTransformation) {
+    typesMapping.put(transformation.heliumType, transformation.objectiveCType)
+    accessMapping.put(transformation.heliumType, transformation.accessModifier)
+  }
   public fun registerTransformation(heliumTypeName: String, objectiveCType: ObjCType, accessModifier: AccessModifier = AccessModifier.ASSIGN) {
-    typesMapping.put(heliumTypeName, objectiveCType)
-    accessMapping.put(heliumTypeName, accessModifier)
+    registerTransformation(ObjCTypeTransformation(heliumTypeName, objectiveCType, accessModifier));
   }
 
   public fun registerTransformation(heliumTypeName: String, objectiveCType: ObjCType) {
-    typesMapping.put(heliumTypeName, objectiveCType)
-    accessMapping.put(heliumTypeName, AccessModifier.STRONG)
+    registerTransformation(ObjCTypeTransformation(heliumTypeName, objectiveCType, AccessModifier.STRONG));
   }
 
   /**

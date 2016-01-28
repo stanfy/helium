@@ -21,15 +21,8 @@ import java.io.StringWriter
  * Created by paultaykalo on 12/18/15.
  *
  */
-class ObjCHTTPClientGenerator: ObjCProjectStructureGenerator  {
-
-  private var typeTransformer: ObjCTypeTransformer
-  private var nameTransformer: ObjCPropertyNameTransformer
-
-  public constructor(typeTransformer:ObjCTypeTransformer, nameTransformer: ObjCPropertyNameTransformer) : super() {
-    this.typeTransformer = typeTransformer;
-    this.nameTransformer = nameTransformer;
-  }
+class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
+                              val nameTransformer: ObjCPropertyNameTransformer) : ObjCProjectStructureGenerator  {
 
   private var generationOptions:ObjCEntitiesOptions? = null;
 
@@ -39,11 +32,11 @@ class ObjCHTTPClientGenerator: ObjCProjectStructureGenerator  {
     projectDSL.services.forEach { service ->
       addPregeneratedClientWithName(project, service)
       val httpClientClass = ObjCClass(this.httpClientClassNameForService(service, this.generationOptions!!))
-      project.classStructure.addClass(httpClientClass)
+      project.classesTree.addClass(httpClientClass)
 
       val apiClassName = options.prefix + Names.prettifiedName(Names.canonicalName(service.name))
       val apiClass = ObjCClass(apiClassName)
-      project.classStructure.addClass(apiClass)
+      project.classesTree.addClass(apiClass)
 
       addInitMethodForService(service,apiClass)
       addCancellableDependencyForService(service, apiClass)
@@ -144,7 +137,7 @@ class ObjCHTTPClientGenerator: ObjCProjectStructureGenerator  {
     var body = "nil"
     val bodyBuilder = StringBuilder()
     if (method.hasBody()) {
-      val objcClass = project.classStructure.getClassForType(method.body.name)
+      val objcClass = project.classesTree.getClassForType(method.body.name)
       var bodyType:String
       if (objcClass == null) {
         bodyType = typeTransformer.objCType(method.body).toString()
@@ -171,7 +164,7 @@ class ObjCHTTPClientGenerator: ObjCProjectStructureGenerator  {
     var responseType = "id"
     var responseClassType = "NSObject"
     if (method.response is Message) {
-      val objcClass = project.classStructure.getClassForType(method.response.name)!!
+      val objcClass = project.classesTree.getClassForType(method.response.name)!!
       responseClassType = objcClass.name
       responseType = "${objcClass.name} *"
       apiClass.classesForwardDeclarations.add(objcClass.name)
@@ -219,12 +212,12 @@ class ObjCHTTPClientGenerator: ObjCProjectStructureGenerator  {
       val service:Service = service
     }
 
-    project.classStructure.pregeneratedClasses.add(
+    project.classesTree.pregeneratedClasses.add(
         ObjCPregeneratedClass(httpClientClassName,
             generatedTemplateWithName("HTTPClientHeader.mustache", templateObject),
             generatedTemplateWithName("HTTPClientImplementation.mustache", templateObject)))
 
-    project.classStructure.pregeneratedClasses.add(
+    project.classesTree.pregeneratedClasses.add(
         ObjCPregeneratedClass(cancellableOperationClassName,
             generatedTemplateWithName("CancelableOperationHeader.mustache", templateObject),
             null))

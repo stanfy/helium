@@ -7,20 +7,13 @@ import com.stanfy.helium.model.Project
 /**
  * Created by paultaykalo on 12/17/15.
  */
-class ObjCDefaultProjectBuilder : ObjCProjectBuilder {
+class ObjCDefaultProjectBuilder(val typeTransformer: ObjCTypeTransformer,
+                                val nameTransformer: ObjCPropertyNameTransformer) : ObjCBuilder<Project, ObjCProject> {
 
-  private val typeTransformer: ObjCTypeTransformer
-  private val nameTransformer: ObjCPropertyNameTransformer
   private val classStructureBuilder: ObjCDefaultClassStructureBuilder
 
-  public constructor(typeTransformer: ObjCTypeTransformer, nameTransformer: ObjCPropertyNameTransformer) : super() {
-    this.typeTransformer = typeTransformer;
-    this.nameTransformer = nameTransformer;
-    this.classStructureBuilder = ObjCDefaultClassStructureBuilder(this.typeTransformer, nameTransformer);
-  }
-
-  override fun build(from: Project): ObjCProject {
-    return this.build(from, null)
+  init {
+    classStructureBuilder = ObjCDefaultClassStructureBuilder(typeTransformer, nameTransformer)
   }
 
   override fun build(from: Project, options: ObjCEntitiesOptions?): ObjCProject {

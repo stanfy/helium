@@ -32,7 +32,7 @@ public class ObjCEntitiesGenerator(outputDirectory: File?, options: ObjCEntities
     client.generate(objCProject, project, options)
     mantleMapper.generate(objCProject, project, options)
     val fileStructureBuilder = ObjCDefaultFileStructureBuilder()
-    val filesStructure = fileStructureBuilder.build(objCProject.classStructure)
+    val filesStructure = fileStructureBuilder.build(objCProject.classesTree)
     ObjCProjectGenerator(outputDirectory, filesStructure).generate()
   }
 

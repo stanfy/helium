@@ -10,8 +10,7 @@ public class ObjCProjectFilesStructure {
   /**
    * Files those are contained in this project. Each should have an unique name
    */
-  public var files = arrayListOf<ObjCFile>()
-    private set
+  public val files = arrayListOf<ObjCFile>()
 
   /**
    * Adds file to the project structure
@@ -19,5 +18,10 @@ public class ObjCProjectFilesStructure {
   public fun addFile(file: ObjCFile) {
     files.add(file);
   }
+
+  public fun <T> addFiles(filesList: List<T>) where T:ObjCFile {
+    files.addAll(filesList);
+  }
+
 
 }

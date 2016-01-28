@@ -12,7 +12,7 @@ public class ObjCClassImplementation(val filename: String) : ObjCSourcePart {
 
   // TODO : Dependencies
   private val importSourceParts = hashSetOf<ObjCImportPart>()
-  private val bodySourceParts = ArrayList<ObjCSourcePart>()
+  private val bodySourceParts = arrayListOf<ObjCSourcePart>()
 
   /**
   Adds specified source part to the top part (before @implementation)
