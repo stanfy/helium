@@ -61,7 +61,7 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
     apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("name", ObjCType("NSString")))
     apiClass.definition.addPropertyDefinition(ObjCPropertyDefinition("httpClient", ObjCType(httpClientClassName)))
 
-    apiClass.definition.addComplexPropertySourcePart("""
+    apiClass.definition.addSourcePartToLocation("""
     /**
      * Block that called to transform response data to the provided destination class
      */
@@ -70,7 +70,8 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
      * bloch that is being called when object request body need to be transformed to NSData
      */
     @property(nonatomic, copy) NSData *(^requestBodySerializerBlock)(id bodyToSerialize, NSError ** error);
-    """)
+    """,
+        ObjCClassInterface.SourcePartLocation.AFTER_PROPERTIES_DEFINITIONS)
 
 
     val initMethod = ObjCMethod("init", ObjCMethod.ObjCMethodType.INSTANCE, "id")

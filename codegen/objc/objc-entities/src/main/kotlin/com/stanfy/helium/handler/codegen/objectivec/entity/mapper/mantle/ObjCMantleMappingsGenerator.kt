@@ -16,7 +16,7 @@ import com.stanfy.helium.model.Project
  * Class that is responsible for generate files those are responsible for
  * correct mapping performing from JSON Objects to Messages
  * Generated classes will could be used with
- * https://github.com/stanfy/SFObjectMapping
+ * https://github.com/Mantle/Mantle
  */
 public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
   override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
