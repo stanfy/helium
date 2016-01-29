@@ -14,20 +14,20 @@ class ObjCProjectParserSpec extends Specification{
   ObjCDefaultFileStructureBuilder fileBuilder;
   ProjectDsl project;
   ObjCProjectClassesTree objCClassStructure;
-  ObjCProjectFilesStructure objCFileStructure;
+  ObjCProjectFilesStructure objCFileStructure
 
   def setup() {
     project = new ProjectDsl()
     project.type "A" message { }
     project.type "B" message { }
     project.type "C" message { }
-    classBuilder = new ObjCDefaultClassStructureBuilder()
+    classBuilder = new ObjCDefaultClassStructureBuilder(new ObjCTypeTransformer(), new ObjCPropertyNameTransformer())
     fileBuilder = new ObjCDefaultFileStructureBuilder()
   }
 
   def "should generate ObjCProject"() {
     when:
-    objCClassStructure = classBuilder.build(project);
+    objCClassStructure = classBuilder.build(project, null);
 
     then:
     objCClassStructure != null
@@ -35,8 +35,8 @@ class ObjCProjectParserSpec extends Specification{
 
   def "should add ObjCFiles for each message"() {
     when:
-    objCClassStructure = classBuilder.build(project);
-    objCFileStructure = fileBuilder.build(objCClassStructure);
+    objCClassStructure = classBuilder.build(project, null);
+    objCFileStructure = fileBuilder.build(objCClassStructure, null);
 
     // At least 6 files
     then:
@@ -46,8 +46,8 @@ class ObjCProjectParserSpec extends Specification{
 
   def "should generate ObjCProject with .h and .m file for each message"() {
     when:
-    objCClassStructure = classBuilder.build(project);
-    objCFileStructure = fileBuilder.build(objCClassStructure);
+    objCClassStructure = classBuilder.build(project, null);
+    objCFileStructure = fileBuilder.build(objCClassStructure, null);
 
     then:
     objCFileStructure.getFiles() != null
@@ -57,8 +57,8 @@ class ObjCProjectParserSpec extends Specification{
 
   def "should generate ObjCProject with files those have message name in their names"() {
     when:
-    objCClassStructure = classBuilder.build(project);
-    objCFileStructure = fileBuilder.build(objCClassStructure);
+    objCClassStructure = classBuilder.build(project, null);
+    objCFileStructure = fileBuilder.build(objCClassStructure, null);
 
     then:
     objCFileStructure.getFiles() != null
@@ -69,8 +69,8 @@ class ObjCProjectParserSpec extends Specification{
 
   def "should generate ObjCProject with ,m files which have correct class implementations"() {
     when:
-    objCClassStructure = classBuilder.build(project);
-    objCFileStructure = fileBuilder.build(objCClassStructure);
+    objCClassStructure = classBuilder.build(project, null);
+    objCFileStructure = fileBuilder.build(objCClassStructure, null);
 
     then:
     objCFileStructure.getFiles() != null
@@ -83,7 +83,7 @@ class ObjCProjectParserSpec extends Specification{
 //  def "should generate ,m files wich should contain implementation part"() {
 //    when:
 //    classBuilder = new DefaultObjCProjectBuilder()
-//    objCClassStructure = classBuilder.build(project);
+//    objCClassStructure = classBuilder.build(project, null);
 //    def implementationFiles = objCClassStructure.getFiles().findResults({ file -> return file instanceof ObjCImplementationFile ? file : null })
 //    def definitionFiles = objCClassStructure.getFiles().findResults({ file -> return file instanceof ObjCHeaderFile ? file : null })
 //    then:
@@ -93,7 +93,7 @@ class ObjCProjectParserSpec extends Specification{
 
   def "should generate Classes each of those have definition and implementation"() {
     when:
-    objCClassStructure = classBuilder.build(project);
+    objCClassStructure = classBuilder.build(project, null);
 
     then:
     objCClassStructure.getClasses() != null
@@ -102,7 +102,7 @@ class ObjCProjectParserSpec extends Specification{
 
   def "should generate Classes each of those have definition and implementation with correct names"() {
     when:
-    objCClassStructure = classBuilder.build(project);
+    objCClassStructure = classBuilder.build(project, null);
 
     then:
     objCClassStructure.getClasses() != null
@@ -111,7 +111,7 @@ class ObjCProjectParserSpec extends Specification{
 
   def "should generate register types for all messages in the project"() {
     when:
-    objCClassStructure = classBuilder.build(project);
+    objCClassStructure = classBuilder.build(project, null);
 
     then:
     classBuilder.getTypeTransformer().objCType(project.getTypes().byName("A")) != null

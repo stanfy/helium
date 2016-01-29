@@ -18,12 +18,17 @@ public abstract class ObjCFile(val name: String, val contents: String) {
 
 
 public class ObjCHeaderFile(name: String, contents: String) : ObjCFile(name, contents) {
+
+  public constructor(name: String) : this(name, "")
+
   override fun getExtension(): String {
     return "h";
   }
 }
 
 public class ObjCImplementationFile(name: String, contents: String) : ObjCFile(name, contents) {
+  public constructor(name: String) : this(name, "")
+
   override fun getExtension(): String {
     return "m"
   }

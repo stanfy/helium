@@ -40,20 +40,20 @@ class ObjCProjectTypeTransformerSpec extends Specification {
 
     expect:
     objCType.name == objcType
-    !objCType.isReference
+    objCType.isReference
     accessorModifierForType == accessModifier;
 
     where:
     heliumType | objcType    | accessModifier
-    "int32"    | "NSInteger" | AccessModifier.ASSIGN
-    "int64"    | "NSInteger" | AccessModifier.ASSIGN
-    "long"     | "NSInteger" | AccessModifier.ASSIGN
-    "bool"     | "BOOL"      | AccessModifier.ASSIGN
-    "boolean"  | "BOOL"      | AccessModifier.ASSIGN
-    "float"    | "double"    | AccessModifier.ASSIGN
-    "float32"  | "double"    | AccessModifier.ASSIGN
-    "float64"  | "double"    | AccessModifier.ASSIGN
-    "double"   | "double"    | AccessModifier.ASSIGN
+    "int32"    | "NSNumber"  | AccessModifier.STRONG
+    "int64"    | "NSNumber"  | AccessModifier.STRONG
+    "long"     | "NSNumber"  | AccessModifier.STRONG
+    "bool"     | "NSNumber"  | AccessModifier.STRONG
+    "boolean"  | "NSNumber"  | AccessModifier.STRONG
+    "float"    | "NSNumber"  | AccessModifier.STRONG
+    "float32"  | "NSNumber"  | AccessModifier.STRONG
+    "float64"  | "NSNumber"  | AccessModifier.STRONG
+    "double"   | "NSNumber"  | AccessModifier.STRONG
   }
 
   def "should use correct simple transform for groovy types(Long)"() {
@@ -69,9 +69,9 @@ class ObjCProjectTypeTransformerSpec extends Specification {
     def accessorModifierForType = typeTransformer.accessorModifierForType(longType)
 
     expect:
-    objCType.name == "NSInteger"
-    !objCType.isReference
-    accessorModifierForType == AccessModifier.ASSIGN;
+    objCType.name == "NSNumber"
+    objCType.isReference
+    accessorModifierForType == AccessModifier.STRONG;
   }
 
   def "should use NSArray for sequence sub-type"() {

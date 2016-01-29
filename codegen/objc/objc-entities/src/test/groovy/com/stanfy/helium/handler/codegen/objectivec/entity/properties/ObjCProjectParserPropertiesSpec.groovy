@@ -1,6 +1,8 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.properties
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultClassStructureBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCPropertyNameTransformer
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCTypeTransformer
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesTree
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AtomicModifier
@@ -20,7 +22,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
 
   def setup() {
     project = new ProjectDsl()
-    classStructureBuilder = new ObjCDefaultClassStructureBuilder()
+    classStructureBuilder = new ObjCDefaultClassStructureBuilder(new ObjCTypeTransformer(), new ObjCPropertyNameTransformer())
     options = new ObjCEntitiesOptions();
   }
 

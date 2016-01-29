@@ -12,5 +12,9 @@ interface ObjCBuilder<S, D> {
    */
   public fun build(from: S,options: ObjCEntitiesOptions? = null): D
 
+  public fun build(from: S) : D {
+    return build(from, null)
+  }
+
 }
 

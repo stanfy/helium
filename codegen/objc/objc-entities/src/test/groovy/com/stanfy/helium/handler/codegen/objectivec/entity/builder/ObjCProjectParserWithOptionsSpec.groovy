@@ -30,7 +30,7 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     }
 
     builderOptions = new ObjCEntitiesOptions();
-    classStructureBuilder = new ObjCDefaultClassStructureBuilder()
+    classStructureBuilder = new ObjCDefaultClassStructureBuilder(new ObjCTypeTransformer(), new ObjCPropertyNameTransformer())
     fileStructureBuilder = new ObjCDefaultFileStructureBuilder()
   }
 
@@ -124,9 +124,9 @@ class ObjCProjectParserWithOptionsSpec extends Specification {
     def cClass = classStructure.getClasses().find { it.getDefinition().getClassName().contains("C") }
 
     then:
-    !cClass.getMethodsForwardDeclarations.contains(builderOptions.prefix + "B") // Sequence
-    cClass.getMethodsForwardDeclarations.contains(builderOptions.prefix + "A")
-    !cClass.getMethodsForwardDeclarations.contains(builderOptions.prefix + "C")
+    cClass.classesForwardDeclarations.contains(builderOptions.prefix + "B") // Sequence but Generics
+    cClass.classesForwardDeclarations.contains(builderOptions.prefix + "A")
+    !cClass.classesForwardDeclarations.contains(builderOptions.prefix + "C")
 
   }
 
