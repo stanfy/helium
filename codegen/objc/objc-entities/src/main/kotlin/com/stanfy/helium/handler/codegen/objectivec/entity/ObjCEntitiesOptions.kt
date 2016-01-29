@@ -1,7 +1,13 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity;
 
 import com.stanfy.helium.handler.codegen.GeneratorOptions
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
+
+
+public enum class ObjCMappingOption {
+  NONE,
+  MANTLE,
+  SFMAPPING
+}
 
 /**
  * Options for a handler that generated Obj-C entities.
@@ -21,7 +27,14 @@ public class ObjCEntitiesOptions : GeneratorOptions() {
    * Map that contains custom value transformers for Mantle entities generators
    * This is useful, when JSON have some strange format, and we cannot be sure about it
    * structure, so custom transformers are needed for class
+   * This is only for mantle mappings
    */
-  public var customValueTransformers = mapOf<String, String>()
+  public var mantleCustomValueTransformers = mapOf<String, String>()
+
+  /**
+   * Setting that allows to choose which mappings to generate
+   * Default value is none, some general mappers can be used
+   */
+  public var mappingsType : ObjCMappingOption = ObjCMappingOption.NONE
 
 }

@@ -64,7 +64,7 @@ public class ObjCPropertyDefinition : ObjCSourcePart {
    */
   public var comment: String? = null;
 
-  //TODO :  Remove it from here
+  //TODO :  Remove it from here?
   /**
    * the Helium filed, from which this property was generated
    */

@@ -6,6 +6,7 @@ import com.stanfy.helium.handler.codegen.java.entity.EntitiesGenerator
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCMappingOption
 
 /**
  * Main entry point.
@@ -49,15 +50,30 @@ class Main {
               description: "Generate Objective-C entity classes",
               properties: [
                       "prefix": "Prefix for generated classes. Required.",
-                      "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:OBJC_TYPE(:IS_REFERENCE)"
+                      "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:OBJC_TYPE(:IS_REFERENCE)",
+                      "customValueTransformer" : "Mantle Custom value transformers for specific messages. Optional. usage: -customValueTransformer=HELIUM_TYPE:OBJC_TRANSFORMER_TYPE",
+                      "mappingType" : "Mapping type. Optional. Possible values : mantle, sfmapping usage: -mappingType=mantle|sfmapping"
               ],
 
               factory: { def options, File output ->
                   ObjCEntitiesOptions genOptions = new ObjCEntitiesOptions()
                   genOptions.prefix = requiredProperty(options, "prefix");
                   genOptions.customTypesMappings = mapProperty(options, "customMapping")
-                  genOptions.customValueTransformers = mapProperty(options, "customValueTransformer")
-                  return new ObjCEntitiesGenerator(output, genOptions)
+                  genOptions.mantleCustomValueTransformers = mapProperty(options, "customValueTransformer")
+                  def mappingType
+                  switch (property(options, "mappingType")) {
+                  case "mantle":
+                    mappingType = ObjCMappingOption.MANTLE
+                    break
+                  case "sfmapping":
+                    mappingType = ObjCMappingOption.SFMAPPING
+                    break
+                  default:
+                    mappingType = ObjCMappingOption.NONE
+                    break
+                }
+                genOptions.mappingsType = mappingType
+                return new ObjCEntitiesGenerator(output, genOptions)
               }
       ]
 

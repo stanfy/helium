@@ -20,9 +20,6 @@ public class ObjCEntitiesGenerator(outputDirectory: File?, options: ObjCEntities
   private val objCTypeTransformer = ObjCTypeTransformer()
   private val objCPropertyNameTransformer = ObjCPropertyNameTransformer()
 
-  private val mapper = ObjCSFObjectMappingsGenerator()
-  private val mantleMapper = ObjCMantleMappingsGenerator()
-
   private val projectBuilder = ObjCDefaultProjectBuilder(objCTypeTransformer, objCPropertyNameTransformer)
   private val client = ObjCHTTPClientGenerator(objCTypeTransformer, objCPropertyNameTransformer)
 
@@ -30,10 +27,22 @@ public class ObjCEntitiesGenerator(outputDirectory: File?, options: ObjCEntities
 
     val objCProject = projectBuilder.build(project!!, options)
     client.generate(objCProject, project, options)
-    mantleMapper.generate(objCProject, project, options)
+
+    // Generate mappings
+    val mapper = mapperFromOptions(options)
+    mapper?.generate(objCProject, project, options)
+
     val fileStructureBuilder = ObjCDefaultFileStructureBuilder()
     val filesStructure = fileStructureBuilder.build(objCProject.classesTree)
     ObjCProjectGenerator(outputDirectory, filesStructure).generate()
+  }
+
+  private fun mapperFromOptions(options: ObjCEntitiesOptions?): ObjCProjectStructureGenerator? {
+    return when (options?.mappingsType) {
+      ObjCMappingOption.MANTLE -> ObjCMantleMappingsGenerator()
+      ObjCMappingOption.SFMAPPING -> ObjCSFObjectMappingsGenerator()
+      else -> null
+    }
   }
 
 }

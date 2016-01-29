@@ -6,7 +6,6 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifi
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
-import java.util.Map
 
 /**
  * Created by ptaykalo on 8/17/14.
