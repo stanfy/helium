@@ -37,7 +37,12 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
   }
 
   public fun sourcePartsAtLocation(location:SourcePartLocation): MutableList<ObjCSourcePart> {
-    return sourceParts.getOrDefault(location, arrayListOf<ObjCSourcePart>())
+    var parts = sourceParts[location]
+    if (parts == null){
+      parts = arrayListOf<ObjCSourcePart>()
+      sourceParts[location] = parts
+    }
+    return parts
   }
 
   public fun importClassWithName(className:String) {
