@@ -15,14 +15,14 @@ import spock.lang.Specification
  */
 class ObjCProjectParserPropertiesSpec extends Specification {
 
-  ObjCDefaultClassStructureBuilder classStructureBuilder;
+  ObjCDefaultClassStructureBuilder sut;
   ProjectDsl project;
   ObjCProjectClassesTree classStructure
   ObjCEntitiesOptions options
 
   def setup() {
     project = new ProjectDsl()
-    classStructureBuilder = new ObjCDefaultClassStructureBuilder(new ObjCTypeTransformer(), new ObjCPropertyNameTransformer())
+    sut = new ObjCDefaultClassStructureBuilder(new ObjCTypeTransformer(), new ObjCPropertyNameTransformer())
     options = new ObjCEntitiesOptions();
   }
 
@@ -36,7 +36,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    classStructure = classStructureBuilder.build(project, options);
+    classStructure = sut.build(project, options);
 
     then:
     classStructure != null
@@ -51,7 +51,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    classStructure = classStructureBuilder.build(project, options);
+    classStructure = sut.build(project, options);
     ObjCClass aClass = classStructure.getClasses().get(0);
 
     then:
@@ -67,7 +67,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    classStructure = classStructureBuilder.build(project, options);
+    classStructure = sut.build(project, options);
     ObjCClass aClass = classStructure.getClasses().get(0);
 
     then:
@@ -84,7 +84,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    classStructure = classStructureBuilder.build(project, options);
+    classStructure = sut.build(project, options);
     ObjCClass aClass = classStructure.getClasses().get(0);
 
     then:
@@ -102,7 +102,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
     project.type "A" message {
       name 'string'
     };
-    classStructure = classStructureBuilder.build(project, options);
+    classStructure = sut.build(project, options);
     ObjCClass aClass = classStructure.getClasses().get(0);
 
     then:
