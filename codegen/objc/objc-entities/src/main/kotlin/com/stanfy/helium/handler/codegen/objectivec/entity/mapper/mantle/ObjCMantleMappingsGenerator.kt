@@ -74,7 +74,9 @@ public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
             return [MTLValueTransformer mtl_JSONArrayTransformerWithModelClass:[$itemClass class]];
             """)
             objCClass.implementation.addBodySourcePart(valueTransformerMethodImpl)
-            objCClass.implementation.importClassWithName(itemClass)
+            if (!prop.sequenceType!!.isFoundationType()) {
+              objCClass.implementation.importClassWithName(itemClass)
+            }
             return@forEach
           }
 

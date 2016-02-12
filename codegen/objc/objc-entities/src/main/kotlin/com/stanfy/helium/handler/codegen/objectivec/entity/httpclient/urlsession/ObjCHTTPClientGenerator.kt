@@ -64,8 +64,15 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
     apiClass.definition.addSourcePartToLocation("""
     /**
      * Block that called to transform response data to the provided destination class
+     * @param response - HTTP response, received from the server
+     * @param responseData - raw NSData in response
+     * @param destinationClass - Class, expected after deserialization
+     * @param isSequence - parameter that specifies, if there should be array of items of destinationClass,
+     *                     instead of one object in result
+     * @param request - original HTTP request, which was called
+     * @param error
      */
-    @property(nonatomic, copy) id (^responseDeserializerBlock)(NSHTTPURLResponse * response, NSData * responseData, Class destinationClass, NSURLRequest * request, NSError ** error);
+    @property(nonatomic, copy) id (^responseDeserializerBlock)(NSHTTPURLResponse * response, NSData * responseData, Class destinationClass, BOOL isSequence, NSURLRequest * request, NSError ** error);
     /**
      * bloch that is being called when object request body need to be transformed to NSData
      */
@@ -118,6 +125,9 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
         val checkedParameterName = nameTransformer.propertyNameFrom(parameterName)
         val objCType = typeTransformer.objCType(field.type)
         serviceMethod.addParameter(objCType.toString(), checkedParameterName)
+        if (!objCType.isFoundationType()) {
+          apiClass.classesForwardDeclarations.add(objCType.name)
+        }
 
         // Wrapping simple values into the NSNumber
         if (objCType.isReference) {
@@ -141,8 +151,13 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
       val objcClass = project.classesTree.getClassForType(method.body.name)
       var bodyType:String
       if (objcClass == null) {
-        bodyType = typeTransformer.objCType(method.body).toString()
+        val objCType = typeTransformer.objCType(method.body)
+        bodyType = objCType.toString()
+        if (!objCType.isFoundationType()) {
+          apiClass.classesForwardDeclarations.add(objCType.name)
+        }
       } else {
+        apiClass.classesForwardDeclarations.add(objcClass.name)
         bodyType = "${objcClass.name} *"
       }
       serviceMethod.addParameter(bodyType, "body")
@@ -164,11 +179,25 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
 
     var responseType = "id"
     var responseClassType = "NSObject"
+    val isSequence = if (method.response is com.stanfy.helium.model.Sequence) {
+      "YES"
+    } else {
+      "NO"
+    }
     if (method.response is Message) {
       val objcClass = project.classesTree.getClassForType(method.response.name)!!
       responseClassType = objcClass.name
       responseType = "${objcClass.name} *"
       apiClass.classesForwardDeclarations.add(objcClass.name)
+    } else if (method.response is com.stanfy.helium.model.Sequence) {
+      val sequence = method.response as com.stanfy.helium.model.Sequence
+      val dslTypeName = sequence.itemsType?.name
+      if (dslTypeName != null) {
+        val objcClass = project.classesTree.getClassForType(dslTypeName)!!
+        responseClassType = objcClass.name
+        responseType = "NSArray<${objcClass.name} *>*"
+        apiClass.classesForwardDeclarations.add(objcClass.name)
+      }
     }
 
     // Adding success and failure methods
@@ -192,7 +221,7 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
                               body:$body
                            headers:nil
                             method:@"$httpMethod"
-                      successBlock:[self deserializationBlockForClass:[$responseClassType class] successBlock:success failureBlock:failure]
+                      successBlock:[self deserializationBlockForClass:[$responseClassType class] isSequence:$isSequence successBlock:success failureBlock:failure]
                       failureBlock:^(NSError *error) {
                          if (failure) { failure(error); }
         }];
@@ -200,7 +229,9 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
     ));
     apiClass.implementation.addBodySourcePart(serviceMethodImplementation)
     apiClass.definition.addMethod(serviceMethod)
-    apiClass.implementation.importClassWithName(responseClassType)
+    if (!responseClassType.startsWith("NS")) {
+      apiClass.implementation.importClassWithName(responseClassType)
+    }
   }
 
   private fun addPregeneratedClientWithName(project: ObjCProject, service: Service) {
@@ -243,12 +274,12 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
 
     apiClass.implementation.addBodySourcePart(ObjCStringSourcePart(
         """
-        - (void (^)(NSHTTPURLResponse *, NSData *, NSURLRequest *))deserializationBlockForClass:(Class)clz successBlock:(void (^)(id))successBlock failureBlock:(void (^)(NSError *))failureBlock {
+        - (void (^)(NSHTTPURLResponse *, NSData *, NSURLRequest *))deserializationBlockForClass:(Class)clz isSequence:(BOOL)isSequence successBlock:(void (^)(id))successBlock failureBlock:(void (^)(NSError *))failureBlock {
     return ^(NSHTTPURLResponse *response, NSData *rawData, NSURLRequest *request) {
         id result = rawData;
         if (self.responseDeserializerBlock) {
             NSError *serializationError = nil;
-            result = self.responseDeserializerBlock(response, rawData, clz, request, &serializationError);
+            result = self.responseDeserializerBlock(response, rawData, clz, isSequence, request, &serializationError);
             if (!result) {
                 if (serializationError) {
                     if (failureBlock) {

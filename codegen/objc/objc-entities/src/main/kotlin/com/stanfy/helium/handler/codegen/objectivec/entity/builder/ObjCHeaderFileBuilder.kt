@@ -5,7 +5,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
 
 /**
  * Created by paultaykalo on 12/17/15.
- * Builder that is responsinble for generating actual contents of header class
+ * Builder that is responsible for generating actual contents of header class
  * For specified ObjC Class structure
  */
 class ObjCHeaderFileBuilder : ObjCBuilder<ObjCClass, String> {

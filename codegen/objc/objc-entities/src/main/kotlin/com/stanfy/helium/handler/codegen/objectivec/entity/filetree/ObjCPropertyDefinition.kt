@@ -41,34 +41,34 @@ public class ObjCPropertyDefinition : ObjCSourcePart {
   /**
    * Property name
    */
-  public var name: String;
+  public val name: String
 
   /**
    * Property result type (this is the type, which will be simply translated to the output)
    * so, in case of ObjC - it should be NSString, and NSArray... etc
    */
-  public var type: ObjCType;
+  public val type: ObjCType
 
   /**
    * Access modifier for property AccessModifier.STRONG - for default value
    */
-  private var accessModifier = AccessModifier.STRONG;
+  private val accessModifier:AccessModifier
 
   /**
    * By default we'll create non-atomic modifier
    */
-  public var atomicModifier = AtomicModifier.NONATOMIC;
+  public val atomicModifier:AtomicModifier
 
   /**
    * Additional comment
    */
-  public var comment: String? = null;
+  public var comment: String? = null
 
   //TODO :  Remove it from here?
   /**
    * the Helium filed, from which this property was generated
    */
-  public var correspondingField: Field? = null;
+  public var correspondingField: Field? = null
 
   /**
    * Returns true, if this property is sequence,

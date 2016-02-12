@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.classtree;
 
-public interface  ObjCClassType {
+public interface IObjCClass {
   val name: String
 }
 /**
@@ -9,7 +9,7 @@ public interface  ObjCClassType {
  */
 public class ObjCClass(override val name: String,
                        val definition: ObjCClassInterface,
-                       val implementation: ObjCClassImplementation) : ObjCClassType {
+                       val implementation: ObjCClassImplementation) : IObjCClass {
 
   constructor(name:String):this(name, ObjCClassInterface(name), ObjCClassImplementation(name))
 
@@ -36,7 +36,7 @@ public class ObjCClass(override val name: String,
 
 }
 
-public class ObjCPregeneratedClass(override val name:String, val header:String?, val implementation:String?) :ObjCClassType {
+public class ObjCPregeneratedClass(override val name:String, val header:String?, val implementation:String?) : IObjCClass {
 
 }
 

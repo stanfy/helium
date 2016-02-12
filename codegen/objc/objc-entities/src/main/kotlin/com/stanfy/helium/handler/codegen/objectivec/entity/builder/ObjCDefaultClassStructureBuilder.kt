@@ -6,6 +6,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifi
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
+import com.stanfy.helium.model.Sequence
 
 /**
  * Created by ptaykalo on 8/17/14.
@@ -51,7 +52,31 @@ public class ObjCDefaultClassStructureBuilder(val typeTransformer: ObjCTypeTrans
       projectClassStructure.addClass(objCClassForMessage(message, classPrefix = options?.prefix ?: ""), message.name);
     }
 
+    val filteredSequences =
+      from.sequences.filter { seq ->
+        !seq.isAnonymous && (options == null || options.isTypeIncluded(seq))
+      }
+
+    // Registering all direct transformations from sequences
+    typeTransformer.registerTransformations(
+        filteredSequences.map { seq ->
+          val className = (options?.prefix ?: "") + seq.name
+          ObjCTypeTransformation(seq.name, ObjCType(className), AccessModifier.STRONG)
+        })
+
+    filteredSequences.forEach { seq ->
+      projectClassStructure.addClass(objcClassForSequence(seq, classPrefix = options?.prefix ?: ""), seq.name);
+    }
+
     return projectClassStructure
+  }
+
+  private fun objcClassForSequence(seq: Sequence?, classPrefix: String): ObjCClass {
+    val className = classPrefix + seq!!.name
+    val classDefinition = ObjCClassInterface(className)
+    val classImplementation = ObjCClassImplementation(className)
+    val objCClass = ObjCClass(className, classDefinition, classImplementation)
+    return objCClass
   }
 
   private fun objCClassForMessage(message: Message, classPrefix: String): ObjCClass {
@@ -67,7 +92,6 @@ public class ObjCDefaultClassStructureBuilder(val typeTransformer: ObjCTypeTrans
         message.activeFields
             .map { field ->
               val heliumType = field.type
-
               val propertyName = nameTransformer.propertyNameFrom(field.name, usedPropertyNames)
 
               val propertyType = typeTransformer.objCType(heliumType, field.isSequence)
