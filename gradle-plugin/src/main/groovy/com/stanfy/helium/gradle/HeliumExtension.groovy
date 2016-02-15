@@ -1,7 +1,6 @@
 package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
-import com.stanfy.helium.internal.utils.ConfigurableStringMap
 import com.stanfy.helium.internal.utils.DslUtils
 import groovy.transform.PackageScope
 import org.gradle.api.GradleException
@@ -67,7 +66,7 @@ class HeliumExtension {
   }
 
   void variables(Closure<?> config) {
-    DslUtils.runWithProxy(new ConfigurableStringMap(this.config.variables, "Variables"), config)
+    DslUtils.runWithProxy(DslUtils.stringMapProxy(this.config.variables, "Variables"), config)
   }
 
   Map<String, BaseHeliumTask> getSourceGen() {

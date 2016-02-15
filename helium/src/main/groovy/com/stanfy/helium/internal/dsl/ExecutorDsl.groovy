@@ -1,22 +1,22 @@
 package com.stanfy.helium.internal.dsl
 
-import com.stanfy.helium.model.behaviour.MethodExecutionResult
 import com.stanfy.helium.internal.MethodsExecutor
 import com.stanfy.helium.internal.ServiceMethodRequestValues
 import com.stanfy.helium.internal.entities.ByteArrayEntity
 import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.internal.entities.TypedEntityValueBuilder
+import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.Type
-import com.stanfy.helium.internal.utils.ConfigurableStringMap
-import com.stanfy.helium.internal.utils.Names
+import com.stanfy.helium.model.behaviour.MethodExecutionResult
 import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 
 import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
+import static com.stanfy.helium.internal.utils.DslUtils.stringMapProxy
 
 /**
  * DSL for invoking requests.
@@ -64,7 +64,7 @@ class ExecutorDsl {
 
   @CompileStatic
   private static Object mapProxy(final Map<String, String> map, final String name) {
-    return new ConfigurableStringMap(map, name)
+    return stringMapProxy(map, name)
   }
 
   @Override
