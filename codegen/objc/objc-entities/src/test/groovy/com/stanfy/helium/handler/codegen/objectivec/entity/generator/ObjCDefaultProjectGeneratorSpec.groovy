@@ -1,8 +1,15 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectGenerator
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions
-import com.stanfy.helium.handler.codegen.objectivec.entity.builder.DefaultObjCProjectBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultClassStructureBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultFileStructureBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultProjectBuilder
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCPropertyNameTransformer
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCTypeTransformer
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesTree
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
+import com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmapping.ObjCSFObjectMappingsGenerator
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Type
 import org.apache.commons.io.FileUtils
@@ -13,7 +20,11 @@ import org.apache.commons.io.FileUtils
 class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProjectGenerator> {
 
   ProjectDsl projectDSL;
-  DefaultObjCProjectBuilder parser;
+  ObjCDefaultClassStructureBuilder classStructureBuilder;
+  ObjCDefaultFileStructureBuilder fileStructureBuilder;
+  ObjCDefaultProjectBuilder projectBuilder;
+  ObjCProjectClassesTree classStructure
+  ObjCProjectFilesStructure filesStructure
 
   def setup() {
 
@@ -29,10 +40,11 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
     projectDSL.type "C" message { }
 
     // Parser
-    parser = new DefaultObjCProjectBuilder();
-    this.project = parser.build(projectDSL);
-
-    generator = new ObjCProjectGenerator(output, this.project);
+    classStructureBuilder = new ObjCDefaultClassStructureBuilder(new ObjCTypeTransformer(), new ObjCPropertyNameTransformer())
+    fileStructureBuilder = new ObjCDefaultFileStructureBuilder();
+    classStructure = classStructureBuilder.build(projectDSL, null);
+    filesStructure = fileStructureBuilder.build(classStructure, null)
+    generator = new ObjCProjectGenerator(output, filesStructure);
   }
 
   def "should generate implementation parts"() {
@@ -51,10 +63,33 @@ class ObjCDefaultProjectGeneratorSpec extends ObjCProjectGeneratorSpec<ObjCProje
 
   def "should generate implementation parts with prefixes from options"() {
     when:
-    def options = new ObjcEntitiesOptions()
-    this.project = parser.build(projectDSL, options);
-    generator = new ObjCProjectGenerator(output, this.project);
+    def options = new ObjCEntitiesOptions()
+    classStructure = classStructureBuilder.build(projectDSL, options);
+    filesStructure = fileStructureBuilder.build(classStructure, options)
+    generator = new ObjCProjectGenerator(output, filesStructure);
+    generator.generate();
 
+    def fileAHeader = new File("$output/" + options.prefix +"A.h")
+    def fileAHeaderContents = FileUtils.readFileToString(fileAHeader)
+    def fileAImpl = new File("$output/" + options.prefix +"A.m")
+    def fileAImplContents = FileUtils.readFileToString(fileAImpl)
+
+    then:
+    fileAImplContents.contains("@implementation " + options.prefix +"A")
+    fileAHeaderContents.contains("@interface " + options.prefix +"A")
+  }
+
+
+  def "should generate mappings parts with prefixes from options"() {
+    when:
+    def options = new ObjCEntitiesOptions()
+    classStructure = classStructureBuilder.build(projectDSL, options);
+    def mapper = new ObjCSFObjectMappingsGenerator();
+    projectBuilder = new ObjCDefaultProjectBuilder(new ObjCTypeTransformer(), new ObjCPropertyNameTransformer())
+    def theProject = projectBuilder.build(projectDSL, options)
+    mapper.generate(theProject, projectDSL, options);
+    filesStructure = fileStructureBuilder.build(theProject.classesTree)
+    generator = new ObjCProjectGenerator(output, filesStructure);
     generator.generate();
 
     def fileAHeader = new File("$output/" + options.prefix +"A.h")

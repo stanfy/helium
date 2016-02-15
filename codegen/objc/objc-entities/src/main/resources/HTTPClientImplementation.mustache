@@ -1,0 +1,110 @@
+#import "{{httpClientClassName}}.h"
+#import "{{cancelableOperationClassName}}.h"
+
+@interface {{httpClientClassName}} ()
+@property(nonatomic, strong) NSURLSession *urlSession;
+@property(nonatomic, strong) NSURL *baseURL;
+@property(nonatomic, copy) NSString *name;
+@property(nonatomic, copy) NSString *version;
+@end
+
+@implementation {{httpClientClassName}}
+
+- (id)init {
+    self = [super init];
+    if (self) {
+        self.version = @"{{service.version}}";
+        self.name = @"{{service.name}}";
+        self.baseURL = [NSURL URLWithString:@"{{service.location}}"];
+        self.urlSession = [NSURLSession sessionWithConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+    }
+    return self;
+}
+
+- (id <{{cancelableOperationClassName}}>)sendRequestWithDescription:(NSString *)description
+            path:(NSString *)path
+      parameters:(NSDictionary *)parameters
+            body:(id)body
+         headers:(NSDictionary *)headers
+          method:(NSString *)method
+    successBlock:(void (^)(NSHTTPURLResponse *response, NSData *rawData, NSURLRequest * request))successBlock
+    failureBlock:(void (^)(NSError *error))failureBlock {
+
+    NSURL *url = self.baseURL;
+    NSMutableString *actualPath = [@"" mutableCopy];
+    if (path) {
+        actualPath = [path mutableCopy];
+    }
+    if (parameters && parameters.count) {
+        NSMutableString *query = [NSMutableString string];
+        if ([path rangeOfString:@"?"].location == NSNotFound) {
+            [query appendString:@"?"];
+        } else {
+            [query appendString:@"&"];
+        }
+        [query appendString:[self URLQueryWithParameters:parameters]];
+        [actualPath appendString:query];
+    }
+
+    // If we changed actual get part
+    if ([actualPath length]) {
+        url = [NSURL URLWithString:[NSString stringWithFormat:@"%@%@", self.baseURL, actualPath]];
+    }
+
+    NSMutableURLRequest *mutableRequest = [[NSMutableURLRequest alloc] initWithURL:url];
+    mutableRequest.HTTPMethod = method;
+    if (body) {
+        mutableRequest.HTTPBody = body;
+    }
+
+    [headers enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        [mutableRequest addValue:obj forHTTPHeaderField:key];
+    }];
+
+    if (self.requestInterceptBlock) {
+        self.requestInterceptBlock(mutableRequest);
+    }
+
+    NSURLSessionDataTask *dataTask = [self.urlSession dataTaskWithRequest:mutableRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+
+        dispatch_async(dispatch_get_main_queue(), ^{
+
+            // Skip cancelled errors
+            if (error && error.code == NSURLErrorCancelled && [error.domain isEqualToString:NSURLErrorDomain]) {
+                return;
+            }
+
+            if (error) {
+                failureBlock(error);
+                return;
+            }
+            successBlock((NSHTTPURLResponse *) response, data, mutableRequest);
+        });
+    }];
+    [dataTask resume];
+    return (id <{{cancelableOperationClassName}}>) dataTask;
+}
+
+- (NSString *)URLQueryWithParameters:(NSDictionary *)parameters {
+    NSMutableString *result = [NSMutableString string];
+    NSArray *keys = [parameters allKeys];
+    for (NSString *key in keys) {
+        id value = parameters[key];
+        NSString *encodedKey = [self URLEncodedString:[key description]];
+        if ([result length]) {
+            [result appendString:@"&"];
+        }
+        [result appendFormat:@"%@=%@", encodedKey, [self URLEncodedString:[value description]]];
+    }
+    return result;
+}
+
+- (NSString *)URLEncodedString:(NSString *)string {
+    CFStringRef encoded = CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+        (__bridge CFStringRef) string,
+        NULL,
+        CFSTR("!*'\"();:@&=+$,/?%#[]% "),
+        kCFStringEncodingUTF8);
+    return CFBridgingRelease(encoded);
+}
+@end

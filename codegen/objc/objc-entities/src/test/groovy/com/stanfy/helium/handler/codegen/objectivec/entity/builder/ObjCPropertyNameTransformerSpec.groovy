@@ -27,9 +27,9 @@ class ObjCPropertyNameTransformerSpec extends Specification{
 
   def "should not allow to generate property names with reserved keywords Complex check"() {
     given:
-    def convertedProperties = KEYWORDS.collect { s -> propertyNameTransformer.propertyNameFrom(s)}
+    def convertedProperties = ObjCPropertyNameTransformer.KEYWORDS.collect { s -> propertyNameTransformer.propertyNameFrom(s)}
     expect:
-    convertedProperties.every { s -> !KEYWORDS.contains(s)}
+    convertedProperties.every { s -> !ObjCPropertyNameTransformer.KEYWORDS.contains(s)}
   }
 
   def "should not allow to generate properties, which names were passed through set"() {

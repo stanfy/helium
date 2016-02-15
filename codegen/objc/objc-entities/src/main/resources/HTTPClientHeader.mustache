@@ -1,0 +1,25 @@
+#import <Foundation/Foundation.h>
+
+@protocol {{cancelableOperationClassName}};
+
+@interface {{httpClientClassName}} : NSObject
+@property (nonatomic, strong, readonly) NSURLSession *urlSession;
+@property (nonatomic, strong, readonly) NSURL *baseURL;
+@property(nonatomic, copy, readonly) NSString *name;
+@property(nonatomic, copy, readonly) NSString *version;
+/**
+* Block that will be called right before sending to the server.
+* Any additional information can be added to it, using this block
+*/
+@property(nonatomic, copy) void (^requestInterceptBlock)(NSMutableURLRequest * request);
+
+- (id <{{cancelableOperationClassName}}>)sendRequestWithDescription:(NSString *)description
+                path:(NSString *)path
+          parameters:(NSDictionary *)parameters
+                body:(id)body
+             headers:(NSDictionary *)headers
+              method:(NSString *)method
+        successBlock:(void (^)(NSHTTPURLResponse *response, NSData *rawData, NSURLRequest * request))successBlock
+        failureBlock:(void (^)(NSError *error))failureBlock;
+
+@end

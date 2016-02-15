@@ -27,7 +27,9 @@ task clean(type: Delete) {
 }
 
 task check()
+
+// TODO : Perform objc-entities generation
 afterEvaluate {
-  check.dependsOn 'generateObjc'
-  assert helium.sourceGen.objc.output == file("$buildDir/generated/source/helium/objc/sample")
+//  check.dependsOn 'generateObjc'
+//  assert helium.sourceGen.objc.output == file("$buildDir/generated/source/helium/objc/sample")
 }

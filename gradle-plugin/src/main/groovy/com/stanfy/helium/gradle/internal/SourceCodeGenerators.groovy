@@ -9,7 +9,7 @@ import com.stanfy.helium.handler.codegen.java.constants.ConstantsGeneratorOption
 import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 import com.stanfy.helium.handler.codegen.java.retrofit.RetrofitGeneratorOptions
 import com.stanfy.helium.handler.codegen.json.schema.JsonSchemaGeneratorOptions
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjcEntitiesOptions
+import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 
 /**
  * Description of source generators.
@@ -32,7 +32,7 @@ class SourceCodeGenerators {
           task: GenerateRetrofitTask
       ],
       objc: [
-          optionsFactory: { new ObjcEntitiesOptions() },
+          optionsFactory: { new ObjCEntitiesOptions() },
           task: GenerateObjcEntitiesTask
       ],
       jsonSchema: [

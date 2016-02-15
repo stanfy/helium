@@ -1,9 +1,9 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCHeaderFile
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCImplementationFile
-import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProject
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectGenerator
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
 import spock.lang.Specification
 
 /**
@@ -11,12 +11,12 @@ import spock.lang.Specification
  */
 // TODO: implement or remove
 abstract class ObjCProjectGeneratorSpec<T extends ObjCProjectGenerator> extends Specification {
-  ObjCProject project
+  ObjCProjectFilesStructure project
   File output
   T generator
 
   def setup() {
-    project = new ObjCProject()
+    project = new ObjCProjectFilesStructure()
     project.addFile(new ObjCHeaderFile("A"));
     project.addFile(new ObjCHeaderFile("B"));
     project.addFile(new ObjCImplementationFile("A"));

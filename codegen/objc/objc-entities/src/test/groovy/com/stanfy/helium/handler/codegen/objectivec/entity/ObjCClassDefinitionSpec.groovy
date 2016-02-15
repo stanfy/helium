@@ -1,7 +1,9 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCClassDefinition
-import com.stanfy.helium.handler.codegen.objectivec.entity.file.ObjCPropertyDefinition
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
+import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
 import spock.lang.Specification
 
 /**
@@ -9,21 +11,19 @@ import spock.lang.Specification
  */
 class ObjCClassDefinitionSpec extends Specification {
 
-  ObjCProject project;
   ObjCHeaderFile headerFile
   private String fileName
 
   def setup() {
-    project = new ObjCProject();
     fileName = "test"
-    headerFile = new ObjCHeaderFile(fileName);
+    headerFile = new ObjCHeaderFile(fileName, "");
 
   }
 
   def "should add sourceParts"() {
     when:
-    ObjCClassDefinition classDefinition = new ObjCClassDefinition(fileName);
-    ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", "type");
+    ObjCClassInterface classDefinition = new ObjCClassInterface(fileName);
+    ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", new ObjCType("type"));
     classDefinition.addPropertyDefinition(propertyDefinition)
 
     then:
@@ -32,8 +32,8 @@ class ObjCClassDefinitionSpec extends Specification {
 
   def "should generate contents of properties sourceParts when repersented as string"() {
     when:
-    ObjCClassDefinition classDefinition = new ObjCClassDefinition(fileName);
-    ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", "type");
+    ObjCClassInterface classDefinition = new ObjCClassInterface(fileName);
+    ObjCPropertyDefinition propertyDefinition = new ObjCPropertyDefinition("name", new ObjCType("type"));
     classDefinition.addPropertyDefinition(propertyDefinition)
 
     then:
