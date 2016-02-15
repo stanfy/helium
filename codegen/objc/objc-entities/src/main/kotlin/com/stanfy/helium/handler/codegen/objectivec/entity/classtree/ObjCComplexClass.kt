@@ -7,9 +7,9 @@ public interface IObjCClass {
  * Created by ptaykalo on 8/17/14.
  * Simple object structure that holds information about objectiveC class
  */
-public class ObjCClass(override val name: String,
-                       val definition: ObjCClassInterface,
-                       val implementation: ObjCClassImplementation) : IObjCClass {
+public class ObjCComplexClass(override val name: String,
+                              val definition: ObjCClassInterface,
+                              val implementation: ObjCClassImplementation) : IObjCClass {
 
   constructor(name:String):this(name, ObjCClassInterface(name), ObjCClassImplementation(name))
 

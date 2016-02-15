@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.classtree
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImportPart
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCProperty
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCSourcePart
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSourcePart
 
@@ -10,7 +10,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSo
  * Created by ptaykalo on 8/17/14.
  * Holds information about class Definition for specific Objective-C class with specific ClassName
  */
-public class ObjCClassInterface(val className: String) : ObjCSourcePart {
+public class ObjCClassInterface(val className: String)  {
 
   public enum class SourcePartLocation {
     IMPORT,
@@ -23,7 +23,7 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
   public var superClassName: String = "NSObject"
   public val implementedProtocols = hashSetOf<String>()
 
-  public val propertyDefinitions = arrayListOf<ObjCPropertyDefinition>()
+  public val propertyDefinitions = arrayListOf<ObjCProperty>()
 
   public val methods = arrayListOf<ObjCMethod>()
 
@@ -56,53 +56,19 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
   /**
    * Adds specified property definition to this class
    */
-  public fun addPropertyDefinition(property: ObjCPropertyDefinition) {
+  public fun addPropertyDefinition(property: ObjCProperty) {
     propertyDefinitions.add(property)
   }
 
-  public fun addPropertyDefinitionsList(properties: List<ObjCPropertyDefinition>) {
+  public fun addPropertyDefinitionsList(properties: List<ObjCProperty>) {
     propertyDefinitions.addAll(properties)
   }
 
   /**
-   * Adds speciied method definition to this class
+   * Adds specified method definition to this class
    */
   public fun addMethod(method: ObjCMethod) {
     methods.add(method)
-  }
-
-  override fun asString(): String {
-    // TODO use some templates
-    val bld = StringBuilder()
-    bld.append(sourcePartsAtLocation(SourcePartLocation.IMPORT)
-        .joinToString("\n") { import -> "${import.asString()}" })
-    bld.append("\n")
-
-    bld.append("@interface ").append(className).append(" : ").append(superClassName)
-    if (implementedProtocols.size > 0) {
-      bld.append("<")
-      bld.append(implementedProtocols.joinToString())
-      bld.append(">")
-    }
-    bld.append("\n")
-
-    bld.append(sourcePartsAtLocation(SourcePartLocation.BEFORE_PROPERTIES_DEFINITIONS)
-        .joinToString("\n") { sourcePart -> "${sourcePart.asString()}" })
-
-    for (propertyDefinition in propertyDefinitions) {
-      bld.append(propertyDefinition.asString()).append("\n")
-    }
-
-    bld.append(sourcePartsAtLocation(SourcePartLocation.AFTER_PROPERTIES_DEFINITIONS)
-        .joinToString("\n") { sourcePart -> "${sourcePart.asString()}" })
-
-
-    for (method in methods) {
-      bld.append(ObjCMethodDeclarationSourcePart(method).asString()).append("\n")
-    }
-
-    bld.append("@end")
-    return bld.toString()
   }
 
 }

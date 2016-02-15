@@ -1,9 +1,8 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.generator
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AtomicModifier
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCPropertyDefinition
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCType
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCProperty.*
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCProperty
 import spock.lang.Specification
 
 /**
@@ -11,7 +10,7 @@ import spock.lang.Specification
  */
 class ObjCPropertyDefinitionGenerator extends Specification{
 
-  ObjCPropertyDefinition propertyDefinition;
+  ObjCProperty propertyDefinition;
   String propertyName;
   String propertyType;
 
@@ -22,23 +21,23 @@ class ObjCPropertyDefinitionGenerator extends Specification{
 
   def "should have @property definition"() {
     when:
-    propertyDefinition = new ObjCPropertyDefinition(propertyName, new ObjCType(propertyType));
+    propertyDefinition = new ObjCProperty(propertyName, new ObjCType(propertyType));
     then:
     propertyDefinition.asString().contains("@property");
   }
 
   def "should contain property name and type"() {
     when:
-    propertyDefinition = new ObjCPropertyDefinition(propertyName,new ObjCType(propertyType));
+    propertyDefinition = new ObjCProperty(propertyName,new ObjCType(propertyType));
     then:
     propertyDefinition.asString().contains(propertyName);
     propertyDefinition.asString().contains(propertyType);
   }
 
-  def "should contain correct access modifiers"(AccessModifier accessModifier, AtomicModifier atomicModifier,
+  def "should contain correct access modifiers"(ObjCProperty.AccessModifier accessModifier, ObjCProperty.AtomicModifier atomicModifier,
                                                 String accessModifierString, String atomicModifierString) {
     given:
-    propertyDefinition = new ObjCPropertyDefinition(propertyName, new ObjCType(propertyType, false), accessModifier, atomicModifier);
+    propertyDefinition = new ObjCProperty(propertyName, new ObjCType(propertyType, false), accessModifier, atomicModifier);
     def propertyRegexp = "\\s*@property\\s*\\(\\s*" + atomicModifierString + "\\s*,\\s*" + accessModifierString + "\\s*\\)\\s*" + propertyType + "\\s*" + propertyName + "\\s*" + ";"
 
     expect:

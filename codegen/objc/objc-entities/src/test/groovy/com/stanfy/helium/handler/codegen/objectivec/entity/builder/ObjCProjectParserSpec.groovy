@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.builder
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesTree
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import spock.lang.Specification
@@ -13,7 +13,7 @@ class ObjCProjectParserSpec extends Specification{
   ObjCDefaultClassStructureBuilder classBuilder;
   ObjCDefaultFileStructureBuilder fileBuilder;
   ProjectDsl project;
-  ObjCProjectClassesTree objCClassStructure;
+  ObjCProjectClassesStructure objCClassStructure;
   ObjCProjectFilesStructure objCFileStructure
 
   def setup() {

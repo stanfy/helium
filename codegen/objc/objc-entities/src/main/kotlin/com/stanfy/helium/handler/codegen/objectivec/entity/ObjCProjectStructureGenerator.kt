@@ -14,5 +14,5 @@ public interface ObjCProjectStructureGenerator {
    * should map items from the DSL to the Classes, defined in project.
    */
   // TODO: replace with more generic options
-  public fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions)
+  public fun generate(project: ObjCProjectComplex, projectDSL: Project, options: ObjCEntitiesOptions)
 }

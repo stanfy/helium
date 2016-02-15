@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesTree
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCComplexClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassInterface
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClassImplementation
@@ -14,11 +14,11 @@ import spock.lang.Specification
 class ObjCProjectSpec extends Specification {
 
   ObjCProjectFilesStructure filesStructure;
-  ObjCProjectClassesTree classStructure;
+  ObjCProjectClassesStructure classStructure;
 
   def setup() {
     filesStructure = new ObjCProjectFilesStructure()
-    classStructure = new ObjCProjectClassesTree()
+    classStructure = new ObjCProjectClassesStructure()
   }
 
   def "should add files"() {
@@ -31,7 +31,7 @@ class ObjCProjectSpec extends Specification {
 
   def "should add classes"() {
     when:
-    classStructure.addClass(new ObjCClass("Class", new ObjCClassInterface(""), new ObjCClassImplementation("")));
+    classStructure.addClass(new ObjCComplexClass("Class", new ObjCClassInterface(""), new ObjCClassImplementation("")));
 
     then:
     classStructure.getClasses().size() == 1
@@ -40,7 +40,7 @@ class ObjCProjectSpec extends Specification {
 
   def "should add classes for specific DSL Types"() {
     when:
-    def addedClass = new ObjCClass("Class", new ObjCClassInterface(""), new ObjCClassImplementation(""))
+    def addedClass = new ObjCComplexClass("Class", new ObjCClassInterface(""), new ObjCClassImplementation(""))
 
     def dslTypeName = "SomeDSLType"
     classStructure.addClass(addedClass, dslTypeName);

@@ -14,7 +14,6 @@ class ObjCMethod(val name: String, val methodType: ObjCMethod.ObjCMethodType, va
 
   constructor(name: String) : this(name, ObjCMethodType.INSTANCE, "void")
 
-
   data class ParameterPair(val type: String, val name: String)
 
   /**

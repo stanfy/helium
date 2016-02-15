@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.builder
 
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCType
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCProperty.*
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
@@ -17,6 +17,7 @@ public data class ObjCTypeTransformation(val heliumType: String,
                                          val objectiveCType: ObjCType,
                                          val accessModifier: AccessModifier = AccessModifier.ASSIGN)
 
+@Deprecated("Please use ObjcTypeRegistry")
 public class ObjCTypeTransformer {
 
   /**

@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.objectivec.entity.builder
 
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesTree
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCHeaderFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCImplementationFile
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectFilesStructure
@@ -11,9 +11,9 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCProjectF
  * Transforms classes tree to the structure of source files
  */
 
-class ObjCDefaultFileStructureBuilder : ObjCBuilder<ObjCProjectClassesTree, ObjCProjectFilesStructure> {
+class ObjCDefaultFileStructureBuilder : ObjCBuilder<ObjCProjectClassesStructure, ObjCProjectFilesStructure> {
 
-  override fun build(from: ObjCProjectClassesTree, options: ObjCEntitiesOptions?): ObjCProjectFilesStructure {
+  override fun build(from: ObjCProjectClassesStructure, options: ObjCEntitiesOptions?): ObjCProjectFilesStructure {
     val result = ObjCProjectFilesStructure()
     result.addFiles(
         from.classes.flatMap { objcClass ->

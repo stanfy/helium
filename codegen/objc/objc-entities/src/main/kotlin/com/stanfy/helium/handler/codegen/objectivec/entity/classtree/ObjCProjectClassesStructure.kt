@@ -5,11 +5,11 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.classtree
  * Created by paultaykalo on 12/17/15.
  */
 
-public class ObjCProjectClassesTree {
+public class ObjCProjectClassesStructure {
   /**
    * Classes that this project contains
    */
-  public val classes = arrayListOf<ObjCClass>()
+  public val classes = arrayListOf<ObjCComplexClass>()
   /**
    * Classes that this project contains
    */
@@ -18,16 +18,16 @@ public class ObjCProjectClassesTree {
   /**
    * Holds mapping form DSL Type names to classes, that this project contains
    */
-  public val classesByTypes = hashMapOf<String, ObjCClass>()
+  public val classesByTypes = hashMapOf<String, ObjCComplexClass>()
 
-  public fun addClass(objCClass: ObjCClass) {
+  public fun addClass(objCClass: ObjCComplexClass) {
     classes.add(objCClass);
   }
 
   /**
    * Adds class, and bounds it to the specified DSL Type
    */
-  public fun addClass(objCClass: ObjCClass, dslType: String) {
+  public fun addClass(objCClass: ObjCComplexClass, dslType: String) {
     classes.add(objCClass);
     classesByTypes.put(dslType, objCClass);
   }
@@ -40,7 +40,7 @@ public class ObjCProjectClassesTree {
     pregeneratedClasses.add(objCClass);
   }
 
-  public fun getClassForType(dslTypeName: String): ObjCClass? {
+  public fun getClassForType(dslTypeName: String): ObjCComplexClass? {
     return classesByTypes.get(dslTypeName);
   }
 

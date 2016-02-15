@@ -3,10 +3,8 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCDefaultClassStructureBuilder
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCPropertyNameTransformer
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCTypeTransformer
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesTree
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AccessModifier
-import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.AtomicModifier
-import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProjectClassesStructure
+import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCComplexClass
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Type
 import spock.lang.Specification
@@ -17,7 +15,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
 
   ObjCDefaultClassStructureBuilder sut;
   ProjectDsl project;
-  ObjCProjectClassesTree classStructure
+  ObjCProjectClassesStructure classStructure
   ObjCEntitiesOptions options
 
   def setup() {
@@ -52,7 +50,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
       name 'string'
     };
     classStructure = sut.build(project, options);
-    ObjCClass aClass = classStructure.getClasses().get(0);
+    ObjCComplexClass aClass = classStructure.getClasses().get(0);
 
     then:
     aClass.definition != null
@@ -68,7 +66,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
       name 'string'
     };
     classStructure = sut.build(project, options);
-    ObjCClass aClass = classStructure.getClasses().get(0);
+    ObjCComplexClass aClass = classStructure.getClasses().get(0);
 
     then:
     aClass.definition != null
@@ -85,7 +83,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
       name 'string'
     };
     classStructure = sut.build(project, options);
-    ObjCClass aClass = classStructure.getClasses().get(0);
+    ObjCComplexClass aClass = classStructure.getClasses().get(0);
 
     then:
     aClass.definition != null
@@ -103,7 +101,7 @@ class ObjCProjectParserPropertiesSpec extends Specification {
       name 'string'
     };
     classStructure = sut.build(project, options);
-    ObjCClass aClass = classStructure.getClasses().get(0);
+    ObjCComplexClass aClass = classStructure.getClasses().get(0);
 
     then:
     aClass.definition != null

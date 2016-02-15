@@ -29,18 +29,9 @@ public class ObjCPropertyNameTransformer {
   public fun propertyNameFrom(propertyName: String, nonAllowedNames: Set<String>?): String {
     // update Property name :)
     var currPropertyName = propertyName
-    if (currPropertyName == "id") {
-      currPropertyName = "ID"
-    }
-    if (currPropertyName == "description") {
-      currPropertyName = "descr"
-    }
 
-    if (!isNameAllowed(currPropertyName, nonAllowedNames)) {
-      currPropertyName += "Field"
-    }
     // First generated property is ok
-    // Check if the generated name is in restricted set or keyworkds
+    // Check if the generated name is in restricted set or keywords
     val generatedName = toCamelCase(currPropertyName)
     var resultName = generatedName
     var i = 0;
