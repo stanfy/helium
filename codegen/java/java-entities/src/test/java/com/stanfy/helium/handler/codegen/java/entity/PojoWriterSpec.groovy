@@ -1,7 +1,9 @@
 package com.stanfy.helium.handler.codegen.java.entity
 
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
+import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
@@ -466,4 +468,74 @@ public class Derived extends Base {
 """.trim() + '\n'
   }
 
+  def "write class with dictionary field"() {
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "data", type: new Dictionary(
+        name: "Dict",
+        key: new Type(name: "string"),
+        value: new Type(name: "int32")
+    )))
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+import java.util.Map;
+
+public class Test {
+
+  private Map<String, Integer> data;
+
+
+  public Map<String, Integer> getData() {
+    return this.data;
+  }
+
+  public void setData(Map<String, Integer> value) {
+    this.data = value;
+  }
+
+}
+""".trim() + '\n'
+  }
+
+  def "write class with dictionary of sequences"() {
+    Message item = new Message(name: "Item")
+    Sequence seq = new Sequence(itemsType: item)
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "data", type: new Dictionary(
+        name: "Dict",
+        key: new Type(name: "string"),
+        value: seq
+    )))
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+import java.util.List;
+import java.util.Map;
+
+public class Test {
+
+  private Map<String, List<Item>> data;
+
+
+  public Map<String, List<Item>> getData() {
+    return this.data;
+  }
+
+  public void setData(Map<String, List<Item>> value) {
+    this.data = value;
+  }
+
+}
+""".trim() + '\n'
+  }
 }
