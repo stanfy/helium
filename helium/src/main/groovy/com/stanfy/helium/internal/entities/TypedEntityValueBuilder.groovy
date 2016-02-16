@@ -1,14 +1,23 @@
 package com.stanfy.helium.internal.entities
 
-import com.stanfy.helium.internal.utils.ConfigurableMap
-import com.stanfy.helium.model.*
+import com.stanfy.helium.DefaultType
+import com.stanfy.helium.internal.utils.ConfigurableGenericMap
+import com.stanfy.helium.model.DataType
+import com.stanfy.helium.model.Dictionary
+import com.stanfy.helium.model.Field
+import com.stanfy.helium.model.FileType
+import com.stanfy.helium.model.FormType
+import com.stanfy.helium.model.Message
+import com.stanfy.helium.model.MultipartType
+import com.stanfy.helium.model.Sequence
+import com.stanfy.helium.model.Type
 
 import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
 
 /**
  * Provides DSL for building entity of the specified type.
  * <ul>
- *   <li>Message entities are represented as maps.</li>
+ *   <li>Message and dictionary entities are represented as maps.</li>
  *   <li>Sequence entities are represented as lists.</li>
  *   <li>Primitive type entities are represented as passed objects.</li>
  * </ul>
@@ -51,11 +60,17 @@ class TypedEntityValueBuilder {
   }
 
   def from(final Closure<?> spec) {
+    if (type instanceof Dictionary) {
+      def (value, proxy) = dictionaryBuilder()
+      runWithProxy(proxy, spec)
+      return value
+    }
+
     def value = new LinkedHashMap<String, Object>()
     if (type instanceof MultipartType) {
       runWithProxy(new MultipartEntityBuilder(value, type.name, scope), spec)
     } else if (!(type instanceof Message) && !(type instanceof FormType)) {
-      throw new IllegalArgumentException("Can use closure to build messages or forms only, not the $type")
+      throw new IllegalArgumentException("Can use closure to build a value of type $type")
     } else {
       runWithProxy(new MessageBuilder(value, type.name, scope), spec)
     }
@@ -101,10 +116,19 @@ class TypedEntityValueBuilder {
     return null
   }
 
-  class MessageBuilder extends ConfigurableMap<Object> {
+  private def dictionaryBuilder() {
+    if (type.name == DefaultType.STRING.langName) {
+      def map = new LinkedHashMap<String, Object>()
+      return [map, new DictionaryBuilder<String>(map, type.name, String.class, scope)]
+    }
+    def map = new LinkedHashMap<Object, Object>()
+    return [map, new DictionaryBuilder<Object>(map, type.name, String.class, scope)]
+  }
+
+  class MessageBuilder extends ConfigurableGenericMap<String, Object> {
 
     MessageBuilder(final Map<String, Object> map, final String name, final Map<String, Object> scope) {
-      super(map, name, scope)
+      super(map, name, String.class, scope)
     }
 
     @Override
@@ -133,11 +157,10 @@ class TypedEntityValueBuilder {
     }
   }
 
-  class MultipartEntityBuilder extends ConfigurableMap<Object> {
+  class MultipartEntityBuilder extends ConfigurableGenericMap<String, Object> {
 
-    MultipartEntityBuilder(
-        final Map<String, Object> map, final String name, final Map<String, Object> scope) {
-      super(map, name, scope)
+    MultipartEntityBuilder(final Map<String, Object> map, final String name, final Map<String, Object> scope) {
+      super(map, name, String.class, scope)
     }
 
     @Override
@@ -152,6 +175,27 @@ class TypedEntityValueBuilder {
       Type partType = multipartType.parts.get(key)
       return new TypedEntityValueBuilder(partType, scope).from(arg)
     }
+  }
+
+  class DictionaryBuilder<K> extends ConfigurableGenericMap<K, Object> {
+
+    DictionaryBuilder(Map<K, Object> map, String name, Class<K> clazz, Map<String, Object> scope) {
+      super(map, name, clazz, scope)
+    }
+
+    @Override
+    protected Object resolveValue(K key, Object arg) {
+      Dictionary dict = type as Dictionary;
+      return new TypedEntityValueBuilder(dict.value, scope).from(arg)
+    }
+
+    void entry(Object key, Object value) {
+      Dictionary dict = type as Dictionary;
+      K mapKey = new TypedEntityValueBuilder(dict.key, scope).from(key) as K
+      def mapValue = new TypedEntityValueBuilder(dict.value, scope).from(value)
+      map[mapKey] = mapValue
+    }
+
   }
 
 }

@@ -2,6 +2,9 @@ package com.stanfy.helium.internal.utils;
 
 import groovy.lang.Closure;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * DSL utils.
  */
@@ -15,6 +18,17 @@ public final class DslUtils {
     body.setDelegate(proxy);
     body.setResolveStrategy(Closure.DELEGATE_FIRST);
     return body.call(args);
+  }
+
+  public static ConfigurableGenericMap<String, String> stringMapProxy(final Map<String, String> map,
+                                                                      final String name) {
+    return new ConfigurableStringMap(map, name, Collections.<String, Object>emptyMap());
+  }
+
+  public static ConfigurableGenericMap<String, String> stringMapProxy(final Map<String, String> map,
+                                                                      final String name,
+                                                                      final Map<String, Object> scope) {
+    return new ConfigurableStringMap(map, name, scope);
   }
 
 }

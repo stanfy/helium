@@ -1,5 +1,6 @@
 package com.stanfy.helium.internal.entities
 
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -141,6 +142,46 @@ class TypedEntityValueBuilderSpec extends Specification {
     then:
     value[0].f1 == 'a'
     value[1].f1 == 'b'
+  }
+
+  def "build dictionaries"() {
+    when:
+    Message valueMessage = new Message(name: 'value-message')
+    valueMessage.addField(new Field(name: 'someField', type: new Type(name: 'string')))
+    Dictionary dictionary = new Dictionary(name: 'Dict', key: new Type(name: 'string'), value: valueMessage)
+    def value = new TypedEntityValueBuilder(dictionary).from {
+      '5' {
+        someField 'value 1'
+      }
+      '7' {
+        someField 'value 2'
+      }
+    }
+    then:
+    value['5'] instanceof Map
+    value['5'].someField == 'value 1'
+    value['7'].someField == 'value 2'
+  }
+
+  def "complex dictionary entries"() {
+    when:
+    Message complexType = new Message(name: 'ComplexType')
+    complexType.addField(new Field(name: 'f1', type: new Type(name: 'string')))
+    Dictionary dictionary = new Dictionary(name: 'Dict', key: complexType, value: complexType)
+    def value = new TypedEntityValueBuilder(dictionary).from {
+      entry(
+          {f1 'key'},
+          {f1 'value'}
+      )
+    }
+
+    then:
+    !value.keySet().empty
+    !value.values().empty
+    value.keySet().first() instanceof Map
+    value.keySet().first()['f1'] == 'key'
+    value.values().first()['f1'] == 'value'
+    value[['f1': 'key']] == ['f1': 'value']
   }
 
 }
