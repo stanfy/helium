@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * Converter for constrained types.
+ * It wraps another converter adding constraints check on read.
  */
 final class ConstrainedTypeConverter<I, O> implements Converter<Type, I, O> {
 
@@ -17,7 +18,7 @@ final class ConstrainedTypeConverter<I, O> implements Converter<Type, I, O> {
   /** Converters pool. */
   private final Converter<Type, I, O> baseConverter;
 
-  public ConstrainedTypeConverter(final ConstrainedType type, final ConvertersPool<I, O> pool) {
+  public ConstrainedTypeConverter(final ConstrainedType type, final ConvertersFactory<I, O> pool) {
     this.type = type;
     this.baseConverter = pool.getConverter(type.getBaseType());
   }

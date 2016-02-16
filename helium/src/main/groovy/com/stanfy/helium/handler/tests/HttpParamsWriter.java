@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.tests;
 
-import com.stanfy.helium.internal.entities.EntityWriter;
+import com.stanfy.helium.internal.entities.FormatSink;
 import com.stanfy.helium.internal.entities.TypedEntity;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Writes simple message to HTTP parameters query.
  */
-class HttpParamsWriter implements EntityWriter {
+class HttpParamsWriter implements FormatSink {
 
   /** Output. */
   private final Writer out;

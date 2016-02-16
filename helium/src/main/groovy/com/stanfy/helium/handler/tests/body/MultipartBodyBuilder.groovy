@@ -3,16 +3,18 @@ package com.stanfy.helium.handler.tests.body
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.MultipartBuilder
 import com.squareup.okhttp.RequestBody
-import com.stanfy.helium.internal.entities.ByteArrayEntity
-import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.handler.tests.RequestBodyBuilder
+import com.stanfy.helium.handler.tests.Utils
+import com.stanfy.helium.internal.entities.ByteArrayEntity
+import com.stanfy.helium.internal.entities.FormatSink
+import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 import groovy.transform.PackageScope
+import okio.Buffer
 
 import static com.stanfy.helium.handler.tests.Utils.bytesType
-import static com.stanfy.helium.handler.tests.Utils.writeEntityWithConverters
 
 /**
  * {@link RequestBodyBuilder} that builds multipart body.
@@ -50,16 +52,18 @@ class MultipartBodyBuilder implements RequestBodyBuilder {
         mb.addFormDataPart(key, file.getName(), RequestBody.create(bytesType(), file))
       } else  {
 
+        Buffer out = new Buffer()
         final Type type = types.byGroovyClass(value.getClass())
         TypedEntity wrappedEntity = new TypedEntity(type, value)
-        StringWriter out = new StringWriter()
-        try {
-          writeEntityWithConverters(wrappedEntity, out, types)
-        } catch (IOException e) {
-          throw new RuntimeException(e)
-        }
+        new FormatSink.Builder()
+            .into(out)
+            .types(types)
+            // TODO: This must be configurable!
+            .mediaType(Utils.jsonType())
+            .build()
+            .write(wrappedEntity)
 
-        mb.addFormDataPart(key, out.toString())
+        mb.addFormDataPart(key, out.readUtf8())
       }
 
     }

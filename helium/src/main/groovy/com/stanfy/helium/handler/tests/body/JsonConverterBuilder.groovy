@@ -2,9 +2,10 @@ package com.stanfy.helium.handler.tests.body
 
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.RequestBody
-import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.handler.tests.RequestBodyBuilder
 import com.stanfy.helium.handler.tests.Utils
+import com.stanfy.helium.internal.entities.FormatSink
+import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 import groovy.transform.PackageScope
@@ -33,11 +34,19 @@ class JsonConverterBuilder implements RequestBodyBuilder {
 
       @Override
       public void writeTo(final BufferedSink sink) throws IOException {
-        if (entity != null) {
-          Writer out = new OutputStreamWriter(sink.outputStream(), encoding)
-          Utils.writeEntityWithConverters(entity, out, types)
+        try {
+          if (entity != null) {
+            new FormatSink.Builder()
+                .into(sink)
+                .charset(encoding)
+                .mediaType(Utils.jsonType())
+                .types(types)
+                .build()
+                .write(entity)
+          }
+        } finally {
+          sink.close()
         }
-        sink.close()
       }
     }
   }

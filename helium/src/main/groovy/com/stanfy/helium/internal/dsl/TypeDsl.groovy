@@ -1,5 +1,6 @@
 package com.stanfy.helium.internal.dsl
 
+import com.squareup.okhttp.MediaType
 import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -67,7 +68,7 @@ class TypeDsl {
       def reader = proxy.@readers[format], writer = proxy.@writers[format]
       if (!reader) { reader = ClosureJsonConverter.AS_STRING_READER }
       if (!writer) { writer = ClosureJsonConverter.AS_STRING_WRITER }
-      dsl.typeResolver.findConverters(format).addConverter(
+      dsl.typeResolver.findConverters(MediaType.parse("*/".concat(format))).addConverter(
           type.name, new ClosureJsonConverter(type, reader, writer)
       )
     }
