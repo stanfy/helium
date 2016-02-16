@@ -26,6 +26,8 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
   private final List<Message> messages = new ArrayList<>()
   /** Sequences list. */
   private final List<Sequence> sequences = new ArrayList<>()
+  /** Dictionaries list. */
+  private final List<Dictionary> dictionaries = new ArrayList<>()
   /** Notes list. */
   private final List<Note> notes = new ArrayList<>()
   /** Included files list. */
@@ -93,6 +95,12 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
     return Collections.unmodifiableList(sequences)
   }
 
+  @Override
+  List<Dictionary> getDictionaries() {
+    applyPendingTypes()
+    return Collections.unmodifiableList(dictionaries)
+  }
+
   @PackageScope
   TypeResolver getTypeResolver() { return typeResolver }
 
@@ -120,6 +128,23 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
     sequences.add seq
     updatePendingTypes(name, seq, true)
     return seq
+  }
+
+  public Dictionary createAndAddDictionary(final String name, final String keyType, final String valueType) {
+    if (!keyType) {
+      throw new IllegalArgumentException("Key type is not defined for dictionary $name")
+    }
+    if (!valueType) {
+      throw new IllegalArgumentException("Value type is not defined for dictionary $name")
+    }
+    Dictionary dict = new Dictionary(
+        name : name,
+        key: typeResolver.byName(keyType),
+        value: typeResolver.byName(valueType)
+    )
+    dictionaries.add dict
+    updatePendingTypes(name, dict, true)
+    return dict
   }
 
   public void updatePrimitiveType(final Type type) {
