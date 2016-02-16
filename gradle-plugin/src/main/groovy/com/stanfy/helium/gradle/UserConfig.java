@@ -69,4 +69,7 @@ class UserConfig {
     return specSourceGeneration.containsKey(spec);
   }
 
+  public Map<String, String> getVariables() {
+    return variables;
+  }
 }

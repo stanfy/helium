@@ -3,7 +3,7 @@ def someDate = new DateTime()
 
 service {
   name "test"
-  version "$someDate"
+  version "$someDate-$someName"
 
   tests {
     scenario "test with joda" spec {

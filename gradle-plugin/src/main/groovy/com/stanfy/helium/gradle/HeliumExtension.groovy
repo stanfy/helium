@@ -2,6 +2,7 @@ package com.stanfy.helium.gradle
 
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import com.stanfy.helium.internal.utils.DslUtils
+import groovy.transform.CompileStatic
 import groovy.transform.PackageScope
 import org.gradle.api.GradleException
 
@@ -65,6 +66,7 @@ class HeliumExtension {
     DslUtils.runWithProxy(this.config.defaultSourceGeneration, config)
   }
 
+  @CompileStatic
   void variables(Closure<?> config) {
     DslUtils.runWithProxy(DslUtils.stringMapProxy(this.config.variables, "Variables"), config)
   }

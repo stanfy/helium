@@ -13,6 +13,9 @@ apply plugin: 'helium'
 
 helium {
   specification file('test.spec')
+  variables {
+    someName 'abba'
+  }
 }
 
 repositories {
