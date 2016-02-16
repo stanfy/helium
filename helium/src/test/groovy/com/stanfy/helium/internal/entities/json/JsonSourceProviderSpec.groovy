@@ -5,6 +5,7 @@ import com.stanfy.helium.handler.tests.Utils
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.entities.ConvertersFactory
 import com.stanfy.helium.internal.entities.TypedEntity
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
@@ -503,6 +504,32 @@ class JsonSourceProviderSpec extends Specification {
     errResult.value == "Mon"
     errResult.validationError.explanation.contains("Sun")
     errResult.validationError.explanation.contains("Mon")
+  }
+
+  def "reads dictionaries"() {
+    given:
+    Dictionary dict = new Dictionary(name: 'TestDict', key: new Type(name: 'string'), value: new Type(name: 'int32'))
+    def result = read(dict, '{"a":1,"b":2,"c":3}')
+
+    expect:
+    result.type instanceof Dictionary
+    result.validationError == null
+    result.value.a == 1
+    result.value.b == 2
+    result.value.c == 3
+  }
+
+  def "handles dictionary value format errors"() {
+    given:
+    Dictionary dict = new Dictionary(name: 'TestDict', key: new Type(name: 'string'), value: new Type(name: 'int32'))
+    def result = read(dict, '{"a":1,"b":"fail","c":3}')
+
+    expect:
+    result.type instanceof Dictionary
+    result.validationError.children.size() == 1
+    result.validationError.children[0].explanation.contains('string')
+    result.value.a == 1
+    result.value.c == 3
   }
 
 }

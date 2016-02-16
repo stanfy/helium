@@ -3,9 +3,10 @@ package com.stanfy.helium.internal.entities.json
 import com.squareup.okhttp.MediaType
 import com.stanfy.helium.Helium
 import com.stanfy.helium.internal.dsl.ProjectDsl
-import com.stanfy.helium.internal.entities.FormatSink
+import com.stanfy.helium.internal.entities.EntitiesSink
 import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.internal.entities.TypedEntityValueBuilder
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
@@ -24,7 +25,7 @@ class JsonSinkProviderSpec extends Specification {
 
   ProjectDsl dsl
 
-  FormatSink writer
+  EntitiesSink writer
 
   def setup() {
     out = new Buffer()
@@ -125,6 +126,21 @@ class JsonSinkProviderSpec extends Specification {
 
     expect:
     out.readUtf8() == '{"id":321}'
+  }
+
+  def "writes dictionaries"() {
+    given:
+    Dictionary dict = new Dictionary(name: 'TestDict', key: new Type(name: 'string'), value: new Type(name: 'int32'))
+    TypedEntityValueBuilder builder = new TypedEntityValueBuilder(dict)
+    def value = builder.from {
+      'a' 1
+      'b' 2
+      'c' 3
+    }
+    writer.write(new TypedEntity<Type>(dict, value))
+
+    expect:
+    out.readUtf8() == '{"a":1,"b":2,"c":3}'
   }
 
 }

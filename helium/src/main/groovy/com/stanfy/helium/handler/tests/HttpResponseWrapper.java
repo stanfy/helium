@@ -3,7 +3,7 @@ package com.stanfy.helium.handler.tests;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.Response;
-import com.stanfy.helium.internal.entities.FormatSource;
+import com.stanfy.helium.internal.entities.EntitiesSource;
 import com.stanfy.helium.internal.entities.TypedEntity;
 import com.stanfy.helium.internal.utils.AssertionUtils;
 import com.stanfy.helium.model.Type;
@@ -69,7 +69,7 @@ class HttpResponseWrapper implements MethodExecutionResult {
         if (contentType == null) {
           contentType = Utils.jsonType();
         }
-        FormatSource source = new FormatSource.Builder()
+        EntitiesSource source = new EntitiesSource.Builder()
             .from(response.body().source())
             .mediaType(contentType)
             .types(typeResolver)

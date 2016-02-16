@@ -5,7 +5,7 @@ import com.google.gson.stream.JsonReader;
 import com.squareup.okhttp.MediaType;
 import com.stanfy.helium.internal.entities.Converter;
 import com.stanfy.helium.internal.entities.ConvertersFactory;
-import com.stanfy.helium.internal.entities.FormatSource;
+import com.stanfy.helium.internal.entities.EntitiesSource;
 import com.stanfy.helium.internal.entities.TypedEntity;
 import com.stanfy.helium.internal.entities.ValidationError;
 import com.stanfy.helium.model.Type;
@@ -22,7 +22,7 @@ import java.util.LinkedList;
 /**
  * Validates whether the incoming JSON conforms the supplied message.
  */
-public class JsonSourceProvider implements FormatSource.Factory {
+public class JsonSourceProvider implements EntitiesSource.Factory {
 
   private static String getFullErrorMessage(final Throwable e) {
     StringWriter stackOut = new StringWriter();
@@ -36,8 +36,8 @@ public class JsonSourceProvider implements FormatSource.Factory {
   }
 
   @Override
-  public FormatSource create(final Source source, final Charset charset, final ConvertersFactory<?, ?> cFactory) {
-    return new FormatSource() {
+  public EntitiesSource create(final Source source, final Charset charset, final ConvertersFactory<?, ?> cFactory) {
+    return new EntitiesSource() {
       @SuppressWarnings("unchecked")
       @Override
       public TypedEntity<?> read(Type type) throws IOException {

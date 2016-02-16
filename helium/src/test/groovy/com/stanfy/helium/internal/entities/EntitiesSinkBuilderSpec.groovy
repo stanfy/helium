@@ -5,12 +5,12 @@ import com.stanfy.helium.internal.dsl.ProjectDsl
 import okio.Buffer
 import spock.lang.Specification
 
-class FormatSinkBuilderSpec extends Specification {
+class EntitiesSinkBuilderSpec extends Specification {
 
   def "build source"() {
     when:
     def project = new ProjectDsl()
-    def result = new FormatSink.Builder()
+    def result = new EntitiesSink.Builder()
         .into(new Buffer())
         .mediaType(MediaType.parse("application/json"))
         .types(project.types)
