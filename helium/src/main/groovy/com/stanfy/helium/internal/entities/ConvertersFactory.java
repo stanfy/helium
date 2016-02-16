@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 /**
  * Resolves converters for particular types. Has support for constrained types.
  */
-public abstract class ConvertersPool<I, O> {
+public abstract class ConvertersFactory<I, O> {
 
   /** Converters. */
   private LinkedHashMap<String, Converter<?, I, O>> converters = new LinkedHashMap<String, Converter<?, I, O>>();

@@ -4,7 +4,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.stanfy.helium.internal.entities.Converter;
-import com.stanfy.helium.internal.entities.ConvertersPool;
+import com.stanfy.helium.internal.entities.ConvertersFactory;
 import com.stanfy.helium.internal.entities.MessageConverter;
 import com.stanfy.helium.internal.entities.SequenceConverter;
 import com.stanfy.helium.internal.entities.ValidationError;
@@ -20,7 +20,7 @@ import java.util.Map;
 /**
  * Provides JSON converters for messages, sequences, constrained types, and default primitive types.
  */
-public class JsonConvertersPool extends ConvertersPool<JsonReader, JsonWriter> {
+public class JsonConvertersFactory extends ConvertersFactory<JsonReader, JsonWriter> {
 
   public static final String JSON = "json";
 
@@ -57,8 +57,8 @@ public class JsonConvertersPool extends ConvertersPool<JsonReader, JsonWriter> {
     }
 
     @Override
-    public ConvertersPool<JsonReader, JsonWriter> getPool() {
-      return JsonConvertersPool.this;
+    public ConvertersFactory<JsonReader, JsonWriter> getPool() {
+      return JsonConvertersFactory.this;
     }
 
     @Override
@@ -156,8 +156,8 @@ public class JsonConvertersPool extends ConvertersPool<JsonReader, JsonWriter> {
     }
 
     @Override
-    public ConvertersPool<JsonReader, JsonWriter> getPool() {
-      return JsonConvertersPool.this;
+    public ConvertersFactory<JsonReader, JsonWriter> getPool() {
+      return JsonConvertersFactory.this;
     }
 
   }

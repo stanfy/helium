@@ -1,5 +1,6 @@
 package com.stanfy.helium.internal.dsl
 
+import com.squareup.okhttp.MediaType
 import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
 import com.stanfy.helium.internal.model.tests.CheckableService
@@ -409,7 +410,7 @@ class ProjectDslSpec extends Specification {
       to("json") { asDate("yyyy-MM-dd HH:mm:ss Z") }
     }
     def customType = dsl.types.byName("custom")
-    def converter = dsl.types.findConverters("json")?.getConverter(customType)
+    def converter = dsl.types.findConverters(MediaType.parse("*/json"))?.getConverter(customType)
 
     expect:
     customType != null
@@ -483,7 +484,7 @@ class ProjectDslSpec extends Specification {
       to("json") { formatToString { String.valueOf(it) } }
     }
     def customType = dsl.types.byName("custom")
-    def converter = dsl.types.findConverters("json")?.getConverter(customType)
+    def converter = dsl.types.findConverters(MediaType.parse("*/json"))?.getConverter(customType)
 
     then:
     customType != null

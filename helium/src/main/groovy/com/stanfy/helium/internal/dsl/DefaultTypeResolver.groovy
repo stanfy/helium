@@ -2,10 +2,11 @@ package com.stanfy.helium.internal.dsl
 
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import com.squareup.okhttp.MediaType
 import com.stanfy.helium.DefaultType
-import com.stanfy.helium.internal.entities.ConvertersPool
+import com.stanfy.helium.internal.entities.ConvertersFactory
 import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
-import com.stanfy.helium.internal.entities.json.JsonConvertersPool
+import com.stanfy.helium.internal.entities.json.JsonConvertersFactory
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 
@@ -18,7 +19,7 @@ class DefaultTypeResolver implements TypeResolver {
   private final LinkedHashMap<String, Type> types = new LinkedHashMap<>()
 
   /** Converters. */
-  private final JsonConvertersPool json = new JsonConvertersPool();
+  private final JsonConvertersFactory json = new JsonConvertersFactory();
 
   @Override
   Type byName(final String name) {
@@ -112,11 +113,12 @@ class DefaultTypeResolver implements TypeResolver {
   }
 
   @Override
-  def <I, O> ConvertersPool<I, O> findConverters(final String format) {
-    if (JsonConvertersPool.JSON == format) {
-      return json as ConvertersPool<I, O>;
+  def <I, O> ConvertersFactory<I, O> findConverters(final MediaType mediaType) {
+    // TODO: Make this plugable.
+    if (JsonConvertersFactory.JSON == mediaType.subtype()) {
+      return json as ConvertersFactory<I, O>;
     }
-    throw new UnsupportedOperationException("Format " + format + " is not supported")
+    throw new UnsupportedOperationException("Format " + mediaType + " is not supported")
   }
 
 }

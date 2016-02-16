@@ -1,21 +1,25 @@
 package com.stanfy.helium.internal.entities.json
 
 import com.google.gson.stream.JsonReader
+import com.stanfy.helium.handler.tests.Utils
 import com.stanfy.helium.internal.dsl.ProjectDsl
-import com.stanfy.helium.internal.entities.ConvertersPool
+import com.stanfy.helium.internal.entities.ConvertersFactory
 import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
+import okio.Buffer
 import spock.lang.Specification
 
-/**
- * Spec for GsonValidator.
- */
-class JsonEntityReaderSpec extends Specification {
+import java.nio.charset.Charset
 
-  ConvertersPool<JsonReader, ?> converters
+/**
+ * Spec for JSON source.
+ */
+class JsonSourceProviderSpec extends Specification {
+
+  ConvertersFactory<JsonReader, ?> converters
 
   ProjectDsl dsl
 
@@ -48,12 +52,15 @@ class JsonEntityReaderSpec extends Specification {
     structMessage = dsl.messages[2]
     listWithName = dsl.messages[1]
 
-    converters = dsl.types.findConverters(JsonConvertersPool.JSON)
+    converters = dsl.types.findConverters(Utils.jsonType())
   }
 
   private TypedEntity read(final Type type, final String json) {
-    JsonEntityReader reader = new JsonEntityReader(new StringReader(json), converters)
-    return reader.read(type)
+    Buffer buffer = new Buffer()
+    buffer.writeUtf8(json)
+    return new JsonSourceProvider()
+        .create(buffer, Charset.forName("UTF-8"), converters)
+        .read(type)
   }
 
   def "fails on unsupported type"() {

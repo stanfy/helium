@@ -1,6 +1,7 @@
 package com.stanfy.helium.model;
 
-import com.stanfy.helium.internal.entities.ConvertersPool;
+import com.squareup.okhttp.MediaType;
+import com.stanfy.helium.internal.entities.ConvertersFactory;
 
 /**
  * Operates with types.
@@ -15,6 +16,6 @@ public interface TypeResolver {
 
   Iterable<Type> all();
 
-  <I, O> ConvertersPool<I, O> findConverters(final String format);
+  <I, O> ConvertersFactory<I, O> findConverters(MediaType mediaType);
 
 }

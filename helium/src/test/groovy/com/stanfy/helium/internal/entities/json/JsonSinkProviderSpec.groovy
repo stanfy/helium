@@ -1,30 +1,37 @@
 package com.stanfy.helium.internal.entities.json
 
+import com.squareup.okhttp.MediaType
 import com.stanfy.helium.Helium
 import com.stanfy.helium.internal.dsl.ProjectDsl
+import com.stanfy.helium.internal.entities.FormatSink
 import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.internal.entities.TypedEntityValueBuilder
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
+import okio.Buffer
 import spock.lang.Specification
 
-/**
- * Spec for JsonEntityWriter.
- */
-class JsonEntityWriterSpec extends Specification {
+import java.nio.charset.Charset
 
-  StringWriter out = new StringWriter()
+/**
+ * Spec for JSON sink.
+ */
+class JsonSinkProviderSpec extends Specification {
+
+  Buffer out
 
   ProjectDsl dsl
 
-  JsonEntityWriter writer
+  FormatSink writer
 
   def setup() {
+    out = new Buffer()
     dsl = new Helium().defaultTypes().getProject() as ProjectDsl
     TypeResolver types = dsl.getTypes()
-    writer = new JsonEntityWriter(out, types.findConverters("json"))
+    writer = new JsonSinkProvider()
+        .create(out, Charset.forName("UTF-8"), types.findConverters(MediaType.parse("*/json")))
   }
 
   def "can write primitives"() {
@@ -33,7 +40,7 @@ class JsonEntityWriterSpec extends Specification {
     writer.write(new TypedEntity(new Type(name: "string"), ' - '))
     writer.write(new TypedEntity(new Type(name: "bool"), false))
     then:
-    out.toString() == '2" - "false'
+    out.readUtf8() == '2" - "false'
   }
 
   def "can write messages"() {
@@ -44,7 +51,7 @@ class JsonEntityWriterSpec extends Specification {
     writer.write(new TypedEntity(m, [f1: 2, f2: true]))
 
     then:
-    out.toString() == '{"f1":2,"f2":true}'
+    out.readUtf8() == '{"f1":2,"f2":true}'
   }
 
   def "can write sequences"() {
@@ -55,7 +62,7 @@ class JsonEntityWriterSpec extends Specification {
     writer.write(new TypedEntity(m, [f1: 2, f2: [true, false]]))
 
     then:
-    out.toString() == '{"f1":2,"f2":[true,false]}'
+    out.readUtf8() == '{"f1":2,"f2":[true,false]}'
   }
 
   def "skips sequences when they are null"() {
@@ -67,7 +74,7 @@ class JsonEntityWriterSpec extends Specification {
     writer.write(new TypedEntity(m, [f1: 2, f2: [true, false]]))
 
     then:
-    out.toString() == '{"f1":2,"f2":[true,false]}'
+    out.readUtf8() == '{"f1":2,"f2":[true,false]}'
   }
 
   def "can write some complex messages"() {
@@ -85,7 +92,7 @@ class JsonEntityWriterSpec extends Specification {
     writer.write(new TypedEntity(dsl.types.byName('SomeMessage'), msg))
 
     expect:
-    out.toString() == '{"id":321,"name":"some name"}'
+    out.readUtf8() == '{"id":321,"name":"some name"}'
   }
 
   def "can write dates"() {
@@ -100,7 +107,7 @@ class JsonEntityWriterSpec extends Specification {
     writer.write(new TypedEntity<Type>(dsl.types.byName('FooMsg'), ['bar' : Date.parse("yyyy-MM-dd", "2013-07-11")]))
 
     expect:
-    out.toString() == '{"bar":"2013-07-11"}'
+    out.readUtf8() == '{"bar":"2013-07-11"}'
   }
 
   def "does not write skipped fields"() {
@@ -117,7 +124,7 @@ class JsonEntityWriterSpec extends Specification {
     writer.write(new TypedEntity(dsl.types.byName('SomeMessage'), msg))
 
     expect:
-    out.toString() == '{"id":321}'
+    out.readUtf8() == '{"id":321}'
   }
 
 }

@@ -19,7 +19,7 @@ abstract class JsonPrimitiveConverter implements Converter<Type, JsonReader, Jso
 
   @Override
   public String getFormat() {
-    return JsonConvertersPool.JSON;
+    return JsonConvertersFactory.JSON;
   }
 
   @Override

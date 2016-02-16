@@ -1,16 +1,14 @@
 package com.stanfy.helium.handler.tests;
 
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.Response;
-import com.stanfy.helium.model.behaviour.MethodExecutionResult;
+import com.stanfy.helium.internal.entities.FormatSource;
 import com.stanfy.helium.internal.entities.TypedEntity;
-import com.stanfy.helium.internal.entities.json.JsonConvertersPool;
-import com.stanfy.helium.internal.entities.json.JsonEntityReader;
+import com.stanfy.helium.internal.utils.AssertionUtils;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.TypeResolver;
-import com.stanfy.helium.internal.utils.AssertionUtils;
+import com.stanfy.helium.model.behaviour.MethodExecutionResult;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -67,13 +65,17 @@ class HttpResponseWrapper implements MethodExecutionResult {
       mustSucceed();
 
       if (type != null) {
-        // TODO: Support different content types.
-        JsonEntityReader reader = new JsonEntityReader(
-            response.body().charStream(),
-            typeResolver.<JsonReader, JsonWriter>findConverters(JsonConvertersPool.JSON)
-        );
+        MediaType contentType = response.body().contentType();
+        if (contentType == null) {
+          contentType = Utils.jsonType();
+        }
+        FormatSource source = new FormatSource.Builder()
+            .from(response.body().source())
+            .mediaType(contentType)
+            .types(typeResolver)
+            .build();
 
-        body = reader.read(type);
+        body = source.read(type);
 
         try {
           AssertionUtils.assertCorrectEntity(body, response);

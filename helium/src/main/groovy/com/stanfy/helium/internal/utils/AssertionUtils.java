@@ -24,6 +24,12 @@ public final class AssertionUtils {
 
   private AssertionUtils() { /* hidden */ }
 
+  public static void notNull(final String name, final Object arg) {
+    if (arg == null) {
+      throw new IllegalArgumentException(name + " cannot be null");
+    }
+  }
+
   public static void validateStatus(final Response response, final boolean success) {
     Request request = response.request();
     int statusCode = response.code();
