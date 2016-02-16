@@ -23,6 +23,9 @@ type "UserMessage" message(parent: "BaseResponse") {
   data 'string'
 }
 
+type "PostSequence" sequence "Post"
+type "TaggedPosts" dictionary('string', 'PostSequence')
+
 service {
 
   name "My Backend"
@@ -38,6 +41,12 @@ service {
       options 'int32' sequence
     }
     response 'SearchResponse'
+  }
+
+  post 'posts/tagged' spec {
+    name 'Update tagged posts'
+    body 'TaggedPosts'
+    response 'TaggedPosts'
   }
 
 }
