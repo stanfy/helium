@@ -4,8 +4,10 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.DefaultType;
 import com.stanfy.helium.handler.codegen.GeneratorOptions;
 import com.stanfy.helium.model.Descriptionable;
+import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.constraints.ConstrainedType;
 import com.stanfy.helium.model.constraints.EnumConstraint;
@@ -90,6 +92,9 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
       } else {
         typeName = type.getCanonicalName();
       }
+    } else if (type instanceof Dictionary) {
+      Dictionary dict = (Dictionary) type;
+      return javaMap(dict, writer);
     } else if (type.isPrimitive()) {
 
       if (isEnumDeclaration(type)) {
@@ -107,6 +112,23 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
       throw new UnsupportedOperationException("Cannot resolve Java type for " + type + ", sequence: " + sequence);
     }
     return typeName;
+  }
+
+  private String javaMap(final Dictionary dict, final JavaWriter writer) {
+    return "Map<" + mapMemberType(dict.getKey(), writer) + ", " + mapMemberType(dict.getValue(), writer) + ">";
+  }
+
+  private String mapMemberType(Type type, JavaWriter writer) {
+    final String name;
+    if (type.isPrimitive()) {
+      Class<?> keyClass = getJavaClass(type);
+      name = writer.compressType(JavaPrimitiveTypes.box(keyClass).getName());
+    } else if (type instanceof Sequence) {
+      name = getJavaTypeName(((Sequence) type).getItemsType(), true, writer);
+    } else {
+      name = getJavaTypeName(type, false, writer);
+    }
+    return name;
   }
 
   public boolean isEnumDeclaration(final Type type) {

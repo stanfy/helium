@@ -2,18 +2,19 @@ package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.stanfy.helium.handler.codegen.java.ClassAncestors;
 import com.stanfy.helium.model.Descriptionable;
+import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.constraints.ConstrainedType;
 
+import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
-
-import javax.lang.model.element.Modifier;
 
 /**
  * Message to Java class converter.
@@ -42,27 +43,7 @@ final class MessageToJavaClass {
 
     // imports
     HashSet<String> imports = new HashSet<String>();
-    for (Field field : message.getActiveFields()) {
-
-      Type type = field.getType();
-
-      if (field.isSequence()) {
-        String collectionName = options.getSequenceCollectionName();
-        if (collectionName != null) {
-          imports.add(collectionName);
-        } else if (options.isAddToString()) {
-          imports.add("java.util.Arrays");
-        }
-      }
-
-      if (type.isPrimitive() && !(type instanceof ConstrainedType)) {
-        Class<?> clazz = options.getJavaClass(type);
-        if (!clazz.isPrimitive() && !"java.lang".equals(clazz.getPackage().getName())) {
-          imports.add(clazz.getCanonicalName());
-        }
-      }
-
-    }
+    traverseImports(message, imports);
     writer.writeImports(imports);
 
     // class name
@@ -133,6 +114,51 @@ final class MessageToJavaClass {
 
     // end
     writer.writeClassEnd(message);
+  }
+
+  private void traverseImports(Message message, HashSet<String> imports) {
+    String collectionName = options.getSequenceCollectionName();
+    for (Field field : message.getActiveFields()) {
+
+      Type type = field.getType();
+
+      if (field.isSequence()) {
+        if (collectionName != null) {
+          imports.add(collectionName);
+        } else if (options.isAddToString()) {
+          imports.add("java.util.Arrays");
+        }
+      }
+
+      if (type instanceof Dictionary) {
+        imports.add(Map.class.getName());
+        Dictionary dict = (Dictionary) type;
+        traverseInternalImports(dict.getKey(), imports);
+        traverseInternalImports(dict.getValue(), imports);
+      }
+
+      if (type.isPrimitive() && !(type instanceof ConstrainedType)) {
+        Class<?> clazz = options.getJavaClass(type);
+        if (!clazz.isPrimitive() && !"java.lang".equals(clazz.getPackage().getName())) {
+          imports.add(clazz.getCanonicalName());
+        }
+      }
+
+    }
+  }
+
+  private void traverseInternalImports(final Type type, final HashSet<String> imports) {
+    Type subject = type;
+    if (type instanceof Sequence) {
+      subject = ((Sequence) type).getItemsType();
+      String collectionName = options.getSequenceCollectionName();
+      if (collectionName != null) {
+        imports.add(collectionName);
+      }
+    }
+    if (subject instanceof Message) {
+      traverseImports((Message) subject, imports);
+    }
   }
 
   private void emitJavaDoc(final Descriptionable subject) throws IOException {
