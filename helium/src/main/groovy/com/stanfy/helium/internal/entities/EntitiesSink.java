@@ -7,18 +7,18 @@ import java.io.IOException;
 /**
  * Can write entity somewhere.
  */
-public interface FormatSink {
+public interface EntitiesSink {
 
   void write(final TypedEntity<?> entity) throws IOException;
 
   /** Interface of a service that can provide plugable sink implementation. */
-  interface Factory extends SinkSourceBuilder.SinkSourceProvider<Sink, FormatSink> { }
+  interface Factory extends SinkSourceBuilder.SinkSourceProvider<Sink, EntitiesSink> { }
 
   /** Builder for an entity writer. */
-  class Builder extends SinkSourceBuilder<Sink, FormatSink, Factory, Builder> {
+  class Builder extends SinkSourceBuilder<Sink, EntitiesSink, Factory, Builder> {
 
     public Builder() {
-      super(Factory.class, FormatSink.class);
+      super(Factory.class, EntitiesSink.class);
     }
 
     public Builder into(final Sink sink) {

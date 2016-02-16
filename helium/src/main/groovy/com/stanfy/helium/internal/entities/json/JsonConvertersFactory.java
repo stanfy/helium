@@ -3,11 +3,14 @@ package com.stanfy.helium.internal.entities.json;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.stanfy.helium.DefaultType;
 import com.stanfy.helium.internal.entities.Converter;
 import com.stanfy.helium.internal.entities.ConvertersFactory;
+import com.stanfy.helium.internal.entities.DictionaryConverter;
 import com.stanfy.helium.internal.entities.MessageConverter;
 import com.stanfy.helium.internal.entities.SequenceConverter;
 import com.stanfy.helium.internal.entities.ValidationError;
+import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Sequence;
@@ -40,6 +43,10 @@ public class JsonConvertersFactory extends ConvertersFactory<JsonReader, JsonWri
       return (Converter<T, JsonReader, JsonWriter>) new JsonSequenceConverter((Sequence)type);
     }
 
+    if (type instanceof Dictionary) {
+      return (Converter<T, JsonReader, JsonWriter>) new JsonDictionaryConverter((Dictionary) type);
+    }
+
     return super.getConverter(type);
   }
 
@@ -57,7 +64,7 @@ public class JsonConvertersFactory extends ConvertersFactory<JsonReader, JsonWri
     }
 
     @Override
-    public ConvertersFactory<JsonReader, JsonWriter> getPool() {
+    public ConvertersFactory<JsonReader, JsonWriter> getFactory() {
       return JsonConvertersFactory.this;
     }
 
@@ -156,10 +163,72 @@ public class JsonConvertersFactory extends ConvertersFactory<JsonReader, JsonWri
     }
 
     @Override
-    public ConvertersFactory<JsonReader, JsonWriter> getPool() {
+    public ConvertersFactory<JsonReader, JsonWriter> getFactory() {
       return JsonConvertersFactory.this;
     }
 
+  }
+
+  private final class JsonDictionaryConverter extends DictionaryConverter<JsonReader, JsonWriter> {
+
+    JsonDictionaryConverter(Dictionary dictionary) {
+      super(JSON, dictionary);
+    }
+
+    @Override
+    public void write(JsonWriter output, Object value) throws IOException {
+      output.beginObject();
+      super.write(output, value);
+      output.endObject();
+    }
+
+    @Override
+    protected void writeKey(JsonWriter output, Object value, Type type) throws IOException {
+      output.name(String.valueOf(value));
+    }
+
+    @Override
+    protected void writeValue(JsonWriter output, Object value, Type type) throws IOException {
+      getConverter(type).write(output, value);
+    }
+
+    @Override
+    protected boolean hasNext(JsonReader input) throws IOException {
+      return input.hasNext();
+    }
+
+    @Override
+    protected Object readKey(JsonReader input, Type type, List<ValidationError> errors) throws IOException {
+      String name = input.nextName();
+      if (!type.isPrimitive() || !type.getName().equals(DefaultType.STRING.getLangName())) {
+        errors.add(new ValidationError("Dictionary key can be a string only for JSON. It's a spec problem - got "
+            + type));
+      }
+      return name;
+    }
+
+    @Override
+    protected Object readValue(JsonReader input, Type type, List<ValidationError> errors) throws IOException {
+      return getConverter(type).read(input, errors);
+    }
+
+    @Override
+    protected void skip(JsonReader input) throws IOException {
+      input.skipValue();
+    }
+
+    @Override
+    public ConvertersFactory<JsonReader, JsonWriter> getFactory() {
+      return JsonConvertersFactory.this;
+    }
+
+    @Override
+    public Object read(JsonReader input, List<ValidationError> errors) throws IOException {
+      input.beginObject();
+      Object result = super.read(input, errors);
+      input.endObject();
+      return result;
+    }
   }
 
 }

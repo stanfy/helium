@@ -6,7 +6,7 @@ import com.squareup.okhttp.RequestBody
 import com.stanfy.helium.handler.tests.RequestBodyBuilder
 import com.stanfy.helium.handler.tests.Utils
 import com.stanfy.helium.internal.entities.ByteArrayEntity
-import com.stanfy.helium.internal.entities.FormatSink
+import com.stanfy.helium.internal.entities.EntitiesSink
 import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.model.Type
@@ -55,7 +55,7 @@ class MultipartBodyBuilder implements RequestBodyBuilder {
         Buffer out = new Buffer()
         final Type type = types.byGroovyClass(value.getClass())
         TypedEntity wrappedEntity = new TypedEntity(type, value)
-        new FormatSink.Builder()
+        new EntitiesSink.Builder()
             .into(out)
             .types(types)
             // TODO: This must be configurable!
