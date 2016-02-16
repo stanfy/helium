@@ -4,6 +4,7 @@ import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
 import com.stanfy.helium.model.DataType;
+import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.FileType;
 import com.stanfy.helium.model.FormType;
@@ -101,9 +102,15 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
       }
       importedType = ((Sequence) importedType).getItemsType();
     }
-    String name = resolveJavaTypeName(importedType, writer, false);
-    if (name.contains(".")) {
-      imports.add(name);
+    if (importedType instanceof Dictionary) {
+      imports.add("java.util.Map");
+      addImport(imports, ((Dictionary) importedType).getKey(), writer);
+      addImport(imports, ((Dictionary) importedType).getValue(), writer);
+    } else {
+      String name = resolveJavaTypeName(importedType, writer, false);
+      if (name.contains(".")) {
+        imports.add(name);
+      }
     }
   }
 

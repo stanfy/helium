@@ -8,6 +8,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -30,6 +33,8 @@ public class SampleTest {
     Post post = new Post();
     post.user = new User();
     resp.statuses.add(post);
+    Map<String, List<Post>> resp2 = api.updateTaggedPosts(Collections.<String, List<Post>>emptyMap());
+    resp2.get("key");
   }
 
 }

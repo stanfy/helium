@@ -5,6 +5,7 @@ import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
 import com.stanfy.helium.internal.model.tests.CheckableService
 import com.stanfy.helium.model.DataType
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.FileType
 import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.Message
@@ -157,6 +158,23 @@ class ProjectDslSpec extends Specification {
 
     then:
     dsl.sequences[0].name == 'A'
+  }
+
+  def "can describe dictionaries"() {
+    when:
+    dsl.type 'string'
+    dsl.type 'int32'
+    dsl.type 'A' dictionary(key: 'string', value: 'int32')
+    dsl.type 'B' dictionary('string', 'int32')
+
+    then:
+    dsl.dictionaries[0].name == 'A'
+    dsl.dictionaries[1].name == 'B'
+    dsl.types.byName('A') instanceof Dictionary
+    dsl.types.byName('A').key.name == 'string'
+    dsl.types.byName('A').value.name == 'int32'
+    dsl.types.byName('B').key.name == 'string'
+    dsl.types.byName('B').value.name == 'int32'
   }
 
   def "can describe service methods"() {

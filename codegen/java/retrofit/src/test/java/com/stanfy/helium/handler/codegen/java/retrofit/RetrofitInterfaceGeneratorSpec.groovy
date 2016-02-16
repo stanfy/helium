@@ -23,6 +23,7 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     project.type 'AMessage' message { }
     project.type 'BMessage' message { }
     project.type 'BList' sequence 'BMessage'
+    project.type 'Map' dictionary('int32', 'AMessage')
     project.service {
       name "A"
       location "http://www.stanfy.com"
@@ -55,6 +56,12 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
         parameters {
           state 'int32' sequence
         }
+      }
+
+      post '/map' spec {
+        name 'Check map type'
+        body 'Map'
+        response 'Map'
       }
     }
     project.service {
@@ -163,6 +170,15 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     text.contains('"HC1: cvalue1",')
     text.contains('"HC2: cvalue2"')
     text.contains('BMessage getHeaders(@Header("H1") String headerH1, @Header("H2") String headerH2)')
+  }
+
+  def "dictionaries in body"() {
+    when:
+    gen.handle(project)
+    def text = new File("$output/test/api/A.java").text
+
+    then:
+    text.contains('Map<Integer, AMessage> checkMapType(@Body Map<Integer, AMessage> body)')
   }
 
   def "good message for missing service name"() {

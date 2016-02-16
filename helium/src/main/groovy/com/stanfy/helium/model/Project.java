@@ -37,6 +37,11 @@ public interface Project extends Checkable {
    */
   List<Sequence> getSequences();
 
+  /**
+   * @return dictionaries described in this project
+   */
+  List<Dictionary> getDictionaries();
+
   Service serviceByName(final String name);
 
   /**

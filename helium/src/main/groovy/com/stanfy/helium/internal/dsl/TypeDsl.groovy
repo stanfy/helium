@@ -2,6 +2,7 @@ package com.stanfy.helium.internal.dsl
 
 import com.squareup.okhttp.MediaType
 import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
@@ -54,6 +55,14 @@ class TypeDsl {
 
   Sequence sequence(final String item) {
     return dsl.createAndAddSequence(type.name, item)
+  }
+
+  Dictionary dictionary(final Map<String, String> args) {
+    return dsl.createAndAddDictionary(type.name, args.key, args.value)
+  }
+
+  Dictionary dictionary(final String key, final String value) {
+    return dsl.createAndAddDictionary(type.name, key, value)
   }
 
   void spec(final Closure<?> spec) {
