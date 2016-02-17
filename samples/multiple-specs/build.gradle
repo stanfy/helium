@@ -40,4 +40,15 @@ task check()
 afterEvaluate {
   check.dependsOn 'genApiTestsTwitter1', 'genApiTestsTwitter2', 'generateEntitiesTwitter1', 'runApiTestsTwitter2',
       'checkApiBehaviourTwitter2'
+  task printBehaviourErrors() {
+    description 'Print test problems'
+    onlyIf {
+      checkApiBehaviourTwitter2.state.failure != null
+    }
+  }
+  printBehaviourErrors << {
+    println file("$buildDir/reports/helium/twitter2/behaviour-checks.log").text
+  }
+  printBehaviourErrors.mustRunAfter checkApiBehaviourTwitter2
+  check.dependsOn printBehaviourErrors
 }

@@ -37,7 +37,7 @@ service {
           searchResponse.mustSucceed()
         }
 
-        it("should return 2 results") { searchResponse.body.statuses?.size() == 2 }
+        it("should return at most 2 results") { searchResponse.body.statuses.size() <= 2 }
         it("should contain user information") {
           searchResponse.body.statuses?.every { it.user != null }
         }
@@ -72,7 +72,7 @@ service {
       assert searchResponse.body != null
 
       def size = searchResponse.body?.statuses?.size()
-      assert size == 2 : "Expected 2 statuses, got $size"
+      assert size <= 2 : "Expected at most 2 statuses, got $size"
       assert searchResponse.body?.statuses?.every { it.user != null }
       assert searchResponse.statusCode == 200
     }
