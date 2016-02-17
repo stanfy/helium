@@ -2,8 +2,8 @@ package com.stanfy.helium.internal.dsl
 
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import com.stanfy.helium.internal.entities.ConvertValueSyntaxException
-import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
+import com.stanfy.helium.format.ConvertValueSyntaxException
+import com.stanfy.helium.format.json.ClosureJsonConverter
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.Constraint
 import com.stanfy.helium.internal.utils.ConfigurableProxy

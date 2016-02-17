@@ -10,7 +10,7 @@ buildscript {
 
 apply from: file("gradle/integration-tests.gradle")
 
-version = '0.8.0-SNAPSHOT'
+version = '0.8.1-SNAPSHOT'
 
 //noinspection GroovyAssignabilityCheck
 task populateVersion(description: "Populate root project version") << {

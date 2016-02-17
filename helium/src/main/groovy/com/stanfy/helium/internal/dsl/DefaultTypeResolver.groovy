@@ -1,12 +1,9 @@
 package com.stanfy.helium.internal.dsl
 
-import com.google.gson.stream.JsonReader
-import com.google.gson.stream.JsonWriter
 import com.squareup.okhttp.MediaType
 import com.stanfy.helium.DefaultType
-import com.stanfy.helium.internal.entities.ConvertersFactory
-import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
-import com.stanfy.helium.internal.entities.json.JsonConvertersFactory
+import com.stanfy.helium.format.PrimitiveReader
+import com.stanfy.helium.format.PrimitiveWriter
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.TypeResolver
 
@@ -18,8 +15,8 @@ class DefaultTypeResolver implements TypeResolver {
   /** Types map. */
   private final LinkedHashMap<String, Type> types = new LinkedHashMap<>()
 
-  /** Converters. */
-  private final JsonConvertersFactory json = new JsonConvertersFactory();
+  private final List<FormatCollection<PrimitiveReader<?>>> readers = []
+  private final List<FormatCollection<PrimitiveWriter<?>>> writers = []
 
   @Override
   Type byName(final String name) {
@@ -60,52 +57,6 @@ class DefaultTypeResolver implements TypeResolver {
       throw new IllegalArgumentException("Cannot register type $type. Type $type.name is already defined: ${types[type.name]}")
     }
     types[type.name] = type
-
-    Closure<?> numReader
-    switch (type.name) {
-      case DefaultType.DOUBLE.langName:
-        numReader = { JsonReader reader -> return reader.nextDouble() }
-        break
-      case DefaultType.FLOAT.langName:
-        numReader = { JsonReader reader ->
-          double doubleValue = reader.nextDouble()
-          return (float)doubleValue;
-        }
-        break
-      case DefaultType.INT32.langName:
-        numReader = { JsonReader reader -> return reader.nextInt() }
-        break
-      case DefaultType.INT64.langName:
-        numReader = { JsonReader reader -> return reader.nextLong() }
-        break
-
-      case DefaultType.BOOL.langName:
-        json.addConverter(type.name, new ClosureJsonConverter(
-            type,
-            { JsonReader input -> return input.nextBoolean() },
-            { JsonWriter output, Object value -> output.value((Boolean)value) }
-        ))
-        break
-
-      case DefaultType.STRING.langName:
-        json.addConverter(type.name, new ClosureJsonConverter(
-            type,
-            ClosureJsonConverter.AS_STRING_READER,
-            ClosureJsonConverter.AS_STRING_WRITER
-        ))
-        break
-    }
-
-    if (numReader) {
-      json.addConverter(type.name, new ClosureJsonConverter(
-          type,
-          numReader,
-          { JsonWriter output, Object value ->
-            output.value((Number)value)
-          }
-      ))
-    }
-
   }
 
   Iterable<Type> all() {
@@ -113,12 +64,50 @@ class DefaultTypeResolver implements TypeResolver {
   }
 
   @Override
-  def <I, O> ConvertersFactory<I, O> findConverters(final MediaType mediaType) {
-    // TODO: Make this plugable.
-    if (JsonConvertersFactory.JSON == mediaType.subtype()) {
-      return json as ConvertersFactory<I, O>;
+  Map<Type, PrimitiveReader<?>> customReaders(MediaType mediaType) {
+    def res = readers.find() { mediaType.subtype().equals(it.format) }
+    if (!res) {
+      return Collections.emptyMap()
     }
-    throw new UnsupportedOperationException("Format " + mediaType + " is not supported")
+    return Collections.unmodifiableMap(res.adapters)
+  }
+
+  @Override
+  Map<Type, PrimitiveWriter<?>> customWriters(MediaType mediaType) {
+    def res = writers.find() { mediaType.subtype().equals(it.format) }
+    if (!res) {
+      return Collections.emptyMap()
+    }
+    return Collections.unmodifiableMap(res.adapters)
+  }
+
+  void addTypeReader(String format, Type type, PrimitiveReader<?> reader) {
+    def col = readers.find() { format == it.format }
+    if (!col) {
+      col = new FormatCollection<PrimitiveReader<?>>(format)
+      readers.add col
+    }
+    col.adapters[type] = reader
+  }
+
+  void addTypeWriter(String format, Type type, PrimitiveWriter<?> writer) {
+    def col = writers.find() { format == it.format }
+    if (!col) {
+      col = new FormatCollection<PrimitiveWriter<?>>(format)
+      writers.add col
+    }
+    col.adapters[type] = writer
+  }
+
+  private static final class AdapterCollection<T> extends LinkedHashMap<Type, T> { }
+
+  private static final class FormatCollection<T> {
+    final String format
+    final AdapterCollection<T> adapters = new AdapterCollection<>()
+
+    FormatCollection(String format) {
+      this.format = format
+    }
   }
 
 }

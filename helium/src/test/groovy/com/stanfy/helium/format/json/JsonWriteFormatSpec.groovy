@@ -1,7 +1,9 @@
-package com.stanfy.helium.internal.entities.json
+package com.stanfy.helium.format.json
 
+import com.google.gson.stream.JsonWriter
 import com.squareup.okhttp.MediaType
 import com.stanfy.helium.Helium
+import com.stanfy.helium.format.PrimitiveWriter
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.entities.EntitiesSink
 import com.stanfy.helium.internal.entities.TypedEntity
@@ -10,16 +12,13 @@ import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
-import com.stanfy.helium.model.TypeResolver
 import okio.Buffer
 import spock.lang.Specification
-
-import java.nio.charset.Charset
 
 /**
  * Spec for JSON sink.
  */
-class JsonSinkProviderSpec extends Specification {
+class JsonWriteFormatSpec extends Specification {
 
   Buffer out
 
@@ -30,18 +29,35 @@ class JsonSinkProviderSpec extends Specification {
   def setup() {
     out = new Buffer()
     dsl = new Helium().defaultTypes().getProject() as ProjectDsl
-    TypeResolver types = dsl.getTypes()
-    writer = new JsonSinkProvider()
-        .create(out, Charset.forName("UTF-8"), types.findConverters(MediaType.parse("*/json")))
+    writer = new EntitiesSink.Builder()
+        .into(out)
+        .mediaType(MediaType.parse("application/json"))
+        .provider(JsonFormatProvider.Writer.class)
+        .customAdapter(new Type(name: 'foo'), { JsonWriter w, def type, Date value ->
+          w.value(value.format('yyyy-MM-dd'))
+        } as PrimitiveWriter<JsonWriter>)
+        .build()
   }
 
-  def "can write primitives"() {
+  def "can write primitive int"() {
     when:
     writer.write(new TypedEntity(new Type(name: "int32"), 2))
+    then:
+    out.readUtf8() == '2'
+  }
+
+  def "can write primitive string"() {
+    when:
     writer.write(new TypedEntity(new Type(name: "string"), ' - '))
+    then:
+    out.readUtf8() == '" - "'
+  }
+
+  def "can write primitive bool"() {
+    when:
     writer.write(new TypedEntity(new Type(name: "bool"), false))
     then:
-    out.readUtf8() == '2" - "false'
+    out.readUtf8() == 'false'
   }
 
   def "can write messages"() {
@@ -71,7 +87,7 @@ class JsonSinkProviderSpec extends Specification {
     Message m = new Message(name: 'Msg')
     m.addField(new Field(name: 'f1', type: new Type(name: 'int32')))
     m.addField(new Field(name: 'f2', type: new Type(name: 'bool'), sequence: true))
-    m.addField(new Field(name: 'f3', type: new Type(name: 'bool'), sequence: true))
+    m.addField(new Field(name: 'f3', type: new Type(name: 'bool'), sequence: true, required: false))
     writer.write(new TypedEntity(m, [f1: 2, f2: [true, false]]))
 
     then:
@@ -96,11 +112,10 @@ class JsonSinkProviderSpec extends Specification {
     out.readUtf8() == '{"id":321,"name":"some name"}'
   }
 
-  def "can write dates"() {
+  def "supports custom adapters"() {
     given:
     dsl.type "foo" spec {
       description "bar"
-      to("json") { asDate("yyyy-MM-dd") }
     }
     dsl.type "FooMsg" message {
       bar 'foo'

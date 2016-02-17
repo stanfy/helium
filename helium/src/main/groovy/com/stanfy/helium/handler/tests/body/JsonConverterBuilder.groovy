@@ -36,11 +36,12 @@ class JsonConverterBuilder implements RequestBodyBuilder {
       public void writeTo(final BufferedSink sink) throws IOException {
         try {
           if (entity != null) {
+            def contentType = Utils.jsonType()
             new EntitiesSink.Builder()
                 .into(sink)
                 .charset(encoding)
-                .mediaType(Utils.jsonType())
-                .types(types)
+                .mediaType(contentType)
+                .customAdapters(types.customWriters(contentType))
                 .build()
                 .write(entity)
           }
