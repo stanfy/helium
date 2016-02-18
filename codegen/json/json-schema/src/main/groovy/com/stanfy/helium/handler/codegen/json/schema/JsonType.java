@@ -7,7 +7,7 @@ import java.util.Locale;
  *
  * @author Michael Pustovit mpustovit@stanfy.com.ua
  */
-enum JsonType {
+public enum JsonType {
   ARRAY,
   BOOLEAN,
   INTEGER,
