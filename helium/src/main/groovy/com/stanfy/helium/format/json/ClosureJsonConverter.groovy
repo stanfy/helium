@@ -1,16 +1,18 @@
-package com.stanfy.helium.internal.entities.json
+package com.stanfy.helium.format.json
 
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
-import com.stanfy.helium.internal.entities.ConvertValueSyntaxException
-import com.stanfy.helium.internal.entities.ValidationError
+import com.stanfy.helium.format.PrimitiveReader
+import com.stanfy.helium.format.PrimitiveWriter
 import com.stanfy.helium.model.Type
+import groovy.transform.CompileStatic
 
 /**
  * Converts a primitive with custom reader/writer closures.
  */
-class ClosureJsonConverter extends JsonPrimitiveConverter {
+@CompileStatic
+class ClosureJsonConverter implements PrimitiveReader<JsonReader>, PrimitiveWriter<JsonWriter> {
 
   public static final Closure<?> AS_STRING_READER = { JsonReader reader ->
     JsonToken nextToken = reader.peek();
@@ -19,6 +21,7 @@ class ClosureJsonConverter extends JsonPrimitiveConverter {
     }
     return reader.nextString()
   }
+
   public static final Closure<?> AS_STRING_WRITER = { JsonWriter output, Object value ->
     if (value == null) {
       output.nullValue()
@@ -32,10 +35,26 @@ class ClosureJsonConverter extends JsonPrimitiveConverter {
   /** Reader closure. */
   final Closure<?> reader
 
-  public ClosureJsonConverter(final Type type, final Closure<?> reader, final Closure<?> writer) {
-    super(type)
+  public ClosureJsonConverter(final Closure<?> reader, final Closure<?> writer) {
     this.writer = writer;
     this.reader = wrapWithOptionalNull(reader);
+  }
+
+  @Override
+  Object value(JsonReader input, Type type) throws IOException {
+    try {
+      return reader.call(input)
+    } catch (IllegalStateException | IllegalArgumentException e) {
+      if (!checkForEnd(input)) {
+        input.skipValue();
+      }
+      throw e;
+    }
+  }
+
+  @Override
+  void value(JsonWriter output, Type type, Object value) throws IOException {
+    writer.call(output, value)
   }
 
   private static Closure<?> wrapWithOptionalNull(Closure<?> converter) {
@@ -47,33 +66,8 @@ class ClosureJsonConverter extends JsonPrimitiveConverter {
     }
   }
 
-  @Override
-  void write(final JsonWriter output, final Object value) throws IOException {
-    writer.call(output, value)
-  }
-
   private static boolean checkForEnd(final JsonReader input) {
     return !input.hasNext() || input.peek() == JsonToken.END_DOCUMENT;
-  }
-
-  @Override
-  Object read(JsonReader input, List<ValidationError> errors) throws IOException {
-    try {
-      return reader.call(input)
-    } catch (IllegalStateException e) {
-      if (!checkForEnd(input)) {
-        input.skipValue();
-      }
-      throw e;
-    } catch (ConvertValueSyntaxException e) {
-      // TODO all theses exceptions handlers should me moved to a convenient place
-      throw new IllegalStateException(e.getMessage()); // do not skip
-    } catch (IllegalArgumentException e) {
-      if (!checkForEnd(input)) {
-        input.skipValue();
-      }
-      throw new IllegalStateException("bad format: " + e.getMessage());
-    }
   }
 
 }

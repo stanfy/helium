@@ -1,10 +1,11 @@
-package com.stanfy.helium.internal.entities.json
+package com.stanfy.helium.format.json
 
 import com.google.gson.stream.JsonReader
-import com.stanfy.helium.handler.tests.Utils
+import com.squareup.okhttp.MediaType
+import com.stanfy.helium.format.PrimitiveReader
 import com.stanfy.helium.internal.dsl.ProjectDsl
-import com.stanfy.helium.internal.entities.ConvertersFactory
 import com.stanfy.helium.internal.entities.TypedEntity
+import com.stanfy.helium.internal.entities.EntitiesSource
 import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -13,14 +14,10 @@ import com.stanfy.helium.model.constraints.ConstrainedType
 import okio.Buffer
 import spock.lang.Specification
 
-import java.nio.charset.Charset
-
 /**
  * Spec for JSON source.
  */
-class JsonSourceProviderSpec extends Specification {
-
-  ConvertersFactory<JsonReader, ?> converters
+class JsonReadFormatSpec extends Specification {
 
   ProjectDsl dsl
 
@@ -52,15 +49,20 @@ class JsonSourceProviderSpec extends Specification {
     listMessage = dsl.sequences[0]
     structMessage = dsl.messages[2]
     listWithName = dsl.messages[1]
-
-    converters = dsl.types.findConverters(Utils.jsonType())
   }
 
-  private TypedEntity read(final Type type, final String json) {
+  private static TypedEntity read(final Type type, final String json) {
     Buffer buffer = new Buffer()
     buffer.writeUtf8(json)
-    return new JsonSourceProvider()
-        .create(buffer, Charset.forName("UTF-8"), converters)
+    return new EntitiesSource.Builder()
+        .from(buffer)
+        .provider(JsonFormatProvider.Reader.class)
+        .mediaType(MediaType.parse("application/json"))
+        .customAdapter(new Type(name: 'foo'), { JsonReader reader, def t ->
+          String str = reader.nextString()
+          return !str ? null : Date.parse('yyyy-MM-dd', str)
+        } as PrimitiveReader<JsonReader>)
+        .build()
         .read(type)
   }
 
@@ -87,7 +89,8 @@ class JsonSourceProviderSpec extends Specification {
     res.value == null
     res.validationError.type == testMessage
     !res.validationError.children.empty
-    res.validationError.children[0].explanation.contains('not an object')
+    res.validationError.children[0].explanation.contains('Message')
+    res.validationError.children[0].explanation.contains('structure')
   }
 
   def "accepts valid primitive types"() {
@@ -399,11 +402,10 @@ class JsonSourceProviderSpec extends Specification {
     errors[1].children[0].explanation.contains("required but got NULL")
   }
 
-  def "can read dates"() {
+  def "can read with custom adapters"() {
     given:
     dsl.type "foo" spec {
       description "bar"
-      from("json") { asDate("yyyy-MM-dd") }
     }
     dsl.type "FooMsg" message {
       bar 'foo'
@@ -424,7 +426,6 @@ class JsonSourceProviderSpec extends Specification {
     given:
     dsl.type "foo" spec {
       description "bar"
-      from("json") { asDate("yyyy-MM-dd") }
     }
     dsl.type "FooMsg" message {
       bar 'foo'
@@ -446,8 +447,7 @@ class JsonSourceProviderSpec extends Specification {
     expect:
     !error.explanation.empty
     error.children.size() == 1
-    error.children[0].children[0]?.children[0]?.explanation?.contains("bad string")
-    error.children[0].children.size() > 1
+    error.children[0].children[0]?.children[0]?.children[0]?.explanation?.contains("bad string")
   }
 
   def "ignores skipped fields"() {
@@ -527,7 +527,7 @@ class JsonSourceProviderSpec extends Specification {
     expect:
     result.type instanceof Dictionary
     result.validationError.children.size() == 1
-    result.validationError.children[0].explanation.contains('string')
+    result.validationError.children[0].children[0].explanation.contains('string')
     result.value.a == 1
     result.value.c == 3
   }

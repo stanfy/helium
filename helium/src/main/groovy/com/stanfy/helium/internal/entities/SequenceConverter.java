@@ -1,5 +1,7 @@
 package com.stanfy.helium.internal.entities;
 
+import com.stanfy.helium.format.FormatReader;
+import com.stanfy.helium.format.FormatWriter;
 import com.stanfy.helium.model.Sequence;
 
 import java.io.IOException;
@@ -10,36 +12,32 @@ import java.util.List;
 /**
  * Sequence serializer.
  */
-public abstract class SequenceConverter<I, O> extends BaseTypeConverter<I, O> implements Converter<Sequence, I, O> {
+final class SequenceConverter extends BaseConverter<Sequence> {
 
-  /** Type. */
-  private final Sequence type;
-
-  public SequenceConverter(final String format, final Sequence type) {
-    super(format);
-    this.type = type;
+  public SequenceConverter(final Sequence type) {
+    super(type);
   }
 
   @Override
-  public Sequence getType() {
-    return type;
-  }
-
-  @Override
-  public void write(final O output, final Object value) throws IOException {
+  public void writeData(final FormatWriter output, final Object value) throws IOException {
     List<?> list = (List<?>) value;
+    output.beginSequence(type);
+    BaseConverter<?> valueConverter = getConverter(type.getItemsType());
     for (Object v : list) {
-      writeValue(getType().getItemsType(), v, output);
+      valueConverter.write(output, v);
     }
+    output.endSequence(type);
   }
 
   @Override
-  public List<?> read(final I input, final List<ValidationError> errors) throws IOException {
+  public List<?> readData(final FormatReader input, final List<ValidationError> errors) throws IOException {
     ArrayList<Object> result = new ArrayList<Object>();
     int index = 0;
-    while (hasNext(input)) {
+    BaseConverter<?> valuesConverter = getConverter(type.getItemsType());
+    input.beginSequence(type);
+    while (input.hasNext()) {
       LinkedList<ValidationError> children = new LinkedList<ValidationError>();
-      result.add(readValue(type.getItemsType(), null, input, children));
+      result.add(valuesConverter.read(input, children));
 
       if (!children.isEmpty()) {
         ValidationError error = new ValidationError(type.getItemsType(), index, "item contains errors");
@@ -49,9 +47,8 @@ public abstract class SequenceConverter<I, O> extends BaseTypeConverter<I, O> im
 
       index++;
     }
+    input.endSequence(type);
     return result;
   }
-
-  protected abstract boolean hasNext(final I input) throws IOException;
 
 }

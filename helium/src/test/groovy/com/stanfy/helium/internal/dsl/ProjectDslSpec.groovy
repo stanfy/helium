@@ -2,7 +2,6 @@ package com.stanfy.helium.internal.dsl
 
 import com.squareup.okhttp.MediaType
 import com.stanfy.helium.DefaultTypesLoader
-import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
 import com.stanfy.helium.internal.model.tests.CheckableService
 import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.Dictionary
@@ -428,14 +427,13 @@ class ProjectDslSpec extends Specification {
       to("json") { asDate("yyyy-MM-dd HH:mm:ss Z") }
     }
     def customType = dsl.types.byName("custom")
-    def converter = dsl.types.findConverters(MediaType.parse("*/json"))?.getConverter(customType)
+    def reader = dsl.types.customReaders(MediaType.parse('*/json'))[customType]
+    def writer = dsl.types.customWriters(MediaType.parse('*/json'))[customType]
 
     expect:
     customType != null
-    converter instanceof ClosureJsonConverter
-    converter.reader != null
-    converter.writer != null
-
+    reader != null
+    writer != null
   }
 
   def "should allow empty response type"() {
@@ -495,20 +493,20 @@ class ProjectDslSpec extends Specification {
   }
 
   def "can user parseString for custom types"() {
-    when:
+    given:
     dsl.type "custom" spec {
       description "Custom type"
       from("json") { parseString { Integer.parseInt(it) } }
       to("json") { formatToString { String.valueOf(it) } }
     }
     def customType = dsl.types.byName("custom")
-    def converter = dsl.types.findConverters(MediaType.parse("*/json"))?.getConverter(customType)
+    def reader = dsl.types.customReaders(MediaType.parse('*/json'))[customType]
+    def writer = dsl.types.customWriters(MediaType.parse('*/json'))[customType]
 
-    then:
+    expect:
     customType != null
-    converter instanceof ClosureJsonConverter
-    converter.reader != null
-    converter.writer != null
+    reader != null
+    writer != null
   }
 
   def "can describe http headers for service methods"() {

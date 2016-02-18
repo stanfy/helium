@@ -55,11 +55,12 @@ class MultipartBodyBuilder implements RequestBodyBuilder {
         Buffer out = new Buffer()
         final Type type = types.byGroovyClass(value.getClass())
         TypedEntity wrappedEntity = new TypedEntity(type, value)
+
+        def contentType = Utils.jsonType()
         new EntitiesSink.Builder()
             .into(out)
-            .types(types)
-            // TODO: This must be configurable!
-            .mediaType(Utils.jsonType())
+            .mediaType(contentType)
+            .customAdapters(types.customWriters(contentType))
             .build()
             .write(wrappedEntity)
 

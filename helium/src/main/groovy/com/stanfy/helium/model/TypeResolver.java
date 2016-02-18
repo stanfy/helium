@@ -1,7 +1,10 @@
 package com.stanfy.helium.model;
 
 import com.squareup.okhttp.MediaType;
-import com.stanfy.helium.internal.entities.ConvertersFactory;
+import com.stanfy.helium.format.PrimitiveReader;
+import com.stanfy.helium.format.PrimitiveWriter;
+
+import java.util.Map;
 
 /**
  * Operates with types.
@@ -16,6 +19,7 @@ public interface TypeResolver {
 
   Iterable<Type> all();
 
-  <I, O> ConvertersFactory<I, O> findConverters(MediaType mediaType);
+  Map<Type, PrimitiveReader<?>> customReaders(MediaType mediaType);
 
+  Map<Type, PrimitiveWriter<?>> customWriters(MediaType mediaType);
 }

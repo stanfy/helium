@@ -1,9 +1,16 @@
 package com.stanfy.helium.internal.entities;
 
 import com.squareup.okhttp.MediaType;
-import com.stanfy.helium.model.TypeResolver;
+import com.stanfy.helium.format.BaseFormatReader;
+import com.stanfy.helium.format.BaseFormatWriter;
+import com.stanfy.helium.format.Format;
+import com.stanfy.helium.format.PrimitiveReader;
+import com.stanfy.helium.format.PrimitiveWriter;
+import com.stanfy.helium.model.Type;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ServiceLoader;
 
 import static com.stanfy.helium.internal.utils.AssertionUtils.notNull;
@@ -11,8 +18,8 @@ import static com.stanfy.helium.internal.utils.AssertionUtils.notNull;
 /**
  * Base class for builders of FormatSink and FormatSource.
  */
-abstract class SinkSourceBuilder<Target, R, F extends SinkSourceBuilder.SinkSourceProvider<Target, R>,
-    B extends SinkSourceBuilder<Target, R, F, B>> {
+abstract class SinkSourceBuilder<Target, R, FR extends Format, F extends Format.FormatProvider<Target, FR>,
+    A, B extends SinkSourceBuilder<Target, R, FR, F, A, B>> {
 
   private static final Charset UTF_8 = Charset.forName("UTF-8");
 
@@ -23,7 +30,10 @@ abstract class SinkSourceBuilder<Target, R, F extends SinkSourceBuilder.SinkSour
   private Target target;
   private MediaType mediaType;
   private Charset charset;
-  private TypeResolver types;
+  @SuppressWarnings("unchecked")
+  private Map<Type, A> customFormatAdapters = new HashMap();
+
+  private Class<? extends F> providerImplClass;
 
   @SuppressWarnings("unchecked")
   SinkSourceBuilder(final Class<F> providerClass, final Class<R> resultClass) {
@@ -33,6 +43,14 @@ abstract class SinkSourceBuilder<Target, R, F extends SinkSourceBuilder.SinkSour
   }
 
   private F resolveProvider() {
+    if (providerImplClass != null) {
+      try {
+        return providerImplClass.newInstance();
+      } catch (Exception e) {
+        throw new IllegalArgumentException("Cannot instantiate provider " + providerImplClass, e);
+      }
+    }
+
     for (F provider: ServiceLoader.load(providerClass)) {
       if (provider.supportsMediaType(mediaType)) {
         return provider;
@@ -66,9 +84,26 @@ abstract class SinkSourceBuilder<Target, R, F extends SinkSourceBuilder.SinkSour
     return self;
   }
 
-  public B types(final TypeResolver types) {
-    notNull("'types'", types);
-    this.types = types;
+  public B provider(final Class<? extends F> providerImplClass) {
+    notNull("'provider'", providerImplClass);
+    this.providerImplClass = providerImplClass;
+    return self;
+  }
+
+  public B customAdapters(final Map<Type, A> adapters) {
+    notNull("'adapters'", adapters);
+    this.customFormatAdapters.putAll(adapters);
+    return self;
+  }
+
+  public B customAdapter(final Type type, final A adapter) {
+    notNull("'type'", type);
+    notNull("'adapter'", adapter);
+    if (customFormatAdapters.containsKey(type)) {
+      throw new IllegalStateException("Custom adapter for " + type + " is already defined ("
+          + customFormatAdapters.get(type) + "). Cannot add adapter " + adapter);
+    }
+    customFormatAdapters.put(type, adapter);
     return self;
   }
 
@@ -82,18 +117,29 @@ abstract class SinkSourceBuilder<Target, R, F extends SinkSourceBuilder.SinkSour
     if (charset == null) {
       charset = mediaType.charset(UTF_8);
     }
-    ConvertersFactory<?, ?> converters = types.findConverters(mediaType);
-    return resolveProvider()
-        .create(target, charset, converters);
+    FR format = resolveProvider().create(target, charset);
+    registerAdapters(format);
+    return create(format);
   }
 
-  /** Base factory interface for FormatSink and FormatSource. */
-  interface SinkSourceProvider<Target, R> {
+  protected abstract R create(FR format);
 
-    boolean supportsMediaType(MediaType type);
-
-    R create(Target target, Charset charset, ConvertersFactory<?, ?> cFactory);
-
+  @SuppressWarnings("unchecked")
+  private void registerAdapters(FR format) {
+    if (!customFormatAdapters.isEmpty()) {
+      // TODO: Can we use BaseFormat?
+      if (format instanceof BaseFormatReader<?>) {
+        BaseFormatReader<?> f = (BaseFormatReader<?>) format;
+        for (Map.Entry<Type, A> entry : customFormatAdapters.entrySet()) {
+          f.registerPrimitiveAdapter(entry.getKey(), (PrimitiveReader) entry.getValue());
+        }
+      } else if (format instanceof BaseFormatWriter<?>) {
+        BaseFormatWriter<?> f = (BaseFormatWriter<?>) format;
+        for (Map.Entry<Type, A> entry : customFormatAdapters.entrySet()) {
+          f.registerPrimitiveAdapter(entry.getKey(), (PrimitiveWriter) entry.getValue());
+        }
+      }
+    }
   }
 
 }

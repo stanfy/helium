@@ -7,10 +7,20 @@ repositories {
   mavenCentral()
 }
 
+configurations {
+  groovyDocFix
+}
+
 dependencies {
   testCompile('org.spockframework:spock-core:1.0-groovy-2.4') {
     exclude group: 'org.codehaus.groovy'
   }
+  groovyDocFix 'org.fusesource.jansi:jansi:1.11'
+}
+
+groovydoc {
+  exclude 'com/stanfy/helium/**/internal/**'
+  classpath += configurations.groovyDocFix
 }
 
 afterEvaluate {
@@ -18,8 +28,8 @@ afterEvaluate {
   ["Groovy", "Java"].each {
     [tasks["compile$it"], tasks["compileTest$it"]].each {
       it.configure {
-        sourceCompatibility = 1.6
-        targetCompatibility = 1.6
+        sourceCompatibility = 1.7
+        targetCompatibility = 1.7
       }
     }
   }

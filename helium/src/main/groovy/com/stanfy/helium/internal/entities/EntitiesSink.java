@@ -1,6 +1,9 @@
 package com.stanfy.helium.internal.entities;
 
+import com.stanfy.helium.format.FormatWriter;
+import com.stanfy.helium.format.PrimitiveWriter;
 import okio.Sink;
+import org.apache.commons.io.IOUtils;
 
 import java.io.IOException;
 
@@ -11,14 +14,12 @@ public interface EntitiesSink {
 
   void write(final TypedEntity<?> entity) throws IOException;
 
-  /** Interface of a service that can provide plugable sink implementation. */
-  interface Factory extends SinkSourceBuilder.SinkSourceProvider<Sink, EntitiesSink> { }
-
   /** Builder for an entity writer. */
-  class Builder extends SinkSourceBuilder<Sink, EntitiesSink, Factory, Builder> {
+  final class Builder extends
+      SinkSourceBuilder<Sink, EntitiesSink, FormatWriter, FormatWriter.Factory, PrimitiveWriter<?>, Builder> {
 
     public Builder() {
-      super(Factory.class, EntitiesSink.class);
+      super(FormatWriter.Factory.class, EntitiesSink.class);
     }
 
     public Builder into(final Sink sink) {
@@ -26,6 +27,19 @@ public interface EntitiesSink {
       return this;
     }
 
+    @Override
+    protected EntitiesSink create(final FormatWriter format) {
+      return new EntitiesSink() {
+        @Override
+        public void write(TypedEntity<?> entity) throws IOException {
+          try {
+            BaseConverter.getConverter(entity.getType()).write(format, entity.getValue());
+          } finally {
+            IOUtils.closeQuietly(format);
+          }
+        }
+      };
+    }
   }
 
 }

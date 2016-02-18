@@ -1,5 +1,7 @@
 package com.stanfy.helium.internal.entities;
 
+import com.stanfy.helium.format.FormatReader;
+import com.stanfy.helium.format.FormatWriter;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Sequence;
@@ -16,57 +18,59 @@ import java.util.Set;
 /**
  * Base class for message serializers.
  */
-public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> implements Converter<Message, I, O> {
+final class MessageConverter extends BaseConverter<Message> {
 
-  /** Type. */
-  private final Message type;
-
-  public MessageConverter(final String format, final Message type) {
-    super(format);
-    this.type = type;
+  public MessageConverter(final Message type) {
+    super(type);
   }
 
   @Override
-  public Message getType() {
-    return type;
-  }
-
-  @Override
-  public void write(final O output, final Object value) throws IOException {
+  public void writeData(final FormatWriter output, final Object value) throws IOException {
     @SuppressWarnings("unchecked")
     Map<String, Object> values = (Map<String, Object>) value;
 
+    output.beginMessage(type);
     for (Field f : getType().getActiveFields()) {
-
       Object v = values.get(f.getName());
-      if (f.isSequence()) {
-        writeSequenceField(f.getName(), f.getType(), (List<?>) v, output);
-      } else {
-        if (v == null) {
-          if (f.isRequired()) {
-            throw new IllegalArgumentException("Field " + f.getName() + " in " + getType() + " is required. But null is provided");
-          }
-          continue;
-        }
-        writeField(f.getName(), f.getType(), v, output);
-      }
-
+      writeField(f, v, output);
     }
+    output.endMessage(type);
+  }
+
+  private void writeField(final Field field, final Object value, final FormatWriter out) throws IOException {
+    if (value == null) {
+      if (field.isRequired()) {
+        throw new IllegalArgumentException("Field " + field.getName() + " in " + type + " is required. But null is provided");
+      }
+      return;
+    }
+    out.beginMessageField(field);
+    Type valueType = field.isSequence() ? fieldSequence(field) : field.getType();
+    getConverter(valueType).write(out, value);
+    out.endMessageField(field);
+  }
+
+  private Sequence fieldSequence(Field field) {
+    Sequence s = new Sequence();
+    s.setName(type.getCanonicalName() + "_" + field.getCanonicalName() + "_sec");
+    s.setItemsType(field.getType());
+    return s;
   }
 
   @Override
-  public Map<String, ?> read(final I input, final List<ValidationError> errors) throws IOException {
+  public Map<String, ?> readData(final FormatReader input, final List<ValidationError> errors) throws IOException {
     LinkedHashMap<String, Object> values = new LinkedHashMap<String, Object>();
     Set<String> visitedFields = new HashSet<String>();
-    while (hasNext(input)) {
-      String fieldName = nextFieldName(input);
+    input.beginMessage(type);
+    while (input.hasNext()) {
+      String fieldName = input.nextFieldName(type);
       Field field = type.fieldByName(fieldName);
 
       if (field == null) {
         if (!type.isSkipUnknownFields()) {
           errors.add(new ValidationError("Unexpected field '" + fieldName + "'"));
         }
-        skip(input);
+        input.skipValue();
         continue;
       }
 
@@ -78,37 +82,37 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
       }
 
       if (field.isSkip()) {
-        skip(input);
+        input.skipValue();
         continue;
       }
 
-      if (checkNextNull(input)) {
-        skip(input);
+      if (input.checkNextNull()) {
+        input.skipValue();
         if (field.isRequired()) {
           errors.add(new ValidationError(type, field, "field is required but got NULL"));
         }
         continue;
       }
 
-      LinkedList<ValidationError> childrenErrors = new LinkedList<ValidationError>();
-      if (field.isSequence()) {
-        values.put(fieldName, readSequenceField(field, input, childrenErrors));
-      } else {
-        values.put(fieldName, readValue(fieldType, field, input, childrenErrors));
+      LinkedList<ValidationError> childrenErrors = new LinkedList<>();
+      Type valueType = field.isSequence() ? fieldSequence(field) : field.getType();
+      Object fieldValue = getConverter(valueType).read(input, childrenErrors);
+      if (fieldValue != null) {
+        values.put(fieldName, fieldValue);
       }
 
       if (!childrenErrors.isEmpty()) {
+        final String message;
         if (field.isSequence()) {
-          ValidationError error = new ValidationError(type, field, "array contains errors");
-          error.setChildren(childrenErrors);
-          errors.add(error);
+          message = "array contains errors";
         } else if (!fieldType.isPrimitive()) {
-          ValidationError error = new ValidationError(type, field, "object contains errors");
-          error.setChildren(childrenErrors);
-          errors.add(error);
+          message = "object contains errors";
         } else {
-          errors.addAll(childrenErrors);
+          message = "value format errors";
         }
+        ValidationError error = new ValidationError(type, field, message);
+        error.setChildren(childrenErrors);
+        errors.add(error);
       }
 
     }
@@ -119,21 +123,9 @@ public abstract class MessageConverter<I, O> extends BaseTypeConverter<I, O> imp
       }
     }
 
+    input.endMessage(type);
+
     return values;
   }
-
-  protected abstract boolean hasNext(final I input) throws IOException;
-
-  protected abstract String nextFieldName(final I input) throws IOException;
-
-  protected abstract void skip(final I input) throws IOException;
-
-  protected abstract boolean checkNextNull(final I input) throws IOException;
-
-  protected abstract Object readSequenceField(final Field field, final I input, final List<ValidationError> errors) throws IOException;
-
-  protected abstract void writeSequenceField(final String name, final Type itemType, final List<?> value, final O out) throws IOException;
-
-  protected abstract void writeField(final String name, final Type type, final Object value, final O out) throws IOException;
 
 }

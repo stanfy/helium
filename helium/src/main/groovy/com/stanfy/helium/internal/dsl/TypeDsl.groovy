@@ -1,7 +1,7 @@
 package com.stanfy.helium.internal.dsl
 
-import com.squareup.okhttp.MediaType
-import com.stanfy.helium.internal.entities.json.ClosureJsonConverter
+import com.stanfy.helium.format.PrimitiveReader
+import com.stanfy.helium.format.PrimitiveWriter
 import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -75,11 +75,16 @@ class TypeDsl {
     formats.addAll(proxy.@writers.keySet())
     formats.each { String format ->
       def reader = proxy.@readers[format], writer = proxy.@writers[format]
-      if (!reader) { reader = ClosureJsonConverter.AS_STRING_READER }
-      if (!writer) { writer = ClosureJsonConverter.AS_STRING_WRITER }
-      dsl.typeResolver.findConverters(MediaType.parse("*/".concat(format))).addConverter(
-          type.name, new ClosureJsonConverter(type, reader, writer)
-      )
+      if (reader) {
+        dsl.typeResolver.addTypeReader(format, type, { def input, def type ->
+          return reader(input)
+        } as PrimitiveReader<?>)
+      }
+      if (writer) {
+        dsl.typeResolver.addTypeWriter(format, type, { def output, def type, Object value ->
+          return writer(output, value)
+        } as PrimitiveWriter<?>)
+      }
     }
 
     // turn into constrained type

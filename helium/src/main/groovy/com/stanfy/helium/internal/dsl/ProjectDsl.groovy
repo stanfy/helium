@@ -43,7 +43,7 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
   private final LinkedHashMap<String, Type> pendingTypeDefinitions = new LinkedHashMap<>()
 
   /** Types resolver. */
-  private TypeResolver typeResolver = new DefaultTypeResolver()
+  private DefaultTypeResolver typeResolver = new DefaultTypeResolver()
 
   /** Used charset. */
   private Charset charset = Charset.forName("UTF-8")
@@ -102,7 +102,7 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
   }
 
   @PackageScope
-  TypeResolver getTypeResolver() { return typeResolver }
+  DefaultTypeResolver getTypeResolver() { return typeResolver }
 
   public Message createAndAddMessage(final String name, final Closure<?> spec, final boolean addToStructure) {
     Message m = new Message(name : name)
@@ -166,7 +166,7 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
     }
   }
 
-  private void applyPendingTypes() {
+  void applyPendingTypes() {
     pendingTypeDefinitions.values().each { Type type ->
       typeResolver.registerNewType type
     }

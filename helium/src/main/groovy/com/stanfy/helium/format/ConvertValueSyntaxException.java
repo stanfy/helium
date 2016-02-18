@@ -1,4 +1,4 @@
-package com.stanfy.helium.internal.entities;
+package com.stanfy.helium.format;
 
 /**
  * Exception thrown by converters when value was read from the input, but

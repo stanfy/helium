@@ -3,8 +3,8 @@ package com.stanfy.helium.handler.tests;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.Response;
-import com.stanfy.helium.internal.entities.EntitiesSource;
 import com.stanfy.helium.internal.entities.TypedEntity;
+import com.stanfy.helium.internal.entities.EntitiesSource;
 import com.stanfy.helium.internal.utils.AssertionUtils;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.TypeResolver;
@@ -22,7 +22,7 @@ import java.util.Map;
 class HttpResponseWrapper implements MethodExecutionResult {
 
   /** Empty response object. */
-  private static final TypedEntity<?> EMPTY_RESPONSE = new TypedEntity<Type>(null, null);
+  private static final TypedEntity<?> EMPTY_RESPONSE = new TypedEntity<>(null, null);
 
   /** Types. */
   private final TypeResolver typeResolver;
@@ -40,7 +40,7 @@ class HttpResponseWrapper implements MethodExecutionResult {
   private TypedEntity<?> body;
 
   /** Errors. */
-  private final List<AssertionError> errors = new LinkedList<AssertionError>();
+  private final List<AssertionError> errors = new LinkedList<>();
 
   HttpResponseWrapper(final TypeResolver typeResolver, final Response response, final Type type) {
     this.typeResolver = typeResolver;
@@ -52,7 +52,7 @@ class HttpResponseWrapper implements MethodExecutionResult {
     if (httpHeaders == null) {
       Headers headers = response.headers();
       int count = headers.size();
-      httpHeaders = new LinkedHashMap<String, String>(count);
+      httpHeaders = new LinkedHashMap<>(count);
       for (int i = 0; i < count; i++) {
         httpHeaders.put(headers.name(i), headers.value(i));
       }
@@ -72,7 +72,7 @@ class HttpResponseWrapper implements MethodExecutionResult {
         EntitiesSource source = new EntitiesSource.Builder()
             .from(response.body().source())
             .mediaType(contentType)
-            .types(typeResolver)
+            .customAdapters(typeResolver.customReaders(contentType))
             .build();
 
         body = source.read(type);
