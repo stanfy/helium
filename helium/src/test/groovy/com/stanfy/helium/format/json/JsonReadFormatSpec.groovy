@@ -93,6 +93,18 @@ class JsonReadFormatSpec extends Specification {
     res.validationError.children[0].explanation.contains('structure')
   }
 
+  def "validating arrays"() {
+    given:
+    def res = read(dsl.types.byName('ListWithName'), '{"name": "some name", items: {}}')
+    expect:
+    res != null
+    res.validationError != null
+    res.validationError.children[0].children[0].explanation.contains 'Sequence'
+    !res.validationError.children[0].children[0].explanation.contains('null')
+    res.value != null
+    res.value.name == 'some name'
+  }
+
   def "accepts valid primitive types"() {
     given:
     def json = '''

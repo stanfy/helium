@@ -29,6 +29,7 @@ abstract class BaseConverter<T extends Type> {
       return readData(wrapReader(input), errors);
     } catch (SafeFormat.StructureProblem e) {
       errors.add(new ValidationError(type, e.getMessage() + " Reason: " + e.getCause().getMessage()));
+      input.skipValue();
       return null;
     }
   }
