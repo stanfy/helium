@@ -196,48 +196,6 @@ class JsonSchemaGeneratorSpec extends Specification {
 }"""
   }
 
-  def "should translate Helium data type into the correspondent JSON schema data type"() {
-    expect:
-    generator.translateType(new Type(name: heliumType.getLangName())) == jsonType
-
-    where:
-    heliumType         | jsonType
-    DefaultType.BOOL   | JsonType.BOOLEAN
-    DefaultType.BYTES  | JsonType.STRING
-    DefaultType.DOUBLE | JsonType.NUMBER
-    DefaultType.FLOAT  | JsonType.NUMBER
-    DefaultType.INT32  | JsonType.INTEGER
-    DefaultType.INT64  | JsonType.INTEGER
-    DefaultType.STRING | JsonType.STRING
-  }
-
-  def "should translate complex types into object"() {
-    setup:
-    def msg = new Message(name: "ComplexType")
-    def list = new Sequence()
-
-    expect:
-    generator.translateType(msg) == JsonType.OBJECT
-    generator.translateType(list) != JsonType.OBJECT
-  }
-
-  def "should translate sequences into arrays"() {
-    setup:
-    def list = new Sequence()
-    def msg = new Message(name: "ComplexType")
-
-    expect:
-    generator.translateType(list) == JsonType.ARRAY
-    generator.translateType(msg) != JsonType.ARRAY
-  }
-
-  def "should propagate type descriptions"() {
-    given:
-    def type = new Type(name: "double", description: "bla bla")
-    expect:
-    generator.makeSchemaFromType(type).description == "bla bla"
-  }
-
   def "should translate enum constraint into enum"() {
     given:
     def msg = new Message(name: "MMM")

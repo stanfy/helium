@@ -1,0 +1,33 @@
+import groovy.json.JsonSlurper
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+  }
+  dependencies {
+    classpath 'com.stanfy.helium:gradle-plugin:0.8.1-SNAPSHOT'
+  }
+}
+
+apply plugin: 'helium'
+
+helium {
+  specification file('uber.api')
+}
+
+task clean(type: Delete) {
+  delete buildDir
+}
+
+afterEvaluate {
+  task check(dependsOn: 'generateSwaggerSpec')
+  check << {
+    def file = new File(generateSwaggerSpec.output, 'Uber_API.json')
+    assert file
+    def json = new JsonSlurper().parse(file)
+    assert json.info.title == 'Uber API'
+  }
+
+}
