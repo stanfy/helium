@@ -4,7 +4,6 @@ import com.stanfy.helium.Helium
 import com.stanfy.helium.model.Project
 import groovy.json.JsonSlurper
 import org.apache.commons.io.FileUtils
-import spock.lang.Ignore
 import spock.lang.Specification
 
 class SwaggerHandlerSpec extends Specification {
@@ -101,14 +100,13 @@ class SwaggerHandlerSpec extends Specification {
     data.basePath == '/v1'
   }
 
-  @Ignore("will be implemented soon")
   def "filling definitions"() {
     given:
     handler.handle(project)
     def data = specData(uberSpec())
 
     expect:
-    data.definitions?.size() > 1
+    data.definitions?.size() > 0
     data.definitions.Product != null
     data.definitions.Product.properties.display_name != null
     data.definitions.Product.properties.capacity != null
@@ -138,6 +136,9 @@ class SwaggerHandlerSpec extends Specification {
     data.paths.'/products'.get.parameters[0].type == 'number'
     data.paths.'/products'.get.parameters[0].format == 'double'
     data.paths.'/products'.get.parameters[1].name == 'longitude'
+    data.paths.'/products'.get.responses != null
+    data.paths.'/products'.get.responses.'200' != null
+    data.paths.'/products'.get.responses.'200'.schema?.$ref == '#/definitions/ProductList'
   }
 
   void cleanup() {

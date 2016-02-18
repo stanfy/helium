@@ -12,7 +12,7 @@ import java.util.Map;
  *
  * @author Michael Pustovit mpustovit@stanfy.com.ua
  */
-class JsonSchemaEntity {
+public class JsonSchemaEntity {
   @SerializedName("$schema")
   String schema;
 

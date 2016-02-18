@@ -5,6 +5,7 @@ import com.google.common.collect.Multimap
 import com.stanfy.helium.gradle.tasks.BaseHeliumTask
 import com.stanfy.helium.gradle.tasks.GenerateApiTestsTask
 import com.stanfy.helium.gradle.tasks.RunBehaviourSpecsTask
+import com.stanfy.helium.gradle.tasks.SwaggerTask
 import groovy.transform.PackageScope
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -54,13 +55,16 @@ final class HeliumInitializer {
         runApiTest.dependsOn specCheckTask
       }
 
-      // source generation
+      // Source generation.
       SourceGenDslDelegate sourceGen = userConfig.getSourceGenFor(it)
       if (sourceGen != null) {
         sourceGen.createTasks(userConfig, it, classpath, BASE_OUT_PATH, config).each { key, value ->
           sourceGenTasksMap.put key, value
         }
       }
+
+      // Swagger spec generation.
+      createSwaggerTasks(it, classpath)
     }
 
     sourceGenTasksMap.keys().each {
@@ -103,6 +107,18 @@ final class HeliumInitializer {
     LOG.debug "runApiTests task: dir=$runTestsTask.dir"
 
     return runTestsTask
+  }
+
+  private def createSwaggerTasks(File specification, URL[] classpath) {
+    Project project = userConfig.project
+
+    SwaggerTask swaggerTask = project.tasks.create(taskName("generateSwaggerSpec", specification, config), SwaggerTask)
+    swaggerTask.description = "Generate Swagger spec for ${specName(specification)}"
+    File output = new File(project.buildDir, BASE_OUT_PATH.concat("/swagger"))
+    configureHeliumTask(swaggerTask, specification, output, classpath, userConfig)
+    LOG.debug "generateSwaggerSpec task: output=$swaggerTask.output"
+
+    return swaggerTask
   }
 
   private RunBehaviourSpecsTask runBehaviourSpecsTask(final File specification, final URL[] classpath) {

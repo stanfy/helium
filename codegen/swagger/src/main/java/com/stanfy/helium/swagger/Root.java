@@ -1,5 +1,7 @@
 package com.stanfy.helium.swagger;
 
+import com.stanfy.helium.handler.codegen.json.schema.JsonSchemaEntity;
+
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +20,7 @@ final class Root {
 
   Map<String, Path> paths;
 
-  Map<String, Definition> definitions;
+  Map<String, JsonSchemaEntity> definitions;
 
   static class Info {
     final String title, description, version;

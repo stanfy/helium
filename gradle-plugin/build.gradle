@@ -16,6 +16,7 @@ dependencies {
   compile project(':codegen:java:retrofit')
   compile project(':codegen:objc:objc-entities')
   compile project(':codegen:json:json-schema')
+  compile project(':codegen:swagger')
 
   compile 'com.android.tools.build:gradle:1.3.1'
   compile 'com.google.guava:guava:17.0'

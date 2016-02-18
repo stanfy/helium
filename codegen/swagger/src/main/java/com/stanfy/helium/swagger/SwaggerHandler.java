@@ -3,11 +3,15 @@ package com.stanfy.helium.swagger;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
-import com.stanfy.helium.DefaultType;
 import com.stanfy.helium.handler.Handler;
+import com.stanfy.helium.handler.codegen.json.schema.JsonSchemaEntity;
+import com.stanfy.helium.handler.codegen.json.schema.JsonSchemaGenerator;
 import com.stanfy.helium.handler.codegen.json.schema.JsonType;
+import com.stanfy.helium.handler.codegen.json.schema.SchemaBuilder;
+import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Project;
+import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.Type;
@@ -20,30 +24,23 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /** Consumes a Helium project and produces a Swagger spec. */
 public class SwaggerHandler implements Handler {
 
-  private static final Map<String, JsonType> TYPES_MAPPING = new HashMap<>();
-  static {
-    TYPES_MAPPING.put(DefaultType.INT32.getLangName(), JsonType.INTEGER);
-    TYPES_MAPPING.put(DefaultType.INT64.getLangName(), JsonType.INTEGER);
-    TYPES_MAPPING.put(DefaultType.BOOL.getLangName(), JsonType.BOOLEAN);
-    TYPES_MAPPING.put(DefaultType.DOUBLE.getLangName(), JsonType.NUMBER);
-    TYPES_MAPPING.put(DefaultType.FLOAT.getLangName(), JsonType.NUMBER);
-    TYPES_MAPPING.put(DefaultType.BYTES.getLangName(), JsonType.STRING);
-    TYPES_MAPPING.put(DefaultType.STRING.getLangName(), JsonType.STRING);
-  }
-
   private static final Gson GSON = new GsonBuilder()
       .setPrettyPrinting()
+      .registerTypeAdapter(JsonType.class, new JsonSchemaGenerator.JsonTypeAdapter().nullSafe())
       .create();
 
   private final File destination;
+
+  private final SchemaBuilder schemaBuilder = new SchemaBuilder();
 
   public SwaggerHandler(File destination) {
     if (destination.exists() && !destination.isDirectory()) {
@@ -95,30 +92,19 @@ public class SwaggerHandler implements Handler {
       }
 
       // Paths and definitions.
-      LinkedHashMap<String, Definition> definitions = new LinkedHashMap<>();
+      LinkedHashMap<String, JsonSchemaEntity> definitions = new LinkedHashMap<>();
       if (!service.getMethods().isEmpty()) {
         LinkedHashMap<String, Path> paths = new LinkedHashMap<>(service.getMethods().size());
         for (ServiceMethod m : service.getMethods()) {
           Path.Method method = swaggerPath(paths, m).swaggerMethod(m);
           method.summary = m.getName();
           method.description = m.getDescription();
+          queryParameters(m, method);
 
-          if (m.getParameters() != null) {
-            ArrayList<Parameter> params = new ArrayList<>(m.getParameters().getFields().size());
-            for (Field f : m.getParameters().getFields()) {
-              Parameter parameter = new Parameter();
-              parameter.name = f.getName();
-              parameter.description = f.getDescription();
-              parameter.in = "query";
-              parameter.type = convertType(f.getType());
-              parameter.required = f.isRequired();
-              if (JsonType.NUMBER.getName().equals(parameter.type)) {
-                parameter.format = f.getType().getName();
-              }
-
-              params.add(parameter);
-            }
-            method.parameters = params;
+          if (m.getResponse() != null) {
+            ensureDefinition(m.getResponse(), definitions);
+            String link = "#/definitions/".concat(m.getResponse().getName());
+            method.responses = Collections.singletonMap("200", new Path.Response(link));
           }
         }
         root.paths = paths;
@@ -130,7 +116,53 @@ public class SwaggerHandler implements Handler {
     return root;
   }
 
-  private Path swaggerPath(Map<String, Path> map, ServiceMethod m) {
+  private void queryParameters(ServiceMethod m, Path.Method method) {
+    if (m.getParameters() != null) {
+      ArrayList<Parameter> params = new ArrayList<>(m.getParameters().getFields().size());
+      for (Field f : m.getParameters().getFields()) {
+        Parameter parameter = new Parameter();
+        parameter.name = f.getName();
+        parameter.description = f.getDescription();
+        parameter.in = "query";
+        parameter.type = schemaBuilder.translateType(f.getType()).getName();
+        parameter.required = f.isRequired();
+        // TODO: Handle formats properly.
+        if (JsonType.NUMBER.getName().equals(parameter.type)) {
+          parameter.format = f.getType().getName();
+        }
+
+        params.add(parameter);
+      }
+      method.parameters = params;
+    }
+  }
+
+  private void ensureDefinition(Type type, Map<String, JsonSchemaEntity> definitions) {
+    if (type.isPrimitive()) {
+      return;
+    }
+
+    JsonSchemaEntity entity = definitions.get(type.getName());
+    if (entity != null) {
+      return;
+    }
+
+    definitions.put(type.getName(), schemaBuilder.makeSchemaFromType(type));
+    List<Type> nextTypes = Collections.emptyList();
+    if (type instanceof Sequence) {
+      nextTypes = Collections.singletonList(((Sequence) type).getItemsType());
+    } else if (type instanceof Dictionary) {
+      Dictionary dict = (Dictionary) type;
+      nextTypes = Arrays.asList(dict.getKey(), dict.getValue());
+    }
+    for (Type t : nextTypes) {
+      if (!t.isAnonymous()) {
+        ensureDefinition(t, definitions);
+      }
+    }
+  }
+
+  private static Path swaggerPath(Map<String, Path> map, ServiceMethod m) {
     Path p = map.get(m.getPath());
     if (p == null) {
       p = new Path();
@@ -139,14 +171,4 @@ public class SwaggerHandler implements Handler {
     return p;
   }
 
-  private String convertType(Type type) {
-    if (!type.isPrimitive()) {
-      throw new IllegalArgumentException(type + " is not primitive");
-    }
-    JsonType json = TYPES_MAPPING.get(type.getName());
-    if (json == null) {
-      throw new UnsupportedOperationException("Unknown type " + type);
-    }
-    return json.getName();
-  }
 }
