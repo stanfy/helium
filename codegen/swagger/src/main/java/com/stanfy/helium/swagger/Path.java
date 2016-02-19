@@ -1,5 +1,6 @@
 package com.stanfy.helium.swagger;
 
+import com.stanfy.helium.handler.codegen.json.schema.JsonSchemaEntity;
 import com.stanfy.helium.model.ServiceMethod;
 
 import java.util.ArrayList;
@@ -27,10 +28,13 @@ final class Path extends HashMap<String, Path.Method> {
 
   static final class Response {
 
-    final Schema schema;
+    final JsonSchemaEntity schema;
 
-    Response(String ref) {
-      this.schema = new Schema(ref);
+    final String description;
+
+    Response(JsonSchemaEntity schema, String description) {
+      this.schema = schema;
+      this.description = description;
     }
 
   }

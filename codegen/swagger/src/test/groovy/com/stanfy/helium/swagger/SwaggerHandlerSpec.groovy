@@ -35,8 +35,14 @@ class SwaggerHandlerSpec extends Specification {
 
           type 'ProductList' sequence 'Product'
 
+          type 'User' message {
+            last_name 'string'
+            first_name 'string'
+          }
+
           type 'SomeData' message {
             field 'string'
+            user 'User'
           }
 
           service {
@@ -68,13 +74,20 @@ class SwaggerHandlerSpec extends Specification {
 
             get '/products/@id' spec {
               name 'Product details'
-              response 'Product'
+              response {
+                hash 'string'
+                product 'Product'
+              }
             }
           }
 
           service {
             name "Test API 1"
             location "http://localhost"
+
+            delete '/test/resource' spec {
+              description 'Delete something'
+            }
           }
         }
         .getProject()
@@ -82,6 +95,10 @@ class SwaggerHandlerSpec extends Specification {
 
   private File uberSpec() {
     return new File(dir, "Uber_API.json")
+  }
+
+  private File testSpec() {
+    return new File(dir, "Test_API_1.json")
   }
 
   private static def specData(File file) {
@@ -157,6 +174,7 @@ class SwaggerHandlerSpec extends Specification {
     data.paths.'/products'.get.parameters[1].name == 'longitude'
     data.paths.'/products'.get.responses != null
     data.paths.'/products'.get.responses.'200' != null
+    data.paths.'/products'.get.responses.'200'.description != null
     data.paths.'/products'.get.responses.'200'.schema?.$ref == '#/definitions/ProductList'
   }
 
@@ -194,10 +212,40 @@ class SwaggerHandlerSpec extends Specification {
   def "root base path"() {
     given:
     handler.handle(project)
-    def data =specData(new File(dir, "Test_API_1.json"))
+    def data =specData(testSpec())
 
     expect:
     data.basePath == '/'
+  }
+
+  def "nested definitions"() {
+    given:
+    handler.handle(project)
+    def data =specData(uberSpec())
+
+    expect:
+    data.definitions?.'SomeData'?.properties?.user?.$ref == '#/definitions/User'
+    data.definitions.'User' != null
+  }
+
+  def "anonymous definitions"() {
+    given:
+    handler.handle(project)
+    def data =specData(uberSpec())
+
+    expect:
+    data.definitions?.'Product' != null
+    data.paths?.'/products/{id}'?.get?.responses?.'200'?.schema?.type == 'object'
+    data.paths.'/products/{id}'.get.responses.'200'.schema.required == ['hash', 'product']
+  }
+
+  def "undefined responses"() {
+    given:
+    handler.handle(project)
+    def data =specData(testSpec())
+
+    expect:
+    data.paths?.'/test/resource'?.delete?.responses?.'200'?.description != null
   }
 
   void cleanup() {

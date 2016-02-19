@@ -16,6 +16,9 @@ public class JsonSchemaEntity {
   @SerializedName("$schema")
   String schema;
 
+  @SerializedName("$ref")
+  final String ref;
+
   @SerializedName("type")
   JsonType type;
 
@@ -33,6 +36,14 @@ public class JsonSchemaEntity {
 
   @SerializedName("enum")
   List<String> enumeration;
+
+  JsonSchemaEntity() {
+    this(null);
+  }
+
+  public JsonSchemaEntity(String ref) {
+    this.ref = ref;
+  }
 
   public void addProperty(final String propertyName, final JsonSchemaEntity property) {
     if (properties == null) {

@@ -1,5 +1,6 @@
 package com.stanfy.helium.swagger;
 
+import com.stanfy.helium.handler.codegen.json.schema.JsonSchemaEntity;
 import com.stanfy.helium.handler.codegen.json.schema.JsonType;
 
 public class Parameter {
@@ -9,5 +10,5 @@ public class Parameter {
   JsonType type;
   String format;
 
-  Schema schema;
+  JsonSchemaEntity schema;
 }

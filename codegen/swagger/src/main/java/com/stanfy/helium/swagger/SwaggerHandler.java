@@ -10,6 +10,7 @@ import com.stanfy.helium.handler.codegen.json.schema.JsonType;
 import com.stanfy.helium.handler.codegen.json.schema.SchemaBuilder;
 import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
+import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -37,9 +39,11 @@ public class SwaggerHandler implements Handler {
       .registerTypeAdapter(JsonType.class, new JsonSchemaGenerator.JsonTypeAdapter().nullSafe())
       .create();
 
+  private static final String DEF_PREFIX = "#/definitions/";
+
   private final File destination;
 
-  private final SchemaBuilder schemaBuilder = new SchemaBuilder();
+  private final SchemaBuilder schemaBuilder = new SchemaBuilder(DEF_PREFIX);
 
   public SwaggerHandler(File destination) {
     if (destination.exists() && !destination.isDirectory()) {
@@ -104,11 +108,8 @@ public class SwaggerHandler implements Handler {
           pathParameters(m, method);
           queryParameters(m, method);
           body(m, method, root);
-
-          if (m.getResponse() != null) {
-            ensureDefinition(m.getResponse(), root);
-            method.responses = Collections.singletonMap("200", new Path.Response(definition(m.getResponse())));
-          }
+          response(root, m, method);
+          // TODO: Headers.
         }
         root.paths = paths;
       }
@@ -116,8 +117,27 @@ public class SwaggerHandler implements Handler {
     return root;
   }
 
-  private static String definition(Type type) {
-    return "#/definitions/".concat(type.getName());
+  // TODO: Multiple response codes.
+  private void response(Root root, ServiceMethod m, Path.Method method) {
+    String respDesc = null;
+    JsonSchemaEntity respSchema = null;
+    if (m.getResponse() != null) {
+      respSchema = resolveDefinition(m.getResponse(), root);
+      respDesc = m.getResponse().getDescription();
+    }
+    if (respDesc == null) {
+      respDesc = "Successful response for '" + m.getName() + "'";
+    }
+    Path.Response resp = new Path.Response(respSchema, respDesc);
+    method.responses = Collections.singletonMap("200", resp);
+  }
+
+  private JsonSchemaEntity resolveDefinition(Type type, Root root) {
+    if (type.isAnonymous()) {
+      return schemaBuilder.makeSchemaFromType(type);
+    }
+    ensureDefinition(type, root);
+    return new JsonSchemaEntity(DEF_PREFIX.concat(type.getName()));
   }
 
   private void queryParameters(ServiceMethod m, Path.Method method) {
@@ -160,10 +180,9 @@ public class SwaggerHandler implements Handler {
       p.name = "body";
       p.in = "body";
       p.required = true;
-      p.schema = new Schema(definition(m.getBody()));
+      p.schema = resolveDefinition(m.getBody(), root);
 
       method.parameters.add(p);
-      ensureDefinition(m.getBody(), root);
     }
   }
 
@@ -172,18 +191,25 @@ public class SwaggerHandler implements Handler {
       return;
     }
 
-    JsonSchemaEntity entity = root.definitions.get(type.getName());
-    if (entity != null) {
-      return;
+    if (!type.isAnonymous()) {
+      JsonSchemaEntity entity = root.definitions.get(type.getName());
+      if (entity != null) {
+        return;
+      }
+      root.definitions.put(type.getName(), schemaBuilder.makeSchemaFromType(type));
     }
 
-    root.definitions.put(type.getName(), schemaBuilder.makeSchemaFromType(type));
     List<Type> nextTypes = Collections.emptyList();
     if (type instanceof Sequence) {
       nextTypes = Collections.singletonList(((Sequence) type).getItemsType());
     } else if (type instanceof Dictionary) {
       Dictionary dict = (Dictionary) type;
       nextTypes = Arrays.asList(dict.getKey(), dict.getValue());
+    } else if (type instanceof Message) {
+      nextTypes = new ArrayList<>(((Message) type).getActiveFields().size());
+      for (Field f : ((Message) type).getActiveFields()) {
+        nextTypes.add(f.getType());
+      }
     }
     for (Type t : nextTypes) {
       if (!t.isAnonymous()) {
