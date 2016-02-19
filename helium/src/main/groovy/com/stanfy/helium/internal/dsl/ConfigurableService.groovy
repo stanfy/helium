@@ -5,11 +5,12 @@ import com.stanfy.helium.internal.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.internal.model.tests.BehaviourDescription
 import com.stanfy.helium.internal.model.tests.CheckBuilder
 import com.stanfy.helium.internal.model.tests.CheckableService
+import com.stanfy.helium.internal.utils.ConfigurableProxy
 import com.stanfy.helium.model.MethodType
+import com.stanfy.helium.model.Security
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.tests.ServiceTestInfo
-import com.stanfy.helium.internal.utils.ConfigurableProxy
 import groovy.transform.CompileStatic
 
 import static com.stanfy.helium.internal.utils.DslUtils.runWithProxy
@@ -34,6 +35,14 @@ class ConfigurableService extends ConfigurableProxy<CheckableService> {
         return [
             "spec" : { Closure<?> spec -> delegate.addServiceMethod(path, type, spec) }
         ]
+      }
+    }
+    Security.Type.values().each { Security.Type type ->
+      ConfigurableService.metaClass."${type.getName()}" << { Map args = null, Closure<?> config = null ->
+        return delegate.createSecurity(args, config, type)
+      }
+      ConfigurableService.metaClass."${type.getName()}" << { Closure<?> config ->
+        return delegate.createSecurity(null, config, type)
       }
     }
   }
@@ -77,6 +86,16 @@ class ConfigurableService extends ConfigurableProxy<CheckableService> {
   BehaviourDescriptionBuilder describe(final String name) {
     CheckBuilder builder = BehaviourDescription.currentBuilder()
     return builder != null ? builder.describe(name) : new BehaviourDescriptionBuilder(name, getCore(), getProject())
+  }
+
+  Security createSecurity(Map args, Closure<?> config, Security.Type type) {
+    Security sec = args ? new Security(args) : new Security()
+    if (config) {
+      runWithProxy(new ConfigurableProxy<Security>(sec, getProject()), config)
+    }
+    sec.type = type
+    sec.name = type.name
+    return sec
   }
 
 }
