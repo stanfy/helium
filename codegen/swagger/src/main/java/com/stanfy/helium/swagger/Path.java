@@ -1,8 +1,8 @@
 package com.stanfy.helium.swagger;
 
-import com.google.gson.annotations.SerializedName;
 import com.stanfy.helium.model.ServiceMethod;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ final class Path extends HashMap<String, Path.Method> {
 
   static class Method {
     String summary, description;
-    List<Parameter> parameters;
+    final List<Parameter> parameters = new ArrayList<>();
     Map<String, Response> responses;
   }
 
@@ -33,13 +33,6 @@ final class Path extends HashMap<String, Path.Method> {
       this.schema = new Schema(ref);
     }
 
-    static final class Schema {
-      @SerializedName("$ref")
-      final String ref;
-
-      private Schema(String ref) {
-        this.ref = ref;
-      }
-    }
   }
+
 }

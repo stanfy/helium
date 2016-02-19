@@ -120,4 +120,22 @@ class ServiceMethodSpec extends Specification {
     !method.hasRequiredParameters()
   }
 
+  def "supports normal templating"() {
+    given:
+    method.path = '/p/{a}/{b}{c}'
+
+    expect:
+    method.hasRequiredParametersInPath()
+    method.pathParameters == ['a', 'b', 'c']
+    method.getPathWithParameters(a: '1', b: '2', c:'3') == '/p/1/23'
+  }
+
+  def "normalized path"() {
+    given:
+    method.path = '/@name/{param}'
+
+    expect:
+    method.normalizedPath == '/{name}/{param}'
+  }
+
 }

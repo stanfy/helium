@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -92,62 +91,90 @@ public class SwaggerHandler implements Handler {
       }
 
       // Paths and definitions.
-      LinkedHashMap<String, JsonSchemaEntity> definitions = new LinkedHashMap<>();
+      root.definitions = new LinkedHashMap<>();
       if (!service.getMethods().isEmpty()) {
         LinkedHashMap<String, Path> paths = new LinkedHashMap<>(service.getMethods().size());
         for (ServiceMethod m : service.getMethods()) {
           Path.Method method = swaggerPath(paths, m).swaggerMethod(m);
           method.summary = m.getName();
           method.description = m.getDescription();
+          pathParameters(m, method);
           queryParameters(m, method);
+          body(m, method, root);
 
           if (m.getResponse() != null) {
-            ensureDefinition(m.getResponse(), definitions);
-            String link = "#/definitions/".concat(m.getResponse().getName());
-            method.responses = Collections.singletonMap("200", new Path.Response(link));
+            ensureDefinition(m.getResponse(), root);
+            method.responses = Collections.singletonMap("200", new Path.Response(definition(m.getResponse())));
           }
         }
         root.paths = paths;
-      }
-      if (!definitions.isEmpty()) {
-        root.definitions = definitions;
       }
     }
     return root;
   }
 
+  private static String definition(Type type) {
+    return "#/definitions/".concat(type.getName());
+  }
+
   private void queryParameters(ServiceMethod m, Path.Method method) {
     if (m.getParameters() != null) {
-      ArrayList<Parameter> params = new ArrayList<>(m.getParameters().getFields().size());
+      List<Parameter> params = method.parameters;
       for (Field f : m.getParameters().getFields()) {
         Parameter parameter = new Parameter();
         parameter.name = f.getName();
         parameter.description = f.getDescription();
         parameter.in = "query";
-        parameter.type = schemaBuilder.translateType(f.getType()).getName();
+        parameter.type = schemaBuilder.translateType(f.getType());
         parameter.required = f.isRequired();
         // TODO: Handle formats properly.
-        if (JsonType.NUMBER.getName().equals(parameter.type)) {
+        if (JsonType.NUMBER == parameter.type) {
           parameter.format = f.getType().getName();
         }
 
         params.add(parameter);
       }
-      method.parameters = params;
     }
   }
 
-  private void ensureDefinition(Type type, Map<String, JsonSchemaEntity> definitions) {
+  private void pathParameters(ServiceMethod m, Path.Method method) {
+    if (m.hasRequiredParametersInPath()) {
+      for (String name : m.getPathParameters()) {
+        Parameter p = new Parameter();
+        p.name = name;
+        p.in = "path";
+        p.type = JsonType.STRING;
+        p.required = true;
+
+        method.parameters.add(p);
+      }
+    }
+  }
+
+  private void body(ServiceMethod m, Path.Method method, Root root) {
+    if (m.getType().isHasBody() && m.getBody() != null) {
+      Parameter p = new Parameter();
+      p.name = "body";
+      p.in = "body";
+      p.required = true;
+      p.schema = new Schema(definition(m.getBody()));
+
+      method.parameters.add(p);
+      ensureDefinition(m.getBody(), root);
+    }
+  }
+
+  private void ensureDefinition(Type type, Root root) {
     if (type.isPrimitive()) {
       return;
     }
 
-    JsonSchemaEntity entity = definitions.get(type.getName());
+    JsonSchemaEntity entity = root.definitions.get(type.getName());
     if (entity != null) {
       return;
     }
 
-    definitions.put(type.getName(), schemaBuilder.makeSchemaFromType(type));
+    root.definitions.put(type.getName(), schemaBuilder.makeSchemaFromType(type));
     List<Type> nextTypes = Collections.emptyList();
     if (type instanceof Sequence) {
       nextTypes = Collections.singletonList(((Sequence) type).getItemsType());
@@ -157,16 +184,17 @@ public class SwaggerHandler implements Handler {
     }
     for (Type t : nextTypes) {
       if (!t.isAnonymous()) {
-        ensureDefinition(t, definitions);
+        ensureDefinition(t, root);
       }
     }
   }
 
   private static Path swaggerPath(Map<String, Path> map, ServiceMethod m) {
-    Path p = map.get(m.getPath());
+    String pathStr = m.getNormalizedPath();
+    Path p = map.get(pathStr);
     if (p == null) {
       p = new Path();
-      map.put(m.getPath(), p);
+      map.put(pathStr, p);
     }
     return p;
   }

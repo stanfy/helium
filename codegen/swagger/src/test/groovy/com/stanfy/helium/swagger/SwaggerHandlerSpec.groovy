@@ -35,6 +35,10 @@ class SwaggerHandlerSpec extends Specification {
 
           type 'ProductList' sequence 'Product'
 
+          type 'SomeData' message {
+            field 'string'
+          }
+
           service {
             name 'Uber API'
             description 'Move your app forward with the Uber API'
@@ -55,6 +59,16 @@ class SwaggerHandlerSpec extends Specification {
                 server_token(type: 'string', description: 'API key.')
               }
               response 'ProductList'
+            }
+
+            post '/body-test' spec {
+              body 'SomeData'
+              response 'ProductList'
+            }
+
+            get '/products/@id' spec {
+              name 'Product details'
+              response 'Product'
             }
           }
         }
@@ -139,6 +153,37 @@ class SwaggerHandlerSpec extends Specification {
     data.paths.'/products'.get.responses != null
     data.paths.'/products'.get.responses.'200' != null
     data.paths.'/products'.get.responses.'200'.schema?.$ref == '#/definitions/ProductList'
+  }
+
+  def "define body"() {
+    given:
+    handler.handle(project)
+    def data = specData(uberSpec())
+
+    expect:
+    data.paths?.size() > 0
+    data.paths.'/body-test'?.post != null
+    data.paths.'/body-test'.post.parameters?.size() > 0
+    data.paths.'/body-test'.post.parameters[0].name == 'body'
+    data.paths.'/body-test'.post.parameters[0].in == 'body'
+    data.paths.'/body-test'.post.parameters[0].required
+    data.paths.'/body-test'.post.parameters[0].schema?.$ref == '#/definitions/SomeData'
+    data.definitions?.SomeData != null
+  }
+
+  def "path templating"() {
+    given:
+    handler.handle(project)
+    def data = specData(uberSpec())
+
+    expect:
+    data.paths?.size() > 0
+    data.paths.'/products/{id}'?.get != null
+    data.paths.'/products/{id}'.get.parameters?.size() == 1
+    data.paths.'/products/{id}'.get.parameters[0].in == 'path'
+    data.paths.'/products/{id}'.get.parameters[0].name == 'id'
+    data.paths.'/products/{id}'.get.parameters[0].type == 'string'
+    data.paths.'/products/{id}'.get.parameters[0].required
   }
 
   void cleanup() {
