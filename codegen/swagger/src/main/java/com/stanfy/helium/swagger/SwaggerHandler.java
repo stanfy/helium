@@ -10,6 +10,7 @@ import com.stanfy.helium.handler.codegen.json.schema.JsonType;
 import com.stanfy.helium.handler.codegen.json.schema.SchemaBuilder;
 import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
+import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
@@ -38,9 +39,11 @@ public class SwaggerHandler implements Handler {
       .registerTypeAdapter(JsonType.class, new JsonSchemaGenerator.JsonTypeAdapter().nullSafe())
       .create();
 
+  private static final String DEF_PREFIX = "#/definitions/";
+
   private final File destination;
 
-  private final SchemaBuilder schemaBuilder = new SchemaBuilder();
+  private final SchemaBuilder schemaBuilder = new SchemaBuilder(DEF_PREFIX);
 
   public SwaggerHandler(File destination) {
     if (destination.exists() && !destination.isDirectory()) {
@@ -87,86 +90,140 @@ public class SwaggerHandler implements Handler {
           root.host += ":" + uri.getPort();
         }
         root.basePath = uri.getRawPath();
+        if (root.basePath == null || root.basePath.length() == 0) {
+          root.basePath = "/";
+        }
       } catch (IllegalArgumentException e) {
         root.basePath = service.getLocation();
       }
 
       // Paths and definitions.
-      LinkedHashMap<String, JsonSchemaEntity> definitions = new LinkedHashMap<>();
+      root.definitions = new LinkedHashMap<>();
       if (!service.getMethods().isEmpty()) {
         LinkedHashMap<String, Path> paths = new LinkedHashMap<>(service.getMethods().size());
         for (ServiceMethod m : service.getMethods()) {
           Path.Method method = swaggerPath(paths, m).swaggerMethod(m);
           method.summary = m.getName();
           method.description = m.getDescription();
+          pathParameters(m, method);
           queryParameters(m, method);
-
-          if (m.getResponse() != null) {
-            ensureDefinition(m.getResponse(), definitions);
-            String link = "#/definitions/".concat(m.getResponse().getName());
-            method.responses = Collections.singletonMap("200", new Path.Response(link));
-          }
+          body(m, method, root);
+          response(root, m, method);
+          // TODO: Headers.
         }
         root.paths = paths;
-      }
-      if (!definitions.isEmpty()) {
-        root.definitions = definitions;
       }
     }
     return root;
   }
 
+  // TODO: Multiple response codes.
+  private void response(Root root, ServiceMethod m, Path.Method method) {
+    String respDesc = null;
+    JsonSchemaEntity respSchema = null;
+    if (m.getResponse() != null) {
+      respSchema = resolveDefinition(m.getResponse(), root);
+      respDesc = m.getResponse().getDescription();
+    }
+    if (respDesc == null) {
+      respDesc = "Successful response for '" + m.getName() + "'";
+    }
+    Path.Response resp = new Path.Response(respSchema, respDesc);
+    method.responses = Collections.singletonMap("200", resp);
+  }
+
+  private JsonSchemaEntity resolveDefinition(Type type, Root root) {
+    if (type.isAnonymous()) {
+      return schemaBuilder.makeSchemaFromType(type);
+    }
+    ensureDefinition(type, root);
+    return new JsonSchemaEntity(DEF_PREFIX.concat(type.getName()));
+  }
+
   private void queryParameters(ServiceMethod m, Path.Method method) {
     if (m.getParameters() != null) {
-      ArrayList<Parameter> params = new ArrayList<>(m.getParameters().getFields().size());
+      List<Parameter> params = method.parameters;
       for (Field f : m.getParameters().getFields()) {
         Parameter parameter = new Parameter();
         parameter.name = f.getName();
         parameter.description = f.getDescription();
         parameter.in = "query";
-        parameter.type = schemaBuilder.translateType(f.getType()).getName();
+        parameter.type = schemaBuilder.translateType(f.getType());
         parameter.required = f.isRequired();
         // TODO: Handle formats properly.
-        if (JsonType.NUMBER.getName().equals(parameter.type)) {
+        if (JsonType.NUMBER == parameter.type) {
           parameter.format = f.getType().getName();
         }
 
         params.add(parameter);
       }
-      method.parameters = params;
     }
   }
 
-  private void ensureDefinition(Type type, Map<String, JsonSchemaEntity> definitions) {
+  private void pathParameters(ServiceMethod m, Path.Method method) {
+    if (m.hasRequiredParametersInPath()) {
+      for (String name : m.getPathParameters()) {
+        Parameter p = new Parameter();
+        p.name = name;
+        p.in = "path";
+        p.type = JsonType.STRING;
+        p.required = true;
+
+        method.parameters.add(p);
+      }
+    }
+  }
+
+  private void body(ServiceMethod m, Path.Method method, Root root) {
+    if (m.getType().isHasBody() && m.getBody() != null) {
+      Parameter p = new Parameter();
+      p.name = "body";
+      p.in = "body";
+      p.required = true;
+      p.schema = resolveDefinition(m.getBody(), root);
+
+      method.parameters.add(p);
+    }
+  }
+
+  private void ensureDefinition(Type type, Root root) {
     if (type.isPrimitive()) {
       return;
     }
 
-    JsonSchemaEntity entity = definitions.get(type.getName());
-    if (entity != null) {
-      return;
+    if (!type.isAnonymous()) {
+      JsonSchemaEntity entity = root.definitions.get(type.getName());
+      if (entity != null) {
+        return;
+      }
+      root.definitions.put(type.getName(), schemaBuilder.makeSchemaFromType(type));
     }
 
-    definitions.put(type.getName(), schemaBuilder.makeSchemaFromType(type));
     List<Type> nextTypes = Collections.emptyList();
     if (type instanceof Sequence) {
       nextTypes = Collections.singletonList(((Sequence) type).getItemsType());
     } else if (type instanceof Dictionary) {
       Dictionary dict = (Dictionary) type;
       nextTypes = Arrays.asList(dict.getKey(), dict.getValue());
+    } else if (type instanceof Message) {
+      nextTypes = new ArrayList<>(((Message) type).getActiveFields().size());
+      for (Field f : ((Message) type).getActiveFields()) {
+        nextTypes.add(f.getType());
+      }
     }
     for (Type t : nextTypes) {
       if (!t.isAnonymous()) {
-        ensureDefinition(t, definitions);
+        ensureDefinition(t, root);
       }
     }
   }
 
   private static Path swaggerPath(Map<String, Path> map, ServiceMethod m) {
-    Path p = map.get(m.getPath());
+    String pathStr = m.getNormalizedPath();
+    Path p = map.get(pathStr);
     if (p == null) {
       p = new Path();
-      map.put(m.getPath(), p);
+      map.put(pathStr, p);
     }
     return p;
   }

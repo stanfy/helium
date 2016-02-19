@@ -1,7 +1,7 @@
 package com.stanfy.helium.model
 
-import com.stanfy.helium.model.tests.MethodTestInfo
 import com.stanfy.helium.internal.utils.Names
+import com.stanfy.helium.model.tests.MethodTestInfo
 import groovy.transform.CompileStatic
 
 import java.util.regex.Pattern
@@ -49,6 +49,7 @@ class ServiceMethod extends Descriptionable {
     String res = path
     parameters.each { String name, String value ->
       res = res.replaceAll("@${Pattern.quote(name)}", value)
+      res = res.replaceAll("\\{${Pattern.quote(name)}\\}", value)
     }
     return new URI("http", "host.com", res, null).toURL().getPath()
   }
@@ -74,7 +75,7 @@ class ServiceMethod extends Descriptionable {
       if (field.type instanceof Message || field.type instanceof Sequence) {
         throw new IllegalStateException("Type $field.type is not allowed in parameters")
       }
-      String value = resolver(field)
+      String value = resolver(field) as String
       if (!value) {
         noData |= field.required
         return
@@ -94,7 +95,7 @@ class ServiceMethod extends Descriptionable {
   }
 
   boolean hasRequiredParametersInPath() {
-    return path?.contains("@")
+    return path?.contains("@") || (path?.contains('{') && path?.contains('}'))
   }
 
   boolean hasRequiredParameterFields() {
@@ -113,7 +114,14 @@ class ServiceMethod extends Descriptionable {
     if (!hasRequiredParametersInPath()) {
       return []
     }
-    return (path =~ /@(\w+)/).collect { List<String> it -> it[1] }
+
+    def oldStyle = (path =~ /@(\w+)/).collect { List<String> it -> it[1] }
+    def newStyle = (path =~ /\{(.+?)\}/).collect { List<String> it -> it[1] }
+    return oldStyle + newStyle
+  }
+
+  String getNormalizedPath() {
+    return path?.replaceAll(/@(\w+)/, '{$1}')
   }
 
   String toString() {

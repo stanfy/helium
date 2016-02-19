@@ -12,6 +12,16 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class SchemaBuilder {
 
+  private final String definitionsPrefix;
+
+  SchemaBuilder() {
+    this(null)
+  }
+
+  SchemaBuilder(String definitionsPrefix) {
+    this.definitionsPrefix = definitionsPrefix
+  }
+
   JsonType translateType(Type type) {
     if (type instanceof ConstrainedType) {
       if (type.containsConstraint(EnumConstraint)) {
@@ -55,7 +65,7 @@ class SchemaBuilder {
 
     if (msg.fields) {
       msg.activeFields.each { field ->
-        def property = makeSchemaFromType(field.getType())
+        def property = makeSchema(field.getType(), true)
         if (field.description) {
           property.description = field.getDescription()
         }
@@ -73,12 +83,20 @@ class SchemaBuilder {
 
     schema.type = JsonType.ARRAY
     schema.description = sequence.getDescription()
-    schema.items = makeSchemaFromType(sequence.itemsType)
+    schema.items = makeSchema(sequence.itemsType, true)
 
     return schema
   }
 
   JsonSchemaEntity makeSchemaFromType(Type type) {
+    return makeSchema(type, false)
+  }
+
+  private JsonSchemaEntity makeSchema(Type type, boolean nested) {
+    if (nested && definitionsPrefix && !type.primitive && !type.anonymous) {
+      return new JsonSchemaEntity("$definitionsPrefix$type.name")
+    }
+
     def property
 
     def jsonType = translateType(type)

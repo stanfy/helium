@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.json.schema
 
 import com.stanfy.helium.DefaultType
+import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
@@ -54,6 +55,17 @@ class SchemaBuilderSpec extends Specification {
     def type = new Type(name: "double", description: "bla bla")
     expect:
     builder.makeSchemaFromType(type).description == "bla bla"
+  }
+
+  def "nested types can be expressed as references"() {
+    given:
+    builder = new SchemaBuilder("#/definitions/")
+    def msg = new Message(name: 'Complex'), nestedMessage = new Message(name: 'AnotherComplex')
+    msg.addField(new Field(name: 'ff', type: nestedMessage))
+
+    expect:
+    builder.makeSchemaFromType(msg).@properties.ff?.ref == '#/definitions/AnotherComplex'
+    builder.makeSchemaFromType(msg).@properties.ff?.type == null
   }
 
 }
