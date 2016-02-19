@@ -71,6 +71,11 @@ class SwaggerHandlerSpec extends Specification {
               response 'Product'
             }
           }
+
+          service {
+            name "Test API 1"
+            location "http://localhost"
+          }
         }
         .getProject()
   }
@@ -184,6 +189,15 @@ class SwaggerHandlerSpec extends Specification {
     data.paths.'/products/{id}'.get.parameters[0].name == 'id'
     data.paths.'/products/{id}'.get.parameters[0].type == 'string'
     data.paths.'/products/{id}'.get.parameters[0].required
+  }
+
+  def "root base path"() {
+    given:
+    handler.handle(project)
+    def data =specData(new File(dir, "Test_API_1.json"))
+
+    expect:
+    data.basePath == '/'
   }
 
   void cleanup() {

@@ -86,6 +86,9 @@ public class SwaggerHandler implements Handler {
           root.host += ":" + uri.getPort();
         }
         root.basePath = uri.getRawPath();
+        if (root.basePath == null || root.basePath.length() == 0) {
+          root.basePath = "/";
+        }
       } catch (IllegalArgumentException e) {
         root.basePath = service.getLocation();
       }
