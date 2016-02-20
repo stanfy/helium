@@ -1,10 +1,10 @@
 package com.stanfy.helium.model
 
 import com.stanfy.helium.internal.MethodsExecutor
+import com.stanfy.helium.model.tests.BehaviourSuite
 import com.stanfy.helium.model.tests.CheckListener
 import com.stanfy.helium.model.tests.MethodTestInfo
 import com.stanfy.helium.model.tests.ServiceTestInfo
-import com.stanfy.helium.model.tests.BehaviourSuite
 import groovy.transform.CompileStatic
 
 /**
@@ -21,6 +21,9 @@ class Service extends Descriptionable implements StructureUnit, Checkable {
 
   /** Encoding used. */
   String encoding
+
+  /** Security definition. */
+  Security security
 
   /** Service methods. */
   final List<ServiceMethod> methods = new ArrayList<>()

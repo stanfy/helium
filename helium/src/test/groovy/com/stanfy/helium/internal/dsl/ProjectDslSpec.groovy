@@ -10,6 +10,7 @@ import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.MultipartType
+import com.stanfy.helium.model.Security
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
 import com.stanfy.helium.model.tests.BehaviourCheck
@@ -786,6 +787,32 @@ class ProjectDslSpec extends Specification {
     sb.children[3].name == "describe s 3"
     (sb.children[2] as BehaviourSuite).children.size() == 3
     (sb.children[2] as BehaviourSuite).children[1].name == "should be s 1"
+  }
+
+  def "certificate security definition"() {
+    when:
+    dsl.service {
+      name 'Test service 1'
+      security certificate() {
+        description '''
+          Explanations how to get a cert.
+        '''
+      }
+    }
+    dsl.service {
+      name 'Another service 2'
+      security basic(description: 'Test description')
+    }
+
+    then:
+    dsl.services[0].name == 'Test service 1'
+    dsl.services[0].security?.type == Security.Type.CERTIFICATE
+    dsl.services[0].security.description == 'Explanations how to get a cert.'
+    dsl.services[0].security.name == 'certificate'
+    dsl.services[1].name == 'Another service 2'
+    dsl.services[1].security?.type == Security.Type.BASIC
+    dsl.services[1].security.description == 'Test description'
+    dsl.services[1].security.name == 'basic'
   }
 
   //region form request content type
