@@ -544,4 +544,16 @@ class JsonReadFormatSpec extends Specification {
     result.value.c == 3
   }
 
+  def "skip unknown field on whole message"() {
+    given:
+    Message m = new Message(name: 'Msg', skipUnknownFields: true)
+    def result = read(m, '{"a": 1, "b": 2}')
+
+    expect:
+    !result.validationError
+    result.value != null
+    !result.value.a
+    !result.value.b
+  }
+
 }
