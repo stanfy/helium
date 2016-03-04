@@ -27,10 +27,14 @@ class HttpParamsWriter implements EntitiesSink {
     this.encoding = encoding;
   }
 
-  private void writePair(String name, String value) throws IOException {
-    out.write(URLEncoder.encode(name, encoding));
-    out.write("=");
-    out.write(URLEncoder.encode(value, encoding));
+  private boolean writePair(String name, Object value) throws IOException {
+    if (value != null) {
+      out.write(URLEncoder.encode(name, encoding));
+      out.write("=");
+      out.write(URLEncoder.encode(String.valueOf(value), encoding));
+      return true;
+    }
+    return false;
   }
 
   @Override
@@ -44,7 +48,7 @@ class HttpParamsWriter implements EntitiesSink {
     Map<String, Object> values = (Map<String, Object>) entity.getValue();
 
     int count = msg.getFields().size();
-    for (Field f : msg.getFields()) {
+    for (Field f : msg.getActiveFields()) {
       String name = f.getName();
       if (!f.getType().isPrimitive()) {
         throw new IllegalStateException("Field " + name + " is not primitive");
@@ -55,15 +59,15 @@ class HttpParamsWriter implements EntitiesSink {
         List<Object> array = (List<Object>) values.get(name);
         int arrayCount = array.size();
         for (Object value : array) {
-          writePair(name, String.valueOf(value));
+          boolean written = writePair(name, value);
           arrayCount--;
-          if (count != 0 || arrayCount != 0) {
+          if (written && (count != 0 || arrayCount != 0)) {
             out.write('&');
           }
         }
       } else {
-        writePair(name, String.valueOf(values.get(name)));
-        if (count != 0) {
+        boolean written = writePair(name, values.get(name));
+        if (count != 0 && written) {
           out.write('&');
         }
       }

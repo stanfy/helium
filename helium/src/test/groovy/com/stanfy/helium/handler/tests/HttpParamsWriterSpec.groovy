@@ -56,4 +56,22 @@ class HttpParamsWriterSpec extends Specification {
     output.toString() == 'foo=1&foo=2&foo=3'
   }
 
+  def 'skip null values'() {
+    given:
+    dsl.type 'A' message {
+      foo 'string' optional
+      bar 'string'
+    }
+    def type = dsl.messages.first()
+
+    when:
+    def value = new TypedEntityValueBuilder(type).from {
+      bar 'value'
+    }
+    writer.write(new TypedEntity(type, value))
+
+    then:
+    output.toString() == 'bar=value'
+  }
+
 }
