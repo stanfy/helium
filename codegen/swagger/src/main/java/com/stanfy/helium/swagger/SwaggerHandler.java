@@ -8,6 +8,7 @@ import com.stanfy.helium.handler.codegen.json.schema.JsonSchemaEntity;
 import com.stanfy.helium.handler.codegen.json.schema.JsonSchemaGenerator;
 import com.stanfy.helium.handler.codegen.json.schema.JsonType;
 import com.stanfy.helium.handler.codegen.json.schema.SchemaBuilder;
+import com.stanfy.helium.internal.utils.Names;
 import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
@@ -105,6 +106,7 @@ public class SwaggerHandler implements Handler {
           Path.Method method = swaggerPath(paths, m).swaggerMethod(m);
           method.summary = m.getName();
           method.description = m.getDescription();
+          method.operationId = operationId(m);
           pathParameters(m, method);
           queryParameters(m, method);
           body(m, method, root);
@@ -115,6 +117,13 @@ public class SwaggerHandler implements Handler {
       }
     }
     return root;
+  }
+
+  private static String operationId(ServiceMethod m) {
+    String base = m.getName() != null ? Names.canonicalName(m.getName()) : m.getCanonicalName();
+    StringBuilder res = new StringBuilder(Names.prettifiedName(base));
+    res.setCharAt(0, Character.toLowerCase(res.charAt(0)));
+    return res.toString();
   }
 
   // TODO: Multiple response codes.

@@ -21,7 +21,7 @@ final class Path extends HashMap<String, Path.Method> {
   }
 
   static class Method {
-    String summary, description;
+    String summary, description, operationId;
     final List<Parameter> parameters = new ArrayList<>();
     Map<String, Response> responses;
   }
