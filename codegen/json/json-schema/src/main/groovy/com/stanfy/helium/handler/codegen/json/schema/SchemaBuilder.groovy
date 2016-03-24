@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.json.schema
 
 import com.stanfy.helium.DefaultType
 import com.stanfy.helium.model.Field
+import com.stanfy.helium.model.FileType
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
@@ -28,6 +29,9 @@ class SchemaBuilder {
         return JsonType.ENUM
       }
       return translateType(type.baseType)
+    }
+    if (type instanceof FileType) {
+      return JsonType.FILE;
     }
     if (type.isPrimitive()) {
       switch (type.name) {

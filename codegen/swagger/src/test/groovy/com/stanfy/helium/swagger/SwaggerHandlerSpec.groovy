@@ -88,6 +88,13 @@ class SwaggerHandlerSpec extends Specification {
             delete '/test/resource' spec {
               description 'Delete something'
             }
+
+            post '/multipart' spec {
+              name 'Multipart test'
+              body multipart('form-data') {
+                publickey file()
+              }
+            }
           }
         }
         .getProject()
@@ -249,6 +256,22 @@ class SwaggerHandlerSpec extends Specification {
 
     expect:
     data.paths?.'/test/resource'?.delete?.responses?.'200'?.description != null
+  }
+
+  def "multipart body"() {
+    given:
+    handler.handle(project)
+    def data =specData(testSpec())
+
+    expect:
+    data.paths?.'/multipart'?.post != null
+    data.paths.'/multipart'.post.operationId == 'multipartTest'
+    data.paths.'/multipart'.post.parameters?.size() == 1
+    data.paths.'/multipart'.post.parameters[0].name == 'publickey'
+    data.paths.'/multipart'.post.parameters[0].in == 'formData'
+    data.paths.'/multipart'.post.parameters[0].required
+    data.paths.'/multipart'.post.parameters[0].type == 'file'
+    data.paths.'/multipart'.post.consumes == ['multipart/form-data']
   }
 
   void cleanup() {
