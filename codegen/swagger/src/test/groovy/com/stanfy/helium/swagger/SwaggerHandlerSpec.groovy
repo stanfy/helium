@@ -163,6 +163,7 @@ class SwaggerHandlerSpec extends Specification {
     data.paths.'/products' != null
     data.paths.'/products'.get != null
     data.paths.'/products'.get.summary == 'Product Types'
+    data.paths.'/products'.get.operationId == 'productTypes'
     data.paths.'/products'.get.description?.contains 'The Products endpoint'
     data.paths.'/products'.get.parameters?.size() > 0
     data.paths.'/products'.get.parameters[0].name == 'latitude'
@@ -186,6 +187,7 @@ class SwaggerHandlerSpec extends Specification {
     expect:
     data.paths?.size() > 0
     data.paths.'/body-test'?.post != null
+    data.paths.'/body-test'.post.operationId == 'postBodytest'
     data.paths.'/body-test'.post.parameters?.size() > 0
     data.paths.'/body-test'.post.parameters[0].name == 'body'
     data.paths.'/body-test'.post.parameters[0].in == 'body'
@@ -202,6 +204,7 @@ class SwaggerHandlerSpec extends Specification {
     expect:
     data.paths?.size() > 0
     data.paths.'/products/{id}'?.get != null
+    data.paths.'/products/{id}'.get.operationId == 'productDetails'
     data.paths.'/products/{id}'.get.parameters?.size() == 1
     data.paths.'/products/{id}'.get.parameters[0].in == 'path'
     data.paths.'/products/{id}'.get.parameters[0].name == 'id'
