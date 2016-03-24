@@ -12,6 +12,7 @@ import com.stanfy.helium.internal.utils.Names;
 import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.MultipartType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
@@ -184,7 +185,18 @@ public class SwaggerHandler implements Handler {
   }
 
   private void body(ServiceMethod m, Path.Method method, Root root) {
-    if (m.getType().isHasBody() && m.getBody() != null) {
+    if (m.getBody() instanceof MultipartType) {
+      method.consumes = Collections.singletonList("multipart/form-data");
+      MultipartType multiPart = (MultipartType) m.getBody();
+      for (Map.Entry<String, Type> part : multiPart.getParts().entrySet()) {
+        Parameter p = new Parameter();
+        p.name = part.getKey();
+        p.in = "formData";
+        p.required = true;
+        p.type = schemaBuilder.translateType(part.getValue());
+        method.parameters.add(p);
+      }
+    } else if (m.getType().isHasBody() && m.getBody() != null) {
       Parameter p = new Parameter();
       p.name = "body";
       p.in = "body";

@@ -15,7 +15,9 @@ public enum JsonType {
   NULL,
   OBJECT,
   STRING,
-  ENUM;
+  ENUM,
+
+  FILE; // Not really a JSON type but something that can be used in Swagger.
 
   public String getName() {
     return this.name().toLowerCase(Locale.US);
