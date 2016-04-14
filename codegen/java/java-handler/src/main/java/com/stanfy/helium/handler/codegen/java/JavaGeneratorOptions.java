@@ -101,13 +101,19 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
         return Names.capitalize(type.getCanonicalName());
       }
 
-      Class<?> clazz = getJavaClass(type);
-      if (sequence) {
-        String itemClassName = getSequenceItemClassName(clazz);
-        typeName = writer.compressType(getSequenceTypeName(itemClassName));
+      if (getCustomPrimitivesMapping().containsKey(type.getName())) {
+        String customName = getCustomPrimitivesMapping().get(type.getName());
+        typeName = writer.compressType(sequence ? getSequenceTypeName(customName) : customName);
       } else {
-        typeName = writer.compressType(clazz.getCanonicalName());
+        Class<?> clazz = getJavaClass(type);
+        if (sequence) {
+          String itemClassName = getSequenceItemClassName(clazz);
+          typeName = writer.compressType(getSequenceTypeName(itemClassName));
+        } else {
+          typeName = writer.compressType(clazz.getCanonicalName());
+        }
       }
+
     } else {
       throw new UnsupportedOperationException("Cannot resolve Java type for " + type + ", sequence: " + sequence);
     }

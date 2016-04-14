@@ -3,6 +3,8 @@ package com.stanfy.helium.handler.codegen.java.retrofit;
 import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.Handler;
 import com.stanfy.helium.handler.codegen.java.BaseJavaGenerator;
+import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
+import com.stanfy.helium.internal.utils.Names;
 import com.stanfy.helium.model.DataType;
 import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
@@ -16,10 +18,9 @@ import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Service;
 import com.stanfy.helium.model.ServiceMethod;
 import com.stanfy.helium.model.Type;
-import com.stanfy.helium.internal.utils.Names;
-
 import org.apache.commons.io.IOUtils;
 
+import javax.lang.model.element.Modifier;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -30,8 +31,6 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.lang.model.element.Modifier;
 
 import static com.squareup.javawriter.JavaWriter.stringLiteral;
 import static com.stanfy.helium.internal.utils.Names.canonicalName;
@@ -269,7 +268,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
 
     if (m.getParameters() != null) {
       for (Field f : m.getParameters().getActiveFields()) {
-        res.add("@Query(\"" + f.getName() + "\") " + getJavaType(f.getType(), writer, f.getSequence()));
+        res.add("@Query(\"" + f.getName() + "\") " + parameterTypeName(f, writer));
         res.add(getOptions().getSafeParameterName(f.getCanonicalName()));
       }
     }
@@ -292,6 +291,18 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     }
 
     return res;
+  }
+
+  private String parameterTypeName(Field field, JavaWriter writer) {
+    if (!field.isRequired() && !field.isSequence() && field.getType().isPrimitive()
+        && !getOptions().getCustomPrimitivesMapping().containsKey(field.getType().getName())) {
+      // Box the primitive.
+      Class<?> primitive = JavaPrimitiveTypes.javaClass(field.getType());
+      if (primitive != null) {
+        return writer.compressType(JavaPrimitiveTypes.box(primitive).getCanonicalName());
+      }
+    }
+    return getJavaType(field.getType(), writer, field.getSequence());
   }
 
   private void addMultipartBody(final JavaWriter writer, final ArrayList<String> res, final MultipartType body) {
