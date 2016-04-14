@@ -20,6 +20,8 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
 
     project = new ProjectDsl()
     project.type 'int32' spec { }
+    project.type 'float' spec { }
+    project.type 'string' spec { }
     project.type 'AMessage' message { }
     project.type 'BMessage' message { }
     project.type 'BList' sequence 'BMessage'
@@ -62,6 +64,17 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
         name 'Check map type'
         body 'Map'
         response 'Map'
+      }
+
+      get '/optional/parameters' spec {
+        name 'optionalParametersTest'
+        parameters {
+          one 'int32' optional
+          two 'string' optional
+          three 'AMessage' optional
+          four 'float' optional
+          five 'int32' sequence
+        }
       }
     }
     project.service {
@@ -381,6 +394,16 @@ public interface FormService {
 
     then:
     text.contains 'Response checkArrayParameters(@Query("state") int[] state)'
+  }
+
+  def "optional primitive parameters should be boxed"() {
+    when:
+    gen.handle(project)
+    def text = new File("$output/test/api/A.java").text
+
+    then:
+    text.contains('optionalParametersTest(@Query("one") Integer one, @Query("two") String two, '
+        + '@Query("three") AMessage three, @Query("four") Float four, @Query("five") List<Integer> five);')
   }
 
 }
