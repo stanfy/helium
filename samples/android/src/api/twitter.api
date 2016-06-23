@@ -25,8 +25,15 @@ type 'User' message(skipUnknownFields: true) {
   screen_name 'string'
 }
 
+type 'someEnumType' spec {
+  constraints('string') {
+    enumeration 'a', 'b', 'c'
+  }
+}
+
 type "Base" message {
   id 'int64'
+  some_enum 'someEnumType' optional
 }
 
 type "Tweet" message(parent: "Base") {

@@ -3,6 +3,8 @@ package com.stanfy.helium.handler.codegen.java.entity
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.constraints.ConstrainedType
+import com.stanfy.helium.model.constraints.EnumConstraint
 import spock.lang.Specification
 
 /** AndroidParcelableWriter tests. */
@@ -520,6 +522,7 @@ public class Message extends Base
     Message msg = new Message(name: "Test")
     msg.addField(new Field(name: "enum", type: new Type(name: "my-enum")))
     options.customPrimitivesMapping = ['my-enum': MyTestEnum.class.name]
+    def enumName = MyTestEnum.class.name.replace('$', '.')
 
     when:
     outReadAndWrite(msg)
@@ -528,10 +531,35 @@ public class Message extends Base
     output.toString() == buildClassCode(
         className: "Test",
         readBody: """
-    this.enumField = ${MyTestEnum.class.name.replace('$', '.')}.values()[source.readInt()];
+    int enumFieldOrdinal = source.readInt();
+    this.enumField = enumFieldOrdinal != -1 ? ${enumName}.values()[enumFieldOrdinal] : null;
 """,
         writeBody: """
-    dest.writeInt(this.enumField.ordinal());
+    dest.writeInt(this.enumField != null ? this.enumField.ordinal() : -1);
+"""
+    )
+  }
+
+  def "embedded enumerations support"() {
+    given:
+    Message msg = new Message(name: "Test")
+    def enumType = new ConstrainedType(new Type(name: 'string'))
+    enumType.name = 'my-enum'
+    enumType.addConstraint(new EnumConstraint<String>(['a', 'b']))
+    msg.addField(new Field(name: "enum", type: enumType))
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    int enumFieldOrdinal = source.readInt();
+    this.enumField = enumFieldOrdinal != -1 ? Myenum.values()[enumFieldOrdinal] : null;
+""",
+        writeBody: """
+    dest.writeInt(this.enumField != null ? this.enumField.ordinal() : -1);
 """
     )
   }

@@ -32,4 +32,5 @@ script:
 - TERM=dumb ./gradlew -s --continue check install integrationTests
 
 after_success:
+- bash <(curl -s https://codecov.io/bash)
 - ./scripts/deploy_to_maven.sh

@@ -9,4 +9,5 @@ evaluationDependsOn(':codegen')
 
 dependencies {
   compile project(':codegen:java:java-handler')
+  testCompile project(path: ':codegen:java:java-handler', configuration: 'tests')
 }

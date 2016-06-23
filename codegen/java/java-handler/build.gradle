@@ -6,3 +6,16 @@ apply plugin: 'codenarc'
 apply from: file("$rootDir/gradle/common.gradle")
 
 evaluationDependsOn(':codegen')
+
+configurations {
+  tests
+}
+
+task testsJar(type: Jar, dependsOn: compileTestGroovy) {
+  from compileTestGroovy.destinationDir
+  classifier = 'tests'
+}
+
+artifacts {
+  tests testsJar
+}
