@@ -2,11 +2,12 @@ package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
+import com.stanfy.helium.internal.utils.Names;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 import com.stanfy.helium.model.constraints.ConstrainedType;
-import com.stanfy.helium.internal.utils.Names;
 
+import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -16,8 +17,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import javax.lang.model.element.Modifier;
 
 /**
  * Writer for Android parcelables.
@@ -160,8 +159,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
       // enum?
       if (Enum.class.isAssignableFrom(clazz)) {
-        String enumName = output.compressType(clazz.getCanonicalName());
-        output.emitStatement("this.%1$s = %2$s.values()[source.readInt()]", fieldName, enumName);
+        readEnumFromParcelable(fieldName, output, clazz.getCanonicalName());
         return;
       }
 
@@ -179,8 +177,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     }
 
     if (options.isEnumDeclaration(field.getType())) {
-      String enumName = Names.capitalize(field.getType().getCanonicalName());
-      output.emitStatement("this.%1$s = %2$s.values()[source.readInt()]", fieldName, enumName);
+      readEnumFromParcelable(fieldName, output, Names.capitalize(field.getType().getCanonicalName()));
       return;
     }
 
@@ -190,7 +187,13 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
         classLoader);
   }
 
-  private void readBoolean(final Field field, final String fieldName, final JavaWriter output) throws IOException {
+  private static void readEnumFromParcelable(String fieldName, JavaWriter output, String name) throws IOException {
+    String enumName = output.compressType(name);
+    output.emitStatement("int %1$sOrdinal = source.readInt()", fieldName);
+    output.emitStatement("this.%1$s = %1$sOrdinal != -1 ? %2$s.values()[%1$sOrdinal] : null", fieldName, enumName);
+  }
+
+  private static void readBoolean(final Field field, final String fieldName, final JavaWriter output) throws IOException {
     if (field.isSequence()) {
       output.emitStatement("int %1$sCount = source.readInt()", fieldName);
       output.beginControlFlow("if (" + fieldName + "Count > 0)");
@@ -254,7 +257,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
       // enum?
       if (Enum.class.isAssignableFrom(clazz)) {
-        output.emitStatement("dest.writeInt(this.%1$s.ordinal())", fieldName);
+        writeEnumToParcel(output, fieldName);
         return;
       }
 
@@ -273,11 +276,15 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
     // enum?
     if (options.isEnumDeclaration(field.getType())) {
-      output.emitStatement("dest.writeInt(this.%1$s.ordinal())", fieldName);
+      writeEnumToParcel(output, fieldName);
       return;
     }
 
     output.emitStatement("dest.writeValue(this.%s)", fieldName);
+  }
+
+  private static void writeEnumToParcel(JavaWriter output, String fieldName) throws IOException {
+    output.emitStatement("dest.writeInt(this.%1$s != null ? this.%1$s.ordinal() : -1)", fieldName);
   }
 
   private static boolean isAndroidParcelable(final Class<?> clazz) {

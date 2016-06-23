@@ -23,6 +23,12 @@ groovydoc {
   classpath += configurations.groovyDocFix
 }
 
+if (tasks.findByPath('jacocoTestReport')) {
+  jacocoTestReport {
+    reports.xml.enabled true
+  }
+}
+
 afterEvaluate {
 
   ["Groovy", "Java"].each {

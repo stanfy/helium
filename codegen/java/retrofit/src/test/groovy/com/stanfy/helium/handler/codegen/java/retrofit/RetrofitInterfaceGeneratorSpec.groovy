@@ -240,7 +240,6 @@ public interface FormService {
   def "should not import form body wrappers"() {
     given: "post with form"
 
-    project.type 'string'
     project.service {
       name "TheService"
 
@@ -305,8 +304,6 @@ public interface FormService {
 
   def "should write multipart body with fields"() {
     given:
-    project.type 'string'
-
     project.service {
       name "MultipartService"
       post "/multipart" spec {
