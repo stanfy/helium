@@ -23,11 +23,14 @@ env:
   - secure: "W6QGZAbSdKkLJQ53hDs5LXRNNCQnv18W40/h2vkEdoImIJ3pZX/gTbycmS0D3x7Ev8BsgjH0/jaK+BeTRmABBs2U7jld7XN690O3dkHTSONRVcRk9litCpvBDnzlt6EaMjvYZSzJ4YPBefG1MFtw+dJkZ5sO6k1J81zaOAXSI90="
   - JAVA_OPTS=-XX:MaxPermSize=1024m
 
+notifications:
+  email: false
+
 install:
 - TERM=dumb ./gradlew -q -s clean assemble
 
 script:
-- TERM=dumb ./gradlew -s --continue check jacocoTestReport install integrationTests || (cat /home/travis/build/stanfy/helium/samples/android/build/outputs/lint-results-debug.xml && exit 1)
+- TERM=dumb ./gradlew -s --continue check jacocoTestReport install integrationTests
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
