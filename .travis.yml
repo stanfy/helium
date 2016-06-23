@@ -29,7 +29,7 @@ install:
 - TERM=dumb ./gradlew -q -s clean assemble
 
 script:
-- TERM=dumb ./gradlew -s --continue check install integrationTests
+- TERM=dumb ./gradlew -s --continue check jacocoTestReport install integrationTests
 
 after_success:
 - bash <(curl -s https://codecov.io/bash)
