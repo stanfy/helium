@@ -9,12 +9,21 @@ import com.stanfy.helium.model.constraints.EnumConstraint
 
 interface SwiftEntitiesGenerator {
   fun entitiesFromHeliumProject(project: Project): List<SwiftEntity>
+  fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?): List<SwiftEntity>
   fun swiftType(heliumType: Type, registry: MutableMap<String, SwiftEntity>): SwiftEntity
 }
 
 class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
-  override fun entitiesFromHeliumProject(project: Project): List<SwiftEntity> {
+  override fun entitiesFromHeliumProject(project: Project): List<SwiftEntity>{
+    return entitiesFromHeliumProject(project, null)
+  }
+
+  override fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?): List<SwiftEntity> {
     val typesRegistry: MutableMap<String, SwiftEntity> = hashMapOf()
+    if (customTypesMappings != null) {
+      // TODO :Add tests
+      typesRegistry.putAll(customTypesMappings.mapValues { name -> SwiftEntityStruct(name.value) })
+    }
 
     val enums = project.types.all()
         .filterIsInstance<ConstrainedType>()

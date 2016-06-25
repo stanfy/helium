@@ -195,8 +195,8 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     }
 
     when:
-    entityA = (sut.entitiesFromHeliumProject(prj).find { it.name == "A" } as SwiftEntityStruct)
-    entityB = (sut.entitiesFromHeliumProject(prj).find { it.name == "B" } as SwiftEntityStruct)
+    entityA = (sut.entitiesFromHeliumProject(prj, null).find { it.name == "A" } as SwiftEntityStruct)
+    entityB = (sut.entitiesFromHeliumProject(prj, null).find { it.name == "B" } as SwiftEntityStruct)
 
     then:
     entityB.properties.find { it.name == "sequenceField" }.type instanceof SwiftEntityArray
