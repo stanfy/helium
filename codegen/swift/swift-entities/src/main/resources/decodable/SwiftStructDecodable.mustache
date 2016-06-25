@@ -1,0 +1,10 @@
+extension {{name}}: Decodable {
+    public static func decode(json: AnyObject) throws -> {{name}} {
+        return try {{name}}(
+            {{#props}}
+              {{name}}: json =>{{optional}} "{{jsonKey}}" {{delimiter}}
+            {{/props}}
+        )
+    }
+}
+

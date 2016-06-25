@@ -14,7 +14,7 @@ class SwiftFilesGeneratorImplTest extends Specification {
   List<SwiftFile> files
   SwiftFilesGenerator sut
   def setup() {
-    sut = new SwiftFilesGeneratorImpl()
+    sut = new SwiftEntityFilesGeneratorImpl()
   }
   def "generate files from entities"() {
     when:

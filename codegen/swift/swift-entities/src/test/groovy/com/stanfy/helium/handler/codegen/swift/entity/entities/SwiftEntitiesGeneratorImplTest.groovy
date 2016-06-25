@@ -114,7 +114,10 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     namedArrays.size() == 2
     namedArrays.first().itemType.name == "String"
     namedArrays.first().name == "AffiliateMenu"
+    !namedArrays.first().optional
     namedArrays.find { it.name == "AffiliateMenuList" }.itemType.name == "AffiliateMenu"
+    !namedArrays.find { it.name == "AffiliateMenuList" }.optional
+    !namedArrays.find { it.name == "AffiliateMenuList" }.itemType.optional
   }
 
 
