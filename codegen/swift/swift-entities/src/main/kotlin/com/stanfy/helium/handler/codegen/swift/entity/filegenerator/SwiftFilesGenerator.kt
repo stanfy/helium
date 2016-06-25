@@ -18,7 +18,7 @@ class SwiftFilesGeneratorImpl : SwiftFilesGenerator {
       override fun contents(): String {
         // TODO : Non struct ?
         return entities.map { entity ->
-          SwiftTamplatesHelper.generateSwiftStruct(entity.name)
+          SwiftTamplatesHelper.generateSwiftStruct(entity.name, entity.properties)
         }.joinToString(separator = "\n")
       }
     }

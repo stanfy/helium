@@ -16,12 +16,12 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
 
   def "generates entities"() {
     given:
-    project.typeResolver.registerNewType(new Type(name: "string"));
-
-    when:
+    project.type "string"
     project.type "A" message {
       name 'string'
     };
+
+    when:
     entities = sut.entitiesFromHeliumProject(project)
 
     then:
@@ -31,12 +31,12 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
 
   def "generates entities with valid names"() {
     given:
-    project.typeResolver.registerNewType(new Type(name: "string"));
-
-    when:
+    project.type "string"
     project.type "Name" message {
       name 'string'
     };
+
+    when:
     entities = sut.entitiesFromHeliumProject(project)
 
     then:
@@ -45,9 +45,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
 
   def "skip entities for anonymous messages"() {
     given:
-    project.typeResolver.registerNewType(new Type(name: "string"));
-
-    when:
+    project.type "string"
     project.type "Name" message {
       name 'string'
     };
@@ -60,6 +58,29 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
       }
     }
 
+    when:
+    entities = sut.entitiesFromHeliumProject(project)
+
+    then:
+    entities.size() == 1
+  }
+
+  def "generate entities with correct properties"() {
+    given:
+    project.type "string"
+    project.type "Name" message {
+      name 'string'
+    };
+    project.service {
+      get "/person/@id" spec {
+        parameters {
+          full 'string' required
+        }
+        response "string"
+      }
+    }
+
+    when:
     entities = sut.entitiesFromHeliumProject(project)
 
     then:

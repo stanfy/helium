@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.mustache
 
 import com.github.mustachejava.DefaultMustacheFactory
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftProperty
 import java.io.StringWriter
 
 /**
@@ -9,9 +10,10 @@ import java.io.StringWriter
 class SwiftTamplatesHelper {
 
   companion object {
-    fun generateSwiftStruct(name: String): String {
+    fun generateSwiftStruct(name: String, properties: List<SwiftProperty>): String {
       return generatedTemplateWithName("SwiftStruct.mustache", object : Any () {
         val name: String = name
+        val props: List<SwiftProperty> = properties
       })
     }
 

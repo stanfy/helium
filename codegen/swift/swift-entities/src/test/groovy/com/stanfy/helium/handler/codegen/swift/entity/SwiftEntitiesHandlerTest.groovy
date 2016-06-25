@@ -39,7 +39,7 @@ class SwiftEntitiesHandlerTest extends Specification {
     List<SwiftEntity> entities
 
     given:
-    entities = [new SwiftEntity("Name")]
+    entities = [new SwiftEntity("Name", [])]
     entitiesGenerator.entitiesFromHeliumProject(project) >> entities
 
     when:
@@ -54,7 +54,7 @@ class SwiftEntitiesHandlerTest extends Specification {
     List<SwiftFile> files
 
     given:
-    entities = [new SwiftEntity("Name")]
+    entities = [new SwiftEntity("Name", [])]
     files = [new SwiftFile() {
       String name() { return "FileName" }
 
