@@ -10,33 +10,33 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSo
  * Created by ptaykalo on 8/17/14.
  * Holds information about class Definition for specific Objective-C class with specific ClassName
  */
-public class ObjCClassInterface(val className: String) : ObjCSourcePart {
+class ObjCClassInterface(val className: String) : ObjCSourcePart {
 
-  public enum class SourcePartLocation {
+  enum class SourcePartLocation {
     IMPORT,
     BEFORE_PROPERTIES_DEFINITIONS,
     AFTER_PROPERTIES_DEFINITIONS,
   }
 
-  public val sourceParts = hashMapOf<SourcePartLocation, MutableList<ObjCSourcePart>>()
+  val sourceParts = hashMapOf<SourcePartLocation, MutableList<ObjCSourcePart>>()
 
-  public var superClassName: String = "NSObject"
-  public val implementedProtocols = hashSetOf<String>()
+  var superClassName: String = "NSObject"
+  val implementedProtocols = hashSetOf<String>()
 
-  public val propertyDefinitions = arrayListOf<ObjCPropertyDefinition>()
+  val propertyDefinitions = arrayListOf<ObjCPropertyDefinition>()
 
-  public val methods = arrayListOf<ObjCMethod>()
+  val methods = arrayListOf<ObjCMethod>()
 
-  public fun addSourcePartToLocation(sourcePart: ObjCSourcePart, location: SourcePartLocation) {
+  fun addSourcePartToLocation(sourcePart: ObjCSourcePart, location: SourcePartLocation) {
     val sourcePartsAtLocation = sourceParts.getOrPut(key = location, defaultValue = { arrayListOf<ObjCSourcePart>() })
     sourcePartsAtLocation.add(sourcePart)
   }
 
-  public fun addSourcePartToLocation(sourcePart: String, location: SourcePartLocation) {
+  fun addSourcePartToLocation(sourcePart: String, location: SourcePartLocation) {
     addSourcePartToLocation(ObjCStringSourcePart(sourcePart), location)
   }
 
-  public fun sourcePartsAtLocation(location:SourcePartLocation): MutableList<ObjCSourcePart> {
+  fun sourcePartsAtLocation(location:SourcePartLocation): MutableList<ObjCSourcePart> {
     var parts = sourceParts[location]
     if (parts == null){
       parts = arrayListOf<ObjCSourcePart>()
@@ -45,29 +45,29 @@ public class ObjCClassInterface(val className: String) : ObjCSourcePart {
     return parts
   }
 
-  public fun importClassWithName(className:String) {
+  fun importClassWithName(className:String) {
     addSourcePartToLocation(ObjCImportPart(className), SourcePartLocation.IMPORT)
   }
 
-  public fun importFrameworkWithName(className:String) {
+  fun importFrameworkWithName(className:String) {
     addSourcePartToLocation(ObjCImportPart(className, true), SourcePartLocation.IMPORT)
   }
 
   /**
    * Adds specified property definition to this class
    */
-  public fun addPropertyDefinition(property: ObjCPropertyDefinition) {
+  fun addPropertyDefinition(property: ObjCPropertyDefinition) {
     propertyDefinitions.add(property)
   }
 
-  public fun addPropertyDefinitionsList(properties: List<ObjCPropertyDefinition>) {
+  fun addPropertyDefinitionsList(properties: List<ObjCPropertyDefinition>) {
     propertyDefinitions.addAll(properties)
   }
 
   /**
    * Adds speciied method definition to this class
    */
-  public fun addMethod(method: ObjCMethod) {
+  fun addMethod(method: ObjCMethod) {
     methods.add(method)
   }
 

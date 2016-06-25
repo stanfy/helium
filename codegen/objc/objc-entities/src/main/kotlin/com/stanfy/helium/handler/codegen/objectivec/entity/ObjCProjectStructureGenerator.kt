@@ -7,12 +7,12 @@ import com.stanfy.helium.model.Project
  * Interface that generates part of the project structure
  * Updates ObjCProject, by adding additional classes or by updateding classes
  */
-public interface ObjCProjectStructureGenerator {
+interface ObjCProjectStructureGenerator {
 
   /**
    * Updated specified |project| by adding additional classes(s), those contain code that
    * should map items from the DSL to the Classes, defined in project.
    */
   // TODO: replace with more generic options
-  public fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions)
+  fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions)
 }

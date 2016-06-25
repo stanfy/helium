@@ -17,8 +17,8 @@ import com.stanfy.helium.model.Project
  * Generated classes will could be used with
  * https://github.com/stanfy/SFObjectMapping
  */
-public class ObjCSFObjectMappingsGenerator : ObjCProjectStructureGenerator {
-  public val MAPPINGS_FILENAME = "HeliumMappings"
+class ObjCSFObjectMappingsGenerator : ObjCProjectStructureGenerator {
+  val MAPPINGS_FILENAME = "HeliumMappings"
 
   override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
     val mappingsClassName = options.prefix + MAPPINGS_FILENAME

@@ -18,7 +18,7 @@ import com.stanfy.helium.model.Project
  * Generated classes will could be used with
  * https://github.com/Mantle/Mantle
  */
-public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
+class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
   override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
 
     val messages = projectDSL.messages

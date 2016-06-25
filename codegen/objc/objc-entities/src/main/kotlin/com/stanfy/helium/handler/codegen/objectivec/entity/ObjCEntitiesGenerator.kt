@@ -15,7 +15,7 @@ import java.io.File
 /**
  * Created by ptaykalo on 8/25/14.
  */
-public class ObjCEntitiesGenerator(outputDirectory: File?, options: ObjCEntitiesOptions?) : BaseGenerator<ObjCEntitiesOptions>(outputDirectory, options), Handler {
+class ObjCEntitiesGenerator(outputDirectory: File?, options: ObjCEntitiesOptions?) : BaseGenerator<ObjCEntitiesOptions>(outputDirectory, options), Handler {
 
   private val objCTypeTransformer = ObjCTypeTransformer()
   private val objCPropertyNameTransformer = ObjCPropertyNameTransformer()
