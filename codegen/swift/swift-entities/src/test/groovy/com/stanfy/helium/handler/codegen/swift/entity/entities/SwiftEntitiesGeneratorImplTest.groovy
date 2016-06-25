@@ -74,22 +74,14 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
         enumeration 'dining', 'product'
       }
     }
-
-    when:
-    enums = sut.entitiesFromHeliumProject(project).findAll { it instanceof SwiftEntityEnum} as List<SwiftEntityEnum>
-
-    then:
-    enums.size() == 1
-  }
-
-  def "generate entity enums for restricted types " () {
-    List<SwiftEntityEnum> enums
-
-    given:
-    project.type "string"
-    project.type "ResourceType" spec {
+    project.type "nonCapitalizedType" spec {
       constraints("string") {
         enumeration 'dining', 'product'
+      }
+    }
+    project.type "type_with_underscores" spec {
+      constraints("string") {
+        enumeration 'under_scores', '_un_der_sco_res'
       }
     }
 
@@ -97,7 +89,35 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     enums = sut.entitiesFromHeliumProject(project).findAll { it instanceof SwiftEntityEnum} as List<SwiftEntityEnum>
 
     then:
-    enums.size() == 1
+    enums.size() == 3
+    enums.first().values.name == ["Dining", "Product"]
+    enums.first().values.value == ["dining", "product"]
+    enums.first().name == "ResourceType"
+    enums.any { it.name == "NonCapitalizedType" }
+    enums.any { it.name == "TypeWithUnderscores" }
+    enums.last().values.name == ["UnderScores", "UnDerScoRes"]
+    enums.last().values.value == ["under_scores", "_un_der_sco_res"]
+  }
+
+  def "reuse entity names once found" () {
+    SwiftEntityStruct entityA
+
+    given:
+    project.type "string"
+    project.type "enum_type" spec {
+      constraints("string") {
+        enumeration 'dining', 'product'
+      }
+    }
+    project.type "A" message {
+      prop 'enum_type'
+    }
+
+    when:
+    entityA = sut.entitiesFromHeliumProject(project).find { it.name == "A"} as SwiftEntityStruct
+
+    then:
+    entityA.properties.first().type.name == "EnumType"
   }
 
 

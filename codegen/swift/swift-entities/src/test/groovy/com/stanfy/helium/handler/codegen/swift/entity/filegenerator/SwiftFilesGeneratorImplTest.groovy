@@ -1,6 +1,8 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnum
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnumCase
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityPrimitive
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityStruct
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftProperty
@@ -42,5 +44,24 @@ class SwiftFilesGeneratorImplTest extends Specification {
     files.first().contents().contains("let name: Good")
   }
 
+  def "generate files with enums"() {
+    def enumEntity = new SwiftEntityEnum("nonCapitalizedName",
+        [new SwiftEntityEnumCase("Monday","monday"),
+         new SwiftEntityEnumCase("Tuesday", "tuesday")])
+    def enumEntity2 = new SwiftEntityEnum("Capitalized_with_underlines",
+        [new SwiftEntityEnumCase("Wed","wed"),
+         new SwiftEntityEnumCase("Fri", "fri")])
+    when:
+    files = sut.filesFromEntities([enumEntity,enumEntity2])
+
+    then:
+    files.first().name() != ""
+    files.first().contents().contains("enum nonCapitalizedName: String {")
+    files.first().contents().contains("enum Capitalized_with_underlines: String {")
+    files.first().contents().contains('case Monday = "monday"')
+    files.first().contents().contains('case Tuesday = "tuesday"')
+    files.first().contents().contains('case Wed = "wed"')
+    files.first().contents().contains('case Fri = "fri"')
+  }
 
 }

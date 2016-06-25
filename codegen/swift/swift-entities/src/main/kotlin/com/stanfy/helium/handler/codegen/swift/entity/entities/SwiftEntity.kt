@@ -14,5 +14,6 @@ data class SwiftEntityPrimitive(override val name: String) : SwiftEntity
 data class SwiftEntityStruct(override val name: String,
                              override val properties: List<SwiftProperty> = emptyList()) : SwiftCpmplexEntity
 
+data class SwiftEntityEnumCase(val name: String, val value:String)
 data class SwiftEntityEnum(override val name: String,
-                           val values: List<String>) : SwiftEntity
+                           val values: List<SwiftEntityEnumCase>) : SwiftEntity

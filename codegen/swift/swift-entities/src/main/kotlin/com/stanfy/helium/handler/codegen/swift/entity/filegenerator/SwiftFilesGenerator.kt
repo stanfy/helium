@@ -1,31 +1,42 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnum
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityStruct
-import com.stanfy.helium.handler.codegen.swift.entity.mustache.SwiftTamplatesHelper
+import com.stanfy.helium.handler.codegen.swift.entity.mustache.SwiftTemplatesHelper
 
+/**
+ * Transform entities to the list of files
+ * Make sure that this class doesn't do any logic on names/values transformation
+ * All values and names for entities need to be set up before this class comes in
+ */
 interface SwiftFilesGenerator {
   fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile>
 }
 
 class SwiftFilesGeneratorImpl : SwiftFilesGenerator {
   override fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile> {
-    // TODO : Different files?
+    // TODO : Different files? as an option
     val file: SwiftFile = object : SwiftFile {
       override fun name(): String {
         return "Entities"
       }
 
       override fun contents(): String {
-        // TODO : Non struct ?
         val structs = entities
-            .filter { entity -> entity is SwiftEntityStruct }
-            .map { entity -> entity as SwiftEntityStruct }
+            .filterIsInstance<SwiftEntityStruct>()
             .map { entity ->
-              SwiftTamplatesHelper.generateSwiftStruct(entity.name, entity.properties)
+              SwiftTemplatesHelper.generateSwiftStruct(entity.name, entity.properties)
             }.joinToString(separator = "\n")
 
-        return structs
+        val enums = entities
+            .filterIsInstance<SwiftEntityEnum>()
+            .map { entity ->
+              SwiftTemplatesHelper.generateSwiftEnum(entity.name, entity.values)
+            }.joinToString(separator = "\n")
+
+        return arrayOf(enums, structs)
+            .joinToString(separator = "\n")
       }
     }
     return listOf(file)

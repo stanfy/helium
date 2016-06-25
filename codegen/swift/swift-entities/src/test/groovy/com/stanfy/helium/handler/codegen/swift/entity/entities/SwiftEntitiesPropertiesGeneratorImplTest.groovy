@@ -138,4 +138,24 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     "a_bc"    | "aBc"
   }
 
+  def "should handle keywords"() {
+    given:
+    Project prj = new ProjectDsl()
+    prj.type "string"
+    prj.type "A" message {
+      "$fieldName" 'string'
+    }
+    def actualPropertyName = sut.entitiesFromHeliumProject(prj).first().properties.first().name
+
+    expect:
+    actualPropertyName == propertyName
+
+    where:
+    fieldName     | propertyName
+    "default"     | "defaultValue"
+    "case"        | "caseValue"
+    "let"         | "letValue"
+    "enum"        | "enumValue"
+  }
+
 }
