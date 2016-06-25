@@ -1,32 +1,27 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
-import org.apache.commons.io.IOUtils
-import java.io.File
-import java.io.FileOutputStream
-import java.io.OutputStreamWriter
-import java.io.Writer
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.mustache.SwiftTamplatesHelper
 
-/**
- * Created by paultaykalo on 6/25/16.
- */
-class SwiftFilesGenerator() {
-  fun generate(directory: File, files: List<SwiftFile>) {
-    files.forEach { swiftFile ->
-      writeFile(
-          File(directory, swiftFile.name() + ".swift"),
-          swiftFile.contents())
-    }
+interface SwiftFilesGenerator {
+  fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile>
+}
 
-  }
-  private fun writeFile(file: File, contents: String) {
-    var output: Writer? = null
-    try {
-      output = OutputStreamWriter(FileOutputStream(file), "UTF-8");
-      output.write(contents);
-    } catch (e: RuntimeException) {
-      throw RuntimeException(e);
-    } finally {
-      IOUtils.closeQuietly(output);
+class SwiftFilesGeneratorImpl : SwiftFilesGenerator {
+  override fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile> {
+    // TODO : Different files?
+    val file: SwiftFile = object : SwiftFile {
+      override fun name(): String {
+        return "Entities"
+      }
+
+      override fun contents(): String {
+        // TODO : Non struct ?
+        return entities.map { entity ->
+          SwiftTamplatesHelper.generateSwiftStruct(entity.name)
+        }.joinToString(separator = "\n")
+      }
     }
+    return listOf(file)
   }
 }
