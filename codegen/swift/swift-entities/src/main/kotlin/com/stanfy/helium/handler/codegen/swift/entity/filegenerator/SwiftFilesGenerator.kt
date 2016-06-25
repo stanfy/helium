@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityStruct
 import com.stanfy.helium.handler.codegen.swift.entity.mustache.SwiftTamplatesHelper
 
 interface SwiftFilesGenerator {
@@ -17,9 +18,14 @@ class SwiftFilesGeneratorImpl : SwiftFilesGenerator {
 
       override fun contents(): String {
         // TODO : Non struct ?
-        return entities.map { entity ->
-          SwiftTamplatesHelper.generateSwiftStruct(entity.name, entity.properties)
-        }.joinToString(separator = "\n")
+        val structs = entities
+            .filter { entity -> entity is SwiftEntityStruct }
+            .map { entity -> entity as SwiftEntityStruct }
+            .map { entity ->
+              SwiftTamplatesHelper.generateSwiftStruct(entity.name, entity.properties)
+            }.joinToString(separator = "\n")
+
+        return structs
       }
     }
     return listOf(file)

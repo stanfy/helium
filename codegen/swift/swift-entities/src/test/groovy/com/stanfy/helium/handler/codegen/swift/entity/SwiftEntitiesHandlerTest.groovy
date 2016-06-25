@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.swift.entity
 
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityStruct
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFile
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFilesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGenerator
@@ -39,7 +40,7 @@ class SwiftEntitiesHandlerTest extends Specification {
     List<SwiftEntity> entities
 
     given:
-    entities = [new SwiftEntity("Name", [])]
+    entities = [new SwiftEntityStruct("Name", [])]
     entitiesGenerator.entitiesFromHeliumProject(project) >> entities
 
     when:
@@ -54,7 +55,7 @@ class SwiftEntitiesHandlerTest extends Specification {
     List<SwiftFile> files
 
     given:
-    entities = [new SwiftEntity("Name", [])]
+    entities = [new SwiftEntityStruct("Name", [])]
     files = [new SwiftFile() {
       String name() { return "FileName" }
 

@@ -64,26 +64,41 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     entities.size() == 1
   }
 
-  def "generate entities with correct properties"() {
+  def "generate entity enums for restricted types" () {
+    List<SwiftEntityEnum> enums
+
     given:
     project.type "string"
-    project.type "Name" message {
-      name 'string'
-    };
-    project.service {
-      get "/person/@id" spec {
-        parameters {
-          full 'string' required
-        }
-        response "string"
+    project.type "ResourceType" spec {
+      constraints("string") {
+        enumeration 'dining', 'product'
       }
     }
 
     when:
-    entities = sut.entitiesFromHeliumProject(project)
+    enums = sut.entitiesFromHeliumProject(project).findAll { it instanceof SwiftEntityEnum} as List<SwiftEntityEnum>
 
     then:
-    entities.size() == 1
+    enums.size() == 1
   }
+
+  def "generate entity enums for restricted types " () {
+    List<SwiftEntityEnum> enums
+
+    given:
+    project.type "string"
+    project.type "ResourceType" spec {
+      constraints("string") {
+        enumeration 'dining', 'product'
+      }
+    }
+
+    when:
+    enums = sut.entitiesFromHeliumProject(project).findAll { it instanceof SwiftEntityEnum} as List<SwiftEntityEnum>
+
+    then:
+    enums.size() == 1
+  }
+
 
 }

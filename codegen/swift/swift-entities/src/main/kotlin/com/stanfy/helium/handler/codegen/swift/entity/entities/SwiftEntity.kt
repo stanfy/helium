@@ -1,5 +1,18 @@
 package com.stanfy.helium.handler.codegen.swift.entity.entities
 
-data class SwiftEntity(val name: String,
-                       val properties:List<SwiftProperty> = emptyList()) {
+interface SwiftEntity {
+  val name: String
 }
+
+interface SwiftCpmplexEntity : SwiftEntity {
+  val properties: List<SwiftProperty>
+}
+
+data class SwiftEntityPrimitive(override val name: String) : SwiftEntity
+
+
+data class SwiftEntityStruct(override val name: String,
+                             override val properties: List<SwiftProperty> = emptyList()) : SwiftCpmplexEntity
+
+data class SwiftEntityEnum(override val name: String,
+                           val values: List<String>) : SwiftEntity
