@@ -31,7 +31,7 @@ class SwiftFilesGeneratorTest extends Specification {
     tmpDir.delete()
   }
 
-  def "Generate"() {
+  def "should generate specified files"() {
     when:
     sut = new SwiftFilesGenerator()
     sut.generate(tmpDir, files)
