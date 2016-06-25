@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.swift.entity.entities
 
+import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Type
 
@@ -16,10 +17,9 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
           val props = message.fields
               .filterNot { field -> field.isSkip }
               .map { field ->
-            SwiftProperty(field.name, swiftType(field.type))
+            SwiftProperty(propertyName(field.name), swiftType(field.type))
           }
-          val swiftEntity = SwiftEntity(message.name, props)
-          swiftEntity
+          SwiftEntity(message.name, props)
         }
     val sequences = project.sequences
         .filterNot { sequence -> sequence.isAnonymous }
@@ -28,6 +28,10 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
         }
 
     return messages + sequences
+  }
+
+  fun propertyName(fieldName:String) :String {
+    return Names.prettifiedName(Names.canonicalName(fieldName))
   }
 
   override fun swiftType(heliumType: Type): SwiftEntity {

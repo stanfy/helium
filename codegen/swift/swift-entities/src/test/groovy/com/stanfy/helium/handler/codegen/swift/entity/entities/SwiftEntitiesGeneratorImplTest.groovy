@@ -1,7 +1,6 @@
 package com.stanfy.helium.handler.codegen.swift.entity.entities
 
 import com.stanfy.helium.internal.dsl.ProjectDsl
-import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
 class SwiftEntitiesGeneratorImplTest extends Specification {

@@ -4,7 +4,6 @@ import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Sequence
-import com.stanfy.helium.model.Type
 import spock.lang.Specification
 
 class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
@@ -57,40 +56,40 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
   }
 
   def "parse entity properties names"() {
-    SwiftEntity A
-    SwiftEntity L
-    SwiftEntity ListWihName
-    SwiftEntity Struct
+    SwiftEntity entityA
+    SwiftEntity entityL
+    SwiftEntity entityListWihName
+    SwiftEntity entityStruct
 
     when:
     entities = sut.entitiesFromHeliumProject(dsl)
-    A = entities.find { it.name == "A"}
-    L = entities.find { it.name == "List"}
-    ListWihName = entities.find { it.name == "ListWithName"}
-    Struct = entities.find { it.name =="Struct"}
+    entityA = entities.find { it.name == "A"}
+    entityL = entities.find { it.name == "List"}
+    entityListWihName = entities.find { it.name == "ListWithName"}
+    entityStruct = entities.find { it.name =="Struct"}
 
     then:
-    A.properties != null
-    A.properties.any { it.name == "f1" }
-    A.properties.any { it.name == "f2" }
-    A.properties.any { it.name == "f3" }
-    L.properties.size() == 0
-    ListWihName.properties.any { it.name == "name" }
-    ListWihName.properties.any { it.name == "items" }
-    Struct.properties.any { it.name == "a" }
-    Struct.properties.any { it.name == "b" }
+    entityA.properties != null
+    entityA.properties.any { it.name == "f1" }
+    entityA.properties.any { it.name == "f2" }
+    entityA.properties.any { it.name == "f3" }
+    entityL.properties.size() == 0
+    entityListWihName.properties.any { it.name == "name" }
+    entityListWihName.properties.any { it.name == "items" }
+    entityStruct.properties.any { it.name == "a" }
+    entityStruct.properties.any { it.name == "b" }
   }
 
   def "skip entity properties if needed"() {
-    SwiftEntity A
+    SwiftEntity entityA
 
     when:
     entities = sut.entitiesFromHeliumProject(dsl)
-    A = entities.find { it.name == "A"}
+    entityA = entities.find { it.name == "A"}
 
     then:
-    A.properties != null
-    !A.properties.any { it.name == "f4" }
+    entityA.properties != null
+    !entityA.properties.any { it.name == "f4" }
   }
 
   def "maps property types to Swift types"() {
@@ -118,6 +117,25 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     "float64"  | "Double"
     "double"   | "Double"
     "string"   | "String"
+  }
+
+  def "should camelize underscored names"() {
+    given:
+    Project prj = new ProjectDsl()
+    prj.type "string"
+    prj.type "A" message {
+      "$fieldName" 'string'
+    }
+    def actualPropertyName = sut.entitiesFromHeliumProject(prj).first().properties.first().name
+
+    expect:
+    actualPropertyName == propertyName
+
+    where:
+    fieldName | propertyName
+    "abc"     | "abc"
+    "ab_c"    | "abC"
+    "a_bc"    | "aBc"
   }
 
 }
