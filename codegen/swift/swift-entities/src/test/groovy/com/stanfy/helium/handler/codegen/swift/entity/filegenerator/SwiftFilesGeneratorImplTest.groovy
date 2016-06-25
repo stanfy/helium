@@ -1,6 +1,6 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
-import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
 import spock.lang.Specification
 
 class SwiftFilesGeneratorImplTest extends Specification {

@@ -1,4 +1,4 @@
-package com.stanfy.helium.handler.codegen.swift.entity
+package com.stanfy.helium.handler.codegen.swift.entity.entities
 
 /**
  * Created by paultaykalo on 6/25/16.

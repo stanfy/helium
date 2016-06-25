@@ -1,6 +1,5 @@
 package com.stanfy.helium.handler.codegen.swift.entity.entities
 
-import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntity
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.model.Type
 import spock.lang.Specification
@@ -15,7 +14,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     sut = new SwiftEntitiesGeneratorImpl()
   }
 
-  def "should be able to generate swift entities"() {
+  def "generates entities"() {
     given:
     project.typeResolver.registerNewType(new Type(name: "string"));
 
@@ -30,7 +29,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     entities.size() == 1
   }
 
-  def "should be able to generate entities with valid names"() {
+  def "generates entities with valid names"() {
     given:
     project.typeResolver.registerNewType(new Type(name: "string"));
 
@@ -42,6 +41,29 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
 
     then:
     entities.get(0).name == "Name"
+  }
+
+  def "skip entities for anonymous messages"() {
+    given:
+    project.typeResolver.registerNewType(new Type(name: "string"));
+
+    when:
+    project.type "Name" message {
+      name 'string'
+    };
+    project.service {
+      get "/person/@id" spec {
+        parameters {
+          full 'string' required
+        }
+        response "string"
+      }
+    }
+
+    entities = sut.entitiesFromHeliumProject(project)
+
+    then:
+    entities.size() == 1
   }
 
 }
