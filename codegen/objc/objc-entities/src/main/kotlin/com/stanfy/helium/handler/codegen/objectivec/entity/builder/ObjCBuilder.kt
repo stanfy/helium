@@ -10,9 +10,9 @@ interface ObjCBuilder<S, D> {
   /**
    * Performs transformation from class structure to file structure
    */
-  public fun build(from: S,options: ObjCEntitiesOptions? = null): D
+  fun build(from: S,options: ObjCEntitiesOptions? = null): D
 
-  public fun build(from: S) : D {
+  fun build(from: S) : D {
     return build(from, null)
   }
 

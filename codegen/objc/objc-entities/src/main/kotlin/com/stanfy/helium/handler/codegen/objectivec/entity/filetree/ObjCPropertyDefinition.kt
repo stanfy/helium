@@ -3,7 +3,7 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.filetree;
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCType
 import com.stanfy.helium.model.Field;
 
-public enum class AccessModifier {
+enum class AccessModifier {
   COPY,
   RETAIN,
   ASSIGN,
@@ -11,7 +11,7 @@ public enum class AccessModifier {
   WEAK
 }
 
-public enum class AtomicModifier {
+enum class AtomicModifier {
   ATOMIC,
   NONATOMIC,
 }
@@ -20,7 +20,7 @@ public enum class AtomicModifier {
  * Created by ptaykalo on 8/19/14.
  * Wrapper for ObjC property
  */
-public class ObjCPropertyDefinition : ObjCSourcePart {
+class ObjCPropertyDefinition : ObjCSourcePart {
 
   constructor(name: String, type: ObjCType) :
   this(name, type, AccessModifier.STRONG, AtomicModifier.NONATOMIC) {
@@ -41,13 +41,13 @@ public class ObjCPropertyDefinition : ObjCSourcePart {
   /**
    * Property name
    */
-  public val name: String
+  val name: String
 
   /**
    * Property result type (this is the type, which will be simply translated to the output)
    * so, in case of ObjC - it should be NSString, and NSArray... etc
    */
-  public val type: ObjCType
+  val type: ObjCType
 
   /**
    * Access modifier for property AccessModifier.STRONG - for default value
@@ -57,31 +57,31 @@ public class ObjCPropertyDefinition : ObjCSourcePart {
   /**
    * By default we'll create non-atomic modifier
    */
-  public val atomicModifier:AtomicModifier
+  val atomicModifier:AtomicModifier
 
   /**
    * Additional comment
    */
-  public var comment: String? = null
+  var comment: String? = null
 
   //TODO :  Remove it from here?
   /**
    * the Helium filed, from which this property was generated
    */
-  public var correspondingField: Field? = null
+  var correspondingField: Field? = null
 
   /**
    * Returns true, if this property is sequence,
    * And property type is ono corresponds to the actual items type
    */
-  public var isSequence: Boolean = false;
+  var isSequence: Boolean = false;
 
   /**
    * Holds information for item type, that will be presented in this property.
    * Property type can be "NSArray / NSSet" etc
    * This property will hold type of actual items, those are in this property
    */
-  public var sequenceType: ObjCType? = null;
+  var sequenceType: ObjCType? = null;
 
 
   override fun asString(): String {

@@ -13,11 +13,11 @@ import java.util.HashMap
  * Performs transformation of the Helium API type to the Objective-C Type
  */
 
-public data class ObjCTypeTransformation(val heliumType: String,
+data class ObjCTypeTransformation(val heliumType: String,
                                          val objectiveCType: ObjCType,
                                          val accessModifier: AccessModifier = AccessModifier.ASSIGN)
 
-public class ObjCTypeTransformer {
+class ObjCTypeTransformer {
 
   /**
    * This hashMap holds information about Helium API -> Objective-C type conversions
@@ -39,30 +39,30 @@ public class ObjCTypeTransformer {
     this.registerTransformation("double", ObjCType("NSNumber"), AccessModifier.STRONG)
   }
 
-  public fun registerTransformations(transformations: List<ObjCTypeTransformation>) {
+  fun registerTransformations(transformations: List<ObjCTypeTransformation>) {
     transformations.forEach { t -> this.registerTransformation(t) }
   }
 
-  public fun registerTransformation(transformation: ObjCTypeTransformation) {
+  fun registerTransformation(transformation: ObjCTypeTransformation) {
     typesMapping.put(transformation.heliumType, transformation.objectiveCType)
     accessMapping.put(transformation.heliumType, transformation.accessModifier)
   }
-  public fun registerTransformation(heliumTypeName: String, objectiveCType: ObjCType, accessModifier: AccessModifier = AccessModifier.ASSIGN) {
+  fun registerTransformation(heliumTypeName: String, objectiveCType: ObjCType, accessModifier: AccessModifier = AccessModifier.ASSIGN) {
     registerTransformation(ObjCTypeTransformation(heliumTypeName, objectiveCType, accessModifier));
   }
 
-  public fun registerTransformation(heliumTypeName: String, objectiveCType: ObjCType) {
+  fun registerTransformation(heliumTypeName: String, objectiveCType: ObjCType) {
     registerTransformation(ObjCTypeTransformation(heliumTypeName, objectiveCType, AccessModifier.STRONG));
   }
 
   /**
    * Returns Objective-C type for specified Helium API Type
    */
-  public fun objCType(heliumAPIType: Type): ObjCType {
+  fun objCType(heliumAPIType: Type): ObjCType {
     return this.objCType(heliumAPIType, false)
   }
 
-  public fun objCType(heliumAPIType: Type, isSequence: Boolean): ObjCType {
+  fun objCType(heliumAPIType: Type, isSequence: Boolean): ObjCType {
     if (isSequence) {
       val objCType = ObjCType("NSArray", isReference = true)
       objCType.genericOf = this.objCType(heliumAPIType, isSequence = false)
@@ -85,7 +85,7 @@ public class ObjCTypeTransformer {
   /**
    * Returns access modifier for specified helium type
    */
-  public fun accessorModifierForType(heliumAPIType: Type): AccessModifier {
+  fun accessorModifierForType(heliumAPIType: Type): AccessModifier {
 
     if (heliumAPIType is Sequence) {
       return AccessModifier.STRONG

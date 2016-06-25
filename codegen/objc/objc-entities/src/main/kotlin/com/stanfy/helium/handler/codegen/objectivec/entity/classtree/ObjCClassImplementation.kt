@@ -8,7 +8,7 @@ import java.util.ArrayList
  * Created by ptaykalo on 8/17/14.
  * Simple block that know how to serialize ObjC Class Implementation
  */
-public class ObjCClassImplementation(val filename: String) : ObjCSourcePart {
+class ObjCClassImplementation(val filename: String) : ObjCSourcePart {
 
   // TODO : Dependencies
   private val importSourceParts = hashSetOf<ObjCImportPart>()
@@ -17,24 +17,24 @@ public class ObjCClassImplementation(val filename: String) : ObjCSourcePart {
   /**
   Adds specified source part to the top part (before @implementation)
    */
-  public fun addImportSourcePart(sourcePart: ObjCImportPart) {
+  fun addImportSourcePart(sourcePart: ObjCImportPart) {
     importSourceParts.add(sourcePart)
   }
 
-  public fun importClassWithName(className:String) {
+  fun importClassWithName(className:String) {
     this.addImportSourcePart(ObjCImportPart(className))
   }
   /**
   Adds specified source part to the central part (inside @implementation)
    */
-  public fun addBodySourcePart(sourcePart: ObjCSourcePart) {
+  fun addBodySourcePart(sourcePart: ObjCSourcePart) {
     bodySourceParts.add(sourcePart)
   }
 
   /**
    * Adds method implementation part to the
    */
-  public fun addMethod(method:ObjCMethod) {
+  fun addMethod(method:ObjCMethod) {
     addBodySourcePart(ObjCMethodImplementationSourcePart(method))
   }
 

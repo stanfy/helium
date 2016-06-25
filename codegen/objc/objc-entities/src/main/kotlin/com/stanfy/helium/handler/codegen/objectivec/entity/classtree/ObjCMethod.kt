@@ -7,7 +7,7 @@ import java.util.*
  */
 class ObjCMethod(val name: String, val methodType: ObjCMethod.ObjCMethodType, var returnType: String) {
 
-  public enum class ObjCMethodType {
+  enum class ObjCMethodType {
     CLASS,
     INSTANCE
   }
@@ -30,7 +30,7 @@ class ObjCMethod(val name: String, val methodType: ObjCMethod.ObjCMethodType, va
    * @param type parameter type
    * @param name parameter name
    */
-  public fun addParameter(type: String, name: String) {
+  fun addParameter(type: String, name: String) {
     parameters.add(ParameterPair(type, name))
   }
 

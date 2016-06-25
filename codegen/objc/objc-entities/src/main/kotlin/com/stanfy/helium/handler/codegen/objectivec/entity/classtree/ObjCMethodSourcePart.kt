@@ -6,7 +6,7 @@ import java.util.*
 /**
  * Created by paultaykalo on 12/16/15.
  */
-public open class ObjCMethodSourcePart(val method: ObjCMethod) : ObjCSourcePartsContainer() {
+open class ObjCMethodSourcePart(val method: ObjCMethod) : ObjCSourcePartsContainer() {
 
   fun asString(includeBody: Boolean): String {
     val bld = StringBuilder();
@@ -40,13 +40,13 @@ public open class ObjCMethodSourcePart(val method: ObjCMethod) : ObjCSourceParts
   }
 }
 
-public class ObjCMethodImplementationSourcePart(method: ObjCMethod) : ObjCMethodSourcePart(method) {
+class ObjCMethodImplementationSourcePart(method: ObjCMethod) : ObjCMethodSourcePart(method) {
   override fun asString(): String {
     return asString(includeBody = true)
   }
 }
 
-public class ObjCMethodDeclarationSourcePart(method: ObjCMethod) : ObjCMethodSourcePart(method) {
+class ObjCMethodDeclarationSourcePart(method: ObjCMethod) : ObjCMethodSourcePart(method) {
   override fun asString(): String {
     return asString(includeBody = false)
   }

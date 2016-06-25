@@ -4,15 +4,15 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.filetree;
  * Created by paultaykalo on 12/16/15.
  * Class that can have another source parts
  */
-public open class ObjCSourcePartsContainer : ObjCSourcePart {
+open class ObjCSourcePartsContainer : ObjCSourcePart {
 
-  public val sourceParts = arrayListOf<ObjCSourcePart>()
+  val sourceParts = arrayListOf<ObjCSourcePart>()
 
   /**
    * Adds source part to current container
    * @param sourcePart source part that need to be rendered as a part of container
    */
-  public fun addSourcePart(sourcePart: ObjCSourcePart) {
+  fun addSourcePart(sourcePart: ObjCSourcePart) {
     sourceParts.add(sourcePart);
   }
 
@@ -20,7 +20,7 @@ public open class ObjCSourcePartsContainer : ObjCSourcePart {
    * Adds string source part to current container
    * @param sourcePart source part that need to be rendered as a part of container
    */
-  public fun addSourcePart(sourcePart: String) {
+  fun addSourcePart(sourcePart: String) {
     sourceParts.add(ObjCStringSourcePart(sourcePart));
   }
 

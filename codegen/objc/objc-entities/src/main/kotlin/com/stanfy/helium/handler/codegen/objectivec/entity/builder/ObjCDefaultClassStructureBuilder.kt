@@ -11,7 +11,7 @@ import com.stanfy.helium.model.Sequence
 /**
  * Created by ptaykalo on 8/17/14.
  */
-public class ObjCDefaultClassStructureBuilder(val typeTransformer: ObjCTypeTransformer,
+class ObjCDefaultClassStructureBuilder(val typeTransformer: ObjCTypeTransformer,
                                               val nameTransformer: ObjCPropertyNameTransformer) : ObjCBuilder<Project, ObjCProjectClassesTree> {
 
   /**
