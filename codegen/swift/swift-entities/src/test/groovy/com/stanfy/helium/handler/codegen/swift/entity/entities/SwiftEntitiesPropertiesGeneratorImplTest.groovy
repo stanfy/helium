@@ -177,4 +177,31 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     !entityA.properties.find { it.name == "nonOptionalField"}.type.optional
   }
 
+  def "should handle sequence fields"() {
+    SwiftEntityStruct entityA
+    SwiftEntityStruct entityB
+
+    given:
+    Project prj = new ProjectDsl()
+    prj.type "string"
+    prj.type "B" message {
+      sequenceField 'string' sequence
+    }
+
+    prj.type "A" message {
+      sequenceOfSequence 'B' sequence
+      nonSequenceField 'B'
+    }
+
+    when:
+    entityA = (sut.entitiesFromHeliumProject(prj).find { it.name == "A" } as SwiftEntityStruct)
+    entityB = (sut.entitiesFromHeliumProject(prj).find { it.name == "B" } as SwiftEntityStruct)
+
+    then:
+    entityB.properties.find { it.name == "sequenceField" }.type instanceof SwiftEntityArray
+    entityA.properties.find { it.name == "nonSequenceField" }.type instanceof SwiftEntityStruct
+    entityA.properties.find { it.name == "sequenceOfSequence" }.type instanceof SwiftEntityArray
+  }
+
+
 }

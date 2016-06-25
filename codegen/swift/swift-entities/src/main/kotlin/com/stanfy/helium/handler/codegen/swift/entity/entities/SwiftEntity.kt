@@ -88,8 +88,16 @@ data class SwiftEntityArray(override val name: String,
   }
 
   override fun typeString(): String {
+    if (name.length > 0) {
+      return this.name + if (optional) "?" else ""
+    }
     return "[" + itemType.typeString() + "]" + if (optional) "?" else ""
   }
+
+  fun unaliasedTypeString(): String {
+    return "[" + itemType.typeString() + "]" + if (optional) "?" else ""
+  }
+
 
   companion object {
     fun optional(name: String, itemType: SwiftEntity): SwiftEntityArray {

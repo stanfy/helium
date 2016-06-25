@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.swift.entity.mustache
 
 import com.github.mustachejava.DefaultMustacheFactory
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnumCase
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftProperty
 import java.io.StringWriter
@@ -23,10 +24,10 @@ class SwiftTemplatesHelper {
       })
     }
 
-    fun generateSwiftTypeAlias(name: String, itemType: SwiftEntity): Any {
+    fun generateSwiftTypeAlias(name: String, itemType: SwiftEntityArray): Any {
       return generatedTemplateWithName("SwiftTypeAlias.mustache", object : Any () {
         val name = name
-        val type = itemType.typeString()
+        val type = itemType.unaliasedTypeString()
       })
     }
 

@@ -85,8 +85,35 @@ class SwiftFilesGeneratorImplTest extends Specification {
     files.first().contents().contains("typealias arrayEntity = [Capitalized_with_underlines]")
     files.first().contents().contains("struct SomeStruct {")
     files.first().contents().contains("let array: arrayEntity")
-
   }
+
+  def "generate files with entities that have array fields"() {
+    def enumEntity = new SwiftEntityEnum("WeekDays",
+        [new SwiftEntityEnumCase("Wed","wed"),
+         new SwiftEntityEnumCase("Fri", "fri")])
+    def arrayEntity = new SwiftEntityArray("", enumEntity)
+    def optionalArrayEntity = new SwiftEntityArray("", enumEntity.toOptional())
+    def structEntity = new SwiftEntityStruct("Schedule", [
+        new SwiftProperty("days", arrayEntity),
+        new SwiftProperty("optionalDays", arrayEntity.toOptional()),
+        new SwiftProperty("daysWithOptionals", optionalArrayEntity),
+        new SwiftProperty("optionalDaysWithOptionals", optionalArrayEntity.toOptional())
+
+    ])
+
+    when:
+    files = sut.filesFromEntities([arrayEntity,enumEntity,structEntity,optionalArrayEntity])
+
+    then:
+    files.first().name() != ""
+    files.first().contents().contains("enum WeekDays: String {")
+    files.first().contents().contains("struct Schedule {")
+    files.first().contents().contains("let days: [WeekDays]")
+    files.first().contents().contains("let optionalDays: [WeekDays]?")
+    files.first().contents().contains("let daysWithOptionals: [WeekDays?]")
+    files.first().contents().contains("let optionalDaysWithOptionals: [WeekDays?]?")
+  }
+
 
 
 }

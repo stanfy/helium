@@ -35,7 +35,7 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
           val props = message.fields
               .filterNot { field -> field.isSkip }
               .map { field ->
-                val type = swiftType(field.type, typesRegistry)
+                val type = if (field.isSequence) simpleSequenceType(field.type, typesRegistry) else swiftType(field.type, typesRegistry)
                 val fieldType = if (field.isRequired) type else type.toOptional()
                 SwiftProperty(propertyName(field.name), fieldType)
               }
@@ -63,24 +63,28 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
   override fun swiftType(heliumType: Type, registry: MutableMap<String, SwiftEntity>): SwiftEntity {
     return registry.getOrElse(heliumType.name) {
       val type: SwiftEntity =
-          primitiveType(heliumType)
-              ?: sequenceType(heliumType, registry)
+          trySequenceType(heliumType, registry)
+              ?: tryPrimitiveType(heliumType)
               ?: structType(heliumType)
       registry.put(heliumType.name, type)
       return type
     }
   }
 
-  private fun sequenceType(heliumType: Type, registry: MutableMap<String, SwiftEntity>): SwiftEntityArray? {
+  private fun trySequenceType(heliumType: Type, registry: MutableMap<String, SwiftEntity>): SwiftEntityArray? {
     if (heliumType !is Sequence) return null
     return SwiftEntityArray(heliumType.name, swiftType(heliumType.itemsType, registry))
+  }
+
+  private fun simpleSequenceType(heliumType: Type, registry: MutableMap<String, SwiftEntity>): SwiftEntityArray {
+    return SwiftEntityArray("", swiftType(heliumType, registry))
   }
 
   private fun structType(heliumType: Type): SwiftEntityStruct {
     return SwiftEntityStruct(heliumType.name)
   }
 
-  private fun primitiveType(heliumType: Type): SwiftEntityPrimitive? {
+  private fun tryPrimitiveType(heliumType: Type): SwiftEntityPrimitive? {
     return when (heliumType.name) {
       "int" -> SwiftEntityPrimitive("Int")
       "integer" -> SwiftEntityPrimitive("Int")
