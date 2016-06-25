@@ -7,6 +7,7 @@ import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCMappingOption
+import com.stanfy.helium.handler.codegen.swift.entity.*
 
 /**
  * Main entry point.
@@ -75,6 +76,16 @@ class Main {
                 genOptions.mappingsType = mappingType
                 return new ObjCEntitiesGenerator(output, genOptions)
               }
+      ],
+      "swift-entities": [
+          description: "Generate Swift entity classes",
+          properties:  [
+              "prop" : "value"
+          ],
+          factory: { def options, File output ->
+            SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
+            return new SwiftEntitiesGenerator(output, generationOptions)
+          }
       ]
 
   ]
