@@ -57,14 +57,14 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
 
   def "parse entity properties names"() {
     SwiftEntity entityA
-    SwiftEntity entityL
+    SwiftEntityArray entityL
     SwiftEntity entityListWihName
     SwiftEntity entityStruct
 
     when:
     entities = sut.entitiesFromHeliumProject(dsl)
     entityA = entities.find { it.name == "A"}
-    entityL = entities.find { it.name == "List"}
+    entityL = entities.find { it.name == "List"} as SwiftEntityArray
     entityListWihName = entities.find { it.name == "ListWithName"}
     entityStruct = entities.find { it.name =="Struct"}
 
@@ -73,7 +73,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     entityA.properties.any { it.name == "f1" }
     entityA.properties.any { it.name == "f2" }
     entityA.properties.any { it.name == "f3" }
-    entityL.properties.size() == 0
+    entityL.itemType.name == "A"
     entityListWihName.properties.any { it.name == "name" }
     entityListWihName.properties.any { it.name == "items" }
     entityStruct.properties.any { it.name == "a" }

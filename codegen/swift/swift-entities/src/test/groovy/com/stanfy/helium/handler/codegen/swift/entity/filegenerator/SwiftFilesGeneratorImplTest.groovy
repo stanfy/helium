@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnum
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnumCase
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityPrimitive
@@ -64,6 +65,27 @@ class SwiftFilesGeneratorImplTest extends Specification {
     files.first().contents().contains('case Tuesday = "tuesday"')
     files.first().contents().contains('case Wed = "wed"')
     files.first().contents().contains('case Fri = "fri"')
+  }
+
+  def "generate files with named arrays"() {
+    def enumEntity2 = new SwiftEntityEnum("Capitalized_with_underlines",
+        [new SwiftEntityEnumCase("Wed","wed"),
+         new SwiftEntityEnumCase("Fri", "fri")])
+    def arrayEntity = new SwiftEntityArray("arrayEntity", enumEntity2)
+    def structEntity = new SwiftEntityStruct("SomeStruct", [
+        new SwiftProperty("array", arrayEntity)
+    ])
+
+    when:
+    files = sut.filesFromEntities([arrayEntity,enumEntity2,structEntity])
+
+    then:
+    files.first().name() != ""
+    files.first().contents().contains("enum Capitalized_with_underlines: String {")
+    files.first().contents().contains("typealias arrayEntity = [Capitalized_with_underlines]")
+    files.first().contents().contains("struct SomeStruct {")
+    files.first().contents().contains("let array: arrayEntity")
+
   }
 
 

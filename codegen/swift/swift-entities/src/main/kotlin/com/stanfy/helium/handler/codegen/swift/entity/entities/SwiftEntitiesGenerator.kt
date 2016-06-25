@@ -2,13 +2,14 @@ package com.stanfy.helium.handler.codegen.swift.entity.entities
 
 import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.Project
+import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
 import com.stanfy.helium.model.constraints.EnumConstraint
 
 interface SwiftEntitiesGenerator {
   fun entitiesFromHeliumProject(project: Project): List<SwiftEntity>
-  fun swiftType(heliumType: Type, registry: Map<String, SwiftEntity>): SwiftEntity
+  fun swiftType(heliumType: Type, registry: MutableMap<String, SwiftEntity>): SwiftEntity
 }
 
 class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
@@ -44,7 +45,7 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
     val sequences = project.sequences
         .filterNot { sequence -> sequence.isAnonymous }
         .map { sequence ->
-          swiftType(sequence, typesRegistry as Map<String, SwiftEntity>)
+          swiftType(sequence, typesRegistry)
         }
 
 
@@ -59,7 +60,27 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
     return prettifiedName
   }
 
-  override fun swiftType(heliumType: Type, registry: Map<String, SwiftEntity>): SwiftEntity {
+  override fun swiftType(heliumType: Type, registry: MutableMap<String, SwiftEntity>): SwiftEntity {
+    return registry.getOrElse(heliumType.name) {
+      val type: SwiftEntity =
+          primitiveType(heliumType)
+              ?: sequenceType(heliumType, registry)
+              ?: structType(heliumType)
+      registry.put(heliumType.name, type)
+      return type
+    }
+  }
+
+  private fun sequenceType(heliumType: Type, registry: MutableMap<String, SwiftEntity>): SwiftEntityArray? {
+    if (heliumType !is Sequence) return null
+    return SwiftEntityArray(heliumType.name, swiftType(heliumType.itemsType, registry))
+  }
+
+  private fun structType(heliumType: Type): SwiftEntityStruct {
+    return SwiftEntityStruct(heliumType.name)
+  }
+
+  private fun primitiveType(heliumType: Type): SwiftEntityPrimitive? {
     return when (heliumType.name) {
       "int" -> SwiftEntityPrimitive("Int")
       "integer" -> SwiftEntityPrimitive("Int")
@@ -74,15 +95,13 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
       "bool" -> SwiftEntityPrimitive("Bool")
       "boolean" -> SwiftEntityPrimitive("Bool")
       else -> {
-        registry.getOrElse(heliumType.name) {
-          return SwiftEntityStruct(heliumType.name)
-        }
+        null
       }
     }
   }
 
   private fun enumType(heliumType: Type): SwiftEntityEnum? {
-    if (!(heliumType is ConstrainedType)) return null
+    if (heliumType !is ConstrainedType) return null
     val constraint = heliumType.constraints.first { con -> con is EnumConstraint } as? EnumConstraint<Any> ?: return null
     val enumValues = constraint.values
         .filterIsInstance<String>()

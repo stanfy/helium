@@ -64,7 +64,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     entities.size() == 1
   }
 
-  def "generate entity enums for restricted types" () {
+  def "generate enums entities for restricted types" () {
     List<SwiftEntityEnum> enums
 
     given:
@@ -98,6 +98,25 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     enums.last().values.name == ["UnderScores", "UnDerScoRes"]
     enums.last().values.value == ["under_scores", "_un_der_sco_res"]
   }
+
+  def "generate associated types for named sequences" () {
+    List<SwiftEntityArray> namedArrays
+
+    given:
+    project.type "string"
+    project.type 'AffiliateMenu' sequence 'string'
+    project.type 'AffiliateMenuList' sequence 'AffiliateMenu'
+
+    when:
+    namedArrays = sut.entitiesFromHeliumProject(project).findAll { it instanceof SwiftEntityArray} as List<SwiftEntityArray>
+
+    then:
+    namedArrays.size() == 2
+    namedArrays.first().itemType.name == "String"
+    namedArrays.first().name == "AffiliateMenu"
+    namedArrays.find { it.name == "AffiliateMenuList" }.itemType.name == "AffiliateMenu"
+  }
+
 
   def "reuse entity names once found" () {
     SwiftEntityStruct entityA

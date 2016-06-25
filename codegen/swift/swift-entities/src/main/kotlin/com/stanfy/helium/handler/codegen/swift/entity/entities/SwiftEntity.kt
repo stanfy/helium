@@ -4,6 +4,7 @@ interface SwiftEntity {
   val name: String
   val optional: Boolean
   fun toOptional(): SwiftEntity
+  fun typeString(): String
 }
 
 interface SwiftCpmplexEntity : SwiftEntity {
@@ -17,6 +18,9 @@ data class SwiftEntityPrimitive(override val name: String,
 
   override fun toOptional(): SwiftEntity {
     return optional(name)
+  }
+  override fun typeString(): String {
+    return this.name + if (optional) "?" else ""
   }
 
   companion object {
@@ -36,6 +40,10 @@ data class SwiftEntityStruct(override val name: String,
 
   override fun toOptional(): SwiftEntity {
     return optional(name, properties)
+  }
+
+  override fun typeString(): String {
+    return this.name + if (optional) "?" else ""
   }
 
   companion object {
@@ -59,9 +67,33 @@ data class SwiftEntityEnum(override val name: String,
     return optional(name, values)
   }
 
+  override fun typeString(): String {
+    return this.name + if (optional) "?" else ""
+  }
+
   companion object {
     fun optional(name: String, values: List<SwiftEntityEnumCase>): SwiftEntityEnum {
       return SwiftEntityEnum(name, values, true)
+    }
+  }
+}
+
+data class SwiftEntityArray(override val name: String,
+                            val itemType: SwiftEntity,
+                            override val optional: Boolean) : SwiftEntity {
+  constructor(name: String, itemType: SwiftEntity) : this(name, optional = false, itemType = itemType)
+
+  override fun toOptional(): SwiftEntityArray {
+    return optional(name, itemType)
+  }
+
+  override fun typeString(): String {
+    return "[" + itemType.typeString() + "]" + if (optional) "?" else ""
+  }
+
+  companion object {
+    fun optional(name: String, itemType: SwiftEntity): SwiftEntityArray {
+      return SwiftEntityArray(name, itemType, true)
     }
   }
 }

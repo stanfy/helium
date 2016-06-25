@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnum
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityStruct
 import com.stanfy.helium.handler.codegen.swift.entity.mustache.SwiftTemplatesHelper
@@ -35,7 +36,15 @@ class SwiftFilesGeneratorImpl : SwiftFilesGenerator {
               SwiftTemplatesHelper.generateSwiftEnum(entity.name, entity.values)
             }.joinToString(separator = "\n")
 
-        return arrayOf(enums, structs)
+        val namedSequences = entities
+            .filterIsInstance<SwiftEntityArray>()
+            .filter { entity -> entity.name.length > 0 }
+            .map { entity ->
+              SwiftTemplatesHelper.generateSwiftTypeAlias(entity.name, entity)
+            }.joinToString(separator = "\n")
+
+
+        return arrayOf(namedSequences, enums, structs)
             .joinToString(separator = "\n")
       }
     }
