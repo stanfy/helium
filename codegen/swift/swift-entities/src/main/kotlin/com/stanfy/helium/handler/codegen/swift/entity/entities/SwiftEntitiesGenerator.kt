@@ -13,13 +13,13 @@ interface SwiftEntitiesGenerator {
 
 class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
   override fun entitiesFromHeliumProject(project: Project): List<SwiftEntity> {
-    var typesRegistry: MutableMap<String, SwiftEntity> = hashMapOf()
+    val typesRegistry: MutableMap<String, SwiftEntity> = hashMapOf()
 
     val enums = project.types.all()
         .filterIsInstance<ConstrainedType>()
         .map { type ->
           val enumType = enumType(type)
-          // TODO : Non functional :(
+          // TODO : Non functional :( Make it functional!
           if (enumType != null) {
             typesRegistry.put(type.name, enumType)
           }
@@ -34,7 +34,9 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
           val props = message.fields
               .filterNot { field -> field.isSkip }
               .map { field ->
-                SwiftProperty(propertyName(field.name), swiftType(field.type, typesRegistry as Map<String, SwiftEntity>))
+                val type = swiftType(field.type, typesRegistry)
+                val fieldType = if (field.isRequired) type else type.toOptional()
+                SwiftProperty(propertyName(field.name), fieldType)
               }
           SwiftEntityStruct(message.name, props)
         }

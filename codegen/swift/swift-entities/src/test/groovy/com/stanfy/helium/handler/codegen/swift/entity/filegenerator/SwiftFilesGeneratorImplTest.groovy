@@ -25,7 +25,7 @@ class SwiftFilesGeneratorImplTest extends Specification {
 
   def "generate files with entities description"() {
     when:
-    files = sut.filesFromEntities([new SwiftEntityStruct("Name1", []), new SwiftEntityStruct("Name2", [])])
+    files = sut.filesFromEntities([new SwiftEntityStruct("Name1"), new SwiftEntityStruct("Name2")])
 
     then:
     files.first().name() != ""
@@ -35,18 +35,20 @@ class SwiftFilesGeneratorImplTest extends Specification {
 
   def "generate files with entities properties description"() {
     def property = new SwiftProperty("name", new SwiftEntityPrimitive("Good"))
+    def optionalPropery = new SwiftProperty("anotherName", new SwiftEntityPrimitive("Good").toOptional())
     when:
-    files = sut.filesFromEntities([new SwiftEntityStruct("Entiry", [property])])
+    files = sut.filesFromEntities([new SwiftEntityStruct("Entiry", [property, optionalPropery])])
 
     then:
     files.first().name() != ""
     files.first().contents().contains("struct Entiry {")
     files.first().contents().contains("let name: Good")
+    files.first().contents().contains("let anotherName: Good?")
   }
 
   def "generate files with enums"() {
     def enumEntity = new SwiftEntityEnum("nonCapitalizedName",
-        [new SwiftEntityEnumCase("Monday","monday"),
+        [new SwiftEntityEnumCase("Monday","monday",),
          new SwiftEntityEnumCase("Tuesday", "tuesday")])
     def enumEntity2 = new SwiftEntityEnum("Capitalized_with_underlines",
         [new SwiftEntityEnumCase("Wed","wed"),
@@ -63,5 +65,6 @@ class SwiftFilesGeneratorImplTest extends Specification {
     files.first().contents().contains('case Wed = "wed"')
     files.first().contents().contains('case Fri = "fri"')
   }
+
 
 }

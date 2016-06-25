@@ -158,4 +158,23 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     "enum"        | "enumValue"
   }
 
+  def "should handle optional fields"() {
+    SwiftEntityStruct entityA
+
+    given:
+    Project prj = new ProjectDsl()
+    prj.type "string"
+    prj.type "A" message {
+      optionalField 'string' optional
+      nonOptionalField 'string'
+    }
+
+    when:
+    entityA = (sut.entitiesFromHeliumProject(prj).first() as SwiftEntityStruct)
+
+    then:
+    entityA.properties.find { it.name == "optionalField" }.type.optional
+    !entityA.properties.find { it.name == "nonOptionalField"}.type.optional
+  }
+
 }

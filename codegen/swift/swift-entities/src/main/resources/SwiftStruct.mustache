@@ -1,5 +1,5 @@
 struct {{name}} {
      {{#props}}
-       let {{name}}: {{type.name}}
+       let {{name}}: {{type.name}}{{#type.optional}}?{{/type.optional}}
      {{/props}}
 }
