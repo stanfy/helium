@@ -5,4 +5,4 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCProject
  * Created by ptaykalo on 8/17/14.
  * Class that represents structure of objective C Project
  */
-public class ObjCProjectComplex(val classesTree: ObjCProjectClassesStructure)
+class ObjCProjectComplex(val classesTree: ObjCProjectClassesStructure)

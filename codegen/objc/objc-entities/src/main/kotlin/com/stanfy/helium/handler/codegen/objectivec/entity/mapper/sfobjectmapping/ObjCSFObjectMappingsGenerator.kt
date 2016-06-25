@@ -3,6 +3,7 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.mapper.sfobjectmappi
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectComplex
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectStructureGenerator
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCProject
 import com.stanfy.helium.model.Project
 
 /**
@@ -12,10 +13,10 @@ import com.stanfy.helium.model.Project
  * Generated classes will could be used with
  * https://github.com/stanfy/SFObjectMapping
  */
-public class ObjCSFObjectMappingsGenerator : ObjCProjectStructureGenerator {
-  public val MAPPINGS_FILENAME = "HeliumMappings"
+class ObjCSFObjectMappingsGenerator : ObjCProjectStructureGenerator {
+  val MAPPINGS_FILENAME = "HeliumMappings"
 
-  override fun generate(project: ObjCProjectComplex, projectDSL: Project, options: ObjCEntitiesOptions) {
+  override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
 //    val mappingsClassName = options.prefix + MAPPINGS_FILENAME
 //    val mappingsClass = ObjCComplexClass(mappingsClassName)
 //    project.classesTree.addClass(mappingsClass)

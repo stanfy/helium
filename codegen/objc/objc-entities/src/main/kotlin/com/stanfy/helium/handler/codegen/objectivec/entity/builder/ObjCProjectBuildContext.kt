@@ -6,7 +6,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.typemapping.ObjCTypeM
 /**
  * Created by paultaykalo on 2/15/16.
  */
-public class ObjCProjectBuildContext(val typeMappingRegistry: ObjCTypeMappingRegistry,
+class ObjCProjectBuildContext(val typeMappingRegistry: ObjCTypeMappingRegistry,
                                      val nameTransformer: ObjCPropertyNameTransformer,
                                      val options:ObjCEntitiesOptions?) {
 

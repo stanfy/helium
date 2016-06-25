@@ -9,7 +9,7 @@ import java.util.HashSet;
  * Transform property names for specified class
  * Updates original property names to another, name those aren't keywords in Objective-C
  */
-public class ObjCPropertyNameTransformer {
+class ObjCPropertyNameTransformer {
 
   companion object {
     val KEYWORDS = HashSet<String>(Arrays.asList("auto", "break", "case", "char", "const", "continue", "default", "do", "double",
@@ -22,11 +22,11 @@ public class ObjCPropertyNameTransformer {
 
   }
 
-  public fun propertyNameFrom(propertyName: String): String {
+  fun propertyNameFrom(propertyName: String): String {
     return propertyNameFrom(propertyName, null);
   }
 
-  public fun propertyNameFrom(propertyName: String, nonAllowedNames: Set<String>?): String {
+  fun propertyNameFrom(propertyName: String, nonAllowedNames: Set<String>?): String {
     // update Property name :)
     var currPropertyName = propertyName
 

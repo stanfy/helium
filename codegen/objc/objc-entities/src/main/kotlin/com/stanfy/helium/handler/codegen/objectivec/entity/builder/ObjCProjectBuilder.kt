@@ -9,7 +9,7 @@ import com.stanfy.helium.model.Project
  * Created by paultaykalo on 2/12/16.
  *
  */
-public class ObjCProjectBuilder {
+class ObjCProjectBuilder {
 
   fun build(from: Project, context: ObjCProjectBuildContext): ObjCProject {
     val project = ObjCProject()

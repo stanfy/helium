@@ -12,8 +12,8 @@ import com.stanfy.helium.model.Sequence
  * Created by ptaykalo on 8/17/14.
  */
 @Deprecated("User ObjcProjectBuilder instead")
-public class ObjCDefaultClassStructureBuilder(val typeTransformer: ObjCTypeTransformer,
-                                              val nameTransformer: ObjCPropertyNameTransformer) : ObjCBuilder<Project, ObjCProjectClassesStructure> {
+class ObjCDefaultClassStructureBuilder(val typeTransformer: ObjCTypeTransformer,
+                                       val nameTransformer: ObjCPropertyNameTransformer) : ObjCBuilder<Project, ObjCProjectClassesStructure> {
 
   /**
    * Performs parsing / translation of Helium DSL Project Structure to Objective-C Project structure

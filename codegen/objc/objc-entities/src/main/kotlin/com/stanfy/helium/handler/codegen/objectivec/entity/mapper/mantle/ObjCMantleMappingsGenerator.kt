@@ -9,6 +9,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCMethodI
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.ObjCPregeneratedClass
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCSourcePart
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSourcePart
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCProject
 import com.stanfy.helium.model.Project
 
 /**
@@ -19,7 +20,7 @@ import com.stanfy.helium.model.Project
  * https://github.com/Mantle/Mantle
  */
 public class ObjCMantleMappingsGenerator : ObjCProjectStructureGenerator {
-  override fun generate(project: ObjCProjectComplex, projectDSL: Project, options: ObjCEntitiesOptions) {
+  override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
 
 //    val messages = projectDSL.messages
 //    val objcClasses = messages.mapNotNull { m -> project.classesTree.getClassForType(m.name) }

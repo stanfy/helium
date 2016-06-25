@@ -10,16 +10,16 @@ import com.stanfy.helium.model.Type
  * Mapping registry, which holds mapping from Helium messages/types to ObjC types
  */
 
-public class ObjCTypeMappingRegistry {
+class ObjCTypeMappingRegistry {
 
-  public data class ObjCTypeMapping(val heliumType: Type, val objectiveCType: ObjCType)
+  data class ObjCTypeMapping(val heliumType: Type, val objectiveCType: ObjCType)
 
   /**
-   *
+   * Registered mappings from helium type names to ObjCType
    */
   private val registeredMappings = hashMapOf<String, ObjCType>()
 
-  public fun objcType(heliumType: Type): ObjCType {
+  fun objcType(heliumType: Type): ObjCType {
 
     // Check generics
     when (heliumType) {
@@ -55,7 +55,7 @@ public class ObjCTypeMappingRegistry {
     return ObjCType(heliumType.name, isReference = true)
   }
 
-  public fun registerMapping(heliumType: Type, type:ObjCType) {
+  fun registerMapping(heliumType: Type, type:ObjCType) {
     registeredMappings[heliumType.name] = type
   }
 

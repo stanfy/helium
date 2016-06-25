@@ -4,12 +4,16 @@ import com.github.mustachejava.DefaultMustacheFactory
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectComplex
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCProjectStructureGenerator
+import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCProjectBuildContext
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCPropertyNameTransformer
 import com.stanfy.helium.handler.codegen.objectivec.entity.builder.ObjCTypeTransformer
 import com.stanfy.helium.handler.codegen.objectivec.entity.classtree.*
 import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCProperty
 import com.stanfy.helium.handler.codegen.objectivec.entity.filetree.ObjCStringSourcePart
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCClass
+import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCProject
 import com.stanfy.helium.handler.codegen.objectivec.entity.model.ObjCType
+import com.stanfy.helium.handler.codegen.objectivec.entity.typemapping.ObjCTypeMappingRegistry
 import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
@@ -21,29 +25,28 @@ import java.io.StringWriter
  * Created by paultaykalo on 12/18/15.
  *
  */
-class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
-                              val nameTransformer: ObjCPropertyNameTransformer) : ObjCProjectStructureGenerator  {
+class ObjCHTTPClientGenerator(val context:ObjCProjectBuildContext) : ObjCProjectStructureGenerator  {
 
   private var generationOptions:ObjCEntitiesOptions? = null;
 
-  override fun generate(project: ObjCProjectComplex, projectDSL: Project, options: ObjCEntitiesOptions) {
+  override fun generate(project: ObjCProject, projectDSL: Project, options: ObjCEntitiesOptions) {
 
     this.generationOptions = options
     projectDSL.services.forEach { service ->
-      addPregeneratedClientWithName(project, service)
-      val httpClientClass = ObjCComplexClass(this.httpClientClassNameForService(service, this.generationOptions!!))
-      project.classesTree.addClass(httpClientClass)
-
-      val apiClassName = options.prefix + Names.prettifiedName(Names.canonicalName(service.name))
-      val apiClass = ObjCComplexClass(apiClassName)
-      project.classesTree.addClass(apiClass)
-
-      addInitMethodForService(service,apiClass)
-      addCancellableDependencyForService(service, apiClass)
-      service.methods.forEach { method ->
-        addServiceMethodForService(service, apiClass, method, project)
-      }
-      addDeserializationLogicForService(service, apiClass);
+//      addPregeneratedClientWithName(project, service)
+//      val httpClientClass = ObjCComplexClass(this.httpClientClassNameForService(service, this.generationOptions!!))
+//      project.classesTree.addClass(httpClientClass)
+//
+//      val apiClassName = options.prefix + Names.prettifiedName(Names.canonicalName(service.name))
+//      val apiClass = ObjCComplexClass(apiClassName)
+//      project.classesTree.addClass(apiClass)
+//
+//      addInitMethodForService(service,apiClass)
+//      addCancellableDependencyForService(service, apiClass)
+//      service.methods.forEach { method ->
+//        addServiceMethodForService(service, apiClass, method, project)
+//      }
+//      addDeserializationLogicForService(service, apiClass);
     }
   }
 
@@ -234,7 +237,7 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
 //    }
   }
 
-  private fun addPregeneratedClientWithName(project: ObjCProjectComplex, service: Service) {
+  private fun addPregeneratedClientWithName(project: ObjCProject, service: Service) {
     val httpClientClassName = httpClientClassNameForService(service, this.generationOptions!!)
     val cancellableOperationClassName = cancelableOperationClassNameForService(service, this.generationOptions!!)
 
@@ -244,15 +247,16 @@ class ObjCHTTPClientGenerator(val typeTransformer: ObjCTypeTransformer,
       val service:Service = service
     }
 
-    project.classesTree.pregeneratedClasses.add(
-        ObjCPregeneratedClass(httpClientClassName,
-            generatedTemplateWithName("HTTPClientHeader.mustache", templateObject),
-            generatedTemplateWithName("HTTPClientImplementation.mustache", templateObject)))
-
-    project.classesTree.pregeneratedClasses.add(
-        ObjCPregeneratedClass(cancellableOperationClassName,
-            generatedTemplateWithName("CancelableOperationHeader.mustache", templateObject),
-            null))
+//    project.classes.add(ObjCClass())
+//    project.classesTree.pregeneratedClasses.add(
+//        ObjCPregeneratedClass(httpClientClassName,
+//            generatedTemplateWithName("HTTPClientHeader.mustache", templateObject),
+//            generatedTemplateWithName("HTTPClientImplementation.mustache", templateObject)))
+//
+//    project.classesTree.pregeneratedClasses.add(
+//        ObjCPregeneratedClass(cancellableOperationClassName,
+//            generatedTemplateWithName("CancelableOperationHeader.mustache", templateObject),
+//            null))
   }
 
   private fun generatedTemplateWithName(templateName:String, templateObject:Any):String {

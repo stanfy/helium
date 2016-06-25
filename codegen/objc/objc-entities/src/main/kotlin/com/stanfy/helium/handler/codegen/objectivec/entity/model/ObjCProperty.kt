@@ -4,9 +4,9 @@ package com.stanfy.helium.handler.codegen.objectivec.entity.model;
  * Created by ptaykalo on 8/19/14.
  * Wrapper for ObjC property
  */
-public class ObjCProperty {
+class ObjCProperty {
 
-  public enum class AccessModifier {
+  enum class AccessModifier {
     COPY,
     RETAIN,
     ASSIGN,
@@ -14,7 +14,7 @@ public class ObjCProperty {
     WEAK
   }
 
-  public enum class AtomicModifier {
+  enum class AtomicModifier {
     ATOMIC,
     NONATOMIC,
   }
@@ -34,13 +34,13 @@ public class ObjCProperty {
   /**
    * Property name
    */
-  public val name: String
+  val name: String
 
   /**
    * Property result type (this is the type, which will be simply translated to the output)
    * so, in case of ObjC - it should be NSString, and NSArray... etc
    */
-  public val type: ObjCType
+  val type: ObjCType
 
   /**
    * Access modifier for property AccessModifier.STRONG - for default value
@@ -50,11 +50,11 @@ public class ObjCProperty {
   /**
    * By default we'll create non-atomic modifier
    */
-  public val atomicModifier: AtomicModifier
+  val atomicModifier: AtomicModifier
 
   /**
    * Additional comment
    */
-  public var comment: String? = null
+  var comment: String? = null
 
 }
