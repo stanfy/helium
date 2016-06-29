@@ -130,7 +130,7 @@ class ProjectDslSpec extends Specification {
     dsl.messages[2].fields[2].name == "list"
     dsl.messages[2].fields[2].type.name == "int32"
     dsl.messages[2].fields[2].sequence
-    !dsl.messages[2].fields[2].required
+    dsl.messages[2].fields[2].required
     dsl.messages[2].fields[3].name == "Data"
   }
 

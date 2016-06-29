@@ -113,17 +113,19 @@ class FieldsBuilder extends TypeAwareBuilder {
       field.required = false
     }
 
-    boolean getSequence() {
+    OptionalFieldTrigger getSequence() {
       field.sequence = true
-      field.required = false
+      return this
     }
 
-    void setRequired(boolean value) {
+    OptionalFieldTrigger setRequired(boolean value) {
       field.required = value
+      return this
     }
 
-    void setSequence(boolean value) {
+    OptionalFieldTrigger setSequence(boolean value) {
       field.sequence = value
+      return this
     }
   }
 
