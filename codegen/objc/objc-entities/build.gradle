@@ -18,8 +18,8 @@ apply plugin: 'signing'
 apply plugin: 'maven'
 apply plugin: 'checkstyle'
 apply plugin: 'codenarc'
-apply from: file("$rootDir/gradle/common.gradle")
 apply plugin: "jacoco"
+apply from: file("$rootDir/gradle/common.gradle")
 
 evaluationDependsOn(':codegen')
 
