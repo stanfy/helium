@@ -1,0 +1,5 @@
+struct {{name}} {
+     {{#props}}
+       let {{name}}: {{type.typeString}}{{#type.optional}}?{{/type.optional}}
+     {{/props}}
+}

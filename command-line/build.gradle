@@ -13,6 +13,7 @@ dependencies {
   compile project(':codegen:java:java-constants')
   compile project(':codegen:java:retrofit')
   compile project(':codegen:objc:objc-entities')
+  compile project(':codegen:swift:swift-entities')
   compile project(':codegen:json:json-schema')
 
   compile 'commons-cli:commons-cli:1.2'

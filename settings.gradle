@@ -9,6 +9,8 @@ include ':codegen:java:retrofit'
 
 include ':codegen:objc:objc-entities'
 
+include ':codegen:swift:swift-entities'
+
 include ':codegen:json:json-schema'
 
 include ':codegen:swagger'

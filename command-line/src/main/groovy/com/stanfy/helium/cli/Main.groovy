@@ -7,6 +7,13 @@ import com.stanfy.helium.handler.codegen.java.entity.EntitiesGeneratorOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCMappingOption
+import com.stanfy.helium.handler.codegen.swift.entity.*
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
+import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFilesGenerator
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFilesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGenerator
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGeneratorImpl
 
 /**
  * Main entry point.
@@ -75,6 +82,19 @@ class Main {
                 genOptions.mappingsType = mappingType
                 return new ObjCEntitiesGenerator(output, genOptions)
               }
+      ],
+      "swift-entities": [
+          description: "Generate Swift entity classes",
+          properties:  [
+              "prop" : "value"
+          ],
+          factory: { def options, File output ->
+            SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
+            SwiftFilesGenerator filesGenerator = new SwiftFilesGeneratorImpl()
+            SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
+            SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
+            return new SwiftEntitiesHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
+          }
       ]
 
   ]
