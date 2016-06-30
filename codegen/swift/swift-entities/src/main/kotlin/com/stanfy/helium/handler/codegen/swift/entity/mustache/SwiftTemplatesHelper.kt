@@ -31,6 +31,26 @@ class SwiftTemplatesHelper {
       })
     }
 
+    fun generateSwiftEnumDecodables(name: String, values: List<SwiftEntityEnumCase>): String {
+      return generatedTemplateWithName("decodable/SwiftEnumDecodable.mustache", object : Any () {
+        val name = name
+        val values = values
+      })
+    }
+    fun generateSwiftStructDecodables(name: String, properties: List<SwiftProperty>): String {
+      return generatedTemplateWithName("decodable/SwiftStructDecodable.mustache", object : Any () {
+        val name = name
+        val props = properties.mapIndexed { i, pr ->
+          object {
+            val optional = if (pr.type.optional) "?" else ""
+            val delimiter = if (i != properties.lastIndex) "," else ""
+            val name = pr.name
+            val jsonKey = pr.originalName
+          }
+        }
+      })
+    }
+
 
     fun generatedTemplateWithName(templateName: String, templateObject: Any): String {
       val mustacheFactory = DefaultMustacheFactory()
@@ -39,6 +59,7 @@ class SwiftTemplatesHelper {
       mustache.execute(stringWriter, templateObject)
       return stringWriter.toString()
     }
+
 
   }
 

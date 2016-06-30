@@ -8,11 +8,14 @@ import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputG
 import com.stanfy.helium.model.Project
 import java.io.File
 
-
-class SwiftEntitiesHandler(outputDirectory: File?, options: SwiftGenerationOptions?,
-                           val entitiesGenerator: SwiftEntitiesGenerator,
-                           val filesGenerator: SwiftFilesGenerator,
-                           val outputGenerator: SwiftOutputGenerator) :
+/***
+ * Default project handler that performs chain of transformations on DSL Project
+ * DSL Project -> Swift Entities -> Swift Files -> Output
+ */
+class SwiftDefaultHandler(outputDirectory: File?, options: SwiftGenerationOptions?,
+                          val entitiesGenerator: SwiftEntitiesGenerator,
+                          val filesGenerator: SwiftFilesGenerator,
+                          val outputGenerator: SwiftOutputGenerator) :
     BaseGenerator<SwiftGenerationOptions>(outputDirectory, options), Handler {
 
   override fun handle(project: Project?) {

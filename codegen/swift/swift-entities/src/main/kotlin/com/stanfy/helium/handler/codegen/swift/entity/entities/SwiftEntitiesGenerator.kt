@@ -37,7 +37,7 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
               .map { field ->
                 val type = if (field.isSequence) simpleSequenceType(field.type, typesRegistry) else swiftType(field.type, typesRegistry)
                 val fieldType = if (field.isRequired) type else type.toOptional()
-                SwiftProperty(propertyName(field.name), fieldType)
+                SwiftProperty(propertyName(field.name), fieldType, field.name)
               }
           SwiftEntityStruct(message.name, props)
         }

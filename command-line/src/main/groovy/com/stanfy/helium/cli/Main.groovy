@@ -11,7 +11,8 @@ import com.stanfy.helium.handler.codegen.swift.entity.*
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFilesGenerator
-import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFilesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEntityFilesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftDecodableMappingsFilesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGeneratorImpl
 
@@ -85,17 +86,46 @@ class Main {
       ],
       "swift-entities": [
           description: "Generate Swift entity classes",
-          properties:  [
-              "prop" : "value"
+          properties: [
+              "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
-            SwiftFilesGenerator filesGenerator = new SwiftFilesGeneratorImpl()
+            generationOptions.customTypesMappings = mapProperty(options, "customMapping")
+
+            SwiftFilesGenerator filesGenerator = new SwiftEntityFilesGeneratorImpl()
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftEntitiesHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
+            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
+          }
+      ],
+      "swift-mappings": [
+          description: "Generate Swift entity mappings for sepcified type",
+          properties: [
+              "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
+              "mappingType" : "Mapping type. Optional. Possible values : decodable"
+          ],
+          factory: { def options, File output ->
+            SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
+            generationOptions.customTypesMappings = mapProperty(options, "customMapping")
+
+            SwiftFilesGenerator filesGenerator = null
+            switch (requiredProperty(options, "mappingType")) {
+              case "decodable":
+                filesGenerator = new SwiftDecodableMappingsFilesGeneratorImpl()
+                break
+              default:
+                println "Property -HmappingType=<value> is required. Possible values : [decodable]"
+                System.exit(1)
+                break
+            }
+
+            SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
+            SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
+            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
           }
       ]
+
 
   ]
 

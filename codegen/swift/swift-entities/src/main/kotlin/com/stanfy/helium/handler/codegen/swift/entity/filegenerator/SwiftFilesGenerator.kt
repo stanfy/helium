@@ -15,7 +15,7 @@ interface SwiftFilesGenerator {
   fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile>
 }
 
-class SwiftFilesGeneratorImpl : SwiftFilesGenerator {
+class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
   override fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile> {
     // TODO : Different files? as an option
     val file: SwiftFile = object : SwiftFile {
@@ -45,6 +45,37 @@ class SwiftFilesGeneratorImpl : SwiftFilesGenerator {
 
 
         return arrayOf(namedSequences, enums, structs)
+            .joinToString(separator = "\n")
+      }
+    }
+    return listOf(file)
+  }
+}
+
+class SwiftDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerator {
+  override fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile> {
+    // TODO : Different files? as an option
+    val file: SwiftFile = object : SwiftFile {
+      override fun name(): String {
+        return "Mappings"
+      }
+
+      override fun contents(): String {
+        val imports = "import Decodable"
+        val structs = entities
+            .filterIsInstance<SwiftEntityStruct>()
+            .map { entity ->
+              SwiftTemplatesHelper.generateSwiftStructDecodables(entity.name, entity.properties)
+            }.joinToString(separator = "\n")
+
+        val enums = entities
+            .filterIsInstance<SwiftEntityEnum>()
+            .map { entity ->
+              SwiftTemplatesHelper.generateSwiftEnumDecodables(entity.name, entity.values)
+            }.joinToString(separator = "\n")
+
+
+        return arrayOf(imports, enums, structs)
             .joinToString(separator = "\n")
       }
     }

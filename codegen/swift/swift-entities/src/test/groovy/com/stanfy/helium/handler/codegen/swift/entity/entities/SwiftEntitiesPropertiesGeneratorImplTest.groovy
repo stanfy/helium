@@ -191,6 +191,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     prj.type "A" message {
       sequenceOfSequence 'B' sequence
       nonSequenceField 'B'
+      nonSequenceFieldOptional 'B' optional
     }
 
     when:
@@ -201,6 +202,13 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     entityB.properties.find { it.name == "sequenceField" }.type instanceof SwiftEntityArray
     entityA.properties.find { it.name == "nonSequenceField" }.type instanceof SwiftEntityStruct
     entityA.properties.find { it.name == "sequenceOfSequence" }.type instanceof SwiftEntityArray
+    entityA.properties.find { it.name == "nonSequenceFieldOptional" }.type instanceof SwiftEntityStruct
+//    !entityA.properties.find { it.name == "nonSequenceField" }.optional
+//    !entityB.properties.find { it.name == "sequenceField" }.type.optional
+//    !entityA.properties.find { it.name == "sequenceOfSequence" }.optional
+//    entityA.properties.find { it.name == "nonSequenceFieldOptional" }.optional
+    //TODO : tjis is stange, but sequence makes field optional
+
   }
 
 
