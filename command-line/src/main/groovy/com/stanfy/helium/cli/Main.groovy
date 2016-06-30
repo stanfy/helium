@@ -88,10 +88,22 @@ class Main {
           description: "Generate Swift entity classes",
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
+              "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
+
+            switch (property(options, "entitiesAccessLevel")) {
+              case "public":
+                generationOptions.entitiesAccessLevel = SwiftEntitiesAccessLevel.PUBLIC
+                break
+              case "internal":
+                generationOptions.entitiesAccessLevel = SwiftEntitiesAccessLevel.INTERNAL
+                break
+              default:
+                println "Unknown entities visibility passed in Possible values : public, internal"
+            }
 
             SwiftFilesGenerator filesGenerator = new SwiftEntityFilesGeneratorImpl()
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
