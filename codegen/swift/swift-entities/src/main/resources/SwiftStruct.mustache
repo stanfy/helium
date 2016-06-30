@@ -1,5 +1,5 @@
-struct {{name}} {
-     {{#props}}
-       let {{name}}: {{type.typeString}}
-     {{/props}}
+{{accessLevel}} struct {{name}} {
+{{#props}}
+  {{accessLevel}} let {{name}}: {{type.typeString}}
+{{/props}}
 }

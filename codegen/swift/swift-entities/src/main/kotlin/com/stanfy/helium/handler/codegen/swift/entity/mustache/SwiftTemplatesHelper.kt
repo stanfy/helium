@@ -1,7 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.mustache
 
 import com.github.mustachejava.DefaultMustacheFactory
-import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntitiesAccessLevel
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnumCase
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftProperty
@@ -10,24 +10,36 @@ import java.io.StringWriter
 class SwiftTemplatesHelper {
 
   companion object {
-    fun generateSwiftStruct(name: String, properties: List<SwiftProperty>): String {
+    fun generateSwiftStruct(name: String, properties: List<SwiftProperty>, accessLevel: SwiftEntitiesAccessLevel): String {
       return generatedTemplateWithName("SwiftStruct.mustache", object : Any () {
         val name = name
         val props = properties
+        val accessLevel = when(accessLevel) {
+          SwiftEntitiesAccessLevel.INTERNAL -> ""
+          SwiftEntitiesAccessLevel.PUBLIC -> "public"
+        }
       })
     }
 
-    fun generateSwiftEnum(name: String, values: List<SwiftEntityEnumCase>): String {
+    fun generateSwiftEnum(name: String, values: List<Any>, accessLevel: SwiftEntitiesAccessLevel): String {
       return generatedTemplateWithName("SwiftEnum.mustache", object : Any () {
         val name = name
         val values = values
+        val accessLevel = when(accessLevel) {
+          SwiftEntitiesAccessLevel.INTERNAL -> ""
+          SwiftEntitiesAccessLevel.PUBLIC -> "public"
+        }
       })
     }
 
-    fun generateSwiftTypeAlias(name: String, itemType: SwiftEntityArray): Any {
+    fun generateSwiftTypeAlias(name: String, itemType: SwiftEntityArray, accessLevel: SwiftEntitiesAccessLevel): Any {
       return generatedTemplateWithName("SwiftTypeAlias.mustache", object : Any () {
         val name = name
         val type = itemType.unaliasedTypeString()
+        val accessLevel = when(accessLevel) {
+          SwiftEntitiesAccessLevel.INTERNAL -> ""
+          SwiftEntitiesAccessLevel.PUBLIC -> "public"
+        }
       })
     }
 

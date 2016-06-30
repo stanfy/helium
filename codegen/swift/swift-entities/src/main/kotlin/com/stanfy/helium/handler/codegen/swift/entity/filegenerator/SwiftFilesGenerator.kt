@@ -1,5 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntitiesAccessLevel
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnum
@@ -13,10 +15,15 @@ import com.stanfy.helium.handler.codegen.swift.entity.mustache.SwiftTemplatesHel
  */
 interface SwiftFilesGenerator {
   fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile>
+  fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile>
 }
 
 class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
   override fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile> {
+    return this.filesFromEntities(entities, null)
+  }
+
+  override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
     // TODO : Different files? as an option
     val file: SwiftFile = object : SwiftFile {
       override fun name(): String {
@@ -24,23 +31,24 @@ class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
       }
 
       override fun contents(): String {
+        val accessLevel = options?.entitiesAccessLevel ?: SwiftEntitiesAccessLevel.INTERNAL
         val structs = entities
             .filterIsInstance<SwiftEntityStruct>()
             .map { entity ->
-              SwiftTemplatesHelper.generateSwiftStruct(entity.name, entity.properties)
+              SwiftTemplatesHelper.generateSwiftStruct(entity.name, entity.properties, accessLevel)
             }.joinToString(separator = "\n")
 
         val enums = entities
             .filterIsInstance<SwiftEntityEnum>()
             .map { entity ->
-              SwiftTemplatesHelper.generateSwiftEnum(entity.name, entity.values)
+              SwiftTemplatesHelper.generateSwiftEnum(entity.name, entity.values, accessLevel)
             }.joinToString(separator = "\n")
 
         val namedSequences = entities
             .filterIsInstance<SwiftEntityArray>()
             .filter { entity -> entity.name.length > 0 }
             .map { entity ->
-              SwiftTemplatesHelper.generateSwiftTypeAlias(entity.name, entity)
+              SwiftTemplatesHelper.generateSwiftTypeAlias(entity.name, entity, accessLevel)
             }.joinToString(separator = "\n")
 
 
@@ -53,7 +61,12 @@ class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
 }
 
 class SwiftDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerator {
+
   override fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile> {
+    return this.filesFromEntities(entities, null)
+  }
+
+  override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
     // TODO : Different files? as an option
     val file: SwiftFile = object : SwiftFile {
       override fun name(): String {

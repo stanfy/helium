@@ -1,5 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntitiesAccessLevel
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnum
@@ -114,6 +116,31 @@ class SwiftFilesGeneratorImplTest extends Specification {
     files.first().contents().contains("let optionalDaysWithOptionals: [WeekDays?]?")
   }
 
+  def "generate files with entities with different access control"() {
+    given:
+    SwiftGenerationOptions options = new SwiftGenerationOptions()
+    options.entitiesAccessLevel = accessLevel
+    SwiftEntityEnum enumEntity = new SwiftEntityEnum("nonCapitalizedName", [])
+    SwiftEntityEnum enumEntity2 = new SwiftEntityEnum("Capitalized_with_underlines", [])
+    SwiftEntityStruct structEntity = new SwiftEntityStruct("Name1")
+    SwiftEntityStruct structEntity2 = new SwiftEntityStruct("Name2", [new SwiftProperty("days", structEntity)])
+    SwiftEntityArray arrayEntity = new SwiftEntityArray("arrayEntity", enumEntity2)
+    files = sut.filesFromEntities([enumEntity, enumEntity2, structEntity, structEntity2, arrayEntity], options)
 
+    expect:
+    files.first().name() != ""
+    files.first().contents().contains(accessLevelString + " struct Name1 {")
+    files.first().contents().contains(accessLevelString + " struct Name2 {")
+    files.first().contents().contains(accessLevelString + " let days: Name1")
+    files.first().contents().contains(accessLevelString + " enum nonCapitalizedName")
+    files.first().contents().contains(accessLevelString + " enum Capitalized_with_underlines")
+    files.first().contents().contains(accessLevelString + " typealias arrayEntity")
+
+    where:
+    accessLevelString | accessLevel
+    "public"          | SwiftEntitiesAccessLevel.PUBLIC
+    ""                | SwiftEntitiesAccessLevel.INTERNAL
+
+  }
 
 }

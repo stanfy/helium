@@ -47,7 +47,7 @@ class SwiftDefaultHandlerTest extends Specification {
     sut.handle(project)
 
     then:
-    1 * filesGenerator.filesFromEntities(entities)
+    1 * filesGenerator.filesFromEntities(entities, options)
   }
 
   def "should output files for return swift files"() {
@@ -62,7 +62,7 @@ class SwiftDefaultHandlerTest extends Specification {
       String contents() { return "Contents" }
     }]
     entitiesGenerator.entitiesFromHeliumProject(project, options.customTypesMappings) >> entities
-    filesGenerator.filesFromEntities(entities) >> files
+    filesGenerator.filesFromEntities(entities, options) >> files
 
     when:
     sut.handle(project)
