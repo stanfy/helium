@@ -62,6 +62,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
 
     then:
     entities.size() == 1
+    entities.first().name == "Name"
   }
 
   def "generate enums entities for restricted types" () {
@@ -123,6 +124,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
 
   def "reuse entity names once found" () {
     SwiftEntityStruct entityA
+    SwiftEntityEnum   enumEntity
 
     given:
     project.type "string"
@@ -136,11 +138,28 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     }
 
     when:
-    entityA = sut.entitiesFromHeliumProject(project).find { it.name == "A"} as SwiftEntityStruct
+    entities = sut.entitiesFromHeliumProject(project)
+    entityA = entities.find { it.name == "A"} as SwiftEntityStruct
+    enumEntity = entities.find { it instanceof SwiftEntityEnum} as SwiftEntityEnum
 
     then:
-    entityA.properties.first().type.name == "EnumType"
+    entityA.properties.first().type == enumEntity
   }
 
+  def "Use custom mappings if provided" () {
+    given:
+    project.type "string"
+    project.type "customType"
+    project.type "customMessage" message {
+      prop 'customType'
+    }
+
+    when:
+    entities = sut.entitiesFromHeliumProject(project, ["customType" : "replacedType"])
+
+    then:
+    !entities.flatten { it.properties }.any { it.name == "customType"}
+    entities.flatten { it.properties }.any { it.type.name == "replacedType"}
+  }
 
 }

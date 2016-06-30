@@ -33,7 +33,7 @@ class SwiftDefaultHandlerTest extends Specification {
     sut.handle(project)
 
     then:
-    1 * entitiesGenerator.entitiesFromHeliumProject(project)
+    1 * entitiesGenerator.entitiesFromHeliumProject(project, options.customTypesMappings)
   }
 
   def "should generate files from generated entities"() {
@@ -41,7 +41,7 @@ class SwiftDefaultHandlerTest extends Specification {
 
     given:
     entities = [new SwiftEntityStruct("Name", [], false)]
-    entitiesGenerator.entitiesFromHeliumProject(project) >> entities
+    entitiesGenerator.entitiesFromHeliumProject(project,options.customTypesMappings) >> entities
 
     when:
     sut.handle(project)
@@ -61,7 +61,7 @@ class SwiftDefaultHandlerTest extends Specification {
 
       String contents() { return "Contents" }
     }]
-    entitiesGenerator.entitiesFromHeliumProject(project) >> entities
+    entitiesGenerator.entitiesFromHeliumProject(project, options.customTypesMappings) >> entities
     filesGenerator.filesFromEntities(entities) >> files
 
     when:
