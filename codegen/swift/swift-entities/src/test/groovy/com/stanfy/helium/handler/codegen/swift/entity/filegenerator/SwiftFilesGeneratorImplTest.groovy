@@ -123,7 +123,7 @@ class SwiftFilesGeneratorImplTest extends Specification {
     SwiftEntityEnum enumEntity = new SwiftEntityEnum("nonCapitalizedName", [])
     SwiftEntityEnum enumEntity2 = new SwiftEntityEnum("Capitalized_with_underlines", [])
     SwiftEntityStruct structEntity = new SwiftEntityStruct("Name1")
-    SwiftEntityStruct structEntity2 = new SwiftEntityStruct("Name2")
+    SwiftEntityStruct structEntity2 = new SwiftEntityStruct("Name2", [new SwiftProperty("days", structEntity)])
     SwiftEntityArray arrayEntity = new SwiftEntityArray("arrayEntity", enumEntity2)
     files = sut.filesFromEntities([enumEntity, enumEntity2, structEntity, structEntity2, arrayEntity], options)
 
@@ -131,6 +131,7 @@ class SwiftFilesGeneratorImplTest extends Specification {
     files.first().name() != ""
     files.first().contents().contains(accessLevelString + " struct Name1 {")
     files.first().contents().contains(accessLevelString + " struct Name2 {")
+    files.first().contents().contains(accessLevelString + " let days: Name1")
     files.first().contents().contains(accessLevelString + " enum nonCapitalizedName")
     files.first().contents().contains(accessLevelString + " enum Capitalized_with_underlines")
     files.first().contents().contains(accessLevelString + " typealias arrayEntity")
