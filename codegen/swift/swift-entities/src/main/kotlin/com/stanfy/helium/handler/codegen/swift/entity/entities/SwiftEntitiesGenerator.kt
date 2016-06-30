@@ -21,22 +21,24 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
   override fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?): List<SwiftEntity> {
     val typesRegistry: MutableMap<String, SwiftEntity> = hashMapOf()
     if (customTypesMappings != null) {
-      // TODO :Add tests
       typesRegistry.putAll(customTypesMappings.mapValues { name -> SwiftEntityStruct(name.value) })
     }
 
-    val enums = project.types.all()
+    val enumsWithTypes = project.types.all()
         .filterIsInstance<ConstrainedType>()
         .map { type ->
           val enumType = enumType(type)
-          // TODO : Non functional :( Make it functional!
-          if (enumType != null) {
-            typesRegistry.put(type.name, enumType)
-          }
-          enumType
+          if (enumType != null) Pair(type, enumType) else null
         }
         .filterNotNull()
 
+    enumsWithTypes.forEach { typeEnum ->
+      typesRegistry.put(typeEnum.first.name, typeEnum.second)
+    }
+
+    val enums = enumsWithTypes.map { typeEnum ->
+      typeEnum.second
+    }
 
     val messages = project.messages
         .filterNot { message -> message.isAnonymous }
