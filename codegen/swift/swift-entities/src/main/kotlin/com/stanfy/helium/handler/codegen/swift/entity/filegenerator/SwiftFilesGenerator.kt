@@ -52,7 +52,7 @@ class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
   }
 }
 
-class SwiftMappingsFilesGeneratorImpl : SwiftFilesGenerator {
+class SwiftDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerator {
   override fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile> {
     // TODO : Different files? as an option
     val file: SwiftFile = object : SwiftFile {

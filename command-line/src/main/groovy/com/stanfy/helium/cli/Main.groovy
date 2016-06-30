@@ -12,7 +12,7 @@ import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGene
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFilesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEntityFilesGeneratorImpl
-import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftMappingsFilesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftDecodableMappingsFilesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGeneratorImpl
 
@@ -96,7 +96,7 @@ class Main {
             SwiftFilesGenerator filesGenerator = new SwiftEntityFilesGeneratorImpl()
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftEntitiesHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
+            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
           }
       ],
       "swift-mappings": [
@@ -112,7 +112,7 @@ class Main {
             SwiftFilesGenerator filesGenerator = null
             switch (requiredProperty(options, "mappingType")) {
               case "decodable":
-                filesGenerator = new SwiftMappingsFilesGeneratorImpl()
+                filesGenerator = new SwiftDecodableMappingsFilesGeneratorImpl()
                 break
               default:
                 println "Property -HmappingType=<value> is required. Possible values : [decodable]"
@@ -122,7 +122,7 @@ class Main {
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftMappindsHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
+            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
           }
       ]
 

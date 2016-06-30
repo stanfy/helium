@@ -9,8 +9,8 @@ import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputG
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import spock.lang.Specification
 
-class SwiftEntitiesHandlerTest extends Specification {
-  SwiftEntitiesHandler sut;
+class SwiftDefaultHandlerTest extends Specification {
+  SwiftDefaultHandler sut;
   ProjectDsl project;
   SwiftGenerationOptions options;
   File output;
@@ -25,7 +25,7 @@ class SwiftEntitiesHandlerTest extends Specification {
     entitiesGenerator = Mock(SwiftEntitiesGenerator)
     outputGenerator = Mock(SwiftOutputGenerator)
     output = File.createTempDir()
-    sut = new SwiftEntitiesHandler(output, options, entitiesGenerator, filesGenerator, outputGenerator)
+    sut = new SwiftDefaultHandler(output, options, entitiesGenerator, filesGenerator, outputGenerator)
   }
 
   def "should generate entities"() {
