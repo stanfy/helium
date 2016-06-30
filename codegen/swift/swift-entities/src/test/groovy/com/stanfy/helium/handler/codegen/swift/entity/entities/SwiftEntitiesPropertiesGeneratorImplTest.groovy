@@ -177,7 +177,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     !entityA.properties.find { it.name == "nonOptionalField"}.type.optional
   }
 
-  def "should handle sequence fields"() {
+  def "should handle sequence fields with optional vlues"() {
     SwiftEntityStruct entityA
     SwiftEntityStruct entityB
 
@@ -203,11 +203,10 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     entityA.properties.find { it.name == "nonSequenceField" }.type instanceof SwiftEntityStruct
     entityA.properties.find { it.name == "sequenceOfSequence" }.type instanceof SwiftEntityArray
     entityA.properties.find { it.name == "nonSequenceFieldOptional" }.type instanceof SwiftEntityStruct
-//    !entityA.properties.find { it.name == "nonSequenceField" }.optional
-//    !entityB.properties.find { it.name == "sequenceField" }.type.optional
-//    !entityA.properties.find { it.name == "sequenceOfSequence" }.optional
-//    entityA.properties.find { it.name == "nonSequenceFieldOptional" }.optional
-    //TODO : tjis is stange, but sequence makes field optional
+    !entityA.properties.find { it.name == "nonSequenceField" }.type.optional
+    !entityB.properties.find { it.name == "sequenceField" }.type.optional
+    !entityA.properties.find { it.name == "sequenceOfSequence" }.type.optional
+    entityA.properties.find { it.name == "nonSequenceFieldOptional" }.type.optional
 
   }
 
