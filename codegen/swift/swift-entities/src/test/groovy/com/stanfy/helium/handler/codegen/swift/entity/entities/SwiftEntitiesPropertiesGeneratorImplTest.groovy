@@ -177,6 +177,27 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     !entityA.properties.find { it.name == "nonOptionalField"}.type.optional
   }
 
+  def "should treat fields with default options as non-optional"() {
+    SwiftEntityStruct entityA
+
+    given:
+    Project prj = new ProjectDsl()
+    prj.type "string"
+    prj.type "string2"
+    prj.type "A" message {
+      optionalFieldWithDefaultValue 'string' optional
+      optionalFieldWithoutDefaultValue 'string2' optional
+    }
+
+    when:
+    entityA = (sut.entitiesFromHeliumProject(prj, null, ["string" : "value"]).first() as SwiftEntityStruct)
+
+    then:
+    !entityA.properties.find { it.name == "optionalFieldWithDefaultValue" }.type.optional
+    entityA.properties.find { it.name == "optionalFieldWithoutDefaultValue" }.type.optional
+  }
+
+
   def "should handle sequence fields with optional vlues"() {
     SwiftEntityStruct entityA
     SwiftEntityStruct entityB

@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnum
@@ -58,6 +59,25 @@ class SwiftDecodableMappingsFilesGeneratorImplTest extends Specification {
     files.first().contents().contains("name: json => \"original_name\"")
     files.first().contents().contains("anotherName: json =>? \"another_original_name\"")
   }
+
+  def "generate entities properties description with default values"() {
+    def optionalProperty =
+        new SwiftProperty("optionalOne", new SwiftEntityPrimitive("Good"), "optional_name")
+    def requiredProperty =
+        new SwiftProperty("requiredOne", new SwiftEntityPrimitive("Good"), "required_one")
+
+    def options =  new SwiftGenerationOptions()
+    options.typeDefaultValues = ["Good" : '"some_default_value"']
+
+    when:
+    files = sut.filesFromEntities([new SwiftEntityStruct("Entiry", [optionalProperty, requiredProperty])], options)
+
+    then:
+    files.first().name() != ""
+    files.first().contents().contains('optionalOne: (json =>? "optional_name") ?? "some_default_value"')
+    files.first().contents().contains('requiredOne: (json =>? "required_one") ?? "some_default_value"')
+  }
+
 
   def "generate files with mappings for enums"() {
     def enumEntity = new SwiftEntityEnum("nonCapitalizedName", [])
