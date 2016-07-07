@@ -108,7 +108,7 @@ class Main {
             SwiftFilesGenerator filesGenerator = new SwiftEntityFilesGeneratorImpl()
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
+            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, [filesGenerator] as SwiftFilesGenerator[], outputGenerator)
           }
       ],
       "swift-mappings": [
@@ -134,7 +134,7 @@ class Main {
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
+            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, [ filesGenerator ] as SwiftFilesGenerator[], outputGenerator)
           }
       ]
 
