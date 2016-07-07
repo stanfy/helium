@@ -10,6 +10,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCMappingOption
 import com.stanfy.helium.handler.codegen.swift.entity.*
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEquatableFilesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFilesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEntityFilesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftDecodableMappingsFilesGeneratorImpl
@@ -90,6 +91,9 @@ class Main {
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
           ],
+          flags: [
+              "generate-equatables" : "Generates equatables functions for all entities. Optional",
+          ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
@@ -105,10 +109,17 @@ class Main {
                 println "Unknown entities visibility passed in Possible values : public, internal"
             }
 
-            SwiftFilesGenerator filesGenerator = new SwiftEntityFilesGeneratorImpl()
+            def fileGenerators = []
+            fileGenerators << new SwiftEntityFilesGeneratorImpl()
+
+            if (flag(options, "generate-equatables")) {
+              fileGenerators << new SwiftEquatableFilesGeneratorImpl()
+            }
+
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
+
+            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, fileGenerators as SwiftFilesGenerator[], outputGenerator)
           }
       ],
       "swift-mappings": [
@@ -134,7 +145,7 @@ class Main {
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, filesGenerator, outputGenerator)
+            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, [ filesGenerator ] as SwiftFilesGenerator[], outputGenerator)
           }
       ]
 
@@ -145,15 +156,37 @@ class Main {
   static {
     CLI.x("Do not include default types")
     CLI.H(args: 2, valueSeparator: '=', argName: 'property=value', "Set value of a property\n")
+    CLI.F(longOpt: "flag", args: 1, argName: 'flag name', "Sets flag to true\n")
     CLI.o(longOpt: "output", args: 1, argName: 'dir', "Output directory\n")
 
     CLI.V(args: 2, valueSeparator: '=', argName: 'name=value', "Set variable accessible in specs\n")
 
     HANDLERS.each { name, definition ->
-      String propsDescr = definition.properties.keySet().collect {
-        "-H${it}=<value>:\n${definition.properties[it]}\n"
-      }.inject("", {x, y -> x + y})
-      CLI._(longOpt: name, "$definition.description\nUsed properties:\n$propsDescr\n")
+      def description = []
+
+      description << "$definition.description"
+
+      if (definition.properties) {
+        String propsDescr = definition.properties.keySet().collect {
+          "-H${it}=<value>:\n${definition.properties[it]}"
+        }.join("\n")
+
+        description << "Used properties:"
+        description << propsDescr
+      }
+
+      if (definition.flags) {
+        Integer biggestFlagName  = definition.flags.keySet().collect { it.length() }.max()
+        String flagsDescr = definition.flags.keySet().collect {
+          "--${it.padRight(biggestFlagName)} : ${definition.flags[it]}"
+        }.join("\n")
+
+        description << " "
+        description << "Used flags:"
+        description << flagsDescr
+      }
+
+      CLI._(longOpt: name, description.join("\n"))
     }
 
     CLI.width = 120
@@ -180,6 +213,15 @@ class Main {
     }
     return null
   }
+
+  private static Boolean flag(def options, String name) {
+    if (!options.Fs) {
+      return false
+    }
+    def flags = options.Fs as List
+    return flags.contains(name)
+  }
+
 
   /** Property, that can contain multiple values */
   private static Map<String, String> mapProperty(def options, String name) {

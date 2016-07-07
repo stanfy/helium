@@ -15,6 +15,7 @@ class SwiftDefaultHandlerTest extends Specification {
   SwiftGenerationOptions options;
   File output;
   SwiftFilesGenerator filesGenerator
+  SwiftFilesGenerator filesGenerator2
   SwiftEntitiesGenerator entitiesGenerator
   SwiftOutputGenerator outputGenerator
 
@@ -22,10 +23,11 @@ class SwiftDefaultHandlerTest extends Specification {
     project = new ProjectDsl()
     options = new SwiftGenerationOptions();
     filesGenerator = Mock(SwiftFilesGenerator)
+    filesGenerator2 = Mock(SwiftFilesGenerator)
     entitiesGenerator = Mock(SwiftEntitiesGenerator)
     outputGenerator = Mock(SwiftOutputGenerator)
     output = File.createTempDir()
-    sut = new SwiftDefaultHandler(output, options, entitiesGenerator, filesGenerator, outputGenerator)
+    sut = new SwiftDefaultHandler(output, options, entitiesGenerator, [filesGenerator] as SwiftFilesGenerator[], outputGenerator)
   }
 
   def "should generate entities"() {
@@ -49,6 +51,24 @@ class SwiftDefaultHandlerTest extends Specification {
     then:
     1 * filesGenerator.filesFromEntities(entities, options)
   }
+
+  def "should generate files with all from generated entities"() {
+    List<SwiftEntity> entities
+
+    given:
+    entities = [new SwiftEntityStruct("Name", [], false)]
+    entitiesGenerator.entitiesFromHeliumProject(project,options.customTypesMappings) >> entities
+
+    when:
+    sut = new SwiftDefaultHandler(output, options, entitiesGenerator, [filesGenerator, filesGenerator2] as SwiftFilesGenerator[], outputGenerator)
+
+    sut.handle(project)
+
+    then:
+    1 * filesGenerator.filesFromEntities(entities, options)
+    1 * filesGenerator2.filesFromEntities(entities, options)
+  }
+
 
   def "should output files for return swift files"() {
     List<SwiftEntity> entities

@@ -1,0 +1,10 @@
+// MARK: - {{name}} Equatable
+
+extension {{name}}: Equatable {}
+
+public func == (lhs: {{name}}, rhs: {{name}}) -> Bool {
+    {{#props}}
+      {{{delimiter}}} lhs.{{name}} == rhs.{{name}}
+    {{/props}}
+}
+
