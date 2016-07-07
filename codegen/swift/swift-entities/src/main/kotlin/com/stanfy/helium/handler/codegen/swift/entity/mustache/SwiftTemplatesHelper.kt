@@ -76,6 +76,24 @@ class SwiftTemplatesHelper {
       })
     }
 
+    fun generateSwiftStructEquatable(name: String, properties: List<SwiftProperty>): String {
+      return generatedTemplateWithName("equatable/SwiftStructEquatable.mustache", object : Any () {
+        val name = name
+        val props = properties.mapIndexed { i, pr ->
+          object {
+            val delimiter = if (i == 0) "return" else "    &&"
+            val name = pr.name
+          }
+        }
+      })
+    }
+
+    fun generateSwiftEnumEquatable(name: String, values: List<SwiftEntityEnumCase>): String {
+      return generatedTemplateWithName("equatable/SwiftEnumEquatable.mustache", object : Any () {
+        val name = name
+        val values = values
+      })
+    }
 
     fun generatedTemplateWithName(templateName: String, templateObject: Any): String {
       val mustacheFactory = DefaultMustacheFactory()
@@ -84,6 +102,7 @@ class SwiftTemplatesHelper {
       mustache.execute(stringWriter, templateObject)
       return stringWriter.toString()
     }
+
 
 
   }

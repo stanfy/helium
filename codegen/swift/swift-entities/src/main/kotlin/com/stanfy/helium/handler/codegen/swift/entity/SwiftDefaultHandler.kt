@@ -14,14 +14,16 @@ import java.io.File
  */
 class SwiftDefaultHandler(outputDirectory: File?, options: SwiftGenerationOptions?,
                           val entitiesGenerator: SwiftEntitiesGenerator,
-                          val filesGenerator: SwiftFilesGenerator,
+                          val filesGenerator: Array<SwiftFilesGenerator>,
                           val outputGenerator: SwiftOutputGenerator) :
     BaseGenerator<SwiftGenerationOptions>(outputDirectory, options), Handler {
 
   override fun handle(project: Project?) {
     val entities = entitiesGenerator.entitiesFromHeliumProject(project!!, options?.customTypesMappings, options?.typeDefaultValues)
-    val files = filesGenerator.filesFromEntities(entities, options)
-    outputGenerator.generate(outputDirectory, files)
+    filesGenerator.forEach { generator ->
+      val files = generator.filesFromEntities(entities, options)
+      outputGenerator.generate(outputDirectory, files)
+    }
   }
 
 }
