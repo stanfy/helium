@@ -90,6 +90,9 @@ class Main {
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
           ],
+          flags: [
+              "generateEquatables" : "Generates equatables functions for all entities. Optional",
+          ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
@@ -145,15 +148,37 @@ class Main {
   static {
     CLI.x("Do not include default types")
     CLI.H(args: 2, valueSeparator: '=', argName: 'property=value', "Set value of a property\n")
+    CLI.F(longOpt: "flag", args: 1, argName: 'flag name', "Sets flag to true\n")
     CLI.o(longOpt: "output", args: 1, argName: 'dir', "Output directory\n")
 
     CLI.V(args: 2, valueSeparator: '=', argName: 'name=value', "Set variable accessible in specs\n")
 
     HANDLERS.each { name, definition ->
-      String propsDescr = definition.properties.keySet().collect {
-        "-H${it}=<value>:\n${definition.properties[it]}\n"
-      }.inject("", {x, y -> x + y})
-      CLI._(longOpt: name, "$definition.description\nUsed properties:\n$propsDescr\n")
+      def description = []
+
+      description << "$definition.description"
+
+      if (definition.properties) {
+        String propsDescr = definition.properties.keySet().collect {
+          "-H${it}=<value>:\n${definition.properties[it]}"
+        }.join("\n")
+
+        description << "Used properties:"
+        description << propsDescr
+      }
+
+      if (definition.flags) {
+        Integer biggestFlagName  = definition.flags.keySet().collect { it.length() }.max()
+        String flagsDescr = definition.flags.keySet().collect {
+          "--${it.padRight(biggestFlagName)} : ${definition.flags[it]}"
+        }.join("\n")
+
+        description << " "
+        description << "Used flags:"
+        description << flagsDescr
+      }
+
+      CLI._(longOpt: name, description.join("\n"))
     }
 
     CLI.width = 120
