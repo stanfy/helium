@@ -10,6 +10,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCMappingOption
 import com.stanfy.helium.handler.codegen.swift.entity.*
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEquatableFilesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFilesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEntityFilesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftDecodableMappingsFilesGeneratorImpl
@@ -91,7 +92,7 @@ class Main {
               "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
           ],
           flags: [
-              "generateEquatables" : "Generates equatables functions for all entities. Optional",
+              "generate-equatables" : "Generates equatables functions for all entities. Optional",
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
@@ -108,10 +109,17 @@ class Main {
                 println "Unknown entities visibility passed in Possible values : public, internal"
             }
 
-            SwiftFilesGenerator filesGenerator = new SwiftEntityFilesGeneratorImpl()
+            def fileGenerators = []
+            fileGenerators << new SwiftEntityFilesGeneratorImpl()
+
+            if (flag(options, "generate-equatables")) {
+              fileGenerators << new SwiftEquatableFilesGeneratorImpl()
+            }
+
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, [filesGenerator] as SwiftFilesGenerator[], outputGenerator)
+
+            return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, fileGenerators as SwiftFilesGenerator[], outputGenerator)
           }
       ],
       "swift-mappings": [
@@ -205,6 +213,15 @@ class Main {
     }
     return null
   }
+
+  private static Boolean flag(def options, String name) {
+    if (!options.Fs) {
+      return false
+    }
+    def flags = options.Fs as List
+    return flags.contains(name)
+  }
+
 
   /** Property, that can contain multiple values */
   private static Map<String, String> mapProperty(def options, String name) {

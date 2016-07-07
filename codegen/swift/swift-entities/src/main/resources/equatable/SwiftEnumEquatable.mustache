@@ -1,0 +1,13 @@
+// MARK: - {{name}} Equatable
+
+extension {{name}}: Equatable {}
+
+public func == (lhs: {{name}}, rhs: {{name}}) -> Bool {
+   switch (lhs, rhs) {
+   {{#values}}
+   case (.{{name}}, .{{name}}): return true
+   {{/values}}
+   default: return false
+   }
+}
+
