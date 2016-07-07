@@ -1,7 +1,6 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
-import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnum
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityEnumCase
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityPrimitive
