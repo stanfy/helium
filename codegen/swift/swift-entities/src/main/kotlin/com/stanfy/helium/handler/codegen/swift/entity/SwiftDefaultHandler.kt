@@ -19,7 +19,7 @@ class SwiftDefaultHandler(outputDirectory: File?, options: SwiftGenerationOption
     BaseGenerator<SwiftGenerationOptions>(outputDirectory, options), Handler {
 
   override fun handle(project: Project?) {
-    val entities = entitiesGenerator.entitiesFromHeliumProject(project!!, options?.customTypesMappings)
+    val entities = entitiesGenerator.entitiesFromHeliumProject(project!!, options?.customTypesMappings, options?.typeDefaultValues)
     val files = filesGenerator.filesFromEntities(entities, options)
     outputGenerator.generate(outputDirectory, files)
   }

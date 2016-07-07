@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.entities
 
 import com.stanfy.helium.internal.utils.Names
+import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
@@ -10,15 +11,20 @@ import com.stanfy.helium.model.constraints.EnumConstraint
 interface SwiftEntitiesGenerator {
   fun entitiesFromHeliumProject(project: Project): List<SwiftEntity>
   fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?): List<SwiftEntity>
+  fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?): List<SwiftEntity>
   fun swiftType(heliumType: Type, registry: MutableMap<String, SwiftEntity>): SwiftEntity
 }
 
 class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
   override fun entitiesFromHeliumProject(project: Project): List<SwiftEntity>{
-    return entitiesFromHeliumProject(project, null)
+    return entitiesFromHeliumProject(project, null, null)
   }
 
   override fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?): List<SwiftEntity> {
+    return entitiesFromHeliumProject(project, customTypesMappings, null)
+  }
+
+  override fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?): List<SwiftEntity> {
     val typesRegistry: MutableMap<String, SwiftEntity> = hashMapOf()
     if (customTypesMappings != null) {
       typesRegistry.putAll(customTypesMappings.mapValues { name -> SwiftEntityStruct(name.value) })
@@ -47,7 +53,8 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
               .filterNot { field -> field.isSkip }
               .map { field ->
                 val type = if (field.isSequence) simpleSequenceType(field.type, typesRegistry) else swiftType(field.type, typesRegistry)
-                val fieldType = if (field.isRequired) type else type.toOptional()
+                val hasDefaultValue = defaultValues?.contains(field.type.name) ?: false
+                val fieldType = if (field.isRequired || hasDefaultValue) type else type.toOptional()
                 SwiftProperty(propertyName(field.name), fieldType, field.name)
               }
           SwiftEntityStruct(message.name, props)

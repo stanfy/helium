@@ -49,17 +49,30 @@ class SwiftTemplatesHelper {
         val values = values
       })
     }
-    fun generateSwiftStructDecodables(name: String, properties: List<SwiftProperty>): String {
+
+    fun generateSwiftStructDecodables(name: String, properties: List<SwiftProperty>, typeDefaultValues: Map<String, String>?): String {
       return generatedTemplateWithName("decodable/SwiftStructDecodable.mustache", object : Any () {
         val name = name
         val props = properties.mapIndexed { i, pr ->
           object {
-            val optional = if (pr.type.optional) "?" else ""
-            val delimiter = if (i != properties.lastIndex) "," else ""
-            val name = pr.name
-            val jsonKey = pr.originalName
+            val definition = generateSwiftStructPropertyDecodables(
+                property = pr,
+                isLast = i == properties.lastIndex,
+                defaultValue = typeDefaultValues?.get(pr.type.name))
           }
         }
+      })
+    }
+
+    fun generateSwiftStructPropertyDecodables(property: SwiftProperty, isLast: Boolean, defaultValue: String?): String {
+      val templateName = if (defaultValue == null) "decodable/SwiftPropertyDecodable.mustache"
+                                              else "decodable/SwiftPropertyDefaultValueDecodable.mustache"
+      return generatedTemplateWithName(templateName, object : Any () {
+        val optional = if (property.type.optional) "?" else ""
+        val delimiter = if (isLast) "" else ","
+        val name = property.name
+        val jsonKey = property.originalName
+        val defaultValue = defaultValue
       })
     }
 

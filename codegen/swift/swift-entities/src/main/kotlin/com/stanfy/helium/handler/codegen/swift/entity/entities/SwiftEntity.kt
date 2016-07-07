@@ -98,7 +98,6 @@ data class SwiftEntityArray(override val name: String,
     return "[" + itemType.typeString() + "]" + if (optional) "?" else ""
   }
 
-
   companion object {
     fun optional(name: String, itemType: SwiftEntity): SwiftEntityArray {
       return SwiftEntityArray(name, itemType, true)
