@@ -22,7 +22,7 @@ dependencies {
 ext.mainClassName = "com.stanfy.helium.cli.Main"
 
 task noDepsJar(type: Jar, dependsOn: jar) {
-  archiveName = 'helium-cli.jar'
+  classifier = 'nodeps'
   def deps = files(configurations.runtime, jar.archivePath)
   def depClasses = deps.collect { it.isDirectory() ? it : zipTree(it) }
   from(depClasses) {
@@ -31,6 +31,10 @@ task noDepsJar(type: Jar, dependsOn: jar) {
   manifest {
     attributes 'Main-Class': project.mainClassName
   }
+}
+
+artifacts {
+  archives noDepsJar
 }
 
 task execTest(type: Exec, dependsOn: noDepsJar) {

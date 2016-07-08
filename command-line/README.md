@@ -6,11 +6,11 @@ Build jar with
 ./gradlew :command-line:noDepsJar
 ```
 
-Get it at `command-line/build/libs/helium-cli.jar`.
+Get it at `command-line/build/libs/command-line-{version}-nodeps.jar`.
 
 Run
 ```bash
-java -jar helium-cli.jar
+java -jar command-line-{version}-nodeps.jar
 ```
 to see usage instructions.
 

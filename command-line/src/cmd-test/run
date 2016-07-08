@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -jar build/libs/helium-cli.jar -o build/test-cmd-out -VprovidedVar=VariableValue --java-entities -Hpackage=com.test src/cmd-test/test.api
+java -jar build/libs/command-line-0.8.1-SNAPSHOT-nodeps.jar -o build/test-cmd-out -VprovidedVar=VariableValue --java-entities -Hpackage=com.test src/cmd-test/test.api
