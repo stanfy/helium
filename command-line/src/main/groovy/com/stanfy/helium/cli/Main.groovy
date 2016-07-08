@@ -89,6 +89,7 @@ class Main {
           description: "Generate Swift entity classes",
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
+              "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
               "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
           ],
           flags: [
@@ -97,6 +98,7 @@ class Main {
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
+            generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
 
             switch (property(options, "entitiesAccessLevel")) {
               case "public":
@@ -126,11 +128,13 @@ class Main {
           description: "Generate Swift entity mappings for sepcified type",
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
+              "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
               "mappingType" : "Mapping type. Optional. Possible values : decodable"
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
+            generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
 
             SwiftFilesGenerator filesGenerator = null
             switch (requiredProperty(options, "mappingType")) {

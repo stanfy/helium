@@ -78,7 +78,7 @@ class SwiftDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerator {
         val structs = entities
             .filterIsInstance<SwiftEntityStruct>()
             .map { entity ->
-              SwiftTemplatesHelper.generateSwiftStructDecodables(entity.name, entity.properties)
+              SwiftTemplatesHelper.generateSwiftStructDecodables(entity.name, entity.properties, options?.typeDefaultValues)
             }.joinToString(separator = "\n")
 
         val enums = entities

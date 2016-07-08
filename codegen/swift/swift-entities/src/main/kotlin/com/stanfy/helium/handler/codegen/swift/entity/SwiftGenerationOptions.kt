@@ -17,6 +17,12 @@ class SwiftGenerationOptions : GeneratorOptions () {
   var customTypesMappings = mapOf<String, String>()
 
   /**
+   * Map that contains default values for specific types
+   * For optional values of this types, in case if there's no value default value will be supplied
+   */
+  var typeDefaultValues = mapOf<String, String>()
+
+  /**
    * Specifies what visibility generated entities should have.
    * Default value is INTERNAL
    */
