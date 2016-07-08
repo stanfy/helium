@@ -18,7 +18,9 @@ task populateVersion(description: "Populate root project version") << {
   [
       fileTree(dir: "$rootDir", includes: ["*.gradle"]),
       fileTree(dir: "$rootDir/samples", includes: ["*/*.gradle"]),
-      fileTree(dir: "$rootDir", includes: ["*/src/**/*.java", "*/src/**/*.groovy"])
+      fileTree(dir: "$rootDir", includes: ["*/src/**/*.java", "*/src/**/*.groovy"]),
+      fileTree(dir: "${project(':command-line').projectDir}",
+          includes: ["src/launcher/*.sh", "src/launcher/*.bat", "src/cmd-test/run"])
   ].each { def collection ->
     collection.each {
       String code = it.getText("UTF-8")
