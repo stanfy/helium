@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
 # Helium start script for Unix.
+#
 # Respects the following optional env variables:
 # - HELIUM_VERSION - version of Helium to use
 # - HELIUM_HOME - directory used to store Helium executables
 # - JAVA_HOME - to determine what Java to use
 # - JAVA_OPTS - to pass Java options (like heap and stack size) when needed
+#
+# Use --refresh option to update a snapshot version.
 
 if [ -z "$HELIUM_VERSION" ]; then
     HELIUM_VERSION="0.8.1-SNAPSHOT"
@@ -16,6 +19,15 @@ if [ -z "$HELIUM_HOME" ]; then
 fi
 
 HELIUM_JAR="$HELIUM_HOME/command-line-$HELIUM_VERSION-nodeps.jar"
+
+FIRST_ARG=$1
+if [ "$FIRST_ARG" == "--refresh" ]; then
+    ARGS=${@:2}
+    FORCE_DOWNLOAD=1
+else
+    ARGS=$@
+    FORCE_DOWNLOAD=0
+fi
 
 warn ( ) {
     echo "$*"
@@ -29,7 +41,7 @@ die ( ) {
 }
 
 # Ensure Helium jar exists.
-if [ ! -f $HELIUM_JAR ] ; then
+if [ ! -f $HELIUM_JAR ] || [ $FORCE_DOWNLOAD == 1 ] ; then
     mkdir -p $HELIUM_HOME &2>/dev/null
     NEXUS_QUERY="g=com.stanfy.helium&a=command-line&v=$HELIUM_VERSION&c=nodeps"
     NEXUS_ENDPOINT="service/local/artifact/maven/content"
@@ -70,4 +82,4 @@ location of your Java installation."
 fi
 
 # Run
-$JAVACMD $JAVA_OPTS -jar $HELIUM_JAR $@
+$JAVACMD $JAVA_OPTS -jar $HELIUM_JAR $ARGS
