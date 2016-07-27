@@ -16,6 +16,7 @@ import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEntityF
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftDecodableMappingsFilesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftRandomEntitiesFilesGeneratorImpl
 
 /**
  * Main entry point.
@@ -94,6 +95,7 @@ class Main {
           ],
           flags: [
               "generate-equatables" : "Generates equatables functions for all entities. Optional",
+              "generate-random-initializers" : "Generates random initializers for all entities. Optional",
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
@@ -116,6 +118,10 @@ class Main {
 
             if (flag(options, "generate-equatables")) {
               fileGenerators << new SwiftEquatableFilesGeneratorImpl()
+            }
+
+            if (flag(options, "generate-random-initializers")) {
+              fileGenerators << new SwiftRandomEntitiesFilesGeneratorImpl()
             }
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()

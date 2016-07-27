@@ -1,0 +1,12 @@
+// MARK: - {{name}} Random
+
+extension {{name}}: Random {
+   static func random() -> {{name}} {
+          switch (arc4random() % {{values.size}}) {
+          {{#values}}
+            case {{index}}: return .{{name}}
+          {{/values}}
+          default: return .{{defaultValue.name}}
+          }
+   }
+}

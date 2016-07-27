@@ -95,6 +95,34 @@ class SwiftTemplatesHelper {
       })
     }
 
+    fun generateSwiftStructRandom(name: String, properties: List<SwiftProperty>): String {
+      return generatedTemplateWithName("random/SwiftStructRandom.mustache", object : Any () {
+        val name = name
+        val props = properties.mapIndexed { i, pr ->
+          object {
+            val delimiter = if (i == properties.lastIndex) "" else ","
+            val name = pr.name
+            var label = if (i == 0) pr.name else ""
+            var type = pr.type
+          }
+        }
+      })
+    }
+
+    fun generateSwiftEnumRandom(name: String, values: List<SwiftEntityEnumCase>): String {
+      return generatedTemplateWithName("random/SwiftEnumRandom.mustache", object : Any () {
+        val name = name
+        val values = values.mapIndexed { i, value ->
+          object {
+            val name = value.name
+            val index = i
+          }
+        }
+        val defaultValue = values.first()
+      })
+    }
+
+
     fun generatedTemplateWithName(templateName: String, templateObject: Any): String {
       val mustacheFactory = DefaultMustacheFactory()
       val mustache = mustacheFactory.compile(templateName)
@@ -102,8 +130,6 @@ class SwiftTemplatesHelper {
       mustache.execute(stringWriter, templateObject)
       return stringWriter.toString()
     }
-
-
 
   }
 
