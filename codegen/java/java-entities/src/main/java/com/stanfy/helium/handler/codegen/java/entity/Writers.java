@@ -50,6 +50,18 @@ public final class Writers {
   }
 
   /**
+   * @return writer for object with Jackson {@code JsonProperty} annotations.
+   */
+  public static WriterWrapper jackson() {
+    return new WriterWrapper() {
+      @Override
+      public JavaClassWriter wrapWriter(final JavaClassWriter output, final EntitiesGeneratorOptions options) {
+        return new JacksonPojoWriter(output);
+      }
+    };
+  }
+
+  /**
    * @param wrappers wrappers sequence
    * @return chained wrapper
    */

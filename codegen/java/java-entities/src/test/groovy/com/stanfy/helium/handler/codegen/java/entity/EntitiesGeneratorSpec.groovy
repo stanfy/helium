@@ -52,7 +52,7 @@ public enum Day {
 
   def "should be able to chain writers"() {
     given:
-    options.writerWrapper = Writers.chain(Writers.gson(), Writers.androidParcelable())
+    options.writerWrapper = Writers.chain(Writers.gson(), Writers.androidParcelable(), Writers.jackson())
 
     when:
     generator.handle(project)
@@ -64,6 +64,7 @@ package com.stanfy.helium;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 public class A
