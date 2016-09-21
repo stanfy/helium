@@ -9,6 +9,7 @@ apply from: file("$rootDir/gradle/common.gradle")
 evaluationDependsOn(':codegen')
 
 dependencies {
+  compile 'com.fasterxml.jackson.core:jackson-annotations:2.8.3'
   compile project(':codegen:java:java-handler')
   testCompile project(path: ':codegen:java:java-handler', configuration: 'tests')
 }
