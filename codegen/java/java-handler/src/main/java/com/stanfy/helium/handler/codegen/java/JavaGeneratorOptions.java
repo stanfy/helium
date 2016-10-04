@@ -98,7 +98,11 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
     } else if (type.isPrimitive()) {
 
       if (isEnumDeclaration(type)) {
-        return Names.capitalize(type.getCanonicalName());
+        String enumName = Names.capitalize(type.getCanonicalName());
+        if (!sequence) {
+          return enumName;
+        }
+        return writer.compressType(getSequenceTypeName(enumName));
       }
 
       if (getCustomPrimitivesMapping().containsKey(type.getName())) {
