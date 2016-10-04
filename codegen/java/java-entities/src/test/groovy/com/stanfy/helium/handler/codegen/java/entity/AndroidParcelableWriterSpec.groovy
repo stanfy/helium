@@ -564,6 +564,42 @@ public class Message extends Base
     )
   }
 
+  def "enum sequence"() {
+    given:
+    Message msg = new Message(name: "Test")
+    def enumType = new ConstrainedType(new Type(name: 'string'))
+    enumType.name = 'my-enum'
+    enumType.addConstraint(new EnumConstraint<String>(['a', 'b']))
+    msg.addField(new Field(name: "enum", type: enumType, sequence: true))
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    int[] enumFieldOrdinals = source.createIntArray();
+    if (enumFieldOrdinals != null) {
+      this.enumField = new Myenum[enumFieldOrdinals.length];
+      for (int i = 0; i < enumFieldOrdinals.length; i++) {
+        this.enumField[i] = enumFieldOrdinals[i] != -1 ? Myenum.values()[enumFieldOrdinals[i]] : null;
+      }
+    }
+""",
+        writeBody: """
+    int[] enumFieldOrdinals = null;
+    if (this.enumField != null) {
+      enumFieldOrdinals = new int[this.enumField.length];
+      for (int i = 0; i < enumFieldOrdinals.length; i++) {
+        enumFieldOrdinals[i] = this.enumField[i] != null ? this.enumField[i].ordinal() : -1;
+      }
+    }
+    dest.writeIntArray(enumFieldOrdinals);
+"""
+    )
+  }
+
   /** Enum for tests. */
   enum MyTestEnum {
     ONE, TWO

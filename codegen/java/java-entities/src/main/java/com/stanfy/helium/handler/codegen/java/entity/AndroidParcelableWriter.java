@@ -159,7 +159,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
       // enum?
       if (Enum.class.isAssignableFrom(clazz)) {
-        readEnumFromParcelable(fieldName, output, clazz.getCanonicalName());
+        readEnumFromParcelable(fieldName, output, clazz.getCanonicalName(), field.isSequence());
         return;
       }
 
@@ -177,7 +177,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     }
 
     if (options.isEnumDeclaration(field.getType())) {
-      readEnumFromParcelable(fieldName, output, Names.capitalize(field.getType().getCanonicalName()));
+      readEnumFromParcelable(fieldName, output, Names.capitalize(field.getType().getCanonicalName()), field.isSequence());
       return;
     }
 
@@ -187,10 +187,22 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
         classLoader);
   }
 
-  private static void readEnumFromParcelable(String fieldName, JavaWriter output, String name) throws IOException {
+  private static void readEnumFromParcelable(String fieldName, JavaWriter output, String name, boolean sequence) throws IOException {
     String enumName = output.compressType(name);
-    output.emitStatement("int %1$sOrdinal = source.readInt()", fieldName);
-    output.emitStatement("this.%1$s = %1$sOrdinal != -1 ? %2$s.values()[%1$sOrdinal] : null", fieldName, enumName);
+
+    if (!sequence) {
+      output.emitStatement("int %1$sOrdinal = source.readInt()", fieldName);
+      output.emitStatement("this.%1$s = %1$sOrdinal != -1 ? %2$s.values()[%1$sOrdinal] : null", fieldName, enumName);
+      return;
+    }
+
+    output.emitStatement("int[] %1$sOrdinals = source.createIntArray()", fieldName);
+    output.beginControlFlow("if (%1$sOrdinals != null)", fieldName);
+    output.emitStatement("this.%1$s = new %2$s[%1$sOrdinals.length]", fieldName, enumName);
+    output.beginControlFlow("for (int i = 0; i < %1$sOrdinals.length; i++)", fieldName);
+    output.emitStatement("this.%1$s[i] = %1$sOrdinals[i] != -1 ? %2$s.values()[%1$sOrdinals[i]] : null", fieldName, enumName);
+    output.endControlFlow();
+    output.endControlFlow();
   }
 
   private static void readBoolean(final Field field, final String fieldName, final JavaWriter output) throws IOException {
@@ -257,7 +269,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
       // enum?
       if (Enum.class.isAssignableFrom(clazz)) {
-        writeEnumToParcel(output, fieldName);
+        writeEnumToParcel(output, fieldName, field.isSequence());
         return;
       }
 
@@ -276,15 +288,28 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
     // enum?
     if (options.isEnumDeclaration(field.getType())) {
-      writeEnumToParcel(output, fieldName);
+      writeEnumToParcel(output, fieldName, field.isSequence());
       return;
     }
 
     output.emitStatement("dest.writeValue(this.%s)", fieldName);
   }
 
-  private static void writeEnumToParcel(JavaWriter output, String fieldName) throws IOException {
-    output.emitStatement("dest.writeInt(this.%1$s != null ? this.%1$s.ordinal() : -1)", fieldName);
+  private static void writeEnumToParcel(JavaWriter output, String fieldName, boolean sequence) throws IOException {
+    if (!sequence) {
+      output.emitStatement("dest.writeInt(this.%1$s != null ? this.%1$s.ordinal() : -1)", fieldName);
+      return;
+    }
+
+    output.emitStatement("int[] %1$sOrdinals = null", fieldName);
+    output.beginControlFlow("if (this.%1$s != null)", fieldName);
+    output.emitStatement("%1$sOrdinals = new int[this.%1$s.length]", fieldName);
+    output.beginControlFlow("for (int i = 0; i < %1$sOrdinals.length; i++)", fieldName);
+    output.emitStatement("%1$sOrdinals[i] = this.%1$s[i] != null ? this.%1$s[i].ordinal() : -1", fieldName);
+    output.endControlFlow();
+    output.endControlFlow();
+    output.emitStatement("dest.writeIntArray(%1$sOrdinals)", fieldName);
+
   }
 
   private static boolean isAndroidParcelable(final Class<?> clazz) {
