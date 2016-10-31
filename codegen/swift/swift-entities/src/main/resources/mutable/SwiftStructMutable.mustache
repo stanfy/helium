@@ -1,0 +1,14 @@
+// MARK: - {{name}} Mutable
+
+extension {{name}} {
+    func updated(
+        {{#props}}{{space}}{{space}}{{forcedName}}{{name}}: Optional<{{type.typeString}}> = nil{{{delimiter}}}
+        {{/props}}
+{{space}}) -> {{name}} {
+{{space}}{{space}}return {{name}}(
+{{#props}}{{space}}{{space}}{{space}}{{name}}: {{name}} ?? self.{{name}}{{{delimiter}}}
+{{/props}}
+{{space}}{{space}})
+{{space}}}
+}
+
