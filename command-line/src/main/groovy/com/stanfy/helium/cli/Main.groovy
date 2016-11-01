@@ -17,6 +17,7 @@ import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftDecodab
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftRandomEntitiesFilesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftMutableFilesGeneratorImpl
 
 /**
  * Main entry point.
@@ -96,6 +97,7 @@ class Main {
           flags: [
               "generate-equatables" : "Generates equatables functions for all entities. Optional",
               "generate-random-initializers" : "Generates random initializers for all entities. Optional",
+              "generate-mutable-structs" : "Generates mutable extensions for all struct entities. Optional",
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
@@ -123,6 +125,11 @@ class Main {
             if (flag(options, "generate-random-initializers")) {
               fileGenerators << new SwiftRandomEntitiesFilesGeneratorImpl()
             }
+
+            if (flag(options, "generate-mutable-structs")) {
+              fileGenerators << new SwiftMutableFilesGeneratorImpl()
+            }
+
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()

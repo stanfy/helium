@@ -88,6 +88,22 @@ class SwiftTemplatesHelper {
       })
     }
 
+    fun generateSwiftStructMutable(name: String, properties: List<SwiftProperty>): String {
+      return generatedTemplateWithName("mutable/SwiftStructMutable.mustache", object : Any () {
+        val name = name
+        var space = "    "
+        val props = properties.mapIndexed { i, pr ->
+          object {
+            val delimiter = if (i == properties.lastIndex) "" else ","
+            val name = pr.name
+            val forcedName = if (i == 0) pr.name + " " else ""
+            val type = pr.type
+          }
+        }
+      })
+    }
+
+
     fun generateSwiftEnumEquatable(name: String, values: List<SwiftEntityEnumCase>): String {
       return generatedTemplateWithName("equatable/SwiftEnumEquatable.mustache", object : Any () {
         val name = name
