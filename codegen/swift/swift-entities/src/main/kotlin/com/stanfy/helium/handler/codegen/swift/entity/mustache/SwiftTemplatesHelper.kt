@@ -147,6 +147,10 @@ class SwiftTemplatesHelper {
       return stringWriter.toString()
     }
 
+    fun generateSwiftAPIClientFunctions(): String {
+      return generatedTemplateWithName("client/SwiftAPIClientRequestManager.mustache", object : Any () {
+      })
+    }
   }
 
 }

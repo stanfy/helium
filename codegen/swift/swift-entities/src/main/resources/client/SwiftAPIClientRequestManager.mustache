@@ -1,0 +1,28 @@
+import Foundation
+import ReactiveCocoa
+
+// MARK: - Protocol
+
+protocol RequestManager {
+{{#funcs}}
+  func {{name}}({{#params}}{{/params}}) -> SignalProducer<Response, NSError>
+  {{!--func getAffiliateMenus(affiliateID: String) -> SignalProducer<Response, NSError>--}}
+  {{!--func placeOrder(reservationID: String, parameters: [String: AnyObject]) -> SignalProducer<Response, NSError>--}}
+{{/funcs}}
+}
+
+// MARK: - Implementation
+
+class RequestManagerImpl: RequestManager {
+  private let apiService: ApiService
+
+  init(apiService: ApiService) {
+    self.apiService = apiService
+  }
+
+  {{#funcs}}
+    func {{name}}({{#params}}{{name}}: {{type}}{{delimiter}}{{/params}}) -> SignalProducer<Response, NSError> {
+      return apiService.request(.{{enum_name}}({{#params}}{{name}}: {{name}}{{delimiter}}{{/params}}))
+    }
+  {{/funcs}}
+}

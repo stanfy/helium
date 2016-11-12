@@ -13,7 +13,7 @@ class SwiftMutableFilesGeneratorImpl : SwiftFilesGenerator {
   }
 
   override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
-    // TODO : Different files? as an option
+    // TODO : Different clientFilesFromHeliumProject? as an option
     val file: SwiftFile = object : SwiftFile {
       override fun name(): String {
         return "EntitiesMutableExtensions"

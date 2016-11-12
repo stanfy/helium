@@ -8,6 +8,8 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCMappingOption
 import com.stanfy.helium.handler.codegen.swift.entity.*
+import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientGenerator
+import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEquatableFilesGeneratorImpl
@@ -137,8 +139,31 @@ class Main {
             return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, fileGenerators as SwiftFilesGenerator[], outputGenerator)
           }
       ],
+      "swift-api-client": [
+          description: "Generates Swift API client",
+          properties: [
+//              "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
+//              "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
+//              "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
+          ],
+          flags: [
+//              "generate-equatables" : "Generates equatables functions for all entities. Optional",
+//              "generate-random-initializers" : "Generates random initializers for all entities. Optional",
+//              "generate-mutable-structs" : "Generates mutable extensions for all struct entities. Optional",
+          ],
+          factory: { def options, File output ->
+            SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
+//            generationOptions.customTypesMappings = mapProperty(options, "customMapping")
+//            generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
+//
+            SwiftAPIClientGenerator clientGenerator = new SwiftAPIClientGeneratorImpl()
+            SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
+            return new SwiftAPIClientHandler(output, generationOptions, clientGenerator, outputGenerator )
+          }
+      ],
+
       "swift-mappings": [
-          description: "Generate Swift entity mappings for sepcified type",
+          description: "Generate Swift entity mappings for specified type",
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
