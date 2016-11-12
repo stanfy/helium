@@ -41,7 +41,7 @@ public final class Names {
     StringBuilder result = new StringBuilder(s);
     for (int i = 0; i < result.length(); i++) {
       boolean shouldCap = false;
-      while (i < result.length() && (result.charAt(i) == '_' || result.charAt(i) == '-')) {
+      while (i < result.length() && (result.charAt(i) == '_' || result.charAt(i) == '-' || result.charAt(i) == ' ')) {
         result.delete(i, i + 1);
         shouldCap = true;
       }
@@ -67,6 +67,17 @@ public final class Names {
     char[] ch = new char[name.length()];
     name.getChars(0, ch.length, ch, 0);
     ch[0] = Character.toUpperCase(ch[0]);
+    return new String(ch);
+  }
+
+  public static String decapitalize(final String name) {
+    if (name == null) {
+      return null;
+    }
+
+    char[] ch = new char[name.length()];
+    name.getChars(0, ch.length, ch, 0);
+    ch[0] = Character.toLowerCase(ch[0]);
     return new String(ch);
   }
 

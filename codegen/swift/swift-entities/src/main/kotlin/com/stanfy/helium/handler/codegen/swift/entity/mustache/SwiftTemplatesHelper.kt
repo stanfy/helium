@@ -147,8 +147,9 @@ class SwiftTemplatesHelper {
       return stringWriter.toString()
     }
 
-    fun generateSwiftAPIClientFunctions(): String {
+    fun generateSwiftAPIClientFunctions(functions: List<Any>): String {
       return generatedTemplateWithName("client/SwiftAPIClientRequestManager.mustache", object : Any () {
+        val funcs = functions
       })
     }
   }
