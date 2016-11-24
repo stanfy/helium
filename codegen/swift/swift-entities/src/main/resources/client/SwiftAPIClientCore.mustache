@@ -90,7 +90,7 @@ protocol Cancellable {
 
 protocol Gateway {
     associatedtype Value
-    func requestWithCallback(callback: (Result<APIResponse<Value>, APIResponseError<NSError>>) -> Void)
+    func requestWithCallback(callback: @escaping (Result<APIResponse<Value>, APIResponseError<NSError>>) -> Void)
         -> Cancellable
 }
 
@@ -126,7 +126,7 @@ typealias APIServiceRequestCallback = (Result<APIResponse<NSData?>, APIResponseE
 // MARK:- Protocol
 
 protocol APIService {
-    func request(request: Request, callback: APIServiceRequestCallback) -> Cancellable
+    func request(request: Request, callback: @escaping APIServiceRequestCallback) -> Cancellable
 }
 
 class GatewayImpl<T, U: ResponseTransformerType>: Gateway
@@ -149,12 +149,12 @@ class GatewayImpl<T, U: ResponseTransformerType>: Gateway
         self.responseTransformer = responseTransformer
     }
 
-    internal func requestWithCallback(callback: (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void) -> Cancellable {
+    internal func requestWithCallback(callback: @escaping (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void) -> Cancellable {
         return apiService.request(request: requestProvider(), callback: { result in
             switch result {
             case .Success(let response):
 
-                let responseTransformerResult = responseTransformer.transform(data: response.value)
+                let responseTransformerResult = self.responseTransformer.transform(data: response.value)
                 switch responseTransformerResult {
                 case .Success(let transformedResponse):
                     callback(.Success(APIResponse(value: transformedResponse, response: response.response)))

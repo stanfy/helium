@@ -43,6 +43,10 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
         SwiftFileImpl(
             name = "SwiftAPIClientCore",
             contents = generatedTemplateWithName("client/SwiftAPIClientCore.mustache", functions)
+        ),
+        SwiftFileImpl(
+            name = "SwiftAPIServiceExample",
+            contents = generatedTemplateWithName("client/SwiftAPIServiceExample.mustache", object: Any () {})
         )
     )
   }

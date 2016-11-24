@@ -1,0 +1,34 @@
+extension URLSessionDataTask: Cancellable {}
+
+class NSURLSessionAPIService: APIService {
+
+    let session: URLSession
+
+    init() {
+        session = URLSession(configuration: URLSessionConfiguration.default)
+    }
+
+    internal func request(request: Request, callback: @escaping (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void) -> Cancellable {
+
+        let urlRequest = convert(fromRequest: request)
+        let cancellable = session.dataTask(with: urlRequest) { (data, urlResponse, error) in
+            guard error == nil else {
+                callback(.Failure(APIResponseError(error: error as! NSError, response: urlResponse as? HTTPURLResponse)))
+                return
+            }
+            let nsdata = data.flatMap{ NSData(data: $0) }
+            callback(.Success(APIResponse(value: nsdata, response: urlResponse as! HTTPURLResponse?)))
+        }
+        cancellable.resume()
+
+        return cancellable
+    }
+
+    func convert(fromRequest request: Request) -> URLRequest {
+        var mutableRequest = URLRequest(url: request.url)
+        for header in request.headers {
+            mutableRequest.addValue(header.value, forHTTPHeaderField: header.key)
+        }
+        return mutableRequest
+    }
+}
