@@ -152,6 +152,11 @@ class SwiftTemplatesHelper {
         val funcs = functions
       })
     }
-  }
 
+    fun generateSwiftAPIClientResponse(): String {
+      return generatedTemplateWithName("client/SwiftAPIClientResponse.mustache", object: Any() {
+
+      })
+    }
+  }
 }

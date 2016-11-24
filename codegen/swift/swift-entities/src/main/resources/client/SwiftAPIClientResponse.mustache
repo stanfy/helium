@@ -23,7 +23,7 @@ class RequestManagerImpl: RequestManager {
   {{#funcs}}
     func {{name}}({{#params}}{{{name}}}:{{{thetype}}}{{{delimiter}}}
     {{/params}}) -> SignalProducer<Response, NSError> {
-      return apiService.request(.{{enum_name}}{{param_start}}{{#params}}{{name}}: {{name}}{{delimiter}}{{/params}}{{param_end}})
+      return apiService.request(.{{enum_name}}({{#params}}{{name}}: {{name}}{{delimiter}}{{/params}}))
     }
   {{/funcs}}
 }
