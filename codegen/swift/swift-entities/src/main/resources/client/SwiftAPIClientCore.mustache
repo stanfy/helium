@@ -1,0 +1,173 @@
+import Foundation
+
+
+enum Result<S, E> {
+    case Success(S)
+    case Failure(E)
+}
+
+struct Request {
+    let url: String
+    let method: RequestMethod
+    let params: [String: AnyObject]
+    let encoding: RequestParametersEncoding
+    let expectedStatusCodes: Range<Int>
+    let expectedContentTypes: [String]
+    let headers: [String: String]
+
+    init(
+        url: String,
+        method: RequestMethod,
+        encoding: RequestParametersEncoding,
+        params: [String: AnyObject] = [:],
+        headers: [String: String] = [:],
+        expectedStatusCodes: Range<Int> = 200..<300,
+        expectedContentTypes: [String] = ["*/*"]
+        ) {
+        self.url = url
+        self.method = method
+        self.params = params
+        self.encoding = encoding
+        self.expectedStatusCodes = expectedStatusCodes
+        self.expectedContentTypes = expectedContentTypes
+        self.headers = headers
+    }
+}
+
+// MARK:- Request Params Encoding
+
+enum RequestParametersEncoding {
+    case JSON   // application JSON
+    case URL    // parameters in URL
+    case FORM   // parameters in BODY form-encoded
+}
+
+// MARK:- Request Method
+
+enum RequestMethod: String {
+    case GET
+    case POST
+    case PUT
+    case DELETE
+    case PATCH
+}
+
+// MARK:- Request Provider
+
+typealias RequestProvider = () -> (Request)
+
+
+// MARK:- Response
+
+struct APIResponse<T> {
+    let value: T
+    let response: HTTPURLResponse?
+
+    init(value: T, response: HTTPURLResponse? = nil) {
+        self.value = value
+        self.response = response
+    }
+}
+
+// MARK:- Response Error
+
+struct APIResponseError<E>: Error {
+    let error: E
+    let response: HTTPURLResponse?
+
+    init(error: E, response: HTTPURLResponse? = nil) {
+        self.error = error
+        self.response = response
+    }
+}
+
+// MARK:- Cancellable
+
+protocol Cancellable {
+    func cancel()
+}
+
+// MARK:- Gateway
+
+protocol Gateway {
+    associatedtype Value
+    func requestWithCallback(callback: (Result<APIResponse<Value>, APIResponseError<NSError>>) -> Void)
+        -> Cancellable
+}
+
+extension Gateway {
+    typealias RequestSuccessCallback = (APIResponse<Value>) -> Void
+    typealias RequestFailureCallback = (APIResponseError<NSError>) -> Void
+
+    func request(success: RequestSuccessCallback?, failure: RequestFailureCallback?) -> Cancellable {
+        return requestWithCallback { result in
+            switch result {
+            case .Success(let response): success?(response)
+            case .Failure(let responseError): failure?(responseError)
+            }
+        }
+    }
+}
+
+
+// MARK:- ResponseTransformer
+
+protocol ResponseTransformerType {
+    associatedtype S
+    associatedtype D
+    associatedtype E
+    func transform(data: S) -> Result<D, E>
+}
+
+
+// MARK:- Network API Service Request Callback
+
+typealias APIServiceRequestCallback = (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void
+
+// MARK:- Protocol
+
+protocol APIService {
+    func request(request: Request, callback: APIServiceRequestCallback) -> Cancellable
+}
+
+class GatewayImpl<T, U: ResponseTransformerType>: Gateway
+    where U.S == NSData?, U.D == T, U.E == NSError  // NSData -> (T, NSError)
+{
+   typealias Value = T
+
+    typealias RequestCallback = (Result<APIResponse<Value>, APIResponseError<NSError>>) -> Void
+
+    private let apiService: APIService
+    private let requestProvider: RequestProvider
+    private let responseTransformer: U
+
+    init(apiService: APIService,
+         responseTransformer: U,
+         requestProvider: @escaping RequestProvider
+        ) {
+        self.apiService = apiService
+        self.requestProvider = requestProvider
+        self.responseTransformer = responseTransformer
+    }
+
+    internal func requestWithCallback(callback: (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void) -> Cancellable {
+        return apiService.request(request: requestProvider(), callback: { result in
+            switch result {
+            case .Success(let response):
+
+                let responseTransformerResult = responseTransformer.transform(data: response.value)
+                switch responseTransformerResult {
+                case .Success(let transformedResponse):
+                    callback(.Success(APIResponse(value: transformedResponse, response: response.response)))
+                case .Failure(let error):
+                    callback(.Failure(APIResponseError(error: error, response: response.response)))
+                }
+
+            case .Failure(let responseError):
+                callback(.Failure(responseError))
+            }
+            
+        })
+    }
+
+}

@@ -41,8 +41,8 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
 
     return listOf(
         SwiftFileImpl(
-            name = "Request",
-            contents = generatedTemplateWithName("client/Request.mustache", functions)
+            name = "SwiftAPIClientCore",
+            contents = generatedTemplateWithName("client/SwiftAPIClientCore.mustache", functions)
         )
     )
   }
