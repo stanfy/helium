@@ -7,20 +7,21 @@ import spock.lang.Specification
 
 class SwiftAPIClientHandlerTest extends Specification {
 
-  SwiftAPIClientHandler sut;
+  SwiftAPIClientHandler sut
   ProjectDsl project
   SwiftAPIClientGenerator apiGenerator
   SwiftOutputGenerator outputGenerator
+  SwiftGenerationOptions options
 
-  File output;
-
+  File output
 
   def setup() {
     project = new ProjectDsl()
     output = File.createTempDir()
     apiGenerator = Mock(SwiftAPIClientGenerator)
     outputGenerator = Mock(SwiftOutputGenerator)
-    sut = new SwiftAPIClientHandler(output,̦ , apiGenerator, outputGenerator)
+    options = new SwiftGenerationOptions()
+    sut = new SwiftAPIClientHandler(output, options , apiGenerator, outputGenerator)
   }
 
   def "should generate files"() {
@@ -28,6 +29,6 @@ class SwiftAPIClientHandlerTest extends Specification {
     sut.handle(project)
 
     then:
-    1 * apiGenerator.clientFilesFromHeliumProject()
+    1 * apiGenerator.clientFilesFromHeliumProject(project)
   }
 }

@@ -1,13 +1,12 @@
 import Foundation
 
-
 enum Result<S, E> {
     case Success(S)
     case Failure(E)
 }
 
 struct Request {
-    let url: String
+    let url: URL
     let method: RequestMethod
     let params: [String: AnyObject]
     let encoding: RequestParametersEncoding
@@ -16,7 +15,7 @@ struct Request {
     let headers: [String: String]
 
     init(
-        url: String,
+        url: URL,
         method: RequestMethod,
         encoding: RequestParametersEncoding,
         params: [String: AnyObject] = [:],
@@ -166,7 +165,7 @@ class GatewayImpl<T, U: ResponseTransformerType>: Gateway
             case .Failure(let responseError):
                 callback(.Failure(responseError))
             }
-            
+
         })
     }
 
