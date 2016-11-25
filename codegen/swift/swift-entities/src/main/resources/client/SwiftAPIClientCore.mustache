@@ -1,18 +1,18 @@
 import Foundation
 
-enum Result<S, E> {
+public enum Result<S, E> {
     case Success(S)
     case Failure(E)
 }
 
-struct Request {
-    var url: NSURL
-    var method: RequestMethod
-    var params: [String: AnyObject]
-    var encoding: RequestParametersEncoding
-    var expectedStatusCodes: Range<Int>
-    var expectedContentTypes: [String]
-    var headers: [String: String]
+public struct Request {
+    public var url: NSURL
+    public var method: RequestMethod
+    public var params: [String: AnyObject]
+    public var encoding: RequestParametersEncoding
+    public var expectedStatusCodes: Range<Int>
+    public var expectedContentTypes: [String]
+    public var headers: [String: String]
 
     init(
         url: NSURL,
@@ -34,8 +34,7 @@ struct Request {
 }
 
 // MARK:- Request Params Encoding
-
-enum RequestParametersEncoding {
+public enum RequestParametersEncoding {
     case JSON   // application JSON
     case URL    // parameters in URL
     case FORM   // parameters in BODY form-encoded
@@ -43,7 +42,7 @@ enum RequestParametersEncoding {
 
 // MARK:- Request Method
 
-enum RequestMethod: String {
+public enum RequestMethod: String {
     case GET
     case POST
     case PUT
@@ -52,13 +51,11 @@ enum RequestMethod: String {
 }
 
 // MARK:- Request Provider
-
-typealias RequestProvider = () -> (Request)
+public typealias RequestProvider = () -> (Request)
 
 
 // MARK:- Response
-
-struct APIResponse<T> {
+public struct APIResponse<T> {
     let value: T
     let response: NSHTTPURLResponse?
 
@@ -70,7 +67,7 @@ struct APIResponse<T> {
 
 // MARK:- Response Error
 
-struct APIResponseError<E>: ErrorType {
+public struct APIResponseError<E>: ErrorType {
     let error: E
     let response: NSHTTPURLResponse?
 
@@ -82,20 +79,20 @@ struct APIResponseError<E>: ErrorType {
 
 // MARK:- Cancellable
 
-protocol Cancellable {
+public protocol Cancellable {
     func cancel()
 }
 
 // MARK:- Gateway
 
-protocol Gateway {
+public protocol Gateway {
     func requestWithCallback<T>(
         responseTransformer:  (NSData?) -> Result<T, NSError>,
         callback:  (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
     ) -> Cancellable
 }
 
-extension Gateway {
+public extension Gateway {
     func request<T>(
         responseTransformer:  (NSData?) -> Result<T, NSError>,
         success: ((APIResponse<T>) -> Void)?,
@@ -112,17 +109,17 @@ extension Gateway {
 
 
 // MARK:- Transformable
-protocol Transformable {
+public protocol Transformable {
     static func transform(data: NSData?) -> Result<Self, NSError>
 }
 
 // MARK:- Network API Service Request Callback
 
-typealias APIServiceRequestCallback = (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void
+public typealias APIServiceRequestCallback = (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void
 
 // MARK:- Protocol
 
-protocol APIService {
+public protocol APIService {
     func request(request: Request, callback:  APIServiceRequestCallback) -> Cancellable
 }
 

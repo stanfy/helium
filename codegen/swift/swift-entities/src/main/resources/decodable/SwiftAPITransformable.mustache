@@ -54,7 +54,7 @@ func decodableTransform<T:Decodable>(data: NSData?) -> Result<T, NSError> {
 
 {{#entities}}
 extension {{name}} : Transformable {
-    static func transform(data: NSData?) -> Result<{{name}}, NSError> {
+    public static func transform(data: NSData?) -> Result<{{name}}, NSError> {
         return decodableTransform(data)
     }
 }

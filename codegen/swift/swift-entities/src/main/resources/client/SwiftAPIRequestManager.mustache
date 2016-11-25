@@ -2,17 +2,17 @@ import Foundation
 import ReactiveCocoa
 
 {{#services}}
-enum Route {
+public enum Route {
 {{#funcs}}
   case {{name}}
 {{/funcs}}
 }
 
-typealias GatewayFactory = (Route, APIService, RequestProvider) -> Gateway
-typealias RequestProviderFactory = (Route, RequestProvider) -> RequestProvider
+public typealias GatewayFactory = (Route, APIService, RequestProvider) -> Gateway
+public typealias RequestProviderFactory = (Route, RequestProvider) -> RequestProvider
 
 
-class APIRequestManager {
+public class APIRequestManager {
 
     let baseURL: NSURL
     let service: APIService
@@ -27,7 +27,7 @@ class APIRequestManager {
         provider
     }
 
-    init(
+    public init(
         service: APIService,
         baseURL: NSURL = NSURL(string:"{{location}}")!,
         requestProviderFactory:  RequestProviderFactory = APIRequestManager.defaultCallBack,
@@ -42,7 +42,7 @@ class APIRequestManager {
 
 
 {{#funcs}}
-  func {{name}}({{#interfaceParams}}{{{name}}}: {{{type}}}{{{delimiter}}}{{/interfaceParams}}) -> SignalProducer<{{return_type}}, APIResponseError<NSError>> {
+  public func {{name}}({{#interfaceParams}}{{{name}}}: {{{type}}}{{{delimiter}}}{{/interfaceParams}}) -> SignalProducer<{{return_type}}, APIResponseError<NSError>> {
     return SignalProducer { observer, disposable in
         let originalProvider = {
             return Request(
@@ -72,13 +72,14 @@ class APIRequestManager {
   }
 {{/funcs}}
 
-    func callbackFor<T>(observer: Observer<T, APIResponseError<NSError>>) -> (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void {
+ func callbackFor<T>(observer: Observer<T, APIResponseError<NSError>>) -> (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void {
         return { result in
             switch result {
             case .Success(let x):
-                print("Success:\(x)")
+                observer.sendNext(x.value)
+                observer.sendCompleted()
             case .Failure(let y):
-                print("Failure:\(y)")
+                observer.sendFailed(y)
             }
         }
     }

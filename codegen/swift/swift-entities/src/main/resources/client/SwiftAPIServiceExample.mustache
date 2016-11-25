@@ -2,15 +2,15 @@ import Foundation
 
 extension NSURLSessionDataTask: Cancellable {}
 
-struct NSURLSessionAPIService: APIService {
+public struct NSURLSessionAPIService: APIService {
 
     let session: NSURLSession
 
-    init() {
+    public init() {
         session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
     }
 
-    internal func request(request: Request, callback:  (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void) -> Cancellable {
+    public func request(request: Request, callback:  (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void) -> Cancellable {
 
         let urlRequest = convert(fromRequest: request)
         let cancellable = session.dataTaskWithRequest(urlRequest) { (data, urlResponse, error) in
