@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.tests;
 
 import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
@@ -85,13 +86,15 @@ public class HttpExecutor implements MethodsExecutor {
     MethodTestInfo testInfo = method.getTestInfo().resolve(service.getTestInfo());
     final String encoding = resolveEncoding(service, method);
 
+    Headers headers = prepareHeaders(testInfo, method, request);
+
     RequestBody body = null;
     if (method.getType().isHasBody()) {
-      body = getRequestBody(method, request, encoding);
+      body = getRequestBody(method, request, encoding, headers);
     }
 
     Request httpRequest = new Request.Builder()
-        .headers(prepareHeaders(testInfo, method, request))
+        .headers(headers)
         .url(resolveUri(service, method, request, encoding))
         .method(method.getType().toString(), body)
         .build();
@@ -104,10 +107,17 @@ public class HttpExecutor implements MethodsExecutor {
     }
   }
 
-  private RequestBody getRequestBody(final ServiceMethod method, final ServiceMethodRequestValues request, final String encoding) {
+  private RequestBody getRequestBody(final ServiceMethod method, final ServiceMethodRequestValues request,
+                                     final String encoding, final Headers headers) {
     final RequestBodyBuilder builder = BuilderFactory.getBuilderFor(method.getBody());
-
-    return builder.build(types, request.getBody(), encoding);
+    MediaType contentType;
+    String headerContentType = headers.get("Content-Type");
+    if (headerContentType != null) {
+      contentType = MediaType.parse(headerContentType);
+    } else {
+      contentType = Utils.jsonType();
+    }
+    return builder.build(types, request.getBody(), contentType, encoding);
   }
 
 }
