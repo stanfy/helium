@@ -1,0 +1,82 @@
+import Foundation
+import ReactiveCocoa
+
+{{#services}}
+enum Route {
+{{#funcs}}
+  case {{name}}
+{{/funcs}}
+}
+
+typealias GatewayFactory = (Route, APIService, @escaping RequestProvider) -> Gateway
+typealias RequestProviderFactory = (Route, @escaping RequestProvider) -> RequestProvider
+
+
+class APIRequestManager {
+
+    let baseURL: URL
+    let service: APIService
+    let requestProviderFactory: RequestProviderFactory?
+    let gatewayFactory: GatewayFactory
+
+    static let defaultGatewayFactory: GatewayFactory = { route, service, provider in
+        GatewayImpl(apiService: service, requestProvider: provider)
+    }
+
+    static let defaultCallBack: RequestProviderFactory = { route, provider in
+        provider
+    }
+
+    init(
+        service: APIService,
+        baseURL: URL = URL(string:"{{location}}")!,
+        requestProviderFactory: @escaping RequestProviderFactory = APIRequestManager.defaultCallBack,
+        gatewayFactory: @escaping GatewayFactory = APIRequestManager.defaultGatewayFactory
+    ) {
+        self.service = service
+        self.requestProviderFactory = requestProviderFactory
+        self.gatewayFactory = gatewayFactory
+        self.baseURL = baseURL
+    }
+
+
+
+{{#funcs}}
+  func {{name}}({{#interfaceParams}}{{{name}}}: {{{type}}}{{{delimiter}}}{{/interfaceParams}}) -> SignalProducer<{{return_type}}, APIResponseError<NSError>> {
+    return SignalProducer { observer, disposable in
+        let originalProvider = {
+            return Request(
+                url: self.baseURL.appendingPathComponent("{{path}}"),
+                method: .{{method}},
+                encoding: .{{encoding}},
+                params:[
+                    {{#bodyParams}}
+                    "{{name}}": {{name}} as AnyObject{{delimiter}}
+                    {{/bodyParams}}
+                ]
+            )
+        }
+
+        let requestProvider = requestProviderFactory?(.{{name}}, originalProvider) ?? originalProvider
+        let gateway = gatewayFactory(.{{name}}, service, requestProvider)
+        let cancelable = gateway.requestWithCallback(responseTransformer: {{return_type}}.transform, callback: callbackFor(observer: observer))
+        disposable.addDisposable {
+            cancelable.cancel()
+        }
+    }
+  }
+{{/funcs}}
+
+    func callbackFor<T>(observer: Observer<T, APIResponseError<NSError>>) -> (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void {
+        return { result in
+            switch result {
+            case .Success(let x):
+                print("Success:\(x)")
+            case .Failure(let y):
+                print("Failure:\(y)")
+            }
+        }
+    }
+
+}
+{{/services}}

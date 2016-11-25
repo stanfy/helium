@@ -139,7 +139,7 @@ class SwiftTemplatesHelper {
     }
 
 
-    fun generatedTemplateWithName(templateName: String, templateObject: Any): String {
+    fun generatedTemplateWithName(templateName: String, templateObject: Any = object: Any () {}): String {
       val mustacheFactory = DefaultMustacheFactory()
       val mustache = mustacheFactory.compile(templateName)
       val stringWriter = StringWriter()
@@ -147,16 +147,5 @@ class SwiftTemplatesHelper {
       return stringWriter.toString()
     }
 
-    fun generateSwiftAPIClientFunctions(functions: List<Any>): String {
-      return generatedTemplateWithName("client/SwiftAPIClientRequestManager.mustache", object : Any () {
-        val funcs = functions
-      })
-    }
-
-    fun generateSwiftAPIClientResponse(): String {
-      return generatedTemplateWithName("client/SwiftAPIClientResponse.mustache", object: Any() {
-
-      })
-    }
   }
 }

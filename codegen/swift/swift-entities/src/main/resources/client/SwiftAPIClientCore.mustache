@@ -6,13 +6,13 @@ enum Result<S, E> {
 }
 
 struct Request {
-    let url: URL
-    let method: RequestMethod
-    let params: [String: AnyObject]
-    let encoding: RequestParametersEncoding
-    let expectedStatusCodes: Range<Int>
-    let expectedContentTypes: [String]
-    let headers: [String: String]
+    var url: URL
+    var method: RequestMethod
+    var params: [String: AnyObject]
+    var encoding: RequestParametersEncoding
+    var expectedStatusCodes: Range<Int>
+    var expectedContentTypes: [String]
+    var headers: [String: String]
 
     init(
         url: URL,
@@ -89,33 +89,25 @@ protocol Cancellable {
 // MARK:- Gateway
 
 protocol Gateway {
-    associatedtype Value
-    func requestWithCallback(callback: @escaping (Result<APIResponse<Value>, APIResponseError<NSError>>) -> Void)
-        -> Cancellable
+    func requestWithCallback<T>(
+        responseTransformer: @escaping (NSData?) -> Result<T, NSError>,
+        callback: @escaping (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
+    ) -> Cancellable
 }
 
 extension Gateway {
-    typealias RequestSuccessCallback = (APIResponse<Value>) -> Void
-    typealias RequestFailureCallback = (APIResponseError<NSError>) -> Void
-
-    func request(success: RequestSuccessCallback?, failure: RequestFailureCallback?) -> Cancellable {
-        return requestWithCallback { result in
+    func request<T>(
+        responseTransformer: @escaping (NSData?) -> Result<T, NSError>,
+        success: ((APIResponse<T>) -> Void)?,
+        failure: ((APIResponseError<NSError>) -> Void)?
+    ) -> Cancellable {
+        return requestWithCallback(responseTransformer: responseTransformer) { (result:Result<APIResponse<T>, APIResponseError<NSError>>) in
             switch result {
             case .Success(let response): success?(response)
             case .Failure(let responseError): failure?(responseError)
             }
         }
     }
-}
-
-
-// MARK:- ResponseTransformer
-
-protocol ResponseTransformerType {
-    associatedtype S
-    associatedtype D
-    associatedtype E
-    func transform(data: S) -> Result<D, E>
 }
 
 
@@ -129,32 +121,26 @@ protocol APIService {
     func request(request: Request, callback: @escaping APIServiceRequestCallback) -> Cancellable
 }
 
-class GatewayImpl<T, U: ResponseTransformerType>: Gateway
-    where U.S == NSData?, U.D == T, U.E == NSError  // NSData -> (T, NSError)
-{
-   typealias Value = T
-
-    typealias RequestCallback = (Result<APIResponse<Value>, APIResponseError<NSError>>) -> Void
+class GatewayImpl: Gateway {
 
     private let apiService: APIService
     private let requestProvider: RequestProvider
-    private let responseTransformer: U
 
     init(apiService: APIService,
-         responseTransformer: U,
          requestProvider: @escaping RequestProvider
         ) {
         self.apiService = apiService
         self.requestProvider = requestProvider
-        self.responseTransformer = responseTransformer
     }
 
-    internal func requestWithCallback(callback: @escaping (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void) -> Cancellable {
+    internal func requestWithCallback<T>(
+        responseTransformer: @escaping (NSData?) -> Result<T, NSError>,
+        callback: @escaping (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
+    ) -> Cancellable {
         return apiService.request(request: requestProvider(), callback: { result in
             switch result {
             case .Success(let response):
-
-                let responseTransformerResult = self.responseTransformer.transform(data: response.value)
+                let responseTransformerResult = responseTransformer(response.value)
                 switch responseTransformerResult {
                 case .Success(let transformedResponse):
                     callback(.Success(APIResponse(value: transformedResponse, response: response.response)))
@@ -170,3 +156,4 @@ class GatewayImpl<T, U: ResponseTransformerType>: Gateway
     }
 
 }
+

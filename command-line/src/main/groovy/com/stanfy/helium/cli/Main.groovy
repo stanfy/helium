@@ -142,8 +142,8 @@ class Main {
       "swift-api-client": [
           description: "Generates Swift API client",
           properties: [
-//              "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
-//              "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
+              "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
+              "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
 //              "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
           ],
           flags: [
@@ -153,12 +153,13 @@ class Main {
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
-//            generationOptions.customTypesMappings = mapProperty(options, "customMapping")
-//            generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
-//
+            generationOptions.customTypesMappings = mapProperty(options, "customMapping")
+            generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
+            SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
+
             SwiftAPIClientGenerator clientGenerator = new SwiftAPIClientGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftAPIClientHandler(output, generationOptions, clientGenerator, outputGenerator )
+            return new SwiftAPIClientHandler(output, generationOptions, clientGenerator, entitiesGenerator, outputGenerator )
           }
       ],
 
