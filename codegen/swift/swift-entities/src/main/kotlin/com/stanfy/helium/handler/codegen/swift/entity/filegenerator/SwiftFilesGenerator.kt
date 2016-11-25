@@ -67,31 +67,44 @@ class SwiftDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerator {
   }
 
   override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
-    // TODO : Different files? as an option
-    val file: SwiftFile = object : SwiftFile {
-      override fun name(): String {
-        return "Mappings"
-      }
+    return listOf(
+        SwiftFileImpl(
+            name = "Mappings",
+            contents = {
+              val imports = "import Decodable"
+              val structs = entities
+                  .filterIsInstance<SwiftEntityStruct>()
+                  .map { entity ->
+                    SwiftTemplatesHelper.generateSwiftStructDecodables(entity.name, entity.properties, options?.typeDefaultValues)
+                  }.joinToString(separator = "\n")
 
-      override fun contents(): String {
-        val imports = "import Decodable"
-        val structs = entities
-            .filterIsInstance<SwiftEntityStruct>()
-            .map { entity ->
-              SwiftTemplatesHelper.generateSwiftStructDecodables(entity.name, entity.properties, options?.typeDefaultValues)
-            }.joinToString(separator = "\n")
-
-        val enums = entities
-            .filterIsInstance<SwiftEntityEnum>()
-            .map { entity ->
-              SwiftTemplatesHelper.generateSwiftEnumDecodables(entity.name, entity.values)
-            }.joinToString(separator = "\n")
+              val enums = entities
+                  .filterIsInstance<SwiftEntityEnum>()
+                  .map { entity ->
+                    SwiftTemplatesHelper.generateSwiftEnumDecodables(entity.name, entity.values)
+                  }.joinToString(separator = "\n")
 
 
-        return arrayOf(imports, enums, structs)
-            .joinToString(separator = "\n")
-      }
-    }
-    return listOf(file)
+              arrayOf(imports, enums, structs)
+                  .joinToString(separator = "\n")
+            }()
+        ))
+  }
+}
+
+class SwiftTransformableDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerator {
+
+  override fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile> {
+    return this.filesFromEntities(entities, null)
+  }
+
+  override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
+    return listOf(
+        SwiftFileImpl(
+            name = "TransformableMappings",
+            contents = SwiftTemplatesHelper.generatedTemplateWithName("decodable/SwiftAPITransformable.mustache", object : Any() {
+              val entities = entities
+            })
+        ))
   }
 }

@@ -6,7 +6,7 @@ enum Result<S, E> {
 }
 
 struct Request {
-    var url: URL
+    var url: NSURL
     var method: RequestMethod
     var params: [String: AnyObject]
     var encoding: RequestParametersEncoding
@@ -15,7 +15,7 @@ struct Request {
     var headers: [String: String]
 
     init(
-        url: URL,
+        url: NSURL,
         method: RequestMethod,
         encoding: RequestParametersEncoding,
         params: [String: AnyObject] = [:],
@@ -60,9 +60,9 @@ typealias RequestProvider = () -> (Request)
 
 struct APIResponse<T> {
     let value: T
-    let response: HTTPURLResponse?
+    let response: NSHTTPURLResponse?
 
-    init(value: T, response: HTTPURLResponse? = nil) {
+    init(value: T, response: NSHTTPURLResponse? = nil) {
         self.value = value
         self.response = response
     }
@@ -70,11 +70,11 @@ struct APIResponse<T> {
 
 // MARK:- Response Error
 
-struct APIResponseError<E>: Error {
+struct APIResponseError<E>: ErrorType {
     let error: E
-    let response: HTTPURLResponse?
+    let response: NSHTTPURLResponse?
 
-    init(error: E, response: HTTPURLResponse? = nil) {
+    init(error: E, response: NSHTTPURLResponse? = nil) {
         self.error = error
         self.response = response
     }
@@ -90,18 +90,18 @@ protocol Cancellable {
 
 protocol Gateway {
     func requestWithCallback<T>(
-        responseTransformer: @escaping (NSData?) -> Result<T, NSError>,
-        callback: @escaping (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
+        responseTransformer:  (NSData?) -> Result<T, NSError>,
+        callback:  (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
     ) -> Cancellable
 }
 
 extension Gateway {
     func request<T>(
-        responseTransformer: @escaping (NSData?) -> Result<T, NSError>,
+        responseTransformer:  (NSData?) -> Result<T, NSError>,
         success: ((APIResponse<T>) -> Void)?,
         failure: ((APIResponseError<NSError>) -> Void)?
     ) -> Cancellable {
-        return requestWithCallback(responseTransformer: responseTransformer) { (result:Result<APIResponse<T>, APIResponseError<NSError>>) in
+        return requestWithCallback(responseTransformer) { (result:Result<APIResponse<T>, APIResponseError<NSError>>) in
             switch result {
             case .Success(let response): success?(response)
             case .Failure(let responseError): failure?(responseError)
@@ -111,6 +111,11 @@ extension Gateway {
 }
 
 
+// MARK:- Transformable
+protocol Transformable {
+    static func transform(data: NSData?) -> Result<Self, NSError>
+}
+
 // MARK:- Network API Service Request Callback
 
 typealias APIServiceRequestCallback = (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void
@@ -118,7 +123,7 @@ typealias APIServiceRequestCallback = (Result<APIResponse<NSData?>, APIResponseE
 // MARK:- Protocol
 
 protocol APIService {
-    func request(request: Request, callback: @escaping APIServiceRequestCallback) -> Cancellable
+    func request(request: Request, callback:  APIServiceRequestCallback) -> Cancellable
 }
 
 class GatewayImpl: Gateway {
@@ -127,17 +132,17 @@ class GatewayImpl: Gateway {
     private let requestProvider: RequestProvider
 
     init(apiService: APIService,
-         requestProvider: @escaping RequestProvider
+         requestProvider:  RequestProvider
         ) {
         self.apiService = apiService
         self.requestProvider = requestProvider
     }
 
     internal func requestWithCallback<T>(
-        responseTransformer: @escaping (NSData?) -> Result<T, NSError>,
-        callback: @escaping (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
+        responseTransformer:  (NSData?) -> Result<T, NSError>,
+        callback:  (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
     ) -> Cancellable {
-        return apiService.request(request: requestProvider(), callback: { result in
+        return apiService.request(requestProvider(), callback: { result in
             switch result {
             case .Success(let response):
                 let responseTransformerResult = responseTransformer(response.value)

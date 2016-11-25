@@ -20,6 +20,7 @@ import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputG
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftRandomEntitiesFilesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftMutableFilesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftTransformableDecodableMappingsFilesGeneratorImpl
 
 /**
  * Main entry point.
@@ -168,7 +169,7 @@ class Main {
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
-              "mappingType" : "Mapping type. Optional. Possible values : decodable"
+              "mappingType" : "Mapping type. Optional. Possible values : decodable|decodable-transformable"
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
@@ -179,6 +180,9 @@ class Main {
             switch (requiredProperty(options, "mappingType")) {
               case "decodable":
                 filesGenerator = new SwiftDecodableMappingsFilesGeneratorImpl()
+                break
+              case "decodable-transformable":
+                filesGenerator = new SwiftTransformableDecodableMappingsFilesGeneratorImpl()
                 break
               default:
                 println "Property -HmappingType=<value> is required. Possible values : [decodable]"

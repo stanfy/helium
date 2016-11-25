@@ -1,0 +1,61 @@
+import Decodable
+
+extension NSData {
+    func maybeJSON() -> AnyObject? {
+        return try? NSJSONSerialization.JSONObjectWithData(self, options: .AllowFragments)
+    }
+
+    func json() throws -> AnyObject {
+        return try NSJSONSerialization.JSONObjectWithData(self, options: .AllowFragments)
+    }
+}
+
+enum DecodableTranformableError<T> {
+    case DataCannotBeTransformedToJSON(T.Type)
+    case JSONCannotBeTranformedToType(T.Type, ErrorType)
+
+    func toNSError() -> NSError {
+        let domain = "api.decodable.transform"
+        return NSError(domain: domain, code: code(), userInfo: [
+            NSLocalizedDescriptionKey : errorDescription()
+        ])
+    }
+
+    func code() -> Int {
+        switch self {
+        case DataCannotBeTransformedToJSON: return 1
+        case JSONCannotBeTranformedToType: return 2
+        }
+    }
+
+    func errorDescription() -> String {
+        switch self {
+        case DataCannotBeTransformedToJSON(let type):
+            return "Cannot transfom data to json for \(type)"
+        case JSONCannotBeTranformedToType(let type, let error):
+            return "Cannot transform json to type for \(type)\n\(error)"
+        }
+    }
+}
+
+func decodableTransform<T:Decodable>(data: NSData?) -> Result<T, NSError> {
+    guard let json = data?.maybeJSON() else {
+        let error = DecodableTranformableError.DataCannotBeTransformedToJSON(T)
+        return .Failure(error.toNSError())
+    }
+    do {
+        let result = try T.decode(json)
+        return .Success(result)
+    } catch {
+        let wrappedError = DecodableTranformableError.JSONCannotBeTranformedToType(T.self, error)
+        return .Failure(wrappedError.toNSError())
+    }
+}
+
+{{#entities}}
+extension {{name}} : Transformable {
+    static func transform(data: NSData?) -> Result<{{name}}, NSError> {
+        return decodableTransform(data)
+    }
+}
+{{/entities}}

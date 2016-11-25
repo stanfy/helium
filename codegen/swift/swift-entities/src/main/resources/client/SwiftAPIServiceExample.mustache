@@ -1,34 +1,58 @@
-extension URLSessionDataTask: Cancellable {}
+import Foundation
+
+extension NSURLSessionDataTask: Cancellable {}
 
 struct NSURLSessionAPIService: APIService {
 
-    let session: URLSession
+    let session: NSURLSession
 
     init() {
-        session = URLSession(configuration: URLSessionConfiguration.default)
+        session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
     }
 
-    internal func request(request: Request, callback: @escaping (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void) -> Cancellable {
+    internal func request(request: Request, callback:  (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void) -> Cancellable {
 
         let urlRequest = convert(fromRequest: request)
-        let cancellable = session.dataTask(with: urlRequest) { (data, urlResponse, error) in
+        let cancellable = session.dataTaskWithRequest(urlRequest) { (data, urlResponse, error) in
             guard error == nil else {
-                callback(.Failure(APIResponseError(error: error as! NSError, response: urlResponse as? HTTPURLResponse)))
+                callback(.Failure(APIResponseError(error: error!, response: urlResponse as? NSHTTPURLResponse)))
                 return
             }
             let nsdata = data.flatMap{ NSData(data: $0) }
-            callback(.Success(APIResponse(value: nsdata, response: urlResponse as! HTTPURLResponse?)))
+            callback(.Success(APIResponse(value: nsdata, response: urlResponse as! NSHTTPURLResponse?)))
         }
         cancellable.resume()
 
         return cancellable
     }
 
-    func convert(fromRequest request: Request) -> URLRequest {
-        var mutableRequest = URLRequest(url: request.url)
+    func convert(fromRequest request: Request) -> NSURLRequest {
+        let url = makeUrl(fromRequest: request)
+
+        var mutableRequest = NSMutableURLRequest(URL: url)
         for header in request.headers {
-            mutableRequest.addValue(header.value, forHTTPHeaderField: header.key)
+            mutableRequest.addValue(header.1, forHTTPHeaderField: header.0)
         }
         return mutableRequest
+    }
+
+    func makeUrl(fromRequest request: Request) -> NSURL {
+        switch request.encoding {
+        case .URL:
+            return url(request.url, withParameters: request.params)
+        case .JSON:
+            fallthrough
+        case .FORM:
+            return request.url
+        }
+    }
+
+    func url(url:NSURL, withParameters parameters:[String:AnyObject]) -> NSURL {
+        let params = parameters.map { key, value in
+            "\(key)=\(value)"
+        }
+        .joinWithSeparator("&")
+
+        return NSURL(string: url.absoluteString! + "?" + params)!
     }
 }

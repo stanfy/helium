@@ -8,13 +8,13 @@ enum Route {
 {{/funcs}}
 }
 
-typealias GatewayFactory = (Route, APIService, @escaping RequestProvider) -> Gateway
-typealias RequestProviderFactory = (Route, @escaping RequestProvider) -> RequestProvider
+typealias GatewayFactory = (Route, APIService, RequestProvider) -> Gateway
+typealias RequestProviderFactory = (Route, RequestProvider) -> RequestProvider
 
 
 class APIRequestManager {
 
-    let baseURL: URL
+    let baseURL: NSURL
     let service: APIService
     let requestProviderFactory: RequestProviderFactory?
     let gatewayFactory: GatewayFactory
@@ -29,9 +29,9 @@ class APIRequestManager {
 
     init(
         service: APIService,
-        baseURL: URL = URL(string:"{{location}}")!,
-        requestProviderFactory: @escaping RequestProviderFactory = APIRequestManager.defaultCallBack,
-        gatewayFactory: @escaping GatewayFactory = APIRequestManager.defaultGatewayFactory
+        baseURL: NSURL = NSURL(string:"{{location}}")!,
+        requestProviderFactory:  RequestProviderFactory = APIRequestManager.defaultCallBack,
+        gatewayFactory:  GatewayFactory = APIRequestManager.defaultGatewayFactory
     ) {
         self.service = service
         self.requestProviderFactory = requestProviderFactory
@@ -46,20 +46,25 @@ class APIRequestManager {
     return SignalProducer { observer, disposable in
         let originalProvider = {
             return Request(
-                url: self.baseURL.appendingPathComponent("{{path}}"),
+                url: self.baseURL.URLByAppendingPathComponent("{{path}}")!,
                 method: .{{method}},
-                encoding: .{{encoding}},
+                encoding: .{{encoding}}{{#hasBodyParams}},
                 params:[
                     {{#bodyParams}}
                     "{{name}}": {{name}} as AnyObject{{delimiter}}
                     {{/bodyParams}}
                 ]
+                {{/hasBodyParams}}
             )
         }
 
-        let requestProvider = requestProviderFactory?(.{{name}}, originalProvider) ?? originalProvider
-        let gateway = gatewayFactory(.{{name}}, service, requestProvider)
-        let cancelable = gateway.requestWithCallback(responseTransformer: {{return_type}}.transform, callback: callbackFor(observer: observer))
+        var requestProvider = originalProvider
+        if let factory = self.requestProviderFactory {
+            requestProvider = factory(.{{name}}, originalProvider)
+        }
+
+        let gateway = self.gatewayFactory(.{{name}}, self.service, requestProvider)
+        let cancelable = gateway.requestWithCallback({{return_type}}.transform, callback: self.callbackFor(observer))
         disposable.addDisposable {
             cancelable.cancel()
         }

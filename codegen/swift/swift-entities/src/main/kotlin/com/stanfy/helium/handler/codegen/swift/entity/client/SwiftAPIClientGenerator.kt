@@ -59,6 +59,7 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
                 val responseName = responseFilename
                 val interfaceParams = topParams
                 val bodyParams = bottomParams
+                val hasBodyParams = bodyParams.isNotEmpty()
                 val method = serviceMethod.type.toString()
                 val encoding = if (serviceMethod.type.hasBody) "JSON" else "URL"
                 val path = path
@@ -88,9 +89,8 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
   fun formattedPathForServiceMethod(serviceMethod: ServiceMethod): String {
     var res = serviceMethod.path
     serviceMethod.pathParameters.forEach { name ->
-      print("Replacing @$name -> \\($name)")
-      res = res.replace("@$name", "\\($name))")
-      res = res.replace("\\{$name\\}", "\\($name))")
+      res = res.replace("@$name", "\\($name)")
+      res = res.replace("\\{$name\\}", "\\($name)")
     }
     return res
   }

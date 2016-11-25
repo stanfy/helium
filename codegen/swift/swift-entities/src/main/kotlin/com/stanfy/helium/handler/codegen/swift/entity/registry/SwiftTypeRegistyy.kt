@@ -52,7 +52,7 @@ class SwiftTypeRegistryImpl : SwiftTypeRegistry {
   }
 
   fun structType(heliumType: Type): SwiftEntityStruct {
-    return SwiftEntityStruct(heliumType.name)
+    return SwiftEntityStruct(className(heliumType.name))
   }
 
   private fun tryPrimitiveType(heliumType: Type): SwiftEntityPrimitive? {
@@ -89,9 +89,17 @@ class SwiftTypeRegistryImpl : SwiftTypeRegistry {
 
   }
 
+  fun className(className: String) : String {
+    val prettifiedName = Names.prettifiedName(Names.canonicalName(className))
+    if (arrayOf("Error").contains(prettifiedName)) {
+      return "API" + prettifiedName
+    }
+    return prettifiedName
+  }
+
   override fun propertyName(fieldName: String): String {
     val prettifiedName = Names.prettifiedName(Names.canonicalName(fieldName))
-    if (arrayOf("enum", "default", "let", "case").contains(prettifiedName)) {
+    if (arrayOf("enum", "default", "let", "case", "self").contains(prettifiedName)) {
       return prettifiedName + "Value"
     }
     return prettifiedName

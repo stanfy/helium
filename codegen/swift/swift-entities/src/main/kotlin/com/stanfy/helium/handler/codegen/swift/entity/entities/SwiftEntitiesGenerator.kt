@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.swift.entity.entities
 
 import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistry
 import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistryImpl
+import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.constraints.ConstrainedType
 
@@ -40,7 +41,8 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
     val messages = project.messages
         .filterNot { message -> message.isAnonymous }
         .map { message ->
-          val props = message.fields
+          val props =
+              message.parentsTree().flatMap { it.fields }
               .filterNot { field -> field.isSkip }
               .map { field ->
                 val type = if (field.isSequence) typesRegistry.simpleSequenceType(field.type) else typesRegistry.registerSwiftType(field.type)
@@ -48,7 +50,7 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
                 val fieldType = if (field.isRequired || hasDefaultValue) type else type.toOptional()
                 SwiftProperty(typesRegistry.propertyName(field.name), fieldType, field.name)
               }
-          SwiftEntityStruct(message.name, props)
+          SwiftEntityStruct(typesRegistry.registerSwiftType(message).name, props)
         }
 
     val sequences = project.sequences
@@ -61,5 +63,8 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
     return enums + messages + sequences
   }
 
+}
 
+private fun Message.parentsTree(): List<Message> {
+  return (if (hasParent()) parent.parentsTree() else listOf()) + listOf(this)
 }
