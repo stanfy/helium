@@ -20,8 +20,20 @@ import java.util.Set;
  */
 final class MessageConverter extends BaseConverter<Message> {
 
-  public MessageConverter(final Message type) {
+  MessageConverter(final Message type) {
     super(type);
+  }
+
+  private String typeHierarchy() {
+    StringBuilder sb = new StringBuilder();
+    Message t = type;
+    sb.append(t.getName());
+    while (t.getParent() != null) {
+      sb.append("->");
+      sb.append(t.getParent().getName());
+      t = t.getParent();
+    }
+    return sb.toString();
   }
 
   @Override
@@ -46,7 +58,7 @@ final class MessageConverter extends BaseConverter<Message> {
   private void writeField(final Field field, final Object value, final FormatWriter out) throws IOException {
     if (value == null) {
       if (field.isRequired()) {
-        throw new IllegalArgumentException("Field " + field.getName() + " in " + type + " is required. But null is provided");
+        throw new IllegalArgumentException("Field " + field.getName() + " in " + typeHierarchy() + " is required. But null is provided");
       }
       return;
     }
@@ -74,7 +86,7 @@ final class MessageConverter extends BaseConverter<Message> {
 
       if (field == null) {
         if (!type.isSkipUnknownFields()) {
-          errors.add(new ValidationError("Unexpected field '" + fieldName + "'"));
+          errors.add(new ValidationError("Unexpected field '" + fieldName + "' in " + typeHierarchy()));
         }
         input.skipValue();
         continue;
