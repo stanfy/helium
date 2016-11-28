@@ -68,7 +68,7 @@ class HeliumExtension {
 
   @CompileStatic
   void variables(Closure<?> config) {
-    DslUtils.runWithProxy(DslUtils.stringMapProxy(this.config.variables, "Variables"), config)
+    DslUtils.runWithProxy(DslUtils.optionalStringMapProxy(this.config.variables, "Variables"), config)
   }
 
   Map<String, BaseHeliumTask> getSourceGen() {
