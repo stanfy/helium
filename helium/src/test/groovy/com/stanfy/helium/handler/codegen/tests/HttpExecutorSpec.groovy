@@ -1,13 +1,17 @@
 package com.stanfy.helium.handler.codegen.tests
 
 import com.squareup.okhttp.OkHttpClient
+import com.squareup.okhttp.mockwebserver.Dispatcher
 import com.squareup.okhttp.mockwebserver.MockResponse
 import com.squareup.okhttp.mockwebserver.MockWebServer
+import com.squareup.okhttp.mockwebserver.RecordedRequest
 import com.stanfy.helium.handler.tests.HttpExecutor
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.dsl.scenario.ScenarioDelegate
 import com.stanfy.helium.internal.dsl.scenario.ScenarioInvoker
 import com.stanfy.helium.model.Service
+import com.stanfy.helium.model.tests.BehaviourCheck
+import com.stanfy.helium.model.tests.CheckListener
 import spock.lang.Specification
 
 /**
@@ -135,4 +139,61 @@ class HttpExecutorSpec extends Specification {
     ScenarioInvoker.invokeScenario(new ScenarioDelegate(service, executor), service.testInfo.scenarioByName(name))
     return mockWebServer.takeRequest()
   }
+
+  def "authentication"() {
+    given:
+    project = new ProjectDsl()
+    project.type 'int32'
+    project.type 'string'
+    project.service {
+      name 'test'
+      authentication oauth2()
+      location mockWebServer.getUrl('/')
+
+      get '/test' spec {
+        name 'Test request'
+      }
+
+      tests {
+        oauth2 {
+          type 'client_credentials'
+          tokenUrl mockWebServer.getUrl("/oauth/token")
+          clientId 'id'
+          clientSecret 'secret'
+        }
+      }
+
+      describe 'Some test' spec {
+        it('works') {
+          def resp = service.get '/test' with { }
+          assert resp.statusCode == 200
+        }
+      }
+    }
+
+    and:
+    def queue = mockWebServer.dispatcher
+    mockWebServer.dispatcher = { RecordedRequest request ->
+      def response = new MockResponse()
+      if (request.path.startsWith("/oauth/token")) {
+        return response.setBody("{\"access_token\": \"val\"}")
+      }
+      if (!request.headers.get("Authorization")) {
+        return response.setResponseCode(401)
+      }
+      return queue.dispatch(request)
+    } as Dispatcher
+
+    when:
+    def res = project.serviceByName('test').check(executor, Mock(CheckListener))
+
+    then:
+    res.result == BehaviourCheck.Result.PASSED
+    mockWebServer.takeRequest().path == '/test'
+    mockWebServer.takeRequest().path.startsWith('/oauth/token')
+    def lastRequest = mockWebServer.takeRequest()
+    lastRequest.path == '/test'
+    lastRequest.headers.get('Authorization') == 'Bearer val'
+  }
+
 }

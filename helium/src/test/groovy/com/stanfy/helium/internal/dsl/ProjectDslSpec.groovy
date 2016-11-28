@@ -10,12 +10,14 @@ import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.MultipartType
-import com.stanfy.helium.model.Security
+import com.stanfy.helium.model.Authentication
+import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
 import com.stanfy.helium.model.tests.BehaviourCheck
 import com.stanfy.helium.model.tests.BehaviourSuite
 import com.stanfy.helium.model.tests.CheckListener
+import com.stanfy.helium.model.tests.Oauth2AuthenticationParams
 import org.joda.time.Duration
 import spock.lang.Specification
 
@@ -793,7 +795,7 @@ class ProjectDslSpec extends Specification {
     when:
     dsl.service {
       name 'Test service 1'
-      security certificate() {
+      authentication certificate() {
         description '''
           Explanations how to get a cert.
         '''
@@ -801,18 +803,23 @@ class ProjectDslSpec extends Specification {
     }
     dsl.service {
       name 'Another service 2'
-      security basic(description: 'Test description')
+      authentication basic(description: 'Test description')
+      authentication oauth2()
     }
 
     then:
     dsl.services[0].name == 'Test service 1'
-    dsl.services[0].security?.type == Security.Type.CERTIFICATE
-    dsl.services[0].security.description == 'Explanations how to get a cert.'
-    dsl.services[0].security.name == 'certificate'
+    !dsl.services[0].authentications.empty
+    !dsl.services[1].authentications.empty
+    dsl.services[0].authentications[0]?.type == Authentication.Type.CERTIFICATE
+    dsl.services[0].authentications[0].description == 'Explanations how to get a cert.'
+    dsl.services[0].authentications[0].name == 'certificate'
     dsl.services[1].name == 'Another service 2'
-    dsl.services[1].security?.type == Security.Type.BASIC
-    dsl.services[1].security.description == 'Test description'
-    dsl.services[1].security.name == 'basic'
+    dsl.services[1].authentications[0]?.type == Authentication.Type.BASIC
+    dsl.services[1].authentications[0].description == 'Test description'
+    dsl.services[1].authentications[0].name == 'basic'
+    dsl.services[1].authentications[1].type == Authentication.Type.OAUTH2
+    dsl.services[1].authentications[1].name == 'oauth2'
   }
 
   //region form request content type
@@ -1054,4 +1061,34 @@ class ProjectDslSpec extends Specification {
   }
 
   //endregion
+
+  //region oauth2 authentication
+
+  def "can define oauth2 client credentials auth"() {
+    when:
+    dsl.service {
+      name 'Some service'
+      authentication oauth2()
+      tests {
+        oauth2 {
+          type 'client_credentials'
+          tokenUrl 'https://url'
+          clientId 'id'
+          clientSecret 'secret'
+        }
+      }
+    }
+    def service = dsl.serviceByName('Some service')
+
+    then:
+    service.authenticationTypes() == [Authentication.Type.OAUTH2]
+    service.testInfo.authParams instanceof Oauth2AuthenticationParams
+    ((Oauth2AuthenticationParams) service.testInfo.authParams).type == Oauth2AuthenticationParams.AuthType.CLIENT_CREDENTIALS
+    ((Oauth2AuthenticationParams) service.testInfo.authParams).tokenUrl == 'https://url'
+    ((Oauth2AuthenticationParams) service.testInfo.authParams).clientId == 'id'
+    ((Oauth2AuthenticationParams) service.testInfo.authParams).clientSecret == 'secret'
+  }
+
+  //endregion
+
 }

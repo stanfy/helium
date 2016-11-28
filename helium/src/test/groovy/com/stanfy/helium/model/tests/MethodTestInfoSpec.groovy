@@ -11,7 +11,8 @@ class MethodTestInfoSpec extends Specification {
 
   def "resolve() uses global value if local is not defined"() {
     when:
-    TestsInfo global = new TestsInfo(useExamples: true, generateBadInputTests: false)
+    TestsInfo global = new TestsInfo(useExamples: true, generateBadInputTests: false,
+        authParams: new Oauth2AuthenticationParams())
     info.useExamples = false
     info.generateBadInputTests = true
 
@@ -20,6 +21,7 @@ class MethodTestInfoSpec extends Specification {
     !new MethodTestInfo().resolve(global).generateBadInputTests
     !info.resolve(global).useExamples
     info.resolve(global).generateBadInputTests
+    info.resolve(global).authParams
   }
 
   def "resolve() merges headers map"() {

@@ -22,8 +22,8 @@ class Service extends Descriptionable implements StructureUnit, Checkable {
   /** Encoding used. */
   String encoding
 
-  /** Security definition. */
-  Security security
+  /** Possible authentication schemes. */
+  List<Authentication> authentications = new ArrayList<>()
 
   /** Service methods. */
   final List<ServiceMethod> methods = new ArrayList<>()
@@ -59,6 +59,10 @@ class Service extends Descriptionable implements StructureUnit, Checkable {
   @Override
   BehaviourSuite check(final MethodsExecutor executor, final CheckListener listener) {
     return BehaviourSuite.EMPTY
+  }
+
+  List<Authentication.Type> authenticationTypes() {
+    return authentications.collect { it.type }
   }
 
 }

@@ -100,6 +100,11 @@ public class HttpExecutor implements MethodsExecutor {
         .build();
 
     try {
+      OkHttpClient client = this.client;
+      if (testInfo.getAuthParams() != null) {
+        client = client.clone();
+        client.interceptors().add(0, testInfo.getAuthParams().createHttpInterceptor());
+      }
       Response response = client.newCall(httpRequest).execute();
       return new HttpResponseWrapper(types, response, method.getResponse());
     } catch (IOException e) {

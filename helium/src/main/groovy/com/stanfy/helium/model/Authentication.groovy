@@ -1,16 +1,16 @@
 package com.stanfy.helium.model
 
-/** Security specification. */
-class Security extends Descriptionable {
+/** Authentication specification. */
+class Authentication extends Descriptionable {
 
   Type type
 
-  /** Type of security scheme. */
+  /** Type of authentication scheme. */
   enum Type {
     CERTIFICATE,
     BASIC,
     API_KEY,
-    OAUTH
+    OAUTH2
 
     String getName() {
       return name().toLowerCase(Locale.US)

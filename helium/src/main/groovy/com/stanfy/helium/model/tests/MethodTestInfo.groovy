@@ -22,7 +22,8 @@ class MethodTestInfo extends TestsInfo {
       useExamples: this.useExamples == null ? globalUseExamples : this.useExamples,
       generateBadInputTests: this.generateBadInputTests == null ? globalBadInput : this.generateBadInputTests,
       pathExample: pathExample,
-      httpHeaders: headersMap
+      httpHeaders: headersMap,
+      authParams: this.authParams != null ? this.authParams : globalInfo.authParams
     )
   }
 
