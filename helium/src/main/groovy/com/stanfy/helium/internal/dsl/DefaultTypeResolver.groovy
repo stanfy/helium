@@ -65,7 +65,7 @@ class DefaultTypeResolver implements TypeResolver {
 
   @Override
   Map<Type, PrimitiveReader<?>> customReaders(MediaType mediaType) {
-    def res = readers.find() { mediaType.subtype().equals(it.format) }
+    def res = readers.find() { mediaType.subtype().endsWith(it.format) }
     if (!res) {
       return Collections.emptyMap()
     }
@@ -74,7 +74,7 @@ class DefaultTypeResolver implements TypeResolver {
 
   @Override
   Map<Type, PrimitiveWriter<?>> customWriters(MediaType mediaType) {
-    def res = writers.find() { mediaType.subtype().equals(it.format) }
+    def res = writers.find() { mediaType.subtype().endsWith(it.format) }
     if (!res) {
       return Collections.emptyMap()
     }

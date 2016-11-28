@@ -30,11 +30,17 @@ final class MessageConverter extends BaseConverter<Message> {
     Map<String, Object> values = (Map<String, Object>) value;
 
     output.beginMessage(type);
-    for (Field f : getType().getActiveFields()) {
-      Object v = values.get(f.getName());
-      writeField(f, v, output);
+    Message msg = getType();
+
+    while (msg != null) {
+      for (Field f : msg.getActiveFields()) {
+        Object v = values.get(f.getName());
+        writeField(f, v, output);
+      }
+      msg = msg.getParent();
     }
-    output.endMessage(type);
+
+    output.endMessage(this.type);
   }
 
   private void writeField(final Field field, final Object value, final FormatWriter out) throws IOException {
@@ -64,7 +70,7 @@ final class MessageConverter extends BaseConverter<Message> {
     input.beginMessage(type);
     while (input.hasNext()) {
       String fieldName = input.nextFieldName(type);
-      Field field = type.fieldByName(fieldName);
+      Field field = type.fieldByNameWithParents(fieldName);
 
       if (field == null) {
         if (!type.isSkipUnknownFields()) {

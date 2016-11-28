@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.tests;
 
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.RequestBody;
 import com.stanfy.helium.internal.entities.TypedEntity;
 import com.stanfy.helium.model.Type;
@@ -17,6 +18,7 @@ public interface RequestBodyBuilder {
 
   boolean canBuild(final Type bodyType);
 
-  RequestBody build(final TypeResolver types, final TypedEntity entity, final String encoding);
+  RequestBody build(final TypeResolver types, final TypedEntity entity,
+                    final MediaType contentType, final String encoding);
 
 }

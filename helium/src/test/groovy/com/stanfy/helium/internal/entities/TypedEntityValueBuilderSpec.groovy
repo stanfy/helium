@@ -184,4 +184,20 @@ class TypedEntityValueBuilderSpec extends Specification {
     value[['f1': 'key']] == ['f1': 'value']
   }
 
+  def "fields of parent message"() {
+    when:
+    Message base = new Message(name: 'Base')
+    base.addField(new Field(name: 'baseField', type: new Type(name: 'string')))
+    Message msg = new Message(name: 'Msg', parent: base)
+    msg.addField(new Field(name: 'mainField', type: new Type(name: 'int32')))
+    def value = new TypedEntityValueBuilder(msg).from {
+      mainField 42
+      baseField 'forty two'
+    }
+
+    then:
+    value.mainField == 42
+    value.baseField == 'forty two'
+  }
+
 }

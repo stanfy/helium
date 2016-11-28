@@ -27,6 +27,18 @@ final class Message extends Type {
     return fields.find { Field field -> field.name == name }
   }
 
+  Field fieldByNameWithParents(final String name) {
+    Message msg = this
+    while (msg) {
+      Field field = msg.fieldByName(name)
+      if (field != null) {
+        return field
+      }
+      msg = msg.parent
+    }
+    return null
+  }
+
   void addField(final Field f) {
     if (fieldByName(f.name)) {
       throw new IllegalArgumentException("Field with name $f.name is already defined in message $name")

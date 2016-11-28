@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.tests.body
 
 import com.squareup.okhttp.FormEncodingBuilder
+import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.RequestBody
 import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.handler.tests.RequestBodyBuilder
@@ -24,7 +25,8 @@ class FormBodyBuilder implements RequestBodyBuilder {
   }
 
   @Override
-  RequestBody build(TypeResolver types, final TypedEntity entity, String encoding) {
+  RequestBody build(final TypeResolver types, final TypedEntity entity,
+                    final MediaType contentType, final String encoding) {
     FormEncodingBuilder formBuilder = new FormEncodingBuilder()
     final Map<String, Object> map = (Map<String, Object>) entity.getValue()
     for (String key : map.keySet()) {
