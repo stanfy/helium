@@ -538,4 +538,38 @@ public class Test {
 }
 """.trim() + '\n'
   }
+
+  def "custom mapping outside classpath"() {
+    given:
+    Message testMessage = new Message(name: "Test")
+    testMessage.addField(new Field(name: "data", type: new Type(name: "customType")))
+
+    and:
+    options.customPrimitivesMapping = ['customType': 'custom.Name']
+
+    when:
+    new MessageToJavaClass(writer, options).write(testMessage)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+import custom.Name;
+
+public class Test {
+
+  private Name data;
+
+
+  public Name getData() {
+    return this.data;
+  }
+
+  public void setData(Name value) {
+    this.data = value;
+  }
+
+}
+""".trim() + '\n'
+  }
 }

@@ -138,13 +138,27 @@ final class MessageToJavaClass {
       }
 
       if (type.isPrimitive() && !(type instanceof ConstrainedType)) {
-        Class<?> clazz = options.getJavaClass(type);
-        if (!clazz.isPrimitive() && !"java.lang".equals(clazz.getPackage().getName())) {
-          imports.add(clazz.getCanonicalName());
+        String name = options.getPrimitiveTypeName(type);
+        if (!isJavaLang(name) && options.getPrimitiveJavaClass(type) == null) {
+          imports.add(name);
         }
       }
 
     }
+  }
+
+  private static boolean isJavaLang(String name) {
+    String packagePrefix = "java.lang.";
+    if (name.startsWith(packagePrefix)) {
+      if (name.indexOf('.', packagePrefix.length()) == -1) {
+        return true;
+      }
+      // Check to see if the part after the package looks like a class.
+      if (Character.isUpperCase(name.charAt(packagePrefix.length()))) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void traverseInternalImports(final Type type, final HashSet<String> imports) {
