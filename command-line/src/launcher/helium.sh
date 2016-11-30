@@ -11,7 +11,7 @@
 # Use --refresh option to update a snapshot version.
 
 if [ -z "$HELIUM_VERSION" ]; then
-    HELIUM_VERSION="0.8.1-SNAPSHOT"
+    HELIUM_VERSION="0.8.2-SNAPSHOT"
 fi
 
 if [ -z "$HELIUM_HOME" ]; then
