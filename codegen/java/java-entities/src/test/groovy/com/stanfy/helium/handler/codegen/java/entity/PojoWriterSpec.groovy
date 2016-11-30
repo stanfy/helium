@@ -545,7 +545,7 @@ public class Test {
     testMessage.addField(new Field(name: "data", type: new Type(name: "customType")))
 
     and:
-    options.customPrimitivesMapping = ['customType': 'custom.Name']
+    options.customPrimitivesMapping = ['customType': 'custom.Name<custom2.Generic>']
 
     when:
     new MessageToJavaClass(writer, options).write(testMessage)
@@ -558,14 +558,14 @@ import custom.Name;
 
 public class Test {
 
-  private Name data;
+  private Name<custom2.Generic> data;
 
 
-  public Name getData() {
+  public Name<custom2.Generic> getData() {
     return this.data;
   }
 
-  public void setData(Name value) {
+  public void setData(Name<custom2.Generic> value) {
     this.data = value;
   }
 

@@ -577,9 +577,25 @@ public class Message extends Base
     )
   }
 
-  /** Enum for tests. */
-  enum MyTestEnum {
-    ONE, TWO
+  def "custom generics"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "data", type: new Type(name: "custom"), sequence: true))
+    options.customPrimitivesMapping = ['custom': 'some.pckg.Type<very.Generic>']
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    this.data = (some.pckg.Type<very.Generic>) source.readValue(getClass().getClassLoader());
+""",
+        writeBody: """
+    dest.writeValue(this.data);
+"""
+    )
   }
 
 }

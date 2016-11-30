@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
+import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.codegen.java.ClassAncestors;
 import com.stanfy.helium.model.Descriptionable;
 import com.stanfy.helium.model.Dictionary;
@@ -138,7 +139,7 @@ final class MessageToJavaClass {
       }
 
       if (type.isPrimitive() && !(type instanceof ConstrainedType)) {
-        String name = options.getPrimitiveTypeName(type);
+        String name = JavaWriter.rawType(options.getPrimitiveTypeName(type));
         if (!isJavaLang(name) && options.getPrimitiveJavaClass(type) == null) {
           imports.add(name);
         }
