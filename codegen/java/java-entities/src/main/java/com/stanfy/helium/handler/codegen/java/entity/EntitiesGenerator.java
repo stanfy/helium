@@ -73,7 +73,9 @@ public class EntitiesGenerator extends BaseJavaGenerator<EntitiesGeneratorOption
     OutputStreamWriter output = null;
     try {
       output = new OutputStreamWriter(new FileOutputStream(classFile), "UTF-8");
-      new ConstraintsToEnum(getOptions()).write(type, enumConst, output);
+      JavaClassWriter coreWriter = Writers.pojo().create(output);
+      EntitiesGeneratorOptions options = getOptions();
+      new ConstraintsToEnum(options.getWriterWrapper().wrapWriter(coreWriter, options), options).write(type, enumConst);
     } catch (IOException e) {
       throw new RuntimeException(e);
     } finally {

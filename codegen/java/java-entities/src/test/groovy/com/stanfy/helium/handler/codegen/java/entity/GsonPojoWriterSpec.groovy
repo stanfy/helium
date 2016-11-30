@@ -3,6 +3,7 @@ package com.stanfy.helium.handler.codegen.java.entity
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
+import com.stanfy.helium.model.constraints.EnumConstraint
 import spock.lang.Specification
 /**
  * Tests for GsonPojoWriter.
@@ -50,6 +51,29 @@ public class MyMsg {
          + "  another_id=\\"" + another_id + "\\"\\n"
          + "}";
   }
+}
+""".trim() + '\n'
+  }
+
+  def "enumeration annotations written"() {
+    given:
+    EnumConstraint<String> enumConstraint = new EnumConstraint<>(["value1", "value2"])
+    Type enumType = new Type(name: "MyEnum")
+
+    when:
+    new ConstraintsToEnum(writer, EntitiesGeneratorOptions.defaultOptions("test")).write(enumType, enumConstraint)
+
+    then:
+    output.toString() == """
+package test;
+
+import com.google.gson.annotations.SerializedName;
+
+public enum MyEnum {
+  @SerializedName("value1")
+  VALUE1,
+  @SerializedName("value2")
+  VALUE2;
 }
 """.trim() + '\n'
   }

@@ -61,4 +61,9 @@ class DelegateJavaClassWriter implements JavaClassWriter {
     core.writeConstructors(message);
   }
 
+  @Override
+  public void writeEnumValue(String name, boolean isLast) throws IOException {
+    core.writeEnumValue(name, isLast);
+  }
+
 }

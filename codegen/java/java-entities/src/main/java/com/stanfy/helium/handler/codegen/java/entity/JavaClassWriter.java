@@ -29,4 +29,6 @@ public interface JavaClassWriter {
 
   void writeConstructors(final Message message) throws IOException;
 
+  void writeEnumValue(final String name, final boolean isLast) throws IOException;
+
 }
