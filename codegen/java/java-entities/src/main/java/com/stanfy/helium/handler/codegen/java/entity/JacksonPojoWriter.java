@@ -31,4 +31,9 @@ class JacksonPojoWriter extends DelegateJavaClassWriter {
     super.writeField(field, fieldTypeName, fieldName, modifiers);
   }
 
+  @Override
+  public void writeEnumValue(String name, boolean isLast) throws IOException {
+    getOutput().emitAnnotation(JsonProperty.class, "\"" + name + "\"");
+    super.writeEnumValue(name, isLast);
+  }
 }
