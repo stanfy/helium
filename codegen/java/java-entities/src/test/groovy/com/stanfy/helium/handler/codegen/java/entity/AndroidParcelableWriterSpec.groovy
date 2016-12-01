@@ -517,29 +517,6 @@ public class Message extends Base
 """.trim() +'\n'
   }
 
-  def "enumerations support"() {
-    given:
-    Message msg = new Message(name: "Test")
-    msg.addField(new Field(name: "enum", type: new Type(name: "my-enum")))
-    options.customPrimitivesMapping = ['my-enum': MyTestEnum.class.name]
-    def enumName = MyTestEnum.class.name.replace('$', '.')
-
-    when:
-    outReadAndWrite(msg)
-
-    then:
-    output.toString() == buildClassCode(
-        className: "Test",
-        readBody: """
-    int enumFieldOrdinal = source.readInt();
-    this.enumField = enumFieldOrdinal != -1 ? ${enumName}.values()[enumFieldOrdinal] : null;
-""",
-        writeBody: """
-    dest.writeInt(this.enumField != null ? this.enumField.ordinal() : -1);
-"""
-    )
-  }
-
   def "embedded enumerations support"() {
     given:
     Message msg = new Message(name: "Test")
@@ -600,9 +577,25 @@ public class Message extends Base
     )
   }
 
-  /** Enum for tests. */
-  enum MyTestEnum {
-    ONE, TWO
+  def "custom generics"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "data", type: new Type(name: "custom"), sequence: true))
+    options.customPrimitivesMapping = ['custom': 'some.pckg.Type<very.Generic>']
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    this.data = (some.pckg.Type<very.Generic>) source.readValue(getClass().getClassLoader());
+""",
+        writeBody: """
+    dest.writeValue(this.data);
+"""
+    )
   }
 
 }

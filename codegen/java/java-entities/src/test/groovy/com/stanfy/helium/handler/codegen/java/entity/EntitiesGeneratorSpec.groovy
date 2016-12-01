@@ -1,6 +1,5 @@
 package com.stanfy.helium.handler.codegen.java.entity
 
-import com.stanfy.helium.handler.codegen.java.BaseMessageToClassGeneratorSpec
 
 import static com.stanfy.helium.handler.codegen.java.ClassAncestors.extending
 import static com.stanfy.helium.handler.codegen.java.ClassAncestors.implementing
