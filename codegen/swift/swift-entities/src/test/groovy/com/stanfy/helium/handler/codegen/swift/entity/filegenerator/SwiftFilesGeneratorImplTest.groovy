@@ -45,8 +45,8 @@ class SwiftFilesGeneratorImplTest extends Specification {
     then:
     files.first().name() != ""
     files.first().contents().contains("struct Entiry {")
-    files.first().contents().contains("let name: Good")
-    files.first().contents().contains("let anotherName: Good?")
+    files.first().contents().contains("var name: Good")
+    files.first().contents().contains("var anotherName: Good?")
   }
 
   def "generate files with enums"() {
@@ -86,7 +86,7 @@ class SwiftFilesGeneratorImplTest extends Specification {
     files.first().contents().contains("enum Capitalized_with_underlines: String {")
     files.first().contents().contains("typealias arrayEntity = [Capitalized_with_underlines]")
     files.first().contents().contains("struct SomeStruct {")
-    files.first().contents().contains("let array: arrayEntity")
+    files.first().contents().contains("var array: arrayEntity")
   }
 
   def "generate files with entities that have array fields"() {
@@ -110,10 +110,10 @@ class SwiftFilesGeneratorImplTest extends Specification {
     files.first().name() != ""
     files.first().contents().contains("enum WeekDays: String {")
     files.first().contents().contains("struct Schedule {")
-    files.first().contents().contains("let days: [WeekDays]")
-    files.first().contents().contains("let optionalDays: [WeekDays]?")
-    files.first().contents().contains("let daysWithOptionals: [WeekDays?]")
-    files.first().contents().contains("let optionalDaysWithOptionals: [WeekDays?]?")
+    files.first().contents().contains("var days: [WeekDays]")
+    files.first().contents().contains("var optionalDays: [WeekDays]?")
+    files.first().contents().contains("var daysWithOptionals: [WeekDays?]")
+    files.first().contents().contains("var optionalDaysWithOptionals: [WeekDays?]?")
   }
 
   def "generate files with entities with different access control"() {
@@ -131,7 +131,7 @@ class SwiftFilesGeneratorImplTest extends Specification {
     files.first().name() != ""
     files.first().contents().contains(accessLevelString + " struct Name1 {")
     files.first().contents().contains(accessLevelString + " struct Name2 {")
-    files.first().contents().contains(accessLevelString + " let days: Name1")
+    files.first().contents().contains(accessLevelString + " var days: Name1")
     files.first().contents().contains(accessLevelString + " enum nonCapitalizedName")
     files.first().contents().contains(accessLevelString + " enum Capitalized_with_underlines")
     files.first().contents().contains(accessLevelString + " typealias arrayEntity")

@@ -3,6 +3,7 @@ package com.stanfy.helium.handler.codegen.swift.entity
 import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGenerator
+import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistry
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import spock.lang.Specification
 
@@ -14,6 +15,7 @@ class SwiftAPIClientHandlerTest extends Specification {
   SwiftOutputGenerator outputGenerator
   SwiftEntitiesGenerator entitiesGenerator
   SwiftGenerationOptions options
+  SwiftTypeRegistry typesRegistry
 
   File output
 
@@ -32,6 +34,6 @@ class SwiftAPIClientHandlerTest extends Specification {
     sut.handle(project)
 
     then:
-    1 * apiGenerator.clientFilesFromHeliumProject(project)
+    1 * apiGenerator.clientFilesFromHeliumProject(project, _)
   }
 }

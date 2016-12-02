@@ -38,7 +38,7 @@ class NamesSpec extends Specification {
 
     where:
     name                                    | prettyName
-    " "                                     | " "
+    " "                                     | ""
     "_"                                     | ""
     "abcD"                                  | "abcD"
     "A_b"                                   | "AB"
@@ -46,6 +46,8 @@ class NamesSpec extends Specification {
     "something_real_and_funny"              | "somethingRealAndFunny"
     "aha____h"                              | "ahaH"
     "a-ba_ca-da_ea"                         | "aBaCaDaEa"
+    "Common Sense"                          | "CommonSense"
+    "Common sense"                          | "CommonSense"
   }
 
 }

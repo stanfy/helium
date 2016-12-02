@@ -145,12 +145,8 @@ class Main {
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
-//              "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
           ],
           flags: [
-//              "generate-equatables" : "Generates equatables functions for all entities. Optional",
-//              "generate-random-initializers" : "Generates random initializers for all entities. Optional",
-//              "generate-mutable-structs" : "Generates mutable extensions for all struct entities. Optional",
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()

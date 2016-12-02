@@ -185,7 +185,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     prj.type "string"
     prj.type "string2"
     prj.type "A" message {
-      optionalFieldWithDefaultValue 'string' optional
+      optionalFieldWithDefaultValue 'string'
       optionalFieldWithoutDefaultValue 'string2' optional
     }
 
