@@ -109,9 +109,9 @@ public extension Gateway {
 }
 
 
-// MARK:- Transformable
-public protocol Transformable {
-    static func transform(data: NSData?) -> Result<Self, NSError>
+// MARK:- Deserializable
+public protocol Deserializable {
+    static func deserialize(data: NSData?) -> Result<Self, NSError>
 }
 
 // MARK:- Network API Service Request Callback

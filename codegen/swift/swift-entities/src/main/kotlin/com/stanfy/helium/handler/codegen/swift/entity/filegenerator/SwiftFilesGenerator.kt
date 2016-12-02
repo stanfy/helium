@@ -102,7 +102,7 @@ class SwiftTransformableDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerato
     return listOf(
         SwiftFileImpl(
             name = "TransformableMappings",
-            contents = SwiftTemplatesHelper.generatedTemplateWithName("decodable/SwiftAPITransformable.mustache", object : Any() {
+            contents = SwiftTemplatesHelper.generatedTemplateWithName("decodable/SwiftAPIDeserializable.mustache", object : Any() {
               val entities = entities
             })
         ))

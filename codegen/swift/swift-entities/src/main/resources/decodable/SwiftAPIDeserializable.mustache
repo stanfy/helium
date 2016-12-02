@@ -10,9 +10,9 @@ extension NSData {
     }
 }
 
-enum DecodableTranformableError<T> {
-    case DataCannotBeTransformedToJSON(T.Type)
-    case JSONCannotBeTranformedToType(T.Type, ErrorType)
+enum DecodableDeserializationError<T> {
+    case DataCannotBeDeserializedToJSON(T.Type)
+    case JSONCannotBeDeserializedToType(T.Type, ErrorType)
 
     func toNSError() -> NSError {
         let domain = "api.decodable.transform"
@@ -23,39 +23,39 @@ enum DecodableTranformableError<T> {
 
     func code() -> Int {
         switch self {
-        case DataCannotBeTransformedToJSON: return 1
-        case JSONCannotBeTranformedToType: return 2
+        case DataCannotBeDeserializedToJSON: return 1
+        case JSONCannotBeDeserializedToType: return 2
         }
     }
 
     func errorDescription() -> String {
         switch self {
-        case DataCannotBeTransformedToJSON(let type):
+        case DataCannotBeDeserializedToJSON(let type):
             return "Cannot transfom data to json for \(type)"
-        case JSONCannotBeTranformedToType(let type, let error):
+        case JSONCannotBeDeserializedToType(let type, let error):
             return "Cannot transform json to type for \(type)\n\(error)"
         }
     }
 }
 
-func decodableTransform<T:Decodable>(data: NSData?) -> Result<T, NSError> {
+func decodableDeserialize<T:Decodable>(data: NSData?) -> Result<T, NSError> {
     guard let json = data?.maybeJSON() else {
-        let error = DecodableTranformableError.DataCannotBeTransformedToJSON(T)
+        let error = DecodableDeserializationError.DataCannotBeDeserializedToJSON(T)
         return .Failure(error.toNSError())
     }
     do {
         let result = try T.decode(json)
         return .Success(result)
     } catch {
-        let wrappedError = DecodableTranformableError.JSONCannotBeTranformedToType(T.self, error)
+        let wrappedError = DecodableDeserializationError.JSONCannotBeDeserializedToType(T.self, error)
         return .Failure(wrappedError.toNSError())
     }
 }
 
 {{#entities}}
-extension {{name}} : Transformable {
-    public static func transform(data: NSData?) -> Result<{{name}}, NSError> {
-        return decodableTransform(data)
+extension {{name}} : Deserializable {
+    public static func deserialize(data: NSData?) -> Result<{{name}}, NSError> {
+        return decodableDeserialize(data)
     }
 }
 {{/entities}}
