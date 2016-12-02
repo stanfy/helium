@@ -158,4 +158,20 @@ class JsonWriteFormatSpec extends Specification {
     out.readUtf8() == '{"a":1,"b":2,"c":3}'
   }
 
+  def "write parent fields"() {
+    given:
+    Message base = new Message(name: 'Base')
+    base.addField(new Field(name: 'baseField', type: new Type(name: 'string')))
+    Message msg = new Message(name: 'Msg', parent: base)
+    msg.addField(new Field(name: 'mainField', type: new Type(name: 'int32')))
+    def value = new TypedEntityValueBuilder(msg).from {
+      mainField 42
+      baseField 'forty two'
+    }
+    writer.write(new TypedEntity<Type>(msg, value))
+
+    expect:
+    out.readUtf8() == '{"mainField":42,"baseField":"forty two"}'
+  }
+
 }

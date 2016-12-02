@@ -143,7 +143,7 @@ class TypedEntityValueBuilder {
         msgOrForm = "message ${msg.name}"
       }
 
-      Field field = msg.fieldByName(key)
+      Field field = msg.fieldByNameWithParents(key)
       if (!field) {
         throw new IllegalArgumentException("Unknown field $key in $msgOrForm")
       }

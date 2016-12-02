@@ -22,13 +22,18 @@ public final class DslUtils {
 
   public static ConfigurableGenericMap<String, String> stringMapProxy(final Map<String, String> map,
                                                                       final String name) {
-    return new ConfigurableStringMap(map, name, Collections.<String, Object>emptyMap());
+    return stringMapProxy(map, name, Collections.<String, Object>emptyMap());
+  }
+
+  public static ConfigurableGenericMap<String, String> optionalStringMapProxy(final Map<String, String> map,
+                                                                              final String name) {
+    return new ConfigurableStringMap(map, name, Collections.<String, Object>emptyMap(), true);
   }
 
   public static ConfigurableGenericMap<String, String> stringMapProxy(final Map<String, String> map,
                                                                       final String name,
                                                                       final Map<String, Object> scope) {
-    return new ConfigurableStringMap(map, name, scope);
+    return new ConfigurableStringMap(map, name, scope, false);
   }
 
 }

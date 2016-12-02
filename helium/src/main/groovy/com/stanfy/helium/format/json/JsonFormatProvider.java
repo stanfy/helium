@@ -22,7 +22,7 @@ public final class JsonFormatProvider {
   private JsonFormatProvider() { }
 
   static boolean supportsMediaType(MediaType type) {
-    return "json".equals(type.subtype());
+    return type.subtype().endsWith("json");
   }
 
   public static class Reader implements FormatReader.Factory {

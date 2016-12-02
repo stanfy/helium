@@ -7,7 +7,7 @@ import com.stanfy.helium.internal.model.tests.CheckBuilder
 import com.stanfy.helium.internal.model.tests.CheckableService
 import com.stanfy.helium.internal.utils.ConfigurableProxy
 import com.stanfy.helium.model.MethodType
-import com.stanfy.helium.model.Security
+import com.stanfy.helium.model.Authentication
 import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.ServiceMethod
 import com.stanfy.helium.model.tests.ServiceTestInfo
@@ -37,7 +37,7 @@ class ConfigurableService extends ConfigurableProxy<CheckableService> {
         ]
       }
     }
-    Security.Type.values().each { Security.Type type ->
+    Authentication.Type.values().each { Authentication.Type type ->
       ConfigurableService.metaClass."${type.getName()}" << { Map args = null, Closure<?> config = null ->
         return delegate.createSecurity(args, config, type)
       }
@@ -88,14 +88,18 @@ class ConfigurableService extends ConfigurableProxy<CheckableService> {
     return builder != null ? builder.describe(name) : new BehaviourDescriptionBuilder(name, getCore(), getProject())
   }
 
-  Security createSecurity(Map args, Closure<?> config, Security.Type type) {
-    Security sec = args ? new Security(args) : new Security()
+  void authentication(Authentication auth) {
+    getCore().authentications.add auth
+  }
+
+  Authentication createSecurity(Map args, Closure<?> config, Authentication.Type type) {
+    Authentication auth = args ? new Authentication(args) : new Authentication()
     if (config) {
-      runWithProxy(new ConfigurableProxy<Security>(sec, getProject()), config)
+      runWithProxy(new ConfigurableProxy<Authentication>(auth, getProject()), config)
     }
-    sec.type = type
-    sec.name = type.name
-    return sec
+    auth.type = type
+    auth.name = type.name
+    return auth
   }
 
 }

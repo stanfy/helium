@@ -11,7 +11,6 @@ import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -144,28 +143,9 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
     Class<?> clazz = getJavaClass(field);
     if (clazz != null) {
-      // date?
-      if (clazz == Date.class) {
-        output.emitStatement("long %1$sValue = source.readLong()", fieldName);
-        output.emitStatement("this.%1$s = %1$sValue != -1 ? new Date(%1$sValue) : null", fieldName);
-        return;
-      }
-
       // boolean?
       if (clazz == boolean.class) {
         readBoolean(field, fieldName, output);
-        return;
-      }
-
-      // enum?
-      if (Enum.class.isAssignableFrom(clazz)) {
-        readEnumFromParcelable(fieldName, output, clazz.getCanonicalName());
-        return;
-      }
-
-      // parcelable?
-      if (isAndroidParcelable(clazz)) {
-        readParcelable(field, fieldName, output, clazz.getCanonicalName(), classLoader);
         return;
       }
     }
@@ -177,20 +157,41 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     }
 
     if (options.isEnumDeclaration(field.getType())) {
-      readEnumFromParcelable(fieldName, output, Names.capitalize(field.getType().getCanonicalName()));
+      readEnumFromParcelable(fieldName, output, Names.capitalize(field.getType().getCanonicalName()), field.isSequence());
+      return;
+    }
+
+    String className = clazz != null ? clazz.getCanonicalName() : options.getPrimitiveTypeName(field.getType());
+
+    // date?
+    if ("java.util.Date".equals(className)) {
+      output.emitStatement("long %1$sValue = source.readLong()", fieldName);
+      output.emitStatement("this.%1$s = %1$sValue != -1 ? new Date(%1$sValue) : null", fieldName);
       return;
     }
 
     output.emitStatement("this.%1$s = (%2$s) source.readValue(%3$s)",
         fieldName,
-        clazz != null ? clazz.getCanonicalName() : field.getType().getCanonicalName(),
+        output.compressType(className),
         classLoader);
   }
 
-  private static void readEnumFromParcelable(String fieldName, JavaWriter output, String name) throws IOException {
+  private static void readEnumFromParcelable(String fieldName, JavaWriter output, String name, boolean sequence) throws IOException {
     String enumName = output.compressType(name);
-    output.emitStatement("int %1$sOrdinal = source.readInt()", fieldName);
-    output.emitStatement("this.%1$s = %1$sOrdinal != -1 ? %2$s.values()[%1$sOrdinal] : null", fieldName, enumName);
+
+    if (!sequence) {
+      output.emitStatement("int %1$sOrdinal = source.readInt()", fieldName);
+      output.emitStatement("this.%1$s = %1$sOrdinal != -1 ? %2$s.values()[%1$sOrdinal] : null", fieldName, enumName);
+      return;
+    }
+
+    output.emitStatement("int[] %1$sOrdinals = source.createIntArray()", fieldName);
+    output.beginControlFlow("if (%1$sOrdinals != null)", fieldName);
+    output.emitStatement("this.%1$s = new %2$s[%1$sOrdinals.length]", fieldName, enumName);
+    output.beginControlFlow("for (int i = 0; i < %1$sOrdinals.length; i++)", fieldName);
+    output.emitStatement("this.%1$s[i] = %1$sOrdinals[i] != -1 ? %2$s.values()[%1$sOrdinals[i]] : null", fieldName, enumName);
+    output.endControlFlow();
+    output.endControlFlow();
   }
 
   private static void readBoolean(final Field field, final String fieldName, final JavaWriter output) throws IOException {
@@ -243,27 +244,9 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
     Class<?> clazz = getJavaClass(field);
     if (clazz != null) {
-      // date?
-      if (clazz == Date.class) {
-        output.emitStatement("dest.writeLong(this.%1$s != null ? this.%1$s.getTime() : -1L)", fieldName);
-        return;
-      }
-
       // boolean?
       if (clazz == boolean.class) {
         writeBoolean(field, output, fieldName);
-        return;
-      }
-
-      // enum?
-      if (Enum.class.isAssignableFrom(clazz)) {
-        writeEnumToParcel(output, fieldName);
-        return;
-      }
-
-      // parcelable?
-      if (isAndroidParcelable(clazz)) {
-        writeParcelable(output, field, fieldName);
         return;
       }
     }
@@ -276,15 +259,36 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
     // enum?
     if (options.isEnumDeclaration(field.getType())) {
-      writeEnumToParcel(output, fieldName);
+      writeEnumToParcel(output, fieldName, field.isSequence());
+      return;
+    }
+
+    String className = clazz != null ? clazz.getCanonicalName() : options.getPrimitiveTypeName(field.getType());
+
+    // date?
+    if ("java.util.Date".equals(className)) {
+      output.emitStatement("dest.writeLong(this.%1$s != null ? this.%1$s.getTime() : -1L)", fieldName);
       return;
     }
 
     output.emitStatement("dest.writeValue(this.%s)", fieldName);
   }
 
-  private static void writeEnumToParcel(JavaWriter output, String fieldName) throws IOException {
-    output.emitStatement("dest.writeInt(this.%1$s != null ? this.%1$s.ordinal() : -1)", fieldName);
+  private static void writeEnumToParcel(JavaWriter output, String fieldName, boolean sequence) throws IOException {
+    if (!sequence) {
+      output.emitStatement("dest.writeInt(this.%1$s != null ? this.%1$s.ordinal() : -1)", fieldName);
+      return;
+    }
+
+    output.emitStatement("int[] %1$sOrdinals = null", fieldName);
+    output.beginControlFlow("if (this.%1$s != null)", fieldName);
+    output.emitStatement("%1$sOrdinals = new int[this.%1$s.length]", fieldName);
+    output.beginControlFlow("for (int i = 0; i < %1$sOrdinals.length; i++)", fieldName);
+    output.emitStatement("%1$sOrdinals[i] = this.%1$s[i] != null ? this.%1$s[i].ordinal() : -1", fieldName);
+    output.endControlFlow();
+    output.endControlFlow();
+    output.emitStatement("dest.writeIntArray(%1$sOrdinals)", fieldName);
+
   }
 
   private static boolean isAndroidParcelable(final Class<?> clazz) {
@@ -318,7 +322,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
 
   private Class<?> getJavaClass(final Field field) {
     return field.getType().isPrimitive() && !(field.getType() instanceof ConstrainedType)
-        ? options.getJavaClass(field.getType())
+        ? options.getPrimitiveJavaClass(field.getType())
         : null;
   }
 

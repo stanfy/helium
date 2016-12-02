@@ -17,4 +17,7 @@ class TestsInfo {
   /** Set of predefined HTTP httpHeaders. */
   Map<String, String> httpHeaders = new LinkedHashMap<>()
 
+  /** Authentication parameters. */
+  AuthParams authParams
+
 }

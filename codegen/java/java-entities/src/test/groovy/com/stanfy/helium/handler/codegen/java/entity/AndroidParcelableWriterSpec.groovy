@@ -517,29 +517,6 @@ public class Message extends Base
 """.trim() +'\n'
   }
 
-  def "enumerations support"() {
-    given:
-    Message msg = new Message(name: "Test")
-    msg.addField(new Field(name: "enum", type: new Type(name: "my-enum")))
-    options.customPrimitivesMapping = ['my-enum': MyTestEnum.class.name]
-    def enumName = MyTestEnum.class.name.replace('$', '.')
-
-    when:
-    outReadAndWrite(msg)
-
-    then:
-    output.toString() == buildClassCode(
-        className: "Test",
-        readBody: """
-    int enumFieldOrdinal = source.readInt();
-    this.enumField = enumFieldOrdinal != -1 ? ${enumName}.values()[enumFieldOrdinal] : null;
-""",
-        writeBody: """
-    dest.writeInt(this.enumField != null ? this.enumField.ordinal() : -1);
-"""
-    )
-  }
-
   def "embedded enumerations support"() {
     given:
     Message msg = new Message(name: "Test")
@@ -564,9 +541,61 @@ public class Message extends Base
     )
   }
 
-  /** Enum for tests. */
-  enum MyTestEnum {
-    ONE, TWO
+  def "enum sequence"() {
+    given:
+    Message msg = new Message(name: "Test")
+    def enumType = new ConstrainedType(new Type(name: 'string'))
+    enumType.name = 'my-enum'
+    enumType.addConstraint(new EnumConstraint<String>(['a', 'b']))
+    msg.addField(new Field(name: "enum", type: enumType, sequence: true))
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    int[] enumFieldOrdinals = source.createIntArray();
+    if (enumFieldOrdinals != null) {
+      this.enumField = new Myenum[enumFieldOrdinals.length];
+      for (int i = 0; i < enumFieldOrdinals.length; i++) {
+        this.enumField[i] = enumFieldOrdinals[i] != -1 ? Myenum.values()[enumFieldOrdinals[i]] : null;
+      }
+    }
+""",
+        writeBody: """
+    int[] enumFieldOrdinals = null;
+    if (this.enumField != null) {
+      enumFieldOrdinals = new int[this.enumField.length];
+      for (int i = 0; i < enumFieldOrdinals.length; i++) {
+        enumFieldOrdinals[i] = this.enumField[i] != null ? this.enumField[i].ordinal() : -1;
+      }
+    }
+    dest.writeIntArray(enumFieldOrdinals);
+"""
+    )
+  }
+
+  def "custom generics"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "data", type: new Type(name: "custom"), sequence: true))
+    options.customPrimitivesMapping = ['custom': 'some.pckg.Type<very.Generic>']
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    this.data = (some.pckg.Type<very.Generic>) source.readValue(getClass().getClassLoader());
+""",
+        writeBody: """
+    dest.writeValue(this.data);
+"""
+    )
   }
 
 }

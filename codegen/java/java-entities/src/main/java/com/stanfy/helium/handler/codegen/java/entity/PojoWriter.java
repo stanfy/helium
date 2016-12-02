@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.java.entity;
 
 import com.squareup.javawriter.JavaWriter;
+import com.stanfy.helium.internal.utils.Names;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
 
@@ -8,6 +9,7 @@ import javax.lang.model.element.Modifier;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -67,6 +69,11 @@ class PojoWriter implements JavaClassWriter {
   @Override
   public void writeConstructors(final Message message) {
     // nothing
+  }
+
+  @Override
+  public void writeEnumValue(String name, boolean isLast) throws IOException {
+    getOutput().emitEnumValue(Names.canonicalName(name).toUpperCase(Locale.US), isLast);
   }
 
 }

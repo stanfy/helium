@@ -1,6 +1,5 @@
 package com.stanfy.helium.handler.codegen.java.entity
 
-import com.stanfy.helium.handler.codegen.java.BaseMessageToClassGeneratorSpec
 
 import static com.stanfy.helium.handler.codegen.java.ClassAncestors.extending
 import static com.stanfy.helium.handler.codegen.java.ClassAncestors.implementing
@@ -171,4 +170,45 @@ public class Hasky extends Dog
     then:
     notThrown(IllegalArgumentException)
   }
+
+  def "enum array field"() {
+    given:
+    options.useArraysForSequences()
+
+    and:
+    project.type "string"
+    project.type "testEnum" spec {
+      constraints("string") {
+        enumeration '1', '2', '3'
+      }
+    }
+    project.type 'Container' message {
+      values 'testEnum' sequence
+    }
+
+    when:
+    generator.handle(project)
+    def text = new File("$output/com/stanfy/helium/Container.java").text
+
+    then:
+    text == '''
+package com.stanfy.helium;
+
+import java.util.Arrays;
+
+public class Container {
+
+  public TestEnum[] values;
+
+
+  @Override
+  public String toString() {
+    return "Container: {\\n"
+         + "  values=\\"" + (values != null ? Arrays.toString(values) : "null") + "\\"\\n"
+         + "}";
+  }
+}
+'''.trim() + '\n'
+  }
+
 }

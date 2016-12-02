@@ -20,8 +20,20 @@ import java.util.Set;
  */
 final class MessageConverter extends BaseConverter<Message> {
 
-  public MessageConverter(final Message type) {
+  MessageConverter(final Message type) {
     super(type);
+  }
+
+  private String typeHierarchy() {
+    StringBuilder sb = new StringBuilder();
+    Message t = type;
+    sb.append(t.getName());
+    while (t.getParent() != null) {
+      sb.append("->");
+      sb.append(t.getParent().getName());
+      t = t.getParent();
+    }
+    return sb.toString();
   }
 
   @Override
@@ -30,17 +42,23 @@ final class MessageConverter extends BaseConverter<Message> {
     Map<String, Object> values = (Map<String, Object>) value;
 
     output.beginMessage(type);
-    for (Field f : getType().getActiveFields()) {
-      Object v = values.get(f.getName());
-      writeField(f, v, output);
+    Message msg = getType();
+
+    while (msg != null) {
+      for (Field f : msg.getActiveFields()) {
+        Object v = values.get(f.getName());
+        writeField(f, v, output);
+      }
+      msg = msg.getParent();
     }
-    output.endMessage(type);
+
+    output.endMessage(this.type);
   }
 
   private void writeField(final Field field, final Object value, final FormatWriter out) throws IOException {
     if (value == null) {
       if (field.isRequired()) {
-        throw new IllegalArgumentException("Field " + field.getName() + " in " + type + " is required. But null is provided");
+        throw new IllegalArgumentException("Field " + field.getName() + " in " + typeHierarchy() + " is required. But null is provided");
       }
       return;
     }
@@ -64,11 +82,11 @@ final class MessageConverter extends BaseConverter<Message> {
     input.beginMessage(type);
     while (input.hasNext()) {
       String fieldName = input.nextFieldName(type);
-      Field field = type.fieldByName(fieldName);
+      Field field = type.fieldByNameWithParents(fieldName);
 
       if (field == null) {
         if (!type.isSkipUnknownFields()) {
-          errors.add(new ValidationError("Unexpected field '" + fieldName + "'"));
+          errors.add(new ValidationError("Unexpected field '" + fieldName + "' in " + typeHierarchy()));
         }
         input.skipValue();
         continue;

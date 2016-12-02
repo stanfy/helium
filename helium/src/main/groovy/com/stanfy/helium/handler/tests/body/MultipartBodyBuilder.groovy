@@ -4,7 +4,6 @@ import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.MultipartBuilder
 import com.squareup.okhttp.RequestBody
 import com.stanfy.helium.handler.tests.RequestBodyBuilder
-import com.stanfy.helium.handler.tests.Utils
 import com.stanfy.helium.internal.entities.ByteArrayEntity
 import com.stanfy.helium.internal.entities.EntitiesSink
 import com.stanfy.helium.internal.entities.TypedEntity
@@ -30,7 +29,8 @@ class MultipartBodyBuilder implements RequestBodyBuilder {
   }
 
   @Override
-  RequestBody build(final TypeResolver types, final TypedEntity requestBody, String encoding) {
+  RequestBody build(final TypeResolver types, final TypedEntity requestBody,
+                    final MediaType contentType, final String encoding) {
     RequestBody body
     final MultipartBuilder mb = new MultipartBuilder()
     final Map<String, Object> map = (Map<String, Object>) requestBody.getValue()
@@ -56,7 +56,6 @@ class MultipartBodyBuilder implements RequestBodyBuilder {
         final Type type = types.byGroovyClass(value.getClass())
         TypedEntity wrappedEntity = new TypedEntity(type, value)
 
-        def contentType = Utils.jsonType()
         new EntitiesSink.Builder()
             .into(out)
             .mediaType(contentType)

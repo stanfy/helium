@@ -98,14 +98,18 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
     } else if (type.isPrimitive()) {
 
       if (isEnumDeclaration(type)) {
-        return Names.capitalize(type.getCanonicalName());
+        String enumName = Names.capitalize(type.getCanonicalName());
+        if (!sequence) {
+          return enumName;
+        }
+        return writer.compressType(getSequenceTypeName(enumName));
       }
 
       if (getCustomPrimitivesMapping().containsKey(type.getName())) {
         String customName = getCustomPrimitivesMapping().get(type.getName());
         typeName = writer.compressType(sequence ? getSequenceTypeName(customName) : customName);
       } else {
-        Class<?> clazz = getJavaClass(type);
+        Class<?> clazz = getPrimitiveJavaClass(type);
         if (sequence) {
           String itemClassName = getSequenceItemClassName(clazz);
           typeName = writer.compressType(getSequenceTypeName(itemClassName));
@@ -127,7 +131,7 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
   private String mapMemberType(Type type, JavaWriter writer) {
     final String name;
     if (type.isPrimitive()) {
-      Class<?> keyClass = getJavaClass(type);
+      Class<?> keyClass = getPrimitiveJavaClass(type);
       name = writer.compressType(JavaPrimitiveTypes.box(keyClass).getName());
     } else if (type instanceof Sequence) {
       name = getJavaTypeName(((Sequence) type).getItemsType(), true, writer);
@@ -146,20 +150,20 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
         && cType.containsConstraint(EnumConstraint.class);
   }
 
-  public Class<?> getJavaClass(final Type type) {
-    Class<?> result = JavaPrimitiveTypes.javaClass(type);
-    if (result == null) {
-      String className = getCustomPrimitivesMapping().get(type.getName());
-      if (className == null) {
-        throw new IllegalStateException("Mapping for " + type + " is not defined");
-      }
-      try {
-        result = Thread.currentThread().getContextClassLoader().loadClass(className);
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e);
-      }
+  public String getPrimitiveTypeName(final Type type) {
+    Class<?> result = getPrimitiveJavaClass(type);
+    if (result != null) {
+      return result.getCanonicalName();
     }
-    return result;
+    String className = getCustomPrimitivesMapping().get(type.getName());
+    if (className == null) {
+      throw new IllegalStateException("Mapping for " + type + " is not defined");
+    }
+    return className;
+  }
+
+  public Class<?> getPrimitiveJavaClass(final Type type) {
+    return JavaPrimitiveTypes.javaClass(type);
   }
 
   public String getSequenceTypeName(final String itemJavaClass) {

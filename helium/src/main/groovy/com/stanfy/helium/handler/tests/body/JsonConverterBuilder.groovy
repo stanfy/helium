@@ -3,7 +3,6 @@ package com.stanfy.helium.handler.tests.body
 import com.squareup.okhttp.MediaType
 import com.squareup.okhttp.RequestBody
 import com.stanfy.helium.handler.tests.RequestBodyBuilder
-import com.stanfy.helium.handler.tests.Utils
 import com.stanfy.helium.internal.entities.EntitiesSink
 import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.model.Type
@@ -25,18 +24,18 @@ class JsonConverterBuilder implements RequestBodyBuilder {
   }
 
   @Override
-  RequestBody build(final TypeResolver types, final TypedEntity entity, String encoding) {
+  RequestBody build(final TypeResolver types, final TypedEntity entity,
+                    final MediaType contentType, final String encoding) {
     return new RequestBody() {
       @Override
       public MediaType contentType() {
-        return Utils.jsonType()
+        return contentType
       }
 
       @Override
       public void writeTo(final BufferedSink sink) throws IOException {
         try {
           if (entity != null) {
-            def contentType = Utils.jsonType()
             new EntitiesSink.Builder()
                 .into(sink)
                 .charset(encoding)

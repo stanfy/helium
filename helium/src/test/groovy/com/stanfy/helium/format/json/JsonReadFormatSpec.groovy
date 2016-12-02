@@ -7,6 +7,7 @@ import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.entities.TypedEntity
 import com.stanfy.helium.internal.entities.EntitiesSource
 import com.stanfy.helium.model.Dictionary
+import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
@@ -554,6 +555,21 @@ class JsonReadFormatSpec extends Specification {
     result.value != null
     !result.value.a
     !result.value.b
+  }
+
+  def "read parent fields"() {
+    given:
+    Message base = new Message(name: 'Base')
+    base.addField(new Field(name: 'baseField', type: new Type(name: 'string')))
+    Message msg = new Message(name: 'Msg', parent: base)
+    msg.addField(new Field(name: 'mainField', type: new Type(name: 'int32')))
+    def result = read(msg, '{"mainField": 42, "baseField": "forty two"}')
+
+    expect:
+    !result.validationError
+    result.value != null
+    result.value.mainField == 42
+    result.value.baseField == 'forty two'
   }
 
 }

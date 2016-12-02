@@ -13,7 +13,7 @@ import static com.stanfy.helium.gradle.UserConfig.specName
  */
 class HeliumExtension {
 
-  public static final String VERSION = "0.8.1-SNAPSHOT"
+  public static final String VERSION = "0.8.2-SNAPSHOT"
 
   /** Tasks group. */
   public static final String GROUP = "Helium"
@@ -68,7 +68,7 @@ class HeliumExtension {
 
   @CompileStatic
   void variables(Closure<?> config) {
-    DslUtils.runWithProxy(DslUtils.stringMapProxy(this.config.variables, "Variables"), config)
+    DslUtils.runWithProxy(DslUtils.optionalStringMapProxy(this.config.variables, "Variables"), config)
   }
 
   Map<String, BaseHeliumTask> getSourceGen() {
