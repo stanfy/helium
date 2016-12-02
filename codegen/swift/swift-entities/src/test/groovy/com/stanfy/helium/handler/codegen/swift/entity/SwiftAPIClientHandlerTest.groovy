@@ -15,7 +15,6 @@ class SwiftAPIClientHandlerTest extends Specification {
   SwiftOutputGenerator outputGenerator
   SwiftEntitiesGenerator entitiesGenerator
   SwiftGenerationOptions options
-  SwiftTypeRegistry typesRegistry
 
   File output
 
