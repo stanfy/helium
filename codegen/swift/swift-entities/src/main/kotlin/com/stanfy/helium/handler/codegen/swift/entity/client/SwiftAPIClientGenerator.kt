@@ -8,8 +8,6 @@ import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.ServiceMethod
-import java.util.*
-import java.util.regex.Pattern
 
 interface SwiftAPIClientGenerator {
   fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry): List<SwiftFile>
@@ -20,8 +18,6 @@ data class ParameterDescription(val name: String, val type: String, val comment:
 
 class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
   override fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry): List<SwiftFile> {
-    // TODO : Different clientFilesFromHeliumProject? as an option
-
     val responseFilename = "SwiftAPIClientResponse"
 
     val services =
@@ -56,6 +52,7 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
 
               object {
                 val name = Names.decapitalize(Names.prettifiedName(serviceMethod.name))
+                val route = Names.capitalize(Names.prettifiedName(serviceMethod.name))
                 val responseName = responseFilename
                 val interfaceParams = topParams
                 val bodyParams = bottomParams

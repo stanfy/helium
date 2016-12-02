@@ -156,6 +156,7 @@ class Main {
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
             generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
+
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
 
             SwiftAPIClientGenerator clientGenerator = new SwiftAPIClientGeneratorImpl()

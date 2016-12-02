@@ -4,7 +4,7 @@ import ReactiveCocoa
 {{#services}}
 public enum Route {
 {{#funcs}}
-  case {{name}}
+  case {{route}}
 {{/funcs}}
 }
 
@@ -19,11 +19,11 @@ public class APIRequestManager {
     let requestProviderFactory: RequestProviderFactory?
     let gatewayFactory: GatewayFactory
 
-    static let defaultGatewayFactory: GatewayFactory = { route, service, provider in
+    static let defaultGatewayFactory: GatewayFactory = {  _ /* route */, service, provider in
         GatewayImpl(apiService: service, requestProvider: provider)
     }
 
-    static let defaultCallBack: RequestProviderFactory = { route, provider in
+    static let defaultCallBack: RequestProviderFactory = {  _ /* route */, provider in
         provider
     }
 
@@ -39,50 +39,53 @@ public class APIRequestManager {
         self.baseURL = baseURL
     }
 
-
-
 {{#funcs}}
-  public func {{name}}({{#interfaceParams}}{{{name}}}: {{{type}}}{{{delimiter}}}{{/interfaceParams}}) -> SignalProducer<{{return_type}}, APIResponseError<NSError>> {
-    return SignalProducer { observer, disposable in
-        let originalProvider = {
+    public func {{name}}({{#interfaceParams}}{{{name}}}: {{{type}}}{{{delimiter}}}{{/interfaceParams}}) -> SignalProducer<{{return_type}}, APIResponseError<NSError>> {
+        let url = baseURL.URLByAppendingPathComponent("{{path}}")!
+        let requestProvider = requestProviderForRoute(.{{route}}) {
             return Request(
-                url: self.baseURL.URLByAppendingPathComponent("{{path}}")!,
+                url: url,
                 method: .{{method}},
                 encoding: .{{encoding}}{{#hasBodyParams}},
                 params:[
                     {{#bodyParams}}
                     "{{name}}": {{name}} as AnyObject{{delimiter}}
                     {{/bodyParams}}
-                ]
-                {{/hasBodyParams}}
+                ]{{/hasBodyParams}}
             )
         }
-
-        var requestProvider = originalProvider
-        if let factory = self.requestProviderFactory {
-            requestProvider = factory(.{{name}}, originalProvider)
-        }
-
-        let gateway = self.gatewayFactory(.{{name}}, self.service, requestProvider)
-        let cancelable = gateway.requestWithCallback({{return_type}}.transform, callback: self.callbackFor(observer))
-        disposable.addDisposable {
-            cancelable.cancel()
-        }
+        let gateway = gatewayFactory(.{{route}}, service, requestProvider)
+        return gateway.request({{return_type}}.transform)
     }
-  }
+
 {{/funcs}}
 
- func callbackFor<T>(observer: Observer<T, APIResponseError<NSError>>) -> (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void {
-        return { result in
-            switch result {
-            case .Success(let x):
-                observer.sendNext(x.value)
-                observer.sendCompleted()
-            case .Failure(let y):
-                observer.sendFailed(y)
+    func requestProviderForRoute(route: Route, originalProvider: RequestProvider) -> RequestProvider {
+        guard let factory = self.requestProviderFactory else {
+            return originalProvider
+        }
+        return factory(route, originalProvider)
+    }
+}
+{{/services}}
+
+// MARK: - Reactive Cocoa Gateway Extension
+
+public extension Gateway {
+    func request<T>(responseTransformer:  (NSData?) -> Result<T, NSError>) -> SignalProducer<T, APIResponseError<NSError>> {
+        return SignalProducer { observer, disposable in
+            let cancelable = self.requestWithCallback(responseTransformer) { (result:Result<APIResponse<T>, APIResponseError<NSError>>) in
+                switch result {
+                case .Success(let response):
+                    observer.sendNext(response.value)
+                    observer.sendCompleted()
+                case .Failure(let responseError):
+                    observer.sendFailed(responseError)
+                }
+            }
+            disposable.addDisposable {
+                cancelable.cancel()
             }
         }
     }
-
 }
-{{/services}}

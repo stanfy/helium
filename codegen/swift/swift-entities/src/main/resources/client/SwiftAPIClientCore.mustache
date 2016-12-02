@@ -1,6 +1,6 @@
 import Foundation
 
-public enum Result<S, E> {
+public enum Result<S, E: ErrorType> {
     case Success(S)
     case Failure(E)
 }
@@ -43,6 +43,7 @@ public enum RequestParametersEncoding {
 // MARK:- Request Method
 
 public enum RequestMethod: String {
+    case HEAD
     case GET
     case POST
     case PUT
@@ -67,7 +68,7 @@ public struct APIResponse<T> {
 
 // MARK:- Response Error
 
-public struct APIResponseError<E>: ErrorType {
+public struct APIResponseError<E: ErrorType>: ErrorType {
     let error: E
     let response: NSHTTPURLResponse?
 

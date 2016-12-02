@@ -14,12 +14,13 @@ public struct NSURLSessionAPIService: APIService {
 
         let urlRequest = convert(fromRequest: request)
         let cancellable = session.dataTaskWithRequest(urlRequest) { (data, urlResponse, error) in
-            guard error == nil else {
-                callback(.Failure(APIResponseError(error: error!, response: urlResponse as? NSHTTPURLResponse)))
+            let httpURLResponse = urlResponse as? NSHTTPURLResponse
+            if let error = error {
+                callback(.Failure(APIResponseError(error: error, response: urlResponse as? NSHTTPURLResponse)))
                 return
             }
             let nsdata = data.flatMap{ NSData(data: $0) }
-            callback(.Success(APIResponse(value: nsdata, response: urlResponse as! NSHTTPURLResponse?)))
+            callback(.Success(APIResponse(value: nsdata, response: httpURLResponse)))
         }
         cancellable.resume()
 
@@ -40,9 +41,7 @@ public struct NSURLSessionAPIService: APIService {
         switch request.encoding {
         case .URL:
             return url(request.url, withParameters: request.params)
-        case .JSON:
-            fallthrough
-        case .FORM:
+        case .FORM, FORM:
             return request.url
         }
     }
