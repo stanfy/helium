@@ -3,7 +3,6 @@ package com.stanfy.helium.handler.codegen.swift.entity
 import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGenerator
-import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistry
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import spock.lang.Specification
 
