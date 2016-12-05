@@ -57,8 +57,8 @@ public typealias RequestProvider = () -> (Request)
 
 // MARK:- Response
 public struct APIResponse<T> {
-    let value: T
-    let response: NSHTTPURLResponse?
+    public let value: T
+    public let response: NSHTTPURLResponse?
 
     init(value: T, response: NSHTTPURLResponse? = nil) {
         self.value = value
@@ -69,8 +69,8 @@ public struct APIResponse<T> {
 // MARK:- Response Error
 
 public struct APIResponseError<E: ErrorType>: ErrorType {
-    let error: E
-    let response: NSHTTPURLResponse?
+    public let error: E
+    public let response: NSHTTPURLResponse?
 
     init(error: E, response: NSHTTPURLResponse? = nil) {
         self.error = error

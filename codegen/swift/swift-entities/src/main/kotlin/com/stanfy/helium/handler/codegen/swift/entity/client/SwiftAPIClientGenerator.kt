@@ -25,6 +25,7 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
           object {
             var location = service.location
             val funcs = service.methods.map { serviceMethod ->
+
               val path = formattedPathForServiceMethod(serviceMethod)
 
               val functionParams = serviceMethod.parameters?.fields ?: listOf()
@@ -47,12 +48,13 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
 
               val bottomParams = functionAndBodyParams
                   .mapLast { it.copy( delimiter = "") }
+
               val topParams = (pathParams + functionAndBodyParams)
                   .mapLast { it.copy( delimiter = "") }
 
               object {
-                val name = Names.decapitalize(Names.prettifiedName(serviceMethod.name))
-                val route = Names.capitalize(Names.prettifiedName(serviceMethod.name))
+                val name = Names.decapitalize(Names.prettifiedName(Names.canonicalName(serviceMethod.name)))
+                val route = Names.capitalize(Names.prettifiedName(Names.canonicalName(serviceMethod.name)))
                 val responseName = responseFilename
                 val interfaceParams = topParams
                 val bodyParams = bottomParams

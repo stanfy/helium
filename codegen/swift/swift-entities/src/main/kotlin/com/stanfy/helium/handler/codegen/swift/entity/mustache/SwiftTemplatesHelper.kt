@@ -21,6 +21,24 @@ class SwiftTemplatesHelper {
       })
     }
 
+    fun generateSwiftClass(name: String, properties: List<SwiftProperty>, accessLevel: SwiftEntitiesAccessLevel): String {
+      return generatedTemplateWithName("SwiftClass.mustache", object : Any () {
+        val name = name
+        val props = properties.mapIndexed { i, pr ->
+          object {
+            val name = pr.name
+            val type = pr.type
+            val delimiter = if (i == properties.lastIndex) "" else  ", "
+          }
+        }
+
+        val accessLevel = when(accessLevel) {
+          SwiftEntitiesAccessLevel.INTERNAL -> ""
+          SwiftEntitiesAccessLevel.PUBLIC -> "public"
+        }
+      })
+    }
+
     fun generateSwiftEnum(name: String, values: List<Any>, accessLevel: SwiftEntitiesAccessLevel): String {
       return generatedTemplateWithName("SwiftEnum.mustache", object : Any () {
         val name = name

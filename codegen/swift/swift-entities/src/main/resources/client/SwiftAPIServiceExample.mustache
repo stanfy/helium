@@ -41,7 +41,7 @@ public struct NSURLSessionAPIService: APIService {
         switch request.encoding {
         case .URL:
             return url(request.url, withParameters: request.params)
-        case .FORM, FORM:
+        case .FORM, .JSON:
             return request.url
         }
     }

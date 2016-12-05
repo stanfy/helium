@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
 import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntitiesAccessLevel
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntitiesType
 import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
@@ -32,11 +33,9 @@ class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
 
       override fun contents(): String {
         val accessLevel = options?.entitiesAccessLevel ?: SwiftEntitiesAccessLevel.INTERNAL
-        val structs = entities
-            .filterIsInstance<SwiftEntityStruct>()
-            .map { entity ->
-              SwiftTemplatesHelper.generateSwiftStruct(entity.name, entity.properties, accessLevel)
-            }.joinToString(separator = "\n")
+        val entitiesType = options?.entitiesType ?: SwiftEntitiesType.STRUCT
+
+        val structs = entities(entities, entitiesType, accessLevel)
 
         val enums = entities
             .filterIsInstance<SwiftEntityEnum>()
@@ -54,6 +53,24 @@ class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
 
         return arrayOf(namedSequences, enums, structs)
             .joinToString(separator = "\n")
+      }
+
+      private fun entities(entities: List<SwiftEntity>, type: SwiftEntitiesType, accessLevel: SwiftEntitiesAccessLevel): String {
+        when (type) {
+          SwiftEntitiesType.STRUCT ->
+            return entities
+                .filterIsInstance<SwiftEntityStruct>()
+                .map { entity ->
+                  SwiftTemplatesHelper.generateSwiftStruct(entity.name, entity.properties, accessLevel)
+                }.joinToString(separator = "\n")
+
+          SwiftEntitiesType.CLASS ->
+            return entities
+                .filterIsInstance<SwiftEntityStruct>()
+                .map { entity ->
+                  SwiftTemplatesHelper.generateSwiftClass(entity.name, entity.properties, accessLevel)
+                }.joinToString(separator = "\n")
+        }
       }
     }
     return listOf(file)

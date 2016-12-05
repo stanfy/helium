@@ -55,7 +55,7 @@ public class APIRequestManager {
             )
         }
         let gateway = gatewayFactory(.{{route}}, service, requestProvider)
-        return gateway.request({{return_type}}.transform)
+        return gateway.request({{return_type}}.deserialize)
     }
 
 {{/funcs}}

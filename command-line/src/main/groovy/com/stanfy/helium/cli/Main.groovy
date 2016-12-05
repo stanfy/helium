@@ -95,7 +95,8 @@ class Main {
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
-              "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
+              "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal",
+              "entitiesType" : "Entities types. Possible values : struct, class. Default: struct"
           ],
           flags: [
               "generate-equatables" : "Generates equatables functions for all entities. Optional",
@@ -113,6 +114,17 @@ class Main {
                 break
               case "internal":
                 generationOptions.entitiesAccessLevel = SwiftEntitiesAccessLevel.INTERNAL
+                break
+              default:
+                println "Unknown entities visibility passed in Possible values : public, internal"
+            }
+
+            switch (property(options, "entitiesType")) {
+              case "struct":
+                generationOptions.entitiesType = SwiftEntitiesType.STRUCT
+                break
+              case "class":
+                generationOptions.entitiesType = SwiftEntitiesType.CLASS
                 break
               default:
                 println "Unknown entities visibility passed in Possible values : public, internal"

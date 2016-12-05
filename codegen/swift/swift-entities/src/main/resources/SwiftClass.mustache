@@ -1,0 +1,10 @@
+final {{accessLevel}} class {{name}}: NSObject {
+{{#props}}
+  {{accessLevel}} let {{name}}: {{type.typeString}}
+{{/props}}
+   init({{#props}}{{name}}: {{type.typeString}}{{{delimiter}}}{{/props}}) {
+{{#props}}
+      self.{{name}} = {{name}}
+{{/props}}
+  }
+}
