@@ -256,6 +256,28 @@ public class Test {
 
   }
 
+  def "toString for field with at character"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "@type", type: new Type(name: "string")))
+    options.addToString = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+'''
+  @Override
+  public String toString() {
+    return "Test: {\\n"
+         + "  type=\\"" + type + "\\"\\n"
+         + "}";
+  }
+'''
+    )
+  }
+
   def "toString message with single field"() {
     given:
     Message msg = new Message(name: "Test")
