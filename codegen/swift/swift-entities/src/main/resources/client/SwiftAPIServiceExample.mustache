@@ -4,19 +4,29 @@ extension NSURLSessionDataTask: Cancellable {}
 
 public struct NSURLSessionAPIService: APIService {
 
-    let session: NSURLSession
+    public typealias RequestLogger = (request: Request, urlRequest: NSURLRequest) -> ()
+    public typealias ResponseLogger = (request: Request, urlRequest: NSURLRequest, data: NSData?, response: NSHTTPURLResponse?, error: NSError?) -> ()
 
-    public init() {
+    let session: NSURLSession
+    let requestLogger: RequestLogger
+    let responseLogger: ResponseLogger
+
+    public init(requestLogger: RequestLogger = {_ in }, responseLogger: ResponseLogger = { _ in } ) {
         session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+        self.requestLogger = requestLogger
+        self.responseLogger = responseLogger
     }
 
     public func request(request: Request, callback:  (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void) -> Cancellable {
 
         let urlRequest = convert(fromRequest: request)
+        requestLogger(request: request, urlRequest: urlRequest)
+
         let cancellable = session.dataTaskWithRequest(urlRequest) { (data, urlResponse, error) in
             let httpURLResponse = urlResponse as? NSHTTPURLResponse
+            self.responseLogger(request: request, urlRequest: urlRequest, data: data, response: httpURLResponse, error: error)
             if let error = error {
-                callback(.Failure(APIResponseError(error: error, response: urlResponse as? NSHTTPURLResponse)))
+                callback(.Failure(APIResponseError(error: error, request:request, response: urlResponse as? NSHTTPURLResponse)))
                 return
             }
             let nsdata = data.flatMap{ NSData(data: $0) }
@@ -31,11 +41,47 @@ public struct NSURLSessionAPIService: APIService {
         let url = makeUrl(fromRequest: request)
 
         var mutableRequest = NSMutableURLRequest(URL: url)
-        for header in request.headers {
-            mutableRequest.addValue(header.1, forHTTPHeaderField: header.0)
-        }
+        updateContentType(forMutableRequest: mutableRequest, fromRequest: request)
+        updateHeaders(forMutableRequest: mutableRequest, fromRequest: request)
+        updateBody(forMutableRequest: mutableRequest, fromRequest: request)
         return mutableRequest
     }
+
+    func updateBody(forMutableRequest request: NSMutableURLRequest, fromRequest: Request) {
+        switch fromRequest.encoding {
+        case .URL:
+            break;
+        case .JSON:
+            guard let data = try? NSJSONSerialization.dataWithJSONObject(fromRequest.params, options: []) else {
+                return
+            }
+            request.HTTPBody = data
+        case .FORM:
+            let data = formEncodedParameters(fromRequest.params).dataUsingEncoding(NSUTF8StringEncoding)
+            request.HTTPBody = data
+            return
+        }
+    }
+
+    func updateContentType(forMutableRequest request: NSMutableURLRequest, fromRequest: Request) {
+        switch fromRequest.encoding {
+        case .URL:
+            break;
+        case .FORM:
+            // ???
+            request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        case .JSON:
+            request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        }
+    }
+
+    func updateHeaders(forMutableRequest request: NSMutableURLRequest, fromRequest: Request) {
+        for header in fromRequest.headers {
+            request.addValue(header.1, forHTTPHeaderField: header.0)
+        }
+    }
+
+
 
     func makeUrl(fromRequest request: Request) -> NSURL {
         switch request.encoding {
@@ -47,11 +93,30 @@ public struct NSURLSessionAPIService: APIService {
     }
 
     func url(url:NSURL, withParameters parameters:[String:AnyObject]) -> NSURL {
-        let params = parameters.map { key, value in
-            "\(key)=\(value)"
+        let encodedParameters = formEncodedParameters(parameters)
+        if encodedParameters.isEmpty {
+            return url
         }
-        .joinWithSeparator("&")
 
-        return NSURL(string: url.absoluteString! + "?" + params)!
+        let hasQuestionMark = url.absoluteString!.containsString("?")
+        let joiningCharacter = hasQuestionMark ? "&" : "?"
+        return NSURL(string: url.absoluteString! + joiningCharacter + encodedParameters)!
+    }
+  
+    func formEncodedParameters(parameters:[String:AnyObject]) -> String {
+        return parameters.map { key, value in
+            let encodedValue = "\(value)".urlEncoded()
+            let encodedKey = key.urlEncoded()
+            return encodedKey + "=" + encodedValue
+            }
+            .joinWithSeparator("&")
+    }
+
+}
+
+private extension String {
+    func urlEncoded() -> String {
+        return self.stringByAddingPercentEncodingWithAllowedCharacters(.URLQueryAllowedCharacterSet())!
     }
 }
+

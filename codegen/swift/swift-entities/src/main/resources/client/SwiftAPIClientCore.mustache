@@ -60,7 +60,7 @@ public struct APIResponse<T> {
     public let value: T
     public let response: NSHTTPURLResponse?
 
-    init(value: T, response: NSHTTPURLResponse? = nil) {
+    public init(value: T, response: NSHTTPURLResponse? = nil) {
         self.value = value
         self.response = response
     }
@@ -70,13 +70,16 @@ public struct APIResponse<T> {
 
 public struct APIResponseError<E: ErrorType>: ErrorType {
     public let error: E
+    public let request: Request?
     public let response: NSHTTPURLResponse?
 
-    init(error: E, response: NSHTTPURLResponse? = nil) {
+    public init(error: E, request: Request? = nil, response: NSHTTPURLResponse? = nil) {
         self.error = error
         self.response = response
+        self.request = request
     }
 }
+
 
 // MARK:- Cancellable
 
@@ -140,7 +143,8 @@ class GatewayImpl: Gateway {
         responseTransformer:  (NSData?) -> Result<T, NSError>,
         callback:  (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
     ) -> Cancellable {
-        return apiService.request(requestProvider(), callback: { result in
+        let request = requestProvider()
+        return apiService.request(request, callback: { result in
             switch result {
             case .Success(let response):
                 let responseTransformerResult = responseTransformer(response.value)
@@ -148,7 +152,7 @@ class GatewayImpl: Gateway {
                 case .Success(let transformedResponse):
                     callback(.Success(APIResponse(value: transformedResponse, response: response.response)))
                 case .Failure(let error):
-                    callback(.Failure(APIResponseError(error: error, response: response.response)))
+                    callback(.Failure(APIResponseError(error: error, request: request, response: response.response)))
                 }
 
             case .Failure(let responseError):
@@ -157,6 +161,5 @@ class GatewayImpl: Gateway {
 
         })
     }
-
 }
 

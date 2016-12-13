@@ -41,7 +41,7 @@ public class APIRequestManager {
 
 {{#funcs}}
     public func {{name}}({{#interfaceParams}}{{{name}}}: {{{type}}}{{{delimiter}}}{{/interfaceParams}}) -> SignalProducer<{{return_type}}, APIResponseError<NSError>> {
-        let url = baseURL.URLByAppendingPathComponent("{{path}}")!
+        let url = NSURL(string:baseURL.absoluteString!.stringByAppendingString("{{path}}"))!
         let requestProvider = requestProviderForRoute(.{{route}}) {
             return Request(
                 url: url,
