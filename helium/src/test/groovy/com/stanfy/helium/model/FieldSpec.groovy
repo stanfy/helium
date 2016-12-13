@@ -10,13 +10,12 @@ class FieldSpec extends Specification {
   /** Field instance. */
   Field field = new Field()
 
-  def "setName should throw when bad name"() {
+  def "setName should accept names with special characters"() {
     when:
-    field.name = '$'
+    field.name = '$@tests'
 
     then:
-    def e = thrown(IllegalArgumentException)
-    e.message.startsWith("Name must match")
+    field.name == '$@tests'
   }
 
   def "setName should accept good names"() {

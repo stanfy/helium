@@ -18,6 +18,7 @@ class NamesSpec extends Specification {
     "!"                                     | ""
     "/some/path"                            | "some_path"
     "combination/of/symbols+something else" | "combination_of_symbolssomething_else"
+    "@else"                                 | "else"
     "one.two"                               | "one_two"
   }
 
