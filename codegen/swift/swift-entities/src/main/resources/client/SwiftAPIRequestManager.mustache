@@ -49,7 +49,7 @@ public class APIRequestManager {
                 encoding: .{{encoding}}{{#hasBodyParams}},
                 params:[
                     {{#bodyParams}}
-                    "{{name}}": {{name}} as AnyObject{{delimiter}}
+                    "{{name}}": {{name}}.toJSONRepresentation() {{delimiter}}
                     {{/bodyParams}}
                 ]{{/hasBodyParams}}
             )

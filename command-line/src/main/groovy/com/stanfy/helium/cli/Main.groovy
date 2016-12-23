@@ -289,7 +289,7 @@ class Main {
     for (int i = 0; i < props.size() / 2; i++) {
       if (name == props[i * 2]) {
         def object = props[i * 2 + 1]
-        def kv = (object as String).split(":")
+        def kv = (object as String).split(":", 2)
         if (kv.length != 2) {
           println "Property -H$name=<key>:<value> is required"
           System.exit(1)

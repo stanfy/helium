@@ -41,10 +41,15 @@ public struct NSURLSessionAPIService: APIService {
         let url = makeUrl(fromRequest: request)
 
         var mutableRequest = NSMutableURLRequest(URL: url)
+        updateMethod(forMutableRequest: mutableRequest, fromRequest: request)
         updateContentType(forMutableRequest: mutableRequest, fromRequest: request)
         updateHeaders(forMutableRequest: mutableRequest, fromRequest: request)
         updateBody(forMutableRequest: mutableRequest, fromRequest: request)
         return mutableRequest
+    }
+
+    func updateMethod(forMutableRequest request: NSMutableURLRequest, fromRequest: Request) {
+        request.HTTPMethod = fromRequest.method.rawValue
     }
 
     func updateBody(forMutableRequest request: NSMutableURLRequest, fromRequest: Request) {
@@ -68,7 +73,6 @@ public struct NSURLSessionAPIService: APIService {
         case .URL:
             break;
         case .FORM:
-            // ???
             request.addValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         case .JSON:
             request.addValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -76,12 +80,10 @@ public struct NSURLSessionAPIService: APIService {
     }
 
     func updateHeaders(forMutableRequest request: NSMutableURLRequest, fromRequest: Request) {
-        for header in fromRequest.headers {
-            request.addValue(header.1, forHTTPHeaderField: header.0)
+        for (key, value) in fromRequest.headers {
+            request.setValue(value, forHTTPHeaderField: key)
         }
     }
-
-
 
     func makeUrl(fromRequest request: Request) -> NSURL {
         switch request.encoding {
@@ -102,7 +104,7 @@ public struct NSURLSessionAPIService: APIService {
         let joiningCharacter = hasQuestionMark ? "&" : "?"
         return NSURL(string: url.absoluteString! + joiningCharacter + encodedParameters)!
     }
-  
+
     func formEncodedParameters(parameters:[String:AnyObject]) -> String {
         return parameters.map { key, value in
             let encodedValue = "\(value)".urlEncoded()
@@ -119,4 +121,3 @@ private extension String {
         return self.stringByAddingPercentEncodingWithAllowedCharacters(.URLQueryAllowedCharacterSet())!
     }
 }
-
