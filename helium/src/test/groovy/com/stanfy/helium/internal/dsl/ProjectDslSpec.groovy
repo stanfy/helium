@@ -11,7 +11,6 @@ import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.MultipartType
 import com.stanfy.helium.model.Authentication
-import com.stanfy.helium.model.Service
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
 import com.stanfy.helium.model.tests.BehaviourCheck
@@ -87,6 +86,11 @@ class ProjectDslSpec extends Specification {
         required true
         sequence true
       }
+      '@TypeWithAt' {
+        type 'string'
+        required true
+        description 'Some description for field with at'
+      }
       'Date' {
         type 'int64'
       }
@@ -112,7 +116,7 @@ class ProjectDslSpec extends Specification {
     dsl.messages[0].fields[0].type.name == 'bytes'
     dsl.messages[0].fields[1].name == 'SomeField'
 
-    dsl.messages[1].fields.size() == 3
+    dsl.messages[1].fields.size() == 4
     dsl.messages[1].fields[0].name == "id"
     dsl.messages[1].fields[0].type.name == "int64"
     !dsl.messages[1].fields[0].required
@@ -120,7 +124,11 @@ class ProjectDslSpec extends Specification {
     dsl.messages[1].fields[1].type.name == "string"
     dsl.messages[1].fields[1].required
     dsl.messages[1].fields[1].sequence
-    dsl.messages[1].fields[2].name == "Date"
+    dsl.messages[1].fields[2].name == "@TypeWithAt"
+    dsl.messages[1].fields[2].type.name == "string"
+    dsl.messages[1].fields[2].required
+    dsl.messages[1].fields[2].description == 'Some description for field with at'
+    dsl.messages[1].fields[3].name == "Date"
 
     dsl.messages[2].fields.size() == 4
     dsl.messages[2].fields[0].name == "id"

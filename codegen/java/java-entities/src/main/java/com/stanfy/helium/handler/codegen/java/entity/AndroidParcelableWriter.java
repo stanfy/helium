@@ -170,10 +170,15 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
-    output.emitStatement("this.%1$s = (%2$s) source.readValue(%3$s)",
-        fieldName,
-        output.compressType(className),
-        classLoader);
+    String resultClassName = output.compressType(className);
+    if (field.isSequence()) {
+      readParcelable(field, fieldName, output, resultClassName, classLoader);
+    } else {
+      output.emitStatement("this.%1$s = (%2$s) source.readValue(%3$s)",
+          fieldName,
+          resultClassName,
+          classLoader);
+    }
   }
 
   private static void readEnumFromParcelable(String fieldName, JavaWriter output, String name, boolean sequence) throws IOException {
@@ -216,7 +221,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
           fieldName,
           classLoader);
       output.beginControlFlow("if (" + fieldName + "Parcelables != null)");
-      output.emitStatement("this.%1$s = new %2$s[%1$sParcelables.length]", fieldName, shortClassName);
+      output.emitStatement("this.%1$s = new %2$s[%1$sParcelables.length]", fieldName, JavaWriter.rawType(shortClassName));
       output.beginControlFlow("for (int i = 0; i < " + fieldName + "Parcelables.length; i++)");
       output.emitStatement("this.%1$s[i] = (%2$s) %1$sParcelables[i]", fieldName, shortClassName);
       output.endControlFlow();
@@ -271,7 +276,11 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
-    output.emitStatement("dest.writeValue(this.%s)", fieldName);
+    if (field.isSequence()) {
+      output.emitStatement("dest.writeParcelableArray(this.%s, options)", fieldName);
+    } else {
+      output.emitStatement("dest.writeValue(this.%s)", fieldName);
+    }
   }
 
   private static void writeEnumToParcel(JavaWriter output, String fieldName, boolean sequence) throws IOException {
