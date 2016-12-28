@@ -57,6 +57,14 @@ type "SearchResponse" message {
   search_metadata(skip: true)
 }
 
+type 'CustomType' spec {
+  description 'Test custom type'
+}
+
+type 'MessageWithCustomType' message {
+  data 'CustomType' sequence
+}
+
 service {
 
   name "Twitter"

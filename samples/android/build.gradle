@@ -79,7 +79,8 @@ helium {
 
         // map custom types to Java classes
         customPrimitivesMapping = [
-            timestamp: "java.util.Date"
+            timestamp: "java.util.Date",
+            CustomType: "com.stanfy.helium.sample.android.CustomType<String>"
         ]
 
         // Add custom inheritance mapping for generated entities.

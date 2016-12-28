@@ -580,7 +580,7 @@ public class Message extends Base
   def "custom generics"() {
     given:
     Message msg = new Message(name: "Test")
-    msg.addField(new Field(name: "data", type: new Type(name: "custom"), sequence: true))
+    msg.addField(new Field(name: "data", type: new Type(name: "custom")))
     options.customPrimitivesMapping = ['custom': 'some.pckg.Type<very.Generic>']
 
     when:
@@ -594,6 +594,33 @@ public class Message extends Base
 """,
         writeBody: """
     dest.writeValue(this.data);
+"""
+    )
+  }
+
+  def "custom generic sequences"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "data", type: new Type(name: "custom"), sequence: true))
+    options.customPrimitivesMapping = ['custom': 'some.pckg.Type<very.Generic>']
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    Parcelable[] dataParcelables = source.readParcelableArray(getClass().getClassLoader());
+    if (dataParcelables != null) {
+      this.data = new some.pckg.Type[dataParcelables.length];
+      for (int i = 0; i < dataParcelables.length; i++) {
+        this.data[i] = (some.pckg.Type<very.Generic>) dataParcelables[i];
+      }
+    }
+""",
+        writeBody: """
+    dest.writeParcelableArray(this.data, options);
 """
     )
   }
