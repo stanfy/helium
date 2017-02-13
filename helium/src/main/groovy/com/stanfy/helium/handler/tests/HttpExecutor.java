@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.tests;
 
 import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -102,8 +103,10 @@ public class HttpExecutor implements MethodsExecutor {
     try {
       OkHttpClient client = this.client;
       if (testInfo.getAuthParams() != null) {
-        client = client.clone();
-        client.interceptors().add(0, testInfo.getAuthParams().createHttpInterceptor());
+        Interceptor authInterceptor = testInfo.getAuthParams().httpInterceptor();
+        if (client.interceptors().indexOf(authInterceptor) == -1) {
+          client.interceptors().add(0, authInterceptor);
+        }
       }
       Response response = client.newCall(httpRequest).execute();
       return new HttpResponseWrapper(types, response, method.getResponse());
