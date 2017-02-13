@@ -152,7 +152,7 @@ class CheckBuilder implements BehaviorDescriptionContainer {
       StringBuilder errorsMessage = new StringBuilder()
       allErrors.each {
         errorsMessage << it.message
-        errorsMessage << "-------------\n"
+        errorsMessage << "\n-------------\n"
       }
       res.result = FAILED
       res.description = (res.description ? res.description + "\n" : "") + errorsMessage

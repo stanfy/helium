@@ -34,7 +34,7 @@ class Oauth2AuthenticationParams implements AuthParams {
   }
 
   @Override
-  Interceptor createHttpInterceptor() {
+  Interceptor httpInterceptor() {
     if (!interceptor) {
       interceptor = { Chain chain ->
         def request = chain.request()
@@ -56,7 +56,7 @@ class Oauth2AuthenticationParams implements AuthParams {
             try {
               def data = OAUTH_GSON.fromJson(reader, AuthTokenResponse)
               accessToken = data.accessToken
-              def newRequest = resp.request().newBuilder().header("Authorization", "Bearer $accessToken").build()
+              def newRequest = request.newBuilder().header("Authorization", "Bearer $accessToken").build()
               resp = chain.proceed(newRequest)
             } finally {
               reader.close()
