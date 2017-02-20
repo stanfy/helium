@@ -1,11 +1,10 @@
-package com.stanfy.helium.handler.codegen.tests
+package com.stanfy.helium.handler.tests
 
 import com.squareup.okhttp.OkHttpClient
 import com.squareup.okhttp.mockwebserver.Dispatcher
 import com.squareup.okhttp.mockwebserver.MockResponse
 import com.squareup.okhttp.mockwebserver.MockWebServer
 import com.squareup.okhttp.mockwebserver.RecordedRequest
-import com.stanfy.helium.handler.tests.HttpExecutor
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import com.stanfy.helium.internal.dsl.scenario.ScenarioDelegate
 import com.stanfy.helium.internal.dsl.scenario.ScenarioInvoker
