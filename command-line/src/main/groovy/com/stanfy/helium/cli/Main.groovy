@@ -8,6 +8,8 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesGenerator
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCEntitiesOptions
 import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCMappingOption
 import com.stanfy.helium.handler.codegen.swift.entity.*
+import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientGenerator
+import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEquatableFilesGeneratorImpl
@@ -18,6 +20,7 @@ import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputG
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftRandomEntitiesFilesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftMutableFilesGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftTransformableDecodableMappingsFilesGeneratorImpl
 
 /**
  * Main entry point.
@@ -92,7 +95,8 @@ class Main {
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
-              "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal"
+              "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal",
+              "entitiesType" : "Entities types. Possible values : struct, class. Default: struct"
           ],
           flags: [
               "generate-equatables" : "Generates equatables functions for all entities. Optional",
@@ -110,6 +114,17 @@ class Main {
                 break
               case "internal":
                 generationOptions.entitiesAccessLevel = SwiftEntitiesAccessLevel.INTERNAL
+                break
+              default:
+                println "Unknown entities visibility passed in Possible values : public, internal"
+            }
+
+            switch (property(options, "entitiesType")) {
+              case "struct":
+                generationOptions.entitiesType = SwiftEntitiesType.STRUCT
+                break
+              case "class":
+                generationOptions.entitiesType = SwiftEntitiesType.CLASS
                 break
               default:
                 println "Unknown entities visibility passed in Possible values : public, internal"
@@ -137,12 +152,33 @@ class Main {
             return new SwiftDefaultHandler(output, generationOptions, entitiesGenerator, fileGenerators as SwiftFilesGenerator[], outputGenerator)
           }
       ],
-      "swift-mappings": [
-          description: "Generate Swift entity mappings for sepcified type",
+      "swift-api-client": [
+          description: "Generates Swift API client",
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
-              "mappingType" : "Mapping type. Optional. Possible values : decodable"
+          ],
+          flags: [
+          ],
+          factory: { def options, File output ->
+            SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
+            generationOptions.customTypesMappings = mapProperty(options, "customMapping")
+            generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
+
+            SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
+
+            SwiftAPIClientGenerator clientGenerator = new SwiftAPIClientGeneratorImpl()
+            SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
+            return new SwiftAPIClientHandler(output, generationOptions, clientGenerator, entitiesGenerator, outputGenerator )
+          }
+      ],
+
+      "swift-mappings": [
+          description: "Generate Swift entity mappings for specified type",
+          properties: [
+              "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
+              "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
+              "mappingType" : "Mapping type. Optional. Possible values : decodable|decodable-transformable"
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
@@ -153,6 +189,9 @@ class Main {
             switch (requiredProperty(options, "mappingType")) {
               case "decodable":
                 filesGenerator = new SwiftDecodableMappingsFilesGeneratorImpl()
+                break
+              case "decodable-transformable":
+                filesGenerator = new SwiftTransformableDecodableMappingsFilesGeneratorImpl()
                 break
               default:
                 println "Property -HmappingType=<value> is required. Possible values : [decodable]"
@@ -250,7 +289,7 @@ class Main {
     for (int i = 0; i < props.size() / 2; i++) {
       if (name == props[i * 2]) {
         def object = props[i * 2 + 1]
-        def kv = (object as String).split(":")
+        def kv = (object as String).split(":", 2)
         if (kv.length != 2) {
           println "Property -H$name=<key>:<value> is required"
           System.exit(1)

@@ -1,0 +1,61 @@
+import Decodable
+
+extension NSData {
+    func maybeJSON() -> AnyObject? {
+        return try? NSJSONSerialization.JSONObjectWithData(self, options: .AllowFragments)
+    }
+
+    func json() throws -> AnyObject {
+        return try NSJSONSerialization.JSONObjectWithData(self, options: .AllowFragments)
+    }
+}
+
+enum DecodableDeserializationError<T> {
+    case DataCannotBeDeserializedToJSON(T.Type)
+    case JSONCannotBeDeserializedToType(T.Type, ErrorType)
+
+    func toNSError() -> NSError {
+        let domain = "api.decodable.transform"
+        return NSError(domain: domain, code: code(), userInfo: [
+            NSLocalizedDescriptionKey : errorDescription()
+        ])
+    }
+
+    func code() -> Int {
+        switch self {
+        case DataCannotBeDeserializedToJSON: return 1
+        case JSONCannotBeDeserializedToType: return 2
+        }
+    }
+
+    func errorDescription() -> String {
+        switch self {
+        case DataCannotBeDeserializedToJSON(let type):
+            return "Cannot transfom data to json for \(type)"
+        case JSONCannotBeDeserializedToType(let type, let error):
+            return "Cannot transform json to type for \(type)\n\(error)"
+        }
+    }
+}
+
+func decodableDeserialize<T:Decodable>(data: NSData?) -> Result<T, NSError> {
+    guard let json = data?.maybeJSON() else {
+        let error = DecodableDeserializationError.DataCannotBeDeserializedToJSON(T)
+        return .Failure(error.toNSError())
+    }
+    do {
+        let result = try T.decode(json)
+        return .Success(result)
+    } catch {
+        let wrappedError = DecodableDeserializationError.JSONCannotBeDeserializedToType(T.self, error)
+        return .Failure(wrappedError.toNSError())
+    }
+}
+
+{{#entities}}
+extension {{name}} : Deserializable {
+    public static func deserialize(data: NSData?) -> Result<{{name}}, NSError> {
+        return decodableDeserialize(data)
+    }
+}
+{{/entities}}

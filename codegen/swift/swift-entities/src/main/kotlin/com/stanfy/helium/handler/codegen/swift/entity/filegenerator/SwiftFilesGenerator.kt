@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.filegenerator
 
 import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntitiesAccessLevel
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftEntitiesType
 import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntity
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntityArray
@@ -32,11 +33,9 @@ class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
 
       override fun contents(): String {
         val accessLevel = options?.entitiesAccessLevel ?: SwiftEntitiesAccessLevel.INTERNAL
-        val structs = entities
-            .filterIsInstance<SwiftEntityStruct>()
-            .map { entity ->
-              SwiftTemplatesHelper.generateSwiftStruct(entity.name, entity.properties, accessLevel)
-            }.joinToString(separator = "\n")
+        val entitiesType = options?.entitiesType ?: SwiftEntitiesType.STRUCT
+
+        val structs = entities(entities, entitiesType, accessLevel)
 
         val enums = entities
             .filterIsInstance<SwiftEntityEnum>()
@@ -55,6 +54,24 @@ class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
         return arrayOf(namedSequences, enums, structs)
             .joinToString(separator = "\n")
       }
+
+      private fun entities(entities: List<SwiftEntity>, type: SwiftEntitiesType, accessLevel: SwiftEntitiesAccessLevel): String {
+        when (type) {
+          SwiftEntitiesType.STRUCT ->
+            return entities
+                .filterIsInstance<SwiftEntityStruct>()
+                .map { entity ->
+                  SwiftTemplatesHelper.generateSwiftStruct(entity.name, entity.properties, accessLevel)
+                }.joinToString(separator = "\n")
+
+          SwiftEntitiesType.CLASS ->
+            return entities
+                .filterIsInstance<SwiftEntityStruct>()
+                .map { entity ->
+                  SwiftTemplatesHelper.generateSwiftClass(entity.name, entity.properties, accessLevel)
+                }.joinToString(separator = "\n")
+        }
+      }
     }
     return listOf(file)
   }
@@ -67,31 +84,44 @@ class SwiftDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerator {
   }
 
   override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
-    // TODO : Different files? as an option
-    val file: SwiftFile = object : SwiftFile {
-      override fun name(): String {
-        return "Mappings"
-      }
+    return listOf(
+        SwiftFileImpl(
+            name = "Mappings",
+            contents = {
+              val imports = "import Decodable"
+              val structs = entities
+                  .filterIsInstance<SwiftEntityStruct>()
+                  .map { entity ->
+                    SwiftTemplatesHelper.generateSwiftStructDecodables(entity.name, entity.properties, options?.typeDefaultValues)
+                  }.joinToString(separator = "\n")
 
-      override fun contents(): String {
-        val imports = "import Decodable"
-        val structs = entities
-            .filterIsInstance<SwiftEntityStruct>()
-            .map { entity ->
-              SwiftTemplatesHelper.generateSwiftStructDecodables(entity.name, entity.properties, options?.typeDefaultValues)
-            }.joinToString(separator = "\n")
-
-        val enums = entities
-            .filterIsInstance<SwiftEntityEnum>()
-            .map { entity ->
-              SwiftTemplatesHelper.generateSwiftEnumDecodables(entity.name, entity.values)
-            }.joinToString(separator = "\n")
+              val enums = entities
+                  .filterIsInstance<SwiftEntityEnum>()
+                  .map { entity ->
+                    SwiftTemplatesHelper.generateSwiftEnumDecodables(entity.name, entity.values)
+                  }.joinToString(separator = "\n")
 
 
-        return arrayOf(imports, enums, structs)
-            .joinToString(separator = "\n")
-      }
-    }
-    return listOf(file)
+              arrayOf(imports, enums, structs)
+                  .joinToString(separator = "\n")
+            }()
+        ))
+  }
+}
+
+class SwiftTransformableDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerator {
+
+  override fun filesFromEntities(entities: List<SwiftEntity>): List<SwiftFile> {
+    return this.filesFromEntities(entities, null)
+  }
+
+  override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
+    return listOf(
+        SwiftFileImpl(
+            name = "TransformableMappings",
+            contents = SwiftTemplatesHelper.generatedTemplateWithName("decodable/SwiftAPIDeserializable.mustache", object : Any() {
+              val entities = entities
+            })
+        ))
   }
 }

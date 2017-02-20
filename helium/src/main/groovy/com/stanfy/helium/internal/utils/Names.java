@@ -70,4 +70,15 @@ public final class Names {
     return new String(ch);
   }
 
+  public static String decapitalize(final String name) {
+    if (name == null) {
+      return null;
+    }
+
+    char[] ch = new char[name.length()];
+    name.getChars(0, ch.length, ch, 0);
+    ch[0] = Character.toLowerCase(ch[0]);
+    return new String(ch);
+  }
+
 }

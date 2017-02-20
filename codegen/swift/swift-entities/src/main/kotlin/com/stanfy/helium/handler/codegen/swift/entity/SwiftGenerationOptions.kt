@@ -7,6 +7,11 @@ enum class SwiftEntitiesAccessLevel {
   PUBLIC,
 }
 
+enum class SwiftEntitiesType {
+  STRUCT,
+  CLASS
+}
+
 
 class SwiftGenerationOptions : GeneratorOptions () {
 
@@ -27,5 +32,10 @@ class SwiftGenerationOptions : GeneratorOptions () {
    * Default value is INTERNAL
    */
   var entitiesAccessLevel = SwiftEntitiesAccessLevel.INTERNAL
+
+  /**
+   * Specifies types of the entities to generate (Classes vs structs)
+   */
+  var entitiesType = SwiftEntitiesType.STRUCT
 
 }
