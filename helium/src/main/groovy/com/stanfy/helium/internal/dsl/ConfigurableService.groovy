@@ -57,7 +57,7 @@ class ConfigurableService extends ConfigurableProxy<CheckableService> {
 
     Closure<?> body = spec.clone() as Closure<?>
     body.resolveStrategy = Closure.DELEGATE_FIRST
-    body.delegate = new ConfigurableServiceMethod(method, getProject())
+    body.delegate = new ConfigurableServiceMethod(getCore(), method, getProject())
     body.call()
 
     if (!method.path) {
