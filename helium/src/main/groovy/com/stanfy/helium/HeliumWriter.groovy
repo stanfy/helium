@@ -134,6 +134,9 @@ class HeliumWriter implements Closeable {
         examplesString << "]"
         writeLine "examples $examplesString"
       }
+      if (field.alternatives) {
+        writeLine "alternatives [${field.alternatives.collect { JavaWriter.stringLiteral(it) } .join(', ')}]"
+      }
     }
     decIndent()
     writeLine "}"

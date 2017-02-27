@@ -5,7 +5,9 @@ import com.stanfy.helium.model.Field;
 
 import javax.lang.model.element.Modifier;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -27,7 +29,18 @@ class GsonPojoWriter extends DelegateJavaClassWriter {
 
   @Override
   public void writeField(final Field field, final String fieldTypeName, final String fieldName, final Set<Modifier> modifiers) throws IOException {
-    getOutput().emitAnnotation(SerializedName.class, "\"" + field.getName() + "\"");
+    if (field.getAlternatives() != null && field.getAlternatives().size() > 0) {
+      Map<String, Object> values = new HashMap<>();
+      values.put("value", "\"" + field.getName() + "\"");
+      String[] alternates = new String[field.getAlternatives().size()];
+      for (int i = 0; i < field.getAlternatives().size(); i++) {
+        alternates[i] = "\"" + field.getAlternatives().get(i) + "\"";
+      }
+      values.put("alternate", alternates);
+      getOutput().emitAnnotation(SerializedName.class, values);
+    } else {
+      getOutput().emitAnnotation(SerializedName.class, "\"" + field.getName() + "\"");
+    }
     super.writeField(field, fieldTypeName, fieldName, modifiers);
   }
 

@@ -23,7 +23,7 @@ class GsonPojoWriterSpec extends Specification {
   def "should write class file"() {
     given:
     Message msg = new Message(name: "MyMsg")
-    msg.addField(new Field(name: "device_id", type: new Type(name: "string")))
+    msg.addField(new Field(name: "device_id", type: new Type(name: "string"), alternatives: ["_id", "id"]))
     msg.addField(new Field(name: "another_id", type: new Type(name: "int32")))
 
     when:
@@ -37,7 +37,13 @@ import com.google.gson.annotations.SerializedName;
 
 public class MyMsg {
 
-  @SerializedName("device_id")
+  @SerializedName(
+    alternate = {
+      "_id",
+      "id"
+    },
+    value = "device_id"
+  )
   public String device_id;
 
   @SerializedName("another_id")
