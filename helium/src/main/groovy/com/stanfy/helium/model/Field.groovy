@@ -37,6 +37,10 @@ class Field extends Descriptionable {
     return this.@examples ? Collections.unmodifiableList(this.@examples) : Collections.emptyList()
   }
 
+  List<String> getAlternatives() {
+    return this.@alternatives ? Collections.unmodifiableList(this.@alternatives) : Collections.emptyList()
+  }
+
   boolean isRequired() {
     return this.@required && !this.@skip
   }

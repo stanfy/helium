@@ -53,4 +53,14 @@ class FieldSpec extends Specification {
     field.examples == [1, '2']
   }
 
+  def "getAlternatives is unmodifiable"() {
+    when:
+    field.alternatives = ['a']
+    field.alternatives.add('b')
+
+    then:
+    thrown(UnsupportedOperationException)
+    field.alternatives == ['a']
+  }
+
 }
