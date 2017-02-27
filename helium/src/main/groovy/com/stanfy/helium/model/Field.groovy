@@ -23,6 +23,9 @@ class Field extends Descriptionable {
   /** Marks this field as ignorable. */
   boolean skip
 
+  /** Alternative names for deserialization. */
+  List<String> alternatives;
+
   void setExamples(List<Object> examples) {
     if (type instanceof Message) {
       throw new IllegalStateException("Examples can be provided for primitives only")
