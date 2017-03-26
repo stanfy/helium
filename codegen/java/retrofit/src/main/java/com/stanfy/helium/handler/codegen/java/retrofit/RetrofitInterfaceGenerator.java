@@ -85,7 +85,7 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
     if (imported instanceof FormType) {
       imported = ((FormType) type).getBase();
     }
-    String javaType = getOptions().getJavaTypeName(imported, sequence, writer);
+    String javaType = getOptions().getJavaTypeName(imported, sequence, false, writer);
     String entitiesPackage = getOptions().getEntitiesPackage();
     if (!type.isPrimitive() && entitiesPackage != null && !entitiesPackage.equals(getOptions().getPackageName())) {
       javaType = entitiesPackage + "." + javaType;
