@@ -594,4 +594,37 @@ public class Test {
 }
 """.trim() + '\n'
   }
+
+  def "box optional fields"() {
+    given:
+    Message testMessage = new Message(name: "Test")
+    testMessage.addField(new Field(name: "data", type: new Type(name: 'bool'), required: false))
+
+    and:
+    options.boxPrimitiveOptionals = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(testMessage)
+
+    then:
+    output.toString() == """
+package $TEST_PACKAGE;
+
+public class Test {
+
+  private Boolean data;
+
+
+  public Boolean getData() {
+    return this.data;
+  }
+
+  public void setData(Boolean value) {
+    this.data = value;
+  }
+
+}
+""".trim() + '\n'
+  }
+
 }

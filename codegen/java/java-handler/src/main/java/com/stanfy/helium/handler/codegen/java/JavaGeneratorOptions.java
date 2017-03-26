@@ -3,6 +3,7 @@ package com.stanfy.helium.handler.codegen.java;
 import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.DefaultType;
 import com.stanfy.helium.handler.codegen.GeneratorOptions;
+import com.stanfy.helium.internal.utils.Names;
 import com.stanfy.helium.model.Descriptionable;
 import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
@@ -11,7 +12,6 @@ import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.Type;
 import com.stanfy.helium.model.constraints.ConstrainedType;
 import com.stanfy.helium.model.constraints.EnumConstraint;
-import com.stanfy.helium.internal.utils.Names;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,6 +56,9 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
   /** Package name for generated classes. */
   private String packageName;
 
+  /** If we should box primitive Java types for optional field declarations. */
+  private boolean boxPrimitiveOptionals;
+
   public String getSequenceCollectionName() {
     return sequenceCollectionName;
   }
@@ -84,7 +87,16 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
     this.customParentMapping = customParentMapping;
   }
 
-  public String getJavaTypeName(final Type type, final boolean sequence, final JavaWriter writer) {
+  public void setBoxPrimitiveOptionals(boolean boxPrimitiveOptionals) {
+    this.boxPrimitiveOptionals = boxPrimitiveOptionals;
+  }
+
+  public boolean isBoxPrimitiveOptionals() {
+    return boxPrimitiveOptionals;
+  }
+
+  public String getJavaTypeName(final Type type, final boolean sequence, final boolean optional,
+                                final JavaWriter writer) {
     final String typeName;
     if (type instanceof Message) {
       if (sequence) {
@@ -114,6 +126,9 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
           String itemClassName = getSequenceItemClassName(clazz);
           typeName = writer.compressType(getSequenceTypeName(itemClassName));
         } else {
+          if (optional && boxPrimitiveOptionals) {
+            clazz = JavaPrimitiveTypes.box(clazz);
+          }
           typeName = writer.compressType(clazz.getCanonicalName());
         }
       }
@@ -134,9 +149,9 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
       Class<?> keyClass = getPrimitiveJavaClass(type);
       name = writer.compressType(JavaPrimitiveTypes.box(keyClass).getName());
     } else if (type instanceof Sequence) {
-      name = getJavaTypeName(((Sequence) type).getItemsType(), true, writer);
+      name = getJavaTypeName(((Sequence) type).getItemsType(), true, false, writer);
     } else {
-      name = getJavaTypeName(type, false, writer);
+      name = getJavaTypeName(type, false, false, writer);
     }
     return name;
   }
