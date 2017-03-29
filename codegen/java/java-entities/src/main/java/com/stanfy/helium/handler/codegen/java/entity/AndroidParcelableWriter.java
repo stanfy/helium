@@ -333,7 +333,7 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     Class<?> clazz = field.getType().isPrimitive() && !(field.getType() instanceof ConstrainedType)
         ? options.getPrimitiveJavaClass(field.getType())
         : null;
-    if (!field.isRequired() && options.isBoxPrimitiveOptionals()) {
+    if (clazz != null && !field.isRequired() && options.isBoxPrimitiveOptionals()) {
       clazz = JavaPrimitiveTypes.box(clazz);
     }
     return clazz;
