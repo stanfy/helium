@@ -625,4 +625,64 @@ public class Message extends Base
     )
   }
 
+  def "should handle primitive types boxing"() {
+    given:
+    Message msg = new Message(name: "MyMsg")
+    msg.addField(new Field(name: "another_id", type: new Type(name: "int32"), required: false))
+
+    options.boxPrimitiveOptionals = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString() == """
+package test;
+
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class MyMsg
+    implements Parcelable {
+
+  public static final Creator<MyMsg> CREATOR = new Creator<MyMsg>() {
+        public MyMsg createFromParcel(Parcel source) {
+          return new MyMsg(source);
+        }
+        public MyMsg[] newArray(int size) {
+          return new MyMsg[size];
+        }
+      };
+
+  public Integer another_id;
+
+
+  public MyMsg() {
+  }
+
+  MyMsg(Parcel source) {
+    this.another_id = (Integer) source.readValue(getClass().getClassLoader());
+  }
+
+  @Override
+  public String toString() {
+    return "MyMsg: {\\n"
+         + "  another_id=\\"" + another_id + "\\"\\n"
+         + "}";
+  }
+
+  @Override
+  public int describeContents() {
+    return 0;
+  }
+
+  @Override
+  public void writeToParcel(Parcel dest, int options) {
+    dest.writeValue(this.another_id);
+  }
+
+}
+""".trim() + '\n'
+  }
+
 }
