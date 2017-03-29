@@ -330,19 +330,17 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
   }
 
   private Class<?> getJavaClass(final Field field) {
-    return field.getType().isPrimitive() && !(field.getType() instanceof ConstrainedType)
+    Class<?> clazz = field.getType().isPrimitive() && !(field.getType() instanceof ConstrainedType)
         ? options.getPrimitiveJavaClass(field.getType())
         : null;
+    if (!field.isRequired() && options.isBoxPrimitiveOptionals()) {
+      clazz = JavaPrimitiveTypes.box(clazz);
+    }
+    return clazz;
   }
 
   private String getSupportedMethod(final String prefix, final Field field) {
-    if (!field.getType().isPrimitive()) {
-      return null;
-    }
-    Class<?> clazz = JavaPrimitiveTypes.javaClass(field.getType());
-    if (clazz == null) {
-      return null;
-    }
+    Class<?> clazz = getJavaClass(field);
     String namePart = SUPPORTED_TYPES_BY_ANDROID.get(clazz);
     return namePart != null ? prefix.concat(namePart) : null;
   }
