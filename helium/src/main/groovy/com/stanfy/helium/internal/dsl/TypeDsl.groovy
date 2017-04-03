@@ -1,7 +1,6 @@
 package com.stanfy.helium.internal.dsl
 
-import com.stanfy.helium.format.PrimitiveReader
-import com.stanfy.helium.format.PrimitiveWriter
+import com.stanfy.helium.format.json.ClosureJsonConverter
 import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -75,15 +74,12 @@ class TypeDsl {
     formats.addAll(proxy.@writers.keySet())
     formats.each { String format ->
       def reader = proxy.@readers[format], writer = proxy.@writers[format]
+      def converter = new ClosureJsonConverter(reader, writer)
       if (reader) {
-        dsl.typeResolver.addTypeReader(format, type, { def input, def type ->
-          return reader(input)
-        } as PrimitiveReader<?>)
+        dsl.typeResolver.addTypeReader(format, type, converter)
       }
       if (writer) {
-        dsl.typeResolver.addTypeWriter(format, type, { def output, def type, Object value ->
-          return writer(output, value)
-        } as PrimitiveWriter<?>)
+        dsl.typeResolver.addTypeWriter(format, type, converter)
       }
     }
 

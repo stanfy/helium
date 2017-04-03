@@ -23,6 +23,9 @@ class Field extends Descriptionable {
   /** Marks this field as ignorable. */
   boolean skip
 
+  /** Alternative names for deserialization. */
+  List<String> alternatives;
+
   void setExamples(List<Object> examples) {
     if (type instanceof Message) {
       throw new IllegalStateException("Examples can be provided for primitives only")
@@ -32,6 +35,10 @@ class Field extends Descriptionable {
 
   List<Object> getExamples() {
     return this.@examples ? Collections.unmodifiableList(this.@examples) : Collections.emptyList()
+  }
+
+  List<String> getAlternatives() {
+    return this.@alternatives ? Collections.unmodifiableList(this.@alternatives) : Collections.emptyList()
   }
 
   boolean isRequired() {

@@ -233,6 +233,31 @@ class ProjectDslSpec extends Specification {
 
   }
 
+  def "same service methods for different services"() {
+    when:
+    dsl.type 'string'
+    dsl.service {
+      name 'Service 1'
+      get '/m' spec {
+        parameters {
+          a 'string'
+        }
+      }
+    }
+    dsl.service {
+      name 'Service 2'
+      get '/m' spec {
+        parameters {
+          b 'string'
+        }
+      }
+    }
+
+    then:
+    dsl.services[0].methods[0].parameters.canonicalName.startsWith('Service_1_')
+    dsl.services[1].methods[0].parameters.canonicalName.startsWith('Service_2_')
+  }
+
   def "can describe notes"() {
     when:
     dsl.note "aha"

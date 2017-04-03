@@ -35,13 +35,18 @@ class ConfigurableServiceMethod extends ConfigurableProxy<ServiceMethod> {
     }
   }
 
-  ConfigurableServiceMethod(final ServiceMethod core, final ProjectDsl project) {
+  private final Service service
+
+  ConfigurableServiceMethod(final Service service, final ServiceMethod core, final ProjectDsl project) {
     super(core, project)
+    this.service = service
   }
 
   void defineMessageType(final String property, Closure<?> body) {
     ServiceMethod core = getCore()
-    Message message = getProject().createAndAddMessage("${core.canonicalName}_${property}_${core.type}", body, false)
+    Message message = getProject().createAndAddMessage(
+        "${service.canonicalName}_${core.canonicalName}_${property}_${core.type}", body, false
+    )
     message.anonymous = true
     core."$property" = message
   }

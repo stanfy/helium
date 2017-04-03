@@ -253,7 +253,7 @@ final class MessageToJavaClass {
   }
 
   private String getFieldTypeName(final Field field) {
-    return options.getJavaTypeName(field.getType(), field.getSequence(), writer.getOutput());
+    return options.getJavaTypeName(field.getType(), field.getSequence(), !field.isRequired(), writer.getOutput());
   }
 
   static class Writer extends StringWriter {

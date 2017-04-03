@@ -1,16 +1,11 @@
 package com.stanfy.helium.internal.utils;
 
-import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
-import com.squareup.okhttp.ResponseBody;
+import com.stanfy.helium.handler.tests.BadHttpResponseException;
 import com.stanfy.helium.internal.entities.TypedEntity;
-import okio.Buffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 import static java.net.HttpURLConnection.*;
 
@@ -71,68 +66,7 @@ public final class AssertionUtils {
   }
 
   private static AssertionError failure(final String message, final Request request, final Response response) {
-    return  new AssertionError("\n\n"
-        + message + "\n\n"
-        + "------------- HTTP details ------------\n"
-        + getRequestInfo(request, response) + "\n\n"
-    );
-  }
-
-  private static String getRequestInfo(final Request request, final Response response) {
-    final StringBuilder stringBuilder = new StringBuilder();
-    stringBuilder.append("\nRequest info: ");
-
-    stringBuilder.append(request.method())
-        .append(' ')
-        .append(request.urlString())
-        .append('\n');
-
-    dumpHeaders(request.headers(), stringBuilder);
-
-    if (request.body() != null) {
-      final String loggedEntity = requestBodyToString(request.body());
-      if (loggedEntity != null) {
-        stringBuilder.append('\n').append(loggedEntity).append('\n');
-      }
-    }
-
-    stringBuilder.append('\n');
-    if (response == null) {
-      stringBuilder.append("Response info is not available.");
-    } else {
-      stringBuilder.append("Response info:\n")
-          .append(response.code()).append(" ").append(response.message()).append("\n");
-
-      dumpHeaders(response.headers(), stringBuilder);
-
-      stringBuilder
-          .append('\n')
-          .append(responseBodyToString(response.body())).append('\n');
-    }
-
-    return stringBuilder.toString();
-  }
-
-  private static void dumpHeaders(final Headers headers, final StringBuilder result) {
-    result.append("Headers:\n").append(headers);
-  }
-
-  private static String requestBodyToString(final RequestBody body) {
-    Buffer buffer = new Buffer();
-    try {
-      body.writeTo(buffer);
-    } catch (IOException e) {
-      throw new AssertionError(e);
-    }
-    return buffer.readUtf8();
-  }
-
-  private static String responseBodyToString(final ResponseBody body) {
-    try {
-      return body.source().readUtf8();
-    } catch (IOException e) {
-      throw new AssertionError(e);
-    }
+    return new BadHttpResponseException(message, request, response);
   }
 
 }

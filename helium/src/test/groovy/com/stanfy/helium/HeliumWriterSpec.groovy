@@ -74,6 +74,20 @@ a {
 '''.trim() + '\n'
   }
 
+  def "can write alternatives"() {
+    when:
+    writer.emitField(new Field(name : 'a', type : new Type(name : 'A'), alternatives: ['example']))
+
+    then:
+    out.toString() == '''
+a {
+  type 'A'
+  required true
+  alternatives ["example"]
+}
+'''.trim() + '\n'
+  }
+
   // TODO: check examples and descriptions
 
   def "can write projects"() {

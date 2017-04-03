@@ -5,6 +5,6 @@ import com.squareup.okhttp.Interceptor;
 /** Interface marker for authentication parameters. */
 public interface AuthParams {
 
-  Interceptor createHttpInterceptor();
+  Interceptor httpInterceptor();
 
 }
