@@ -49,3 +49,27 @@ task verifyTest(dependsOn: execTest) << {
 
   assert new File(file, "com/test/Entity.java").exists()
 }
+
+
+task swiftGenTest(type:Exec, dependsOn: noDepsJar) {
+  def file = new File(buildDir, "swift-gen-test-out")
+  // TODO : This is teporatry solutions
+  if (!file.exists()) {
+    file.mkdir()
+  }
+
+  workingDir project.projectDir
+  commandLine 'src/cmd-test/swift-gen-run.sh'
+}
+
+task verifySwiftGenTest(dependsOn: swiftGenTest) << {
+  def file = new File(buildDir, "swift-gen-test-out")
+  assert file.exists()
+  assert file.directory
+
+  assert new File(file, "SwiftAPIClientCore.swift").exists()
+  assert new File(file, "SwiftAPIRequestManager.swift").exists()
+  assert new File(file, "SwiftAPIServiceExample.swift").exists()
+
+  // here should be swiftc invokation
+}
