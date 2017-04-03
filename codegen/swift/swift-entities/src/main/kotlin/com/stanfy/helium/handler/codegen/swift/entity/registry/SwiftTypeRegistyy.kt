@@ -16,13 +16,13 @@ interface SwiftTypeRegistry {
   fun propertyName(fieldName: String): String
 
   companion object {
-    val VOID: SwiftEntity = SwiftEntityPrimitive("Void")
+    val EmptyResponse: SwiftEntity = SwiftEntityStruct("EmptyResponse")
   }
 }
 
 class SwiftTypeRegistryImpl : SwiftTypeRegistry {
 
-  var registry = mutableMapOf<String, SwiftEntity>()
+  val registry = mutableMapOf<String, SwiftEntity>()
 
   override fun registerEnumType(heliumType: Type): SwiftEntityEnum? {
     val enum = enumType(heliumType) ?: return null

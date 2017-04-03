@@ -117,9 +117,13 @@ public protocol Deserializable {
     static func deserialize(data: NSData?) -> Result<Self, NSError>
 }
 
-extension Void : Deserializable {
-    public static func deserialize(data: NSData?) -> Result<Void, NSError> {
-        return Result.Success(())
+public struct EmptyResponse {
+
+}
+
+extension EmptyResponse : Deserializable {
+    public static func deserialize(data: NSData?) -> Result<EmptyResponse, NSError> {
+        return Result.Success(EmptyResponse ())
     }
 }
 
