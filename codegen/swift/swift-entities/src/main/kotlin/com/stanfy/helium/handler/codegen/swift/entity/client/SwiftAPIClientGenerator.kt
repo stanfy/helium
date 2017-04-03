@@ -62,7 +62,11 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
                 val method = serviceMethod.type.toString()
                 val encoding = if (serviceMethod.type.hasBody) "JSON" else "URL"
                 val path = path
-                var return_type = typesRegistry.registerSwiftType(serviceMethod.response).name
+                var return_type = (if (serviceMethod.response != null) {
+                  typesRegistry.registerSwiftType(serviceMethod.response)
+                } else {
+                  SwiftTypeRegistry.VOID
+                }).name
               }
             }
           }

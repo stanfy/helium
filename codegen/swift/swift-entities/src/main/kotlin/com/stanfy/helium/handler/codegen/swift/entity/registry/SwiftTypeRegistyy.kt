@@ -14,16 +14,21 @@ interface SwiftTypeRegistry {
   fun registerMappings(mappings: Map<String, String>)
   fun simpleSequenceType(heliumType: Type): SwiftEntityArray
   fun propertyName(fieldName: String): String
+
+  companion object {
+    val VOID: SwiftEntity = SwiftEntityPrimitive("Void")
+  }
 }
 
 class SwiftTypeRegistryImpl : SwiftTypeRegistry {
+
+  var registry = mutableMapOf<String, SwiftEntity>()
+
   override fun registerEnumType(heliumType: Type): SwiftEntityEnum? {
     val enum = enumType(heliumType) ?: return null
     registry.put(heliumType.name, enum)
     return enum
   }
-
-  var registry = mutableMapOf<String, SwiftEntity>()
 
   override fun registerSwiftType(heliumType: Type): SwiftEntity {
     return registry.getOrElse(heliumType.name) {

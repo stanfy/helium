@@ -117,6 +117,12 @@ public protocol Deserializable {
     static func deserialize(data: NSData?) -> Result<Self, NSError>
 }
 
+extension Void : Deserializable {
+    public static func deserialize(data: NSData?) -> Result<Void, NSError> {
+        return Result.Success(())
+    }
+}
+
 // MARK:- Network API Service Request Callback
 
 public typealias APIServiceRequestCallback = (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void
