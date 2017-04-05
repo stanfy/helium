@@ -10,4 +10,5 @@ java -jar build/libs/command-line-0.8.2-SNAPSHOT-nodeps.jar \
 
 
 # this one should be ran (with 2.3 toolchain)
+# TODO: Add ReactiveCocoa module.
 # swiftc build/swift-gen-test-out/SwiftAPIClientCore.swift build/swift-gen-test-out/SwiftAPIRequestManager.swift build/swift-gen-test-out/SwiftAPIServiceExample.swift -o SwiftGenTestOut
