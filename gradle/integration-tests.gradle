@@ -20,4 +20,4 @@ new File(projectDir, "samples").listFiles().each {
   }
 }
 
-tasks.integrationTests.dependsOn ":command-line:verifyTest"
+tasks.integrationTests.dependsOn ":command-line:verifyTest", ":command-line:verifySwiftGenTest"

@@ -117,6 +117,16 @@ public protocol Deserializable {
     static func deserialize(data: NSData?) -> Result<Self, NSError>
 }
 
+public struct EmptyResponse {
+
+}
+
+extension EmptyResponse : Deserializable {
+    public static func deserialize(data: NSData?) -> Result<EmptyResponse, NSError> {
+        return Result.Success(EmptyResponse ())
+    }
+}
+
 // MARK:- Network API Service Request Callback
 
 public typealias APIServiceRequestCallback = (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void

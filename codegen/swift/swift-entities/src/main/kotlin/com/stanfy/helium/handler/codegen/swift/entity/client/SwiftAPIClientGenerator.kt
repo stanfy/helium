@@ -53,8 +53,8 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
                   .mapLast { it.copy( delimiter = "") }
 
               object {
-                val name = Names.decapitalize(Names.prettifiedName(Names.canonicalName(serviceMethod.name)))
-                val route = Names.capitalize(Names.prettifiedName(Names.canonicalName(serviceMethod.name)))
+                val name = Names.decapitalize(Names.prettifiedName(serviceMethod.canonicalName))
+                val route = Names.capitalize(Names.prettifiedName(serviceMethod.canonicalName))
                 val responseName = responseFilename
                 val interfaceParams = topParams
                 val bodyParams = bottomParams
@@ -62,7 +62,11 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
                 val method = serviceMethod.type.toString()
                 val encoding = if (serviceMethod.type.hasBody) "JSON" else "URL"
                 val path = path
-                var return_type = typesRegistry.registerSwiftType(serviceMethod.response).name
+                var return_type = (if (serviceMethod.response != null) {
+                   typesRegistry.registerSwiftType(serviceMethod.response)
+                 } else {
+                   SwiftTypeRegistry.EmptyResponse
+                 }).name
               }
             }
           }
