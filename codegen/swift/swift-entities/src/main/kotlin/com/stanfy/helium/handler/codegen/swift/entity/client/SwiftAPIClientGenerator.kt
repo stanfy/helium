@@ -92,13 +92,14 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
   fun formattedPathForServiceMethod(serviceMethod: ServiceMethod): String {
     var res = serviceMethod.path
     serviceMethod.pathParameters.forEach { name ->
-      res = res.replace("@$name", "\\($name)")
-      res = res.replace("\\{$name\\}", "\\($name)")
+      val replacement = "\\($name)"
+      res = res.replace("@$name", replacement).replace("{$name}", replacement)
     }
     return res
   }
 
 }
+
 inline fun <T> List<T>.mapLast(transform: (T) -> T): List<T> {
   val lastElement = lastOrNull() ?: return this
   return this.dropLast(1) + transform(lastElement)
