@@ -499,7 +499,8 @@ public class Message extends Base
   public String toString() {
     return "Message: {\\n"
          + "  optional=\\"" + optional + "\\"\\n"
-         + "}";
+         + "}"
+         + "\\nparent = " + super.toString();
   }
 
   @Override

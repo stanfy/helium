@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -192,17 +193,17 @@ final class MessageToJavaClass {
   void generateToString(final JavaClassWriter writer,
                         final Message message,
                         final boolean singleLine) throws IOException {
-    String indent = " ";
     String separator = ",";
 
     final Writer str = new Writer();
-    if (message.getActiveFields().size() == 0) {
+    List<Field> fieldList = message.getActiveFields();
+    if (fieldList.size() == 0) {
       str.add("return \"%s: has no fields\"", message.getName(), singleLine ? "" : "\n");
     } else {
       str.add("return \"%s: {%s", message.getName(), singleLine ? "\"\n" : "\\n\"\n");
 
-      for (int i = 0; i < message.getActiveFields().size(); i++) {
-        Field field = message.getActiveFields().get(i);
+      for (int i = 0; i < fieldList.size(); i++) {
+        Field field = fieldList.get(i);
         String fieldName = options.getSafeFieldName(field);
 
         final String value;
@@ -213,9 +214,9 @@ final class MessageToJavaClass {
 
           if (options.getSequenceCollectionName() == null && field.isSequence()) {
             if (field.getType().isPrimitive()) {
-              toString = "Arrays.toString(" + options.getSafeFieldName(field) + ")";
+              toString = "Arrays.toString(" + fieldName + ")";
             } else {
-              toString = "Arrays.deepToString(" + options.getSafeFieldName(field) + ")";
+              toString = "Arrays.deepToString(" + fieldName + ")";
             }
           } else {
             toString = fieldName + ".toString()";
@@ -224,20 +225,23 @@ final class MessageToJavaClass {
           value = "(" + fieldName + " != null ? " + toString + " : \"null\")";
         }
 
-        boolean notTheLastOne = i < message.getActiveFields().size() - 1;
+        boolean notTheLastOne = i < fieldList.size() - 1;
         String ending = String.format(" + \"\\\"%s%s\"",
             notTheLastOne ? separator : "",
             singleLine ? " " : "\\n");
 
-        str.add("%s+ \"%s%s=\\\"\" + %s%s\n",
-            indent,
+        str.add(" + \"%s%s=\\\"\" + %s%s\n",
             singleLine ? "" : "  ",
             options.getSafeFieldName(field),
             value,
             ending);
       }
 
-      str.add("%s+ \"}\"", indent, message.getName());
+      str.add(" + \"}\"");
+    }
+
+    if (message.hasParent()) {
+      str.add("%s+ \"%sparent = \" + super.toString()", singleLine ? " " : "\n ", singleLine ? "; " : "\\n");
     }
 
     writer.getOutput().emitAnnotation(Override.class)

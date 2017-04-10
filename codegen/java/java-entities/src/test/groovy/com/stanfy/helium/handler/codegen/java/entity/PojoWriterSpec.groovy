@@ -425,6 +425,33 @@ public class Test {
 ''')
   }
 
+  def "toString message with parent"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "new", type: new Type(name: "string")))
+
+    msg.parent = new Message(name: "AbsTest")
+    msg.parent.addField(new Field(name: "old", type: new Type(name: "string")))
+
+    options.addToString = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+        '''
+  @Override
+  public String toString() {
+    return "Test: {\\n"
+         + "  newField=\\"" + newField + "\\"\\n"
+         + "}"
+         + "\\nparent = " + super.toString();
+  }
+'''
+    )
+  }
+
   def "write JavaDoc from Description"() {
     given:
     Message msg = new Message(name: "Test", description: "Some testing class")
