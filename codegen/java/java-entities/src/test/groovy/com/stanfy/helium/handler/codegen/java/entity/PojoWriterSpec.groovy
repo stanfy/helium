@@ -319,6 +319,30 @@ public class Test {
     )
   }
 
+  def "toString of empty message with parent"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.parent = new Message(name: "AbsTest")
+    msg.parent.addField(new Field(name: "old", type: new Type(name: "string")))
+
+    options.addToString = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+        '''
+  @Override
+  public String toString() {
+    return "Test: {\\n"
+         + "  @parent = " + super.toString()
+         + "\\n}";
+  }
+'''
+    )
+  }
+
   def "toString for complex message"() {
     given:
     Message msg = new Message(name: "MyMsg")
@@ -423,6 +447,33 @@ public class Test {
          + "}";
   }
 ''')
+  }
+
+  def "toString message with parent"() {
+    given:
+    Message msg = new Message(name: "Test")
+    msg.addField(new Field(name: "new", type: new Type(name: "string")))
+
+    msg.parent = new Message(name: "AbsTest")
+    msg.parent.addField(new Field(name: "old", type: new Type(name: "string")))
+
+    options.addToString = true
+
+    when:
+    new MessageToJavaClass(writer, options).write(msg)
+
+    then:
+    output.toString().contains(
+        '''
+  @Override
+  public String toString() {
+    return "Test: {\\n"
+         + "  newField=\\"" + newField + "\\",\\n"
+         + "  @parent = " + super.toString() + "\\n"
+         + "}";
+  }
+'''
+    )
   }
 
   def "write JavaDoc from Description"() {
