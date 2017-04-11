@@ -198,7 +198,13 @@ final class MessageToJavaClass {
     final Writer str = new Writer();
     List<Field> fieldList = message.getActiveFields();
     if (fieldList.size() == 0) {
-      str.add("return \"%s: has no fields\"", message.getName(), singleLine ? "" : "\n");
+      if (message.hasParent()) {
+        str.add("return \"%s: {%s", message.getName(), singleLine ? "\"\n" : "\\n\"\n");
+        str.add(" + \"  @parent = \" + super.toString()");
+        str.add("\n + \"%s}\"", singleLine ? "" : "\\n");
+      } else {
+        str.add("return \"%s: has no fields\"", message.getName(), singleLine ? "" : "\n");
+      }
     } else {
       str.add("return \"%s: {%s", message.getName(), singleLine ? "\"\n" : "\\n\"\n");
 
@@ -225,7 +231,7 @@ final class MessageToJavaClass {
           value = "(" + fieldName + " != null ? " + toString + " : \"null\")";
         }
 
-        boolean notTheLastOne = i < fieldList.size() - 1;
+        boolean notTheLastOne = i < fieldList.size() - 1 || message.hasParent();
         String ending = String.format(" + \"\\\"%s%s\"",
             notTheLastOne ? separator : "",
             singleLine ? " " : "\\n");
@@ -237,11 +243,11 @@ final class MessageToJavaClass {
             ending);
       }
 
-      str.add(" + \"}\"");
-    }
+      if (message.hasParent()) {
+        str.add(" + \"  @parent = \" + super.toString()%s", singleLine ? "\n" : " + \"\\n\"\n");
+      }
 
-    if (message.hasParent()) {
-      str.add("%s+ \"%sparent = \" + super.toString()", singleLine ? " " : "\n ", singleLine ? "; " : "\\n");
+      str.add(" + \"}\"");
     }
 
     writer.getOutput().emitAnnotation(Override.class)
