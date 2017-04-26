@@ -98,7 +98,9 @@ class RestApiPokeTestsGenerator extends BaseUnitTestsGenerator {
         requestUriReady |= pathExamplesPresent
       }
 
-      parametrizedUri = "${parametrizedUri}$uriQueryExample"
+      if (uriQueryExample) {
+        parametrizedUri = "${parametrizedUri}${method.hasQueryInPath() ? '&' : '?'}${uriQueryExample}"
+      }
 
       if (requestUriReady && !method.hasBody()) {
         // can make an example

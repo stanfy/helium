@@ -51,19 +51,40 @@ class ServiceMethod extends Descriptionable {
       res = res.replaceAll("@${Pattern.quote(name)}", value)
       res = res.replaceAll("\\{${Pattern.quote(name)}\\}", value)
     }
-    return new URI("http", "host.com", res, null).toURL().getPath()
+    String query = null
+    if (hasQueryInPath()) {
+      String[] parts = res.split(/\?/, 2)
+      query = parts[1]
+      res = parts[0]
+    }
+    def url = new URI("http", "host.com", res, query, null).toURL()
+    return query ? url.getPath() + '?' + url.getQuery() : url.getPath()
   }
 
+  /**
+   * @deprecated HttpParamsWriter should be used for query serialization
+   */
+  @Deprecated
   String getUriQueryWithExamples(final String encoding) {
     return getUriQueryWithResolver(encoding, { Field f ->
       if (!f.examples) { return null }
       return String.valueOf(f.examples[0])
     })
   }
+
+  /**
+   * @deprecated HttpParamsWriter should be used for query serialization
+   */
+  @Deprecated
   String getUriQueryWithParameters(final String encoding, final Map<String, String> parameters) {
     return getUriQueryWithResolver(encoding, { Field f ->
       return parameters[f.name]
     })
+  }
+
+  // TODO: This logic with '?' support in path is really a workaround... We should revise how to work with
+  boolean hasQueryInPath() {
+    return path.contains('?')
   }
 
   private String getUriQueryWithResolver(final String encoding, final Closure<?> resolver) {
@@ -87,7 +108,7 @@ class ServiceMethod extends Descriptionable {
     if (res.length()) {
       res.delete(res.length() - 1, res.length())
     }
-    return "?$res"
+    return res.toString()
   }
 
   boolean hasBody() {

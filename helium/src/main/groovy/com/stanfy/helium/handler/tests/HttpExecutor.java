@@ -74,11 +74,12 @@ public class HttpExecutor implements MethodsExecutor {
         throw new AssertionError(e);
       }
       query = queryWriter.toString();
-      if (query.length() > 0) {
-        query = "?" + query;
-      }
     }
-    return requestPath + query;
+    String res = requestPath;
+    if (query.length() > 0) {
+      res += (method.hasQueryInPath() ? "&" : "?") + query;
+    }
+    return res;
   }
 
   @Override
