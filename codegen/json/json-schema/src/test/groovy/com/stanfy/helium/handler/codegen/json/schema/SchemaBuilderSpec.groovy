@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.json.schema
 
 import com.stanfy.helium.DefaultType
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Sequence
@@ -34,10 +35,12 @@ class SchemaBuilderSpec extends Specification {
     setup:
     def msg = new Message(name: "ComplexType")
     def list = new Sequence()
+    def dict = new Dictionary(key: new Type(name: 't1'), value: new Type(name: 't2'))
 
     expect:
     builder.translateType(msg) == JsonType.OBJECT
     builder.translateType(list) != JsonType.OBJECT
+    builder.translateType(dict) == JsonType.OBJECT
   }
 
   def "should translate sequences into arrays"() {

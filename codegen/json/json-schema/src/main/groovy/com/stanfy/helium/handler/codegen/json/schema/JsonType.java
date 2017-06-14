@@ -2,11 +2,7 @@ package com.stanfy.helium.handler.codegen.json.schema;
 
 import java.util.Locale;
 
-/**
- * JSON schema types.
- *
- * @author Michael Pustovit mpustovit@stanfy.com.ua
- */
+/** JSON schema types. */
 public enum JsonType {
   ARRAY,
   BOOLEAN,
