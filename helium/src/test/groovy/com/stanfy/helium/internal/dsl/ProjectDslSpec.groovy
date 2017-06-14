@@ -3,6 +3,7 @@ package com.stanfy.helium.internal.dsl
 import com.squareup.okhttp.MediaType
 import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.internal.model.tests.CheckableService
+import com.stanfy.helium.model.Authentication
 import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.FileType
@@ -10,7 +11,6 @@ import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.MultipartType
-import com.stanfy.helium.model.Authentication
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
 import com.stanfy.helium.model.tests.BehaviourCheck

@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.java.entity
 
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Type
@@ -574,6 +575,28 @@ public class Message extends Base
       }
     }
     dest.writeIntArray(enumFieldOrdinals);
+"""
+    )
+  }
+
+  def "dictionary support"() {
+    given:
+    Message msg = new Message(name: "Test")
+    def dictType = new Dictionary(key: new Type(name: 'string'), value: new Type(name: 'bool'))
+    msg.addField(new Field(name: 'dict', type: dictType))
+
+    when:
+    outReadAndWrite(msg)
+
+    then:
+    output.toString() == buildClassCode(
+        className: "Test",
+        readBody: """
+    this.dict = new java.util.HashMap<String, Boolean>();
+    source.readMap(this.dict, getClass().getClassLoader());
+""",
+        writeBody: """
+    dest.writeMap(this.dict);
 """
     )
   }

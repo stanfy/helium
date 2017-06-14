@@ -61,8 +61,11 @@ type 'CustomType' spec {
   description 'Test custom type'
 }
 
+type 'SomeDictionary' dictionary('string', 'bool')
+
 type 'MessageWithCustomType' message {
   data 'CustomType' sequence
+  map 'SomeDictionary'
 }
 
 service {
