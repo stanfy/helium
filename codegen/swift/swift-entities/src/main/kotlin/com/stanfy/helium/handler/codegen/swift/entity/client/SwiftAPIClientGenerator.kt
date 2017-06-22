@@ -54,7 +54,7 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
 
               object {
                 val name = Names.decapitalize(Names.prettifiedName(serviceMethod.canonicalName))
-                val route = Names.capitalize(Names.prettifiedName(serviceMethod.canonicalName))
+                val route = Names.decapitalize(Names.prettifiedName(serviceMethod.canonicalName))
                 val responseName = responseFilename
                 val interfaceParams = topParams
                 val bodyParams = bottomParams

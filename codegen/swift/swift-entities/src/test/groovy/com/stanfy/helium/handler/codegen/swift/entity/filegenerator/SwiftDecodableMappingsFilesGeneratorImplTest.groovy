@@ -50,12 +50,12 @@ class SwiftDecodableMappingsFilesGeneratorImplTest extends Specification {
         new SwiftProperty("anotherName", new SwiftEntityPrimitive("Good").toOptional(), "another_original_name")
 
     when:
-    files = sut.filesFromEntities([new SwiftEntityStruct("Entiry", [property, optionalProperty])])
+    files = sut.filesFromEntities([new SwiftEntityStruct("Entity", [property, optionalProperty])])
 
     then:
     files.first().name() != ""
-    files.first().contents().contains("public static func decode(json: AnyObject) throws -> Entiry {")
-    files.first().contents().contains("return try Entiry(")
+    files.first().contents().contains("public static func decode(_ json: Any) throws -> Entity {")
+    files.first().contents().contains("return try Entity(")
     files.first().contents().contains("name: json => \"original_name\"")
     files.first().contents().contains("anotherName: json =>? \"another_original_name\"")
   }
