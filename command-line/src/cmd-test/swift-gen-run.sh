@@ -1,6 +1,7 @@
 #!/bin/bash
 java -jar build/libs/command-line-0.8.3-SNAPSHOT-nodeps.jar \
    -o build/swift-gen-test-out \
+   --swift-entities \
    --swift-api-client \
    -Fgenerate-equatables \
    -Fgenerate-random-initializers \

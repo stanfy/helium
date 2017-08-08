@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.swift.entity.registry
 
 import com.stanfy.helium.handler.codegen.swift.entity.entities.*
 import com.stanfy.helium.internal.utils.Names
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
@@ -34,6 +35,7 @@ class SwiftTypeRegistryImpl : SwiftTypeRegistry {
     return registry.getOrElse(heliumType.name) {
       val type: SwiftEntity =
           tryRegisterSequenceType(heliumType)
+              ?: tryDictionary(heliumType)
               ?: tryPrimitiveType(heliumType)
               ?: structType(heliumType)
       registry.put(heliumType.name, type)
@@ -78,6 +80,13 @@ class SwiftTypeRegistryImpl : SwiftTypeRegistry {
         null
       }
     }
+  }
+
+  private fun tryDictionary(heliumType: Type): SwiftEntityDictionary? {
+    if (heliumType is Dictionary) {
+      return SwiftEntityDictionary(registerSwiftType(heliumType.key), registerSwiftType(heliumType.value))
+    }
+    return null
   }
 
   fun enumType(heliumType: Type): SwiftEntityEnum? {
