@@ -1,0 +1,5 @@
+note 'Common types'
+
+type 'custom_type' spec {
+  description 'Common custom type'
+}
