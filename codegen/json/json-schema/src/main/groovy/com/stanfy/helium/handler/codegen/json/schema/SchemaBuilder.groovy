@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.json.schema
 
 import com.stanfy.helium.DefaultType
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.FileType
 import com.stanfy.helium.model.Message
@@ -49,7 +50,7 @@ class SchemaBuilder {
           return JsonType.STRING
       }
     } else {
-      if (type instanceof Message) {
+      if (type instanceof Message || type instanceof Dictionary) {
         return JsonType.OBJECT
       }
 
@@ -59,6 +60,12 @@ class SchemaBuilder {
     }
 
     throw new IllegalArgumentException("'${type.name}' simple type isn't supported")
+  }
+
+  JsonSchemaEntity makeSchemaFromDict(Dictionary dict) {
+    def schema = new JsonSchemaEntity()
+    schema.type = JsonType.OBJECT
+    return schema
   }
 
   JsonSchemaEntity makeSchemaFromMessage(Message msg) {
@@ -107,7 +114,9 @@ class SchemaBuilder {
 
     switch (jsonType) {
       case JsonType.OBJECT:
-        property = makeSchemaFromMessage((Message) type)
+        property = (type instanceof Dictionary
+            ? makeSchemaFromDict((Dictionary) type)
+            : makeSchemaFromMessage((Message) type))
         break
       case JsonType.ARRAY:
         property = makeSchemaFromSequence((Sequence) type)

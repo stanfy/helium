@@ -1,24 +1,25 @@
 import Foundation
+import ReactiveSwift
 
-public enum Result<S, E: ErrorType> {
-    case Success(S)
-    case Failure(E)
+public enum Result<S, E: Error> {
+    case success(S)
+    case failure(E)
 }
 
 public struct Request {
-    public var url: NSURL
+    public var url: URL
     public var method: RequestMethod
-    public var params: [String: AnyObject]
+    public var params: [String: Any]
     public var encoding: RequestParametersEncoding
     public var expectedStatusCodes: Range<Int>
     public var expectedContentTypes: [String]
     public var headers: [String: String]
 
     init(
-        url: NSURL,
+        url: URL,
         method: RequestMethod,
         encoding: RequestParametersEncoding,
-        params: [String: AnyObject] = [:],
+        params: [String: Any] = [:],
         headers: [String: String] = [:],
         expectedStatusCodes: Range<Int> = 200..<300,
         expectedContentTypes: [String] = ["*/*"]
@@ -58,9 +59,9 @@ public typealias RequestProvider = () -> (Request)
 // MARK:- Response
 public struct APIResponse<T> {
     public let value: T
-    public let response: NSHTTPURLResponse?
+    public let response: HTTPURLResponse?
 
-    public init(value: T, response: NSHTTPURLResponse? = nil) {
+    public init(value: T, response: HTTPURLResponse? = nil) {
         self.value = value
         self.response = response
     }
@@ -68,12 +69,12 @@ public struct APIResponse<T> {
 
 // MARK:- Response Error
 
-public struct APIResponseError<E: ErrorType>: ErrorType {
+public struct APIResponseError<E: Error>: Error {
     public let error: E
     public let request: Request?
-    public let response: NSHTTPURLResponse?
+    public let response: HTTPURLResponse?
 
-    public init(error: E, request: Request? = nil, response: NSHTTPURLResponse? = nil) {
+    public init(error: E, request: Request? = nil, response: HTTPURLResponse? = nil) {
         self.error = error
         self.response = response
         self.request = request
@@ -91,30 +92,50 @@ public protocol Cancellable {
 
 public protocol Gateway {
     func requestWithCallback<T>(
-        responseTransformer:  (NSData?) -> Result<T, NSError>,
-        callback:  (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
+        _ responseTransformer: @escaping (Data?) -> Result<T, NSError>,
+        callback: @escaping (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
     ) -> Cancellable
 }
 
 public extension Gateway {
     func request<T>(
-        responseTransformer:  (NSData?) -> Result<T, NSError>,
+        _ responseTransformer: @escaping (Data?) -> Result<T, NSError>,
         success: ((APIResponse<T>) -> Void)?,
         failure: ((APIResponseError<NSError>) -> Void)?
     ) -> Cancellable {
         return requestWithCallback(responseTransformer) { (result:Result<APIResponse<T>, APIResponseError<NSError>>) in
             switch result {
-            case .Success(let response): success?(response)
-            case .Failure(let responseError): failure?(responseError)
+            case .success(let response): success?(response)
+            case .failure(let responseError): failure?(responseError)
             }
         }
     }
 }
 
+// MARK: - Reactive Cocoa Gateway Extension
+
+public extension Gateway {
+    func request<T>(_ responseTransformer: @escaping (Data?) -> Result<T, NSError>) -> SignalProducer<T, APIResponseError<NSError>> {
+        return SignalProducer { observer, disposable in
+            let cancelable = self.requestWithCallback(responseTransformer) { (result:Result<APIResponse<T>, APIResponseError<NSError>>) in
+                switch result {
+                case .success(let response):
+                    observer.send(value: response.value)
+                    observer.sendCompleted()
+                case .failure(let responseError):
+                    observer.send(error: responseError)
+                }
+            }
+            disposable.add {
+                cancelable.cancel()
+            }
+        }
+    }
+}
 
 // MARK:- Deserializable
 public protocol Deserializable {
-    static func deserialize(data: NSData?) -> Result<Self, NSError>
+    static func deserialize(_ data: Data?) -> Result<Self, NSError>
 }
 
 public struct EmptyResponse {
@@ -122,54 +143,50 @@ public struct EmptyResponse {
 }
 
 extension EmptyResponse : Deserializable {
-    public static func deserialize(data: NSData?) -> Result<EmptyResponse, NSError> {
-        return Result.Success(EmptyResponse ())
+    public static func deserialize(_ data: Data?) -> Result<EmptyResponse, NSError> {
+        return Result.success(EmptyResponse ())
     }
 }
 
 // MARK:- Network API Service Request Callback
 
-public typealias APIServiceRequestCallback = (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void
+public typealias APIServiceRequestCallback = (Result<APIResponse<Data?>, APIResponseError<NSError>>) -> Void
 
 // MARK:- Protocol
 
 public protocol APIService {
-    func request(request: Request, callback:  APIServiceRequestCallback) -> Cancellable
+    func request(_ request: Request, callback: @escaping APIServiceRequestCallback) -> Cancellable
 }
 
 class GatewayImpl: Gateway {
 
-    private let apiService: APIService
-    private let requestProvider: RequestProvider
+    fileprivate let apiService: APIService
+    fileprivate let requestProvider: RequestProvider
 
-    init(apiService: APIService,
-         requestProvider:  RequestProvider
-        ) {
+    init(apiService: APIService, requestProvider: @escaping RequestProvider) {
         self.apiService = apiService
         self.requestProvider = requestProvider
     }
 
     internal func requestWithCallback<T>(
-        responseTransformer:  (NSData?) -> Result<T, NSError>,
-        callback:  (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
+        _ responseTransformer: @escaping (Data?) -> Result<T, NSError>,
+        callback: @escaping (Result<APIResponse<T>, APIResponseError<NSError>>) -> Void
     ) -> Cancellable {
         let request = requestProvider()
         return apiService.request(request, callback: { result in
             switch result {
-            case .Success(let response):
+            case .success(let response):
                 let responseTransformerResult = responseTransformer(response.value)
                 switch responseTransformerResult {
-                case .Success(let transformedResponse):
-                    callback(.Success(APIResponse(value: transformedResponse, response: response.response)))
-                case .Failure(let error):
-                    callback(.Failure(APIResponseError(error: error, request: request, response: response.response)))
+                case .success(let transformedResponse):
+                    callback(.success(APIResponse(value: transformedResponse, response: response.response)))
+                case .failure(let error):
+                    callback(.failure(APIResponseError(error: error, request: request, response: response.response)))
                 }
 
-            case .Failure(let responseError):
-                callback(.Failure(responseError))
+            case .failure(let responseError):
+                callback(.failure(responseError))
             }
-
         })
     }
 }
-

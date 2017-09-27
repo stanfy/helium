@@ -97,6 +97,11 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
 
   public String getJavaTypeName(final Type type, final boolean sequence, final boolean optional,
                                 final JavaWriter writer) {
+    return getJavaTypeName(type, sequence, optional, writer, false);
+  }
+
+  public String getJavaTypeName(final Type type, final boolean sequence, final boolean optional,
+                                final JavaWriter writer, boolean forceBoxing) {
     final String typeName;
     if (type instanceof Message) {
       if (sequence) {
@@ -126,7 +131,7 @@ public abstract class JavaGeneratorOptions extends GeneratorOptions {
           String itemClassName = getSequenceItemClassName(clazz);
           typeName = writer.compressType(getSequenceTypeName(itemClassName));
         } else {
-          if (optional && boxPrimitiveOptionals) {
+          if (forceBoxing || (optional && boxPrimitiveOptionals)) {
             clazz = JavaPrimitiveTypes.box(clazz);
           }
           typeName = writer.compressType(clazz.getCanonicalName());

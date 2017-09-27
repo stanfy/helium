@@ -1,8 +1,8 @@
 final {{accessLevel}} class {{name}}: NSObject {
 {{#props}}
-  {{accessLevel}} let {{name}}: {{type.typeString}}
+  {{accessLevel}} let {{name}}: {{{type.typeString}}}
 {{/props}}
-  {{accessLevel}} init({{#props}}{{name}}: {{type.typeString}}{{{delimiter}}}{{/props}}) {
+  {{accessLevel}} init({{#props}}{{name}}: {{{type.typeString}}}{{{delimiter}}}{{/props}}) {
 {{#props}}
       self.{{name}} = {{name}}
 {{/props}}

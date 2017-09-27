@@ -1,9 +1,12 @@
+type 'SomeMap' dictionary('string', 'bool')
+
 type "Entity" message {
   a 'string'
   b int
   c long
   d 'bool'
   e 'float'
+  f 'SomeMap'
 }
 
 service {

@@ -1,6 +1,9 @@
 note 'Httpbin service - simply returns all data you sent back to you.'
 
+type 'ParamsDictionary' dictionary('string', 'string')
+
 type 'BaseHttpBinResponse' message(skipUnknownFields: true) {
+  args   'ParamsDictionary'
   data   'string'
   origin 'string'
   url    'string'
@@ -27,11 +30,9 @@ service {
     body form('Person')
   }
 
-
-  tests {
-
-    scenario 'Send Peter' spec {
-      def peterResp = post '/post' with {
+  describe 'Send Peter' spec {
+    it('should pass') {
+      def peterResp = service.post '/post' with {
         body form {
           name 'Peter Heel'
           age  '5'
@@ -59,12 +60,11 @@ service {
     body data()
   }
 
-  tests {
-
-    scenario 'Send dragon bytes' spec {
+  describe 'Send dragon bytes' spec {
+    it('should pass') {
       def dragonBytes = "Dragon".getBytes()
 
-      def res = post "/post" with {
+      def res = service.post "/post" with {
         body bytes(dragonBytes)
       }
 
@@ -73,7 +73,6 @@ service {
       assert res.body?.data.getBytes() == dragonBytes
     }
   }
-
 }
 
 // Text and file upload service.
@@ -100,6 +99,9 @@ service {
       text 'string'
       file file()
     }
+    parameters {
+      param 'string'
+    }
   }
 
   describe "upload pig" spec {
@@ -109,6 +111,9 @@ service {
     String pigName = 'This is a pig.'
 
     def res = service.post "/post" with {
+      parameters {
+        param 'value'
+      }
       body multipart {
         file f
         text pigName
@@ -118,6 +123,34 @@ service {
     it("must succeed") { res.mustSucceed() }
     it("submits text") { res.body?.form?.text.contains("This is a pig.") }
     it("submits file") { res.body?.files?.file?.contains(f.bytes.encodeBase64().toString()) }
+    it("submits parameters") { res.body?.args?.param == 'value' }
+  }
+
+}
+
+service {
+  // TODO: Think how we can get an alternative.
+  name "ParamsInPathService"
+  location "http://httpbin.org"
+
+  post '/post?name1=value1' spec {
+    response 'BaseHttpBinResponse'
+    parameters {
+      name2 'string'
+    }
+  }
+
+  describe "testing" spec {
+    it('should pass') {
+      def resp = service.post '/post?name1=value1' with {
+        parameters {
+          name2 'value2'
+        }
+      }
+      resp.mustSucceed()
+      assert resp.body?.args?.name1 == 'value1'
+      assert resp.body?.args?.name2 == 'value2'
+    }
   }
 
 }

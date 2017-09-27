@@ -1,5 +1,5 @@
 import Foundation
-import ReactiveCocoa
+import ReactiveSwift
 
 {{#services}}
 public enum Route {
@@ -8,13 +8,13 @@ public enum Route {
 {{/funcs}}
 }
 
-public typealias GatewayFactory = (Route, APIService, RequestProvider) -> Gateway
-public typealias RequestProviderFactory = (Route, RequestProvider) -> RequestProvider
+public typealias GatewayFactory = (Route, APIService, @escaping RequestProvider) -> Gateway
+public typealias RequestProviderFactory = (Route, @escaping RequestProvider) -> RequestProvider
 
 
-public class APIRequestManager {
+public class {{requestManagerAlias}} {
 
-    let baseURL: NSURL
+    let baseURL: URL
     let service: APIService
     let requestProviderFactory: RequestProviderFactory?
     let gatewayFactory: GatewayFactory
@@ -29,9 +29,9 @@ public class APIRequestManager {
 
     public init(
         service: APIService,
-        baseURL: NSURL = NSURL(string:"{{location}}")!,
-        requestProviderFactory:  RequestProviderFactory = APIRequestManager.defaultCallBack,
-        gatewayFactory:  GatewayFactory = APIRequestManager.defaultGatewayFactory
+        baseURL: URL = URL(string:"{{location}}")!,
+        requestProviderFactory: @escaping RequestProviderFactory = {{requestManagerAlias}}.defaultCallBack,
+        gatewayFactory: @escaping GatewayFactory = {{requestManagerAlias}}.defaultGatewayFactory
     ) {
         self.service = service
         self.requestProviderFactory = requestProviderFactory
@@ -41,7 +41,7 @@ public class APIRequestManager {
 
 {{#funcs}}
     public func {{name}}({{#interfaceParams}}{{{name}}}: {{{type}}}{{{delimiter}}}{{/interfaceParams}}) -> SignalProducer<{{return_type}}, APIResponseError<NSError>> {
-        let url = NSURL(string:baseURL.absoluteString!.stringByAppendingString("{{path}}"))!
+        let url = URL(string:baseURL.absoluteString + "{{path}}")!
         let requestProvider = requestProviderForRoute(.{{route}}) {
             return Request(
                 url: url,
@@ -60,7 +60,7 @@ public class APIRequestManager {
 
 {{/funcs}}
 
-    func requestProviderForRoute(route: Route, originalProvider: RequestProvider) -> RequestProvider {
+    func requestProviderForRoute(_ route: Route, originalProvider: @escaping RequestProvider) -> RequestProvider {
         guard let factory = self.requestProviderFactory else {
             return originalProvider
         }
@@ -68,24 +68,3 @@ public class APIRequestManager {
     }
 }
 {{/services}}
-
-// MARK: - Reactive Cocoa Gateway Extension
-
-public extension Gateway {
-    func request<T>(responseTransformer:  (NSData?) -> Result<T, NSError>) -> SignalProducer<T, APIResponseError<NSError>> {
-        return SignalProducer { observer, disposable in
-            let cancelable = self.requestWithCallback(responseTransformer) { (result:Result<APIResponse<T>, APIResponseError<NSError>>) in
-                switch result {
-                case .Success(let response):
-                    observer.sendNext(response.value)
-                    observer.sendCompleted()
-                case .Failure(let responseError):
-                    observer.sendFailed(responseError)
-                }
-            }
-            disposable.addDisposable {
-                cancelable.cancel()
-            }
-        }
-    }
-}

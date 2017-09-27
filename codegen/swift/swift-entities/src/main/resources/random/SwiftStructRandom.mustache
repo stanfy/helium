@@ -4,7 +4,7 @@ extension {{name}}: Random {
     static func random() -> {{name}} {
        return restrictedRandom()
     }
-    static func restrictedRandom({{#props}}{{{label}}} {{name}}: {{type.typeString}} = .random(){{{delimiter}}} {{/props}}) -> {{name}} {
+    static func restrictedRandom({{#props}}{{{label}}} {{name}}: {{{type.typeString}}} = .random(){{{delimiter}}} {{/props}}) -> {{name}} {
         return {{name}}(
           {{#props}}
             {{name}}: {{name}}{{{delimiter}}}

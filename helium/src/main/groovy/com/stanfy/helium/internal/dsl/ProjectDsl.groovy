@@ -213,8 +213,8 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
     structure.add note
   }
 
-  public void include(final Object spec) {
-    final File specFile
+  void include(final Object spec) {
+    File specFile
     if (spec instanceof File) {
       specFile = spec as File
     } else {
@@ -225,6 +225,7 @@ class ProjectDsl implements Project, BehaviorDescriptionContainer {
         specFile = new File(path)
       }
     }
+    specFile = specFile.canonicalFile
     if (!includedFiles.contains(specFile)) {
       includedFiles.add specFile
       ScriptExtender.fromFile(specFile, charset).withVars(variablesBinding).handle(this)

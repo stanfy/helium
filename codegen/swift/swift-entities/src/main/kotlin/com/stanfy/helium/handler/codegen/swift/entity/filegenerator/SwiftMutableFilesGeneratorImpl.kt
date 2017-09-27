@@ -13,10 +13,12 @@ class SwiftMutableFilesGeneratorImpl : SwiftFilesGenerator {
   }
 
   override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
-    // TODO : Different files? as an option
     val file: SwiftFile = object : SwiftFile {
       override fun name(): String {
-        return "EntitiesMutableExtensions"
+        var nameValue = "EntitiesMutableExtensions"
+        if (!options?.customFilePrefix.isNullOrEmpty())
+          nameValue = options?.customFilePrefix + nameValue
+        return nameValue
       }
 
       override fun contents(): String {

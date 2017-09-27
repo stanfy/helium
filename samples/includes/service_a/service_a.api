@@ -1,0 +1,13 @@
+include "$baseDir/../common.api"
+
+note 'Service A'
+
+service {
+  name 'A'
+  location 'http://localhost:8080'
+
+  get '/test_1' spec {
+    response 'custom_type'
+  }
+
+}

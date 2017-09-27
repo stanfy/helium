@@ -16,7 +16,10 @@ class SwiftRandomEntitiesFilesGeneratorImpl : SwiftFilesGenerator {
 
     val file: SwiftFile = object : SwiftFile {
       override fun name(): String {
-        return "EntitiesRandomExtensions"
+        var nameValue = "EntitiesRandomExtensions"
+        if (!options?.customFilePrefix.isNullOrEmpty())
+          nameValue = options?.customFilePrefix + nameValue
+        return nameValue
       }
 
       override fun contents(): String {

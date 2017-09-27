@@ -29,13 +29,23 @@ class SwiftGenerationOptions : GeneratorOptions () {
 
   /**
    * Specifies what visibility generated entities should have.
-   * Default value is INTERNAL
+   * Default value is PUBLIC
    */
-  var entitiesAccessLevel = SwiftEntitiesAccessLevel.INTERNAL
+  var entitiesAccessLevel = SwiftEntitiesAccessLevel.PUBLIC
 
   /**
    * Specifies types of the entities to generate (Classes vs structs)
    */
   var entitiesType = SwiftEntitiesType.STRUCT
+
+  /**
+   * Specifies the prefix for file name
+   */
+  var customFilePrefix = ""
+
+  /**
+   * Specifies the name of the API request manager
+   */
+  var apiManagerName = "APIRequestManager"
 
 }

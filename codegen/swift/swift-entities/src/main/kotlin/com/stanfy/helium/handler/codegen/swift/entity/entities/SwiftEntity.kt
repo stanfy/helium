@@ -104,3 +104,23 @@ data class SwiftEntityArray(override val name: String,
     }
   }
 }
+
+data class SwiftEntityDictionary(val keyType: SwiftEntity,
+                                 val valueType: SwiftEntity,
+                                 override val optional: Boolean = false,
+                                 override val name: String = "") : SwiftEntity {
+
+  override fun toOptional(): SwiftEntityDictionary {
+    return optional(keyType, valueType)
+  }
+
+  override fun typeString(): String {
+    return "Dictionary<" + keyType.typeString() + ", " + valueType.typeString() + ">" + if (optional) "?" else ""
+  }
+
+  companion object {
+    fun optional(keyType: SwiftEntity, valueType: SwiftEntity): SwiftEntityDictionary {
+      return SwiftEntityDictionary(keyType, valueType, true)
+    }
+  }
+}
