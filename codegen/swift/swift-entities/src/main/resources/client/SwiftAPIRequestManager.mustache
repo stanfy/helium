@@ -12,7 +12,7 @@ public typealias GatewayFactory = (Route, APIService, @escaping RequestProvider)
 public typealias RequestProviderFactory = (Route, @escaping RequestProvider) -> RequestProvider
 
 
-public class APIRequestManager {
+public class {{requestManagerAlias}} {
 
     let baseURL: URL
     let service: APIService
@@ -30,8 +30,8 @@ public class APIRequestManager {
     public init(
         service: APIService,
         baseURL: URL = URL(string:"{{location}}")!,
-        requestProviderFactory: @escaping RequestProviderFactory = APIRequestManager.defaultCallBack,
-        gatewayFactory: @escaping GatewayFactory = APIRequestManager.defaultGatewayFactory
+        requestProviderFactory: @escaping RequestProviderFactory = {{requestManagerAlias}}.defaultCallBack,
+        gatewayFactory: @escaping GatewayFactory = {{requestManagerAlias}}.defaultGatewayFactory
     ) {
         self.service = service
         self.requestProviderFactory = requestProviderFactory
@@ -68,24 +68,3 @@ public class APIRequestManager {
     }
 }
 {{/services}}
-
-// MARK: - Reactive Cocoa Gateway Extension
-
-public extension Gateway {
-    func request<T>(_ responseTransformer: @escaping (Data?) -> Result<T, NSError>) -> SignalProducer<T, APIResponseError<NSError>> {
-        return SignalProducer { observer, disposable in
-            let cancelable = self.requestWithCallback(responseTransformer) { (result:Result<APIResponse<T>, APIResponseError<NSError>>) in
-                switch result {
-                case .success(let response):
-                    observer.send(value: response.value)
-                    observer.sendCompleted()
-                case .failure(let responseError):
-                    observer.send(error: responseError)
-                }
-            }
-            disposable.add {
-                cancelable.cancel()
-            }
-        }
-    }
-}
