@@ -72,15 +72,13 @@ class SwiftServicesMapHelper {
     }
   }
 
-  companion object Helper {
-    fun formattedPathForServiceMethod(serviceMethod: ServiceMethod): String {
-      var res = serviceMethod.path
-      serviceMethod.pathParameters.forEach { name ->
-        val replacement = "\\($name)"
-        res = res.replace("@$name", replacement).replace("{$name}", replacement)
-      }
-      return res
+  fun formattedPathForServiceMethod(serviceMethod: ServiceMethod): String {
+    var res = serviceMethod.path
+    serviceMethod.pathParameters.forEach { name ->
+      val replacement = "\\($name)"
+      res = res.replace("@$name", replacement).replace("{$name}", replacement)
     }
+    return res
   }
 
 }

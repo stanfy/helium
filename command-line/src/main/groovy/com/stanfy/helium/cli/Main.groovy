@@ -149,8 +149,9 @@ class Main {
               fileGenerators << new SwiftMutableFilesGeneratorImpl()
             }
 
-            if (property(options, "customFilePrefix"))
+            if (property(options, "customFilePrefix")) {
               generationOptions.customFilePrefix = property(options, "customFilePrefix")
+            }
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
@@ -173,8 +174,9 @@ class Main {
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
             generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
             def apiManagerName = property(options, "apiManagerName")
-            if (apiManagerName?.trim())
+            if (apiManagerName?.trim()) {
               generationOptions.apiManagerName = apiManagerName
+            }
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
 
@@ -213,8 +215,9 @@ class Main {
                 break
             }
 
-            if (property(options, "customFilePrefix"))
+            if (property(options, "customFilePrefix")) {
               generationOptions.customFilePrefix = property(options, "customFilePrefix")
+            }
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
