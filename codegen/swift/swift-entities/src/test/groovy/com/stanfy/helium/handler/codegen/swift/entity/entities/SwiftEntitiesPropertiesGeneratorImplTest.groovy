@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.swift.entity.entities
 
 import com.stanfy.helium.internal.dsl.ProjectDsl
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.Sequence
@@ -8,7 +9,7 @@ import spock.lang.Specification
 
 class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
   ProjectDsl dsl
-
+  SwiftGenerationOptions generationOptions
   Message testMessage
   Sequence listMessage
   Message listWithName
@@ -41,12 +42,13 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     listMessage = dsl.sequences[0]
     structMessage = dsl.messages[2]
     listWithName = dsl.messages[1]
+    generationOptions = new SwiftGenerationOptions()
     sut = new SwiftEntitiesGeneratorImpl()
   }
 
   def "parse entity names"() {
     when:
-      entities = sut.entitiesFromHeliumProject(dsl)
+      entities = sut.entitiesFromHeliumProject(dsl, generationOptions)
 
     then:
       entities.findResult { it.name =="A"} != null
@@ -62,7 +64,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     SwiftEntity entityStruct
 
     when:
-    entities = sut.entitiesFromHeliumProject(dsl)
+    entities = sut.entitiesFromHeliumProject(dsl, generationOptions)
     entityA = entities.find { it.name == "A"}
     entityL = entities.find { it.name == "List"} as SwiftEntityArray
     entityListWihName = entities.find { it.name == "ListWithName"}
@@ -84,7 +86,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     SwiftEntity entityA
 
     when:
-    entities = sut.entitiesFromHeliumProject(dsl)
+    entities = sut.entitiesFromHeliumProject(dsl, generationOptions)
     entityA = entities.find { it.name == "A"}
 
     then:
@@ -99,7 +101,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     prj.type "A" message {
       prop heliumType
     }
-    def propertyType = sut.entitiesFromHeliumProject(prj).first().properties.first().type.name
+    def propertyType = sut.entitiesFromHeliumProject(prj, generationOptions).first().properties.first().type.name
 
     expect:
     swiftType == propertyType
@@ -126,7 +128,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     prj.type "A" message {
       "$fieldName" 'string'
     }
-    def actualPropertyName = sut.entitiesFromHeliumProject(prj).first().properties.first().name
+    def actualPropertyName = sut.entitiesFromHeliumProject(prj, generationOptions).first().properties.first().name
 
     expect:
     actualPropertyName == propertyName
@@ -145,7 +147,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     prj.type "A" message {
       "$fieldName" 'string'
     }
-    def actualPropertyName = sut.entitiesFromHeliumProject(prj).first().properties.first().name
+    def actualPropertyName = sut.entitiesFromHeliumProject(prj, generationOptions).first().properties.first().name
 
     expect:
     actualPropertyName == propertyName
@@ -170,7 +172,7 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     }
 
     when:
-    entityA = (sut.entitiesFromHeliumProject(prj).first() as SwiftEntityStruct)
+    entityA = (sut.entitiesFromHeliumProject(prj, generationOptions).first() as SwiftEntityStruct)
 
     then:
     entityA.properties.find { it.name == "optionalField" }.type.optional
@@ -188,9 +190,10 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
       optionalFieldWithDefaultValue 'string'
       optionalFieldWithoutDefaultValue 'string2' optional
     }
+    generationOptions.customTypesMappings = ["string" : "value"]
 
     when:
-    entityA = (sut.entitiesFromHeliumProject(prj, null, ["string" : "value"]).first() as SwiftEntityStruct)
+    entityA = (sut.entitiesFromHeliumProject(prj, generationOptions).first() as SwiftEntityStruct)
 
     then:
     !entityA.properties.find { it.name == "optionalFieldWithDefaultValue" }.type.optional
@@ -216,8 +219,8 @@ class SwiftEntitiesPropertiesGeneratorImplTest extends Specification {
     }
 
     when:
-    entityA = (sut.entitiesFromHeliumProject(prj, null).find { it.name == "A" } as SwiftEntityStruct)
-    entityB = (sut.entitiesFromHeliumProject(prj, null).find { it.name == "B" } as SwiftEntityStruct)
+    entityA = (sut.entitiesFromHeliumProject(prj, generationOptions).find { it.name == "A" } as SwiftEntityStruct)
+    entityB = (sut.entitiesFromHeliumProject(prj, generationOptions).find { it.name == "B" } as SwiftEntityStruct)
 
     then:
     entityB.properties.find { it.name == "sequenceField" }.type instanceof SwiftEntityArray

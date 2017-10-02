@@ -21,9 +21,8 @@ class SwiftAPIClientHandler(outputDirectory: File?, options: SwiftGenerationOpti
     val project = proj ?: return
 
     val typesRegistry = SwiftTypeRegistryImpl()
-    entitiesGenerator.entitiesFromHeliumProject(project, options?.customTypesMappings, options?.typeDefaultValues, typesRegistry)
+    entitiesGenerator.entitiesFromHeliumProject(project, options!!)
     val files: List<SwiftFile> = apiClientGenerator.clientFilesFromHeliumProject(project, typesRegistry, options)
     outputGenerator.generate(outputDirectory, files)
   }
 }
-

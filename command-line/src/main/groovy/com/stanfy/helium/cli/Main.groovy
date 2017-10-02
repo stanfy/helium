@@ -98,7 +98,8 @@ class Main {
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
               "customFilePrefix" : "Prefix for filenames of with generated entities. Optional. usage: -HcustomFilePrefix=PREFIX",
               "entitiesAccessLevel" : "Entities visibility. Possible values: public, internal. Default : public",
-              "entitiesType" : "Entities types. Possible values: struct, class. Default: struct"
+              "entitiesType" : "Entities types. Possible values: struct, class. Default: struct",
+              "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE"
           ],
           flags: [
               "generate-equatables" : "Generates equatables functions for all entities. Optional",
@@ -106,7 +107,7 @@ class Main {
               "generate-mutable-structs" : "Generates mutable extensions for all struct entities. Optional",
           ],
           factory: { def options, File output ->
-            SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
+            SwiftGenerationOptions generationOptions  = new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
             generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
 
@@ -153,6 +154,11 @@ class Main {
               generationOptions.customFilePrefix = property(options, "customFilePrefix")
             }
 
+            def skipTypes = properties(options, "skipType")
+            if (skipTypes != null && !skipTypes.isEmpty()) {
+              generationOptions.skipTypes = skipTypes
+            }
+
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
 
@@ -165,7 +171,8 @@ class Main {
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
               "apiManagerName" : "Define alias name for multiple clients. Optional. Default: APIRequestManager. usage: -HapiManagerName=API_MANAGER_NAME",
-              "routeEnumName" : "Define internal Route enumeration naming. Optional. Default: BaseAPI. usage: -routeEnumName=ROUTER_NAME"
+              "routeEnumName" : "Define internal Route enumeration naming. Optional. Default: BaseAPI. usage: -routeEnumName=ROUTER_NAME",
+              "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE"
           ],
           flags: [
               "omitClientCore" : "Do not produce API core classes. Usefull when it's needed to generate client API only. Optional",
@@ -190,6 +197,12 @@ class Main {
             if (flag(options, "omitClientCore")) {
               clientGenerator = new SwiftAPIClientSimpleGeneratorImpl()
             }
+
+            def skipTypes = properties(options, "skipType")
+            if (skipTypes != null && !skipTypes.isEmpty()) {
+              generationOptions.skipTypes = skipTypes
+            }
+
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
             return new SwiftAPIClientHandler(output, generationOptions, clientGenerator, entitiesGenerator, outputGenerator)
           }
@@ -200,7 +213,8 @@ class Main {
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
               "mappingType" : "Mapping type. Optional. Possible values : decodable|decodable-transformable",
-              "customFilePrefix" : "Prefix for filenames of with generated entities. Optional. usage: -HcustomFilePrefix=PREFIX"
+              "customFilePrefix" : "Prefix for filenames of with generated entities. Optional. usage: -HcustomFilePrefix=PREFIX",
+              "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE"
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
@@ -223,6 +237,11 @@ class Main {
 
             if (property(options, "customFilePrefix")) {
               generationOptions.customFilePrefix = property(options, "customFilePrefix")
+            }
+
+            def skipTypes = properties(options, "skipType")
+            if (skipTypes != null && !skipTypes.isEmpty()) {
+              generationOptions.skipTypes = skipTypes
             }
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
@@ -294,6 +313,20 @@ class Main {
       }
     }
     return null
+  }
+
+  private static List<String> properties(def options, String name) {
+    if (!options.Hs) {
+      return null
+    }
+    List<String> retnValue = new ArrayList<String>()
+    def props = options.Hs as List
+    for (int i = 0; i < props.size() / 2; i++) {
+      if (name == props[i * 2]) {
+        retnValue.add(props[i * 2 + 1])
+      }
+    }
+    return retnValue
   }
 
   private static Boolean flag(def options, String name) {

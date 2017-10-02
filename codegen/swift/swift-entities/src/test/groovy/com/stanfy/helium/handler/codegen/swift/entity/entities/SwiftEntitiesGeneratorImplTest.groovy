@@ -1,15 +1,18 @@
 package com.stanfy.helium.handler.codegen.swift.entity.entities
 
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.internal.dsl.ProjectDsl
 import spock.lang.Specification
 
 class SwiftEntitiesGeneratorImplTest extends Specification {
   ProjectDsl project
+  SwiftGenerationOptions generationOptions
   List<SwiftEntity> entities
   SwiftEntitiesGenerator sut
 
   def setup() {
     project = new ProjectDsl()
+    generationOptions = new SwiftGenerationOptions()
     sut = new SwiftEntitiesGeneratorImpl()
   }
 
@@ -21,7 +24,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     };
 
     when:
-    entities = sut.entitiesFromHeliumProject(project)
+    entities = sut.entitiesFromHeliumProject(project, generationOptions)
 
     then:
     entities != null
@@ -36,7 +39,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     };
 
     when:
-    entities = sut.entitiesFromHeliumProject(project)
+    entities = sut.entitiesFromHeliumProject(project, generationOptions)
 
     then:
     entities.get(0).name == "Name"
@@ -58,7 +61,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     }
 
     when:
-    entities = sut.entitiesFromHeliumProject(project)
+    entities = sut.entitiesFromHeliumProject(project, generationOptions)
 
     then:
     entities.size() == 1
@@ -87,7 +90,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     }
 
     when:
-    enums = sut.entitiesFromHeliumProject(project).findAll { it instanceof SwiftEntityEnum} as List<SwiftEntityEnum>
+    enums = sut.entitiesFromHeliumProject(project, generationOptions).findAll { it instanceof SwiftEntityEnum} as List<SwiftEntityEnum>
 
     then:
     enums.size() == 3
@@ -109,7 +112,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     project.type 'AffiliateMenuList' sequence 'AffiliateMenu'
 
     when:
-    namedArrays = sut.entitiesFromHeliumProject(project).findAll { it instanceof SwiftEntityArray} as List<SwiftEntityArray>
+    namedArrays = sut.entitiesFromHeliumProject(project, generationOptions).findAll { it instanceof SwiftEntityArray} as List<SwiftEntityArray>
 
     then:
     namedArrays.size() == 2
@@ -138,7 +141,7 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     }
 
     when:
-    entities = sut.entitiesFromHeliumProject(project)
+    entities = sut.entitiesFromHeliumProject(project, generationOptions)
     entityA = entities.find { it.name == "A"} as SwiftEntityStruct
     enumEntity = entities.find { it instanceof SwiftEntityEnum} as SwiftEntityEnum
 
@@ -153,9 +156,10 @@ class SwiftEntitiesGeneratorImplTest extends Specification {
     project.type "customMessage" message {
       prop 'customType'
     }
+    generationOptions.customTypesMappings = ["customType" : "replacedType"]
 
     when:
-    entities = sut.entitiesFromHeliumProject(project, ["customType" : "replacedType"])
+    entities = sut.entitiesFromHeliumProject(project, generationOptions)
 
     then:
     !entities.flatten { it.properties }.any { it.name == "customType"}

@@ -1,5 +1,6 @@
 package com.stanfy.helium.handler.codegen.swift.entity.entities
 
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistry
 import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistryImpl
 import com.stanfy.helium.model.Message
@@ -7,31 +8,26 @@ import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.constraints.ConstrainedType
 
 interface SwiftEntitiesGenerator {
-  fun entitiesFromHeliumProject(project: Project): List<SwiftEntity>
-  fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?): List<SwiftEntity>
-  fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?): List<SwiftEntity>
-  fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?, typesRegistry: SwiftTypeRegistry): List<SwiftEntity>
+  fun entitiesFromHeliumProject(project: Project, options: SwiftGenerationOptions): List<SwiftEntity>
+  fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?, skipTypes: List<String>?, typesRegistry: SwiftTypeRegistry): List<SwiftEntity>
 }
 
 class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
-  override fun entitiesFromHeliumProject(project: Project): List<SwiftEntity> {
-    return entitiesFromHeliumProject(project, null, null)
+
+  override fun entitiesFromHeliumProject(project: Project, options: SwiftGenerationOptions): List<SwiftEntity> {
+    return entitiesFromHeliumProject(project, options.customTypesMappings, options.typeDefaultValues, options.skipTypes, SwiftTypeRegistryImpl())
   }
 
-  override fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?): List<SwiftEntity> {
-    return entitiesFromHeliumProject(project, customTypesMappings, null)
-  }
-
-  override fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?): List<SwiftEntity> {
-    return entitiesFromHeliumProject(project, customTypesMappings, null, SwiftTypeRegistryImpl())
-  }
-
-  override fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?, typesRegistry: SwiftTypeRegistry): List<SwiftEntity> {
+  override fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?, skipTypes: List<String>?, typesRegistry: SwiftTypeRegistry): List<SwiftEntity> {
     if (customTypesMappings != null) {
       typesRegistry.registerMappings(customTypesMappings)
     }
-
+    var filteredTypes = listOf<String>()
+    if (skipTypes != null) {
+      filteredTypes = skipTypes
+    }
     val enums = project.types.all()
+        .filterNot { type -> filteredTypes.contains(typesRegistry.className(type.name)) }
         .filterIsInstance<ConstrainedType>()
         .map { type ->
           typesRegistry.registerEnumType(type)
@@ -39,6 +35,7 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
         .filterNotNull()
 
     val messages = project.messages
+        .filterNot { type -> filteredTypes.contains(typesRegistry.className(type.name)) }
         .filterNot { message -> message.isAnonymous }
         .map { message ->
           val props =
@@ -54,6 +51,7 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
         }
 
     val sequences = project.sequences
+        .filterNot { type -> filteredTypes.contains(typesRegistry.className(type.name)) }
         .filterNot { sequence -> sequence.isAnonymous }
         .map { sequence ->
           typesRegistry.registerSwiftType(sequence)

@@ -10,10 +10,10 @@ import com.stanfy.helium.internal.dsl.ProjectDsl
 import spock.lang.Specification
 
 class SwiftDefaultHandlerTest extends Specification {
-  SwiftDefaultHandler sut;
-  ProjectDsl project;
-  SwiftGenerationOptions options;
-  File output;
+  SwiftDefaultHandler sut
+  ProjectDsl project
+  SwiftGenerationOptions options
+  File output
   SwiftFilesGenerator filesGenerator
   SwiftFilesGenerator filesGenerator2
   SwiftEntitiesGenerator entitiesGenerator
@@ -21,7 +21,7 @@ class SwiftDefaultHandlerTest extends Specification {
 
   def setup() {
     project = new ProjectDsl()
-    options = new SwiftGenerationOptions();
+    options = new SwiftGenerationOptions()
     filesGenerator = Mock(SwiftFilesGenerator)
     filesGenerator2 = Mock(SwiftFilesGenerator)
     entitiesGenerator = Mock(SwiftEntitiesGenerator)
@@ -35,7 +35,7 @@ class SwiftDefaultHandlerTest extends Specification {
     sut.handle(project)
 
     then:
-    1 * entitiesGenerator.entitiesFromHeliumProject(project, options.customTypesMappings, options.typeDefaultValues)
+    1 * entitiesGenerator.entitiesFromHeliumProject(project, options)
   }
 
   def "should generate files from generated entities"() {
@@ -43,7 +43,7 @@ class SwiftDefaultHandlerTest extends Specification {
 
     given:
     entities = [new SwiftEntityStruct("Name", [], false)]
-    entitiesGenerator.entitiesFromHeliumProject(project,options.customTypesMappings, options.typeDefaultValues) >> entities
+    entitiesGenerator.entitiesFromHeliumProject(project, options) >> entities
 
     when:
     sut.handle(project)
@@ -57,7 +57,7 @@ class SwiftDefaultHandlerTest extends Specification {
 
     given:
     entities = [new SwiftEntityStruct("Name", [], false)]
-    entitiesGenerator.entitiesFromHeliumProject(project,options.customTypesMappings, options.typeDefaultValues) >> entities
+    entitiesGenerator.entitiesFromHeliumProject(project, options) >> entities
 
     when:
     sut = new SwiftDefaultHandler(output, options, entitiesGenerator, [filesGenerator, filesGenerator2] as SwiftFilesGenerator[], outputGenerator)
@@ -81,7 +81,7 @@ class SwiftDefaultHandlerTest extends Specification {
 
       String contents() { return "Contents" }
     }]
-    entitiesGenerator.entitiesFromHeliumProject(project, options.customTypesMappings, options.typeDefaultValues) >> entities
+    entitiesGenerator.entitiesFromHeliumProject(project, options) >> entities
     filesGenerator.filesFromEntities(entities, options) >> files
 
     when:

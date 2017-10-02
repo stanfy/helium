@@ -53,4 +53,9 @@ class SwiftGenerationOptions : GeneratorOptions () {
    */
   var routeEnumName = "BaseAPI"
 
+  /**
+   * Specifies the list of output types shoud be skipped by generator
+   */
+  var skipTypes = listOf<String>()
+
 }
