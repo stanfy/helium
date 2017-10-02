@@ -33,7 +33,7 @@ class SwiftAPIClientHandlerTest extends Specification {
     sut.handle(project)
 
     then:
-    1 * apiGenerator.clientFilesFromHeliumProject(project, _, "")
+    1 * apiGenerator.clientFilesFromHeliumProject(project, _, options)
   }
 }
 
@@ -64,6 +64,6 @@ class SwiftAPIClientSimpleHandlerTest extends Specification {
     sut.handle(project)
 
     then:
-    1 * apiGenerator.clientFilesFromHeliumProject(project, _, "SomeValue")
+    1 * apiGenerator.clientFilesFromHeliumProject(project, _, options)
   }
 }
