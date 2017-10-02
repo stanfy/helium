@@ -20,14 +20,13 @@ class SwiftServicesMapHelper {
 
   fun mapServices(project: Project, typesRegistry: SwiftTypeRegistry) : List<Any> {
     val responseFilename = "SwiftAPIClientResponse"
-    
+
     return project.services.map { service ->
       object {
         var location = service.location
         val funcs = service.methods.map { serviceMethod ->
 
           val path = formattedPathForServiceMethod(serviceMethod)
-
           val functionParams = serviceMethod.parameters?.fields ?: listOf()
           val bodyParams = (serviceMethod.body as? Message)?.activeFields ?: listOf()
 

@@ -9,23 +9,18 @@ import com.stanfy.helium.model.constraints.ConstrainedType
 
 interface SwiftEntitiesGenerator {
   fun entitiesFromHeliumProject(project: Project, options: SwiftGenerationOptions): List<SwiftEntity>
-  fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?, skipTypes: List<String>?, typesRegistry: SwiftTypeRegistry): List<SwiftEntity>
+  fun entitiesFromHeliumProject(project: Project, options: SwiftGenerationOptions, typesRegistry: SwiftTypeRegistry): List<SwiftEntity>
 }
 
 class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
 
   override fun entitiesFromHeliumProject(project: Project, options: SwiftGenerationOptions): List<SwiftEntity> {
-    return entitiesFromHeliumProject(project, options.customTypesMappings, options.typeDefaultValues, options.skipTypes, SwiftTypeRegistryImpl())
+    return entitiesFromHeliumProject(project, options, SwiftTypeRegistryImpl())
   }
 
-  override fun entitiesFromHeliumProject(project: Project, customTypesMappings: Map<String, String>?, defaultValues: Map<String, String>?, skipTypes: List<String>?, typesRegistry: SwiftTypeRegistry): List<SwiftEntity> {
-    if (customTypesMappings != null) {
-      typesRegistry.registerMappings(customTypesMappings)
-    }
-    var filteredTypes = listOf<String>()
-    if (skipTypes != null) {
-      filteredTypes = skipTypes
-    }
+  override fun entitiesFromHeliumProject(project: Project, options: SwiftGenerationOptions, typesRegistry: SwiftTypeRegistry): List<SwiftEntity> {
+    typesRegistry.registerMappings(options.customTypesMappings)
+    var filteredTypes = options.skipTypes
     val enums = project.types.all()
         .filterNot { type -> filteredTypes.contains(typesRegistry.className(type.name)) }
         .filterIsInstance<ConstrainedType>()
@@ -43,7 +38,7 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
               .filterNot { field -> field.isSkip }
               .map { field ->
                 val type = if (field.isSequence) typesRegistry.simpleSequenceType(field.type) else typesRegistry.registerSwiftType(field.type)
-                val hasDefaultValue = defaultValues?.contains(field.type.name) ?: false
+                val hasDefaultValue = options.typeDefaultValues.contains(field.type.name)
                 val fieldType = if (field.isRequired || hasDefaultValue) type else type.toOptional()
                 SwiftProperty(typesRegistry.propertyName(field.name), fieldType, field.name)
               }
