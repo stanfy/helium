@@ -4,13 +4,14 @@ import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFile
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFileImpl
 import com.stanfy.helium.handler.codegen.swift.entity.mustache.SwiftTemplatesHelper.Companion.generatedTemplateWithName
 import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistry
+import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.ServiceMethod
 
 interface SwiftAPIClientGenerator {
-    fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry, apiRequestManagerName: String): List<SwiftFile>
+    fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry, options: SwiftGenerationOptions): List<SwiftFile>
 }
 
 data class ParameterDescription(val name: String, val type: String, val comment: String = "", val delimiter: String = ", ")
@@ -84,16 +85,17 @@ class SwiftServicesMapHelper {
 }
 
 class SwiftAPIClientSimpleGeneratorImpl : SwiftAPIClientGenerator {
-  override fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry, apiRequestManagerName: String): List<SwiftFile> {
+  override fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry, options: SwiftGenerationOptions): List<SwiftFile> {
       val helper = SwiftServicesMapHelper()
       val services = helper.mapServices(project, typesRegistry)
 
       return listOf(
         SwiftFileImpl(
-            name = "Swift" + apiRequestManagerName,
+            name = "Swift" + options.apiManagerName,
             contents = generatedTemplateWithName("client/SwiftAPIRequestManager.mustache", object : Any() {
               val services = services
-              var requestManagerAlias = apiRequestManagerName
+              val requestManagerAlias = options.apiManagerName
+              val routeEnumName = options.routeEnumName
             })
         )
     )
@@ -101,7 +103,7 @@ class SwiftAPIClientSimpleGeneratorImpl : SwiftAPIClientGenerator {
 }
 
 class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
-    override fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry, apiRequestManagerName: String): List<SwiftFile> {
+    override fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry, options: SwiftGenerationOptions): List<SwiftFile> {
         val helper = SwiftServicesMapHelper()
         val services = helper.mapServices(project, typesRegistry)
 
@@ -115,10 +117,11 @@ class SwiftAPIClientGeneratorImpl : SwiftAPIClientGenerator {
                 contents = generatedTemplateWithName("client/SwiftAPIServiceExample.mustache")
             ),
             SwiftFileImpl(
-                name = "Swift" + apiRequestManagerName,
+                name = "Swift" + options.apiManagerName,
                 contents = generatedTemplateWithName("client/SwiftAPIRequestManager.mustache", object : Any() {
                   val services = services
-                  var requestManagerAlias = apiRequestManagerName
+                  var requestManagerAlias = options.apiManagerName
+                  val routeEnumName = options.routeEnumName
                 })
             )
         )

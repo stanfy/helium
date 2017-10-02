@@ -48,4 +48,9 @@ class SwiftGenerationOptions : GeneratorOptions () {
    */
   var apiManagerName = "APIRequestManager"
 
+  /**
+   * Specifies the name of the API request manager
+   */
+  var routeEnumName = "BaseAPI"
+
 }

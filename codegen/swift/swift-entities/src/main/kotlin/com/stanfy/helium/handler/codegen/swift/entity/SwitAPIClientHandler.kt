@@ -6,7 +6,6 @@ import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientGener
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFile
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftOutputGenerator
-import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistry
 import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistryImpl
 import com.stanfy.helium.model.Project
 import java.io.File
@@ -23,7 +22,7 @@ class SwiftAPIClientHandler(outputDirectory: File?, options: SwiftGenerationOpti
 
     val typesRegistry = SwiftTypeRegistryImpl()
     entitiesGenerator.entitiesFromHeliumProject(project, options?.customTypesMappings, options?.typeDefaultValues, typesRegistry)
-    val files: List<SwiftFile> = apiClientGenerator.clientFilesFromHeliumProject(project, typesRegistry, options.apiManagerName)
+    val files: List<SwiftFile> = apiClientGenerator.clientFilesFromHeliumProject(project, typesRegistry, options)
     outputGenerator.generate(outputDirectory, files)
   }
 }

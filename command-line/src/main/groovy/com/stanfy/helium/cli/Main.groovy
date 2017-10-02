@@ -165,6 +165,7 @@ class Main {
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
               "apiManagerName" : "Define alias name for multiple clients. Optional. Default: APIRequestManager. usage: -HapiManagerName=API_MANAGER_NAME",
+              "routeEnumName" : "Define internal Route enumeration naming. Optional. Default: BaseAPI. usage: -routeEnumName=ROUTER_NAME"
           ],
           flags: [
               "omitClientCore" : "Do not produce API core classes. Usefull when it's needed to generate client API only. Optional",
@@ -173,9 +174,14 @@ class Main {
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
             generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
+            // Grab possible variations via aliases defined via parameters
             def apiManagerName = property(options, "apiManagerName")
             if (apiManagerName?.trim()) {
               generationOptions.apiManagerName = apiManagerName
+            }
+            def routeEnumName = property(options, "routeEnumName")
+            if (routeEnumName?.trim()) {
+              generationOptions.routeEnumName = routeEnumName
             }
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
