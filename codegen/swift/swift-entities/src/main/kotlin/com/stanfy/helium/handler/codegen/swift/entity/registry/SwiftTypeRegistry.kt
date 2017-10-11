@@ -114,7 +114,7 @@ class SwiftTypeRegistryImpl : SwiftTypeRegistry {
 
   override fun propertyName(fieldName: String): String {
     val prettifiedName = Names.prettifiedName(Names.canonicalName(fieldName))
-    if (arrayOf("enum", "default", "let", "case", "self", "description").contains(prettifiedName)) {
+    if (arrayOf("enum", "default", "let", "case", "self", "description", "where").contains(prettifiedName)) {
       return prettifiedName + "Value"
     }
     return prettifiedName
