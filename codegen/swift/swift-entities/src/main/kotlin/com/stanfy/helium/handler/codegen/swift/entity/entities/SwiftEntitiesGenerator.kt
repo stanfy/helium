@@ -57,7 +57,3 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
   }
 
 }
-
-private fun Message.parentsTree(): List<Message> {
-  return (if (hasParent()) parent.parentsTree() else listOf()) + listOf(this)
-}

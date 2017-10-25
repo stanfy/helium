@@ -56,6 +56,14 @@ final class Message extends Type {
 
   boolean isPrimitive() { return false }
 
+  List<Message> parentsTree() {
+    List<Message> list = new ArrayList<Message>()
+    if (this.hasParent()) {
+      list.addAll(parent.parentsTree())
+    }
+    list.add(this)
+    return list
+  }
 
   /**
    * Return true if parent is not null or empty.
