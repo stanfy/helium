@@ -56,10 +56,10 @@ final class Message extends Type {
 
   boolean isPrimitive() { return false }
 
-  List<Message> parentsTree() {
+  List<Message> parentPropertiesList() {
     List<Message> list = new ArrayList<Message>()
     if (this.hasParent()) {
-      list.addAll(parent.parentsTree())
+      list.addAll(parent.parentPropertiesList())
     }
     list.add(this)
     return list

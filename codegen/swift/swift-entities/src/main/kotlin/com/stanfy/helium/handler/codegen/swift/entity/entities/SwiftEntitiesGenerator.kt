@@ -34,7 +34,7 @@ class SwiftEntitiesGeneratorImpl : SwiftEntitiesGenerator {
         .filterNot { message -> message.isAnonymous }
         .map { message ->
           val props =
-              message.parentsTree().flatMap { it.fields }
+              message.parentPropertiesList().flatMap { it.fields }
               .filterNot { field -> field.isSkip }
               .map { field ->
                 val type = if (field.isSequence) typesRegistry.simpleSequenceType(field.type) else typesRegistry.registerSwiftType(field.type)
