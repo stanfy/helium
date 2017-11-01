@@ -223,7 +223,6 @@ class Main {
 
             def passURLparams = property(options, "passURLparams")
             if (passURLparams != null && passURLparams.capitalize().compareTo("YES")) {
-              System.out.println("Pass function parameters to URL path")
               generationOptions.passURLparams = true
             }
 
