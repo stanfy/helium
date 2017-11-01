@@ -12,6 +12,10 @@ enum class SwiftEntitiesType {
   CLASS
 }
 
+enum class SwiftParametersPassing {
+  SIMPLE,
+  WITH_PARENT_PROPERTIES
+}
 
 class SwiftGenerationOptions : GeneratorOptions () {
 
@@ -58,4 +62,14 @@ class SwiftGenerationOptions : GeneratorOptions () {
    */
   var skipTypes = listOf<String>()
 
+  /**
+   * Specifies how to pass parameters in generated functions: simple (when functions get parameters declared only in body's type
+   * or by passing all properties including parent's objects too
+   */
+  var parametersPassing = SwiftParametersPassing.SIMPLE
+
+  /**
+   * Specifies if resulting URL should pass parameters from function
+   */
+  var passURLparams = false
 }

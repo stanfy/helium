@@ -171,14 +171,16 @@ class Main {
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
               "apiManagerName" : "Define alias name for multiple clients. Optional. Default: APIRequestManager. usage: -HapiManagerName=API_MANAGER_NAME",
-              "routeEnumName" : "Define internal Route enumeration naming. Optional. Default: BaseAPI. usage: -routeEnumName=ROUTER_NAME",
-              "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE"
+              "routeEnumName" : "Define internal Route enumeration naming. Optional. Default: BaseAPI. usage: -HrouteEnumName=ROUTER_NAME",
+              "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE",
+              "parametersPassing" : "Defines how to pass parameters to generated functions. Optional. Default is simple. usage: -HparametersPassing=[simple|with-parents].",
+              "passURLparams" : "If set to yes, URL will be enhanced by function's parameters. Optional. Default is no. usage: -HpassURLparams=[yes|no]"
           ],
           flags: [
               "omitClientCore" : "Do not produce API core classes. Usefull when it's needed to generate client API only. Optional",
           ],
           factory: { def options, File output ->
-            SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
+            SwiftGenerationOptions generationOptions = new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
             generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
             // Grab possible variations via aliases defined via parameters
@@ -201,6 +203,28 @@ class Main {
             def skipTypes = properties(options, "skipType")
             if (skipTypes != null && !skipTypes.isEmpty()) {
               generationOptions.skipTypes = skipTypes
+            }
+
+            def parametersPassing = property(options, "parametersPassing")
+            if (parametersPassing != null && !parametersPassing.isEmpty()) {
+              switch (parametersPassing) {
+                case "simple":
+                  generationOptions.parametersPassing = SwiftParametersPassing.SIMPLE
+                  break
+                case "with-parents":
+                  generationOptions.parametersPassing = SwiftParametersPassing.WITH_PARENT_PROPERTIES
+                  break
+                default:
+                  generationOptions.parametersPassing = SwiftParametersPassing.SIMPLE
+                  println "Unknown value passed in for parametersPassing option. Possible values are: [simple|with-parents].\nAccepting simple as default"
+                  break
+              }
+            }
+
+            def passURLparams = property(options, "passURLparams")
+            if (passURLparams != null && passURLparams.capitalize().compareTo("YES")) {
+              System.out.println("Pass function parameters to URL path")
+              generationOptions.passURLparams = true
             }
 
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
