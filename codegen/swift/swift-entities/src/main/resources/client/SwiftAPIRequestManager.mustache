@@ -45,7 +45,7 @@ public class {{requestManagerAlias}} {
 
 {{#funcs}}
     public func {{name}}({{#interfaceParams}}{{{name}}}: {{{type}}}{{{delimiter}}}{{/interfaceParams}}) -> SignalProducer<{{return_type}}, APIResponseError<NSError>> {
-        let url = URL(string:baseURL.absoluteString + "{{path}}")!
+        let url = URL(string:baseURL.absoluteString + "{{path}}"{{#pathExtensions}} + "{{{separator}}}{{name}}=" + {{value}}{{/pathExtensions}})!
         let requestProvider = requestProviderForRoute(Route.{{routeEnumName}}.{{route}}.hashValue) {
             return Request(
                 url: url,
