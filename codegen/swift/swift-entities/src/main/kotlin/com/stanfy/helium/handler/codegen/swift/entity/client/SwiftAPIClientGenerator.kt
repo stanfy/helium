@@ -59,6 +59,7 @@ class SwiftServicesMapHelper {
               SwiftParametersPassing.WITH_PARENT_PROPERTIES -> {
                 var bodyParamsMappedWithParents = bodyMessage.parentPropertiesList()
                         .flatMap { it.fields }
+                        .filter { field -> field.isRequired }
                         .map { field ->
                           ParameterDescription(
                                   name = typesRegistry.propertyName(field.name),
