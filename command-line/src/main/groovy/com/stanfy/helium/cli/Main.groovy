@@ -173,7 +173,7 @@ class Main {
               "apiManagerName" : "Define alias name for multiple clients. Optional. Default: APIRequestManager. usage: -HapiManagerName=API_MANAGER_NAME",
               "routeEnumName" : "Define internal Route enumeration naming. Optional. Default: BaseAPI. usage: -HrouteEnumName=ROUTER_NAME",
               "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE",
-              "parametersPassing" : "Defines how to pass parameters to generated functions. Optional. Default is simple. usage: -HparametersPassing=[simple|with-parents].",
+              "parametersPassing" : "Defines how to pass parameters to generated functions. Optional. Default is simple. usage: -HparametersPassing=[simple|with-parents|whole-type].",
               "passURLparams" : "If set to yes, URL will be enhanced by function's parameters. Optional. Default is no. usage: -HpassURLparams=[yes|no]"
           ],
           flags: [
@@ -213,6 +213,9 @@ class Main {
                   break
                 case "with-parents":
                   generationOptions.parametersPassing = SwiftParametersPassing.WITH_PARENT_PROPERTIES
+                  break
+                case "whole-type":
+                  generationOptions.parametersPassing = SwiftParametersPassing.WITH_WHOLE_TYPE
                   break
                 default:
                   generationOptions.parametersPassing = SwiftParametersPassing.SIMPLE

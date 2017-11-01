@@ -15,7 +15,7 @@ interface SwiftAPIClientGenerator {
     fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry, options: SwiftGenerationOptions): List<SwiftFile>
 }
 
-data class ParameterDescription(val name: String, val type: String, val comment: String = "", val delimiter: String = ", ")
+data class ParameterDescription(val name: String, val type: String, val comment: String = "", val delimiter: String = ", ", val postfix: String = ".toJSONRepresentation()")
 data class PathExtension(val name: String, val value: String, val separator: Char = '&')
 
 class SwiftServicesMapHelper {
@@ -37,31 +37,42 @@ class SwiftServicesMapHelper {
             ParameterDescription(
                     name = typesRegistry.propertyName(field.name),
                     type = typesRegistry.registerSwiftType(field.type).name,
-                    comment = field.description ?: ""
+                    comment = field.description ?: "",
+                    postfix = if (field.type.isPrimitive()) "" else ".toJSONRepresentation()"
             )
           }
           if (bodyMessage != null) {
-            if (options.parametersPassing == SwiftParametersPassing.WITH_PARENT_PROPERTIES) {
-              var bodyParamsMappedWithParents = bodyMessage.parentPropertiesList()
-                      .flatMap { it.fields }
-                      .map { field ->
-                        ParameterDescription(
-                                name = typesRegistry.propertyName(field.name),
-                                type = typesRegistry.registerSwiftType(field.type).name
-                        )
-                      }
-              functionParamsMapped = functionParamsMapped + bodyParamsMappedWithParents
-            }
-            else {
-              var bodyParams = bodyMessage.activeFields ?: listOf()
-              var bodyParamsMapped = bodyParams
-                      .map { field ->
-                        ParameterDescription(
-                                name = typesRegistry.propertyName(field.name),
-                                type = typesRegistry.registerSwiftType(field.type).name
-                        )
-                      }
-              functionParamsMapped = functionParamsMapped + bodyParamsMapped
+            when (options.parametersPassing) {
+              SwiftParametersPassing.SIMPLE -> {
+                var bodyParams = bodyMessage.activeFields ?: listOf()
+                var bodyParamsMapped = bodyParams
+                        .map { field ->
+                          ParameterDescription(
+                                  name = typesRegistry.propertyName(field.name),
+                                  type = typesRegistry.registerSwiftType(field.type).name,
+                                  comment = field.description ?: "",
+                                  postfix = if (field.type.isPrimitive()) "" else ".toJSONRepresentation()"
+                          )
+                        }
+                functionParamsMapped = functionParamsMapped + bodyParamsMapped
+              }
+              SwiftParametersPassing.WITH_PARENT_PROPERTIES -> {
+                var bodyParamsMappedWithParents = bodyMessage.parentPropertiesList()
+                        .flatMap { it.fields }
+                        .map { field ->
+                          ParameterDescription(
+                                  name = typesRegistry.propertyName(field.name),
+                                  type = typesRegistry.registerSwiftType(field.type).name,
+                                  comment = field.description ?: "",
+                                  postfix = if (field.type.isPrimitive()) "" else ".toJSONRepresentation()"
+                          )
+                        }
+                functionParamsMapped = functionParamsMapped + bodyParamsMappedWithParents
+              }
+              SwiftParametersPassing.WITH_WHOLE_TYPE -> {
+                var bodyAsSingleTypeInstance = ParameterDescription(name = Names.decapitalize(bodyMessage.name), type = bodyMessage.name)
+                functionParamsMapped = functionParamsMapped + listOf(bodyAsSingleTypeInstance)
+              }
             }
           }
 
@@ -118,7 +129,6 @@ class SwiftServicesMapHelper {
         res = functionParams.map { field ->
           var castValue = typesRegistry.propertyName(field.name)
           if (field.type.name != "string") {
-            System.out.println("FIELD is not a string type: ${field.type}")
             castValue = "String(${castValue})"
           }
           PathExtension(
