@@ -53,7 +53,7 @@ public class {{requestManagerAlias}} {
                 encoding: .{{encoding}}{{#hasBodyParams}},
                 params:[
                     {{#bodyParams}}
-                    "{{name}}": {{name}}{{postfix}}{{delimiter}}
+                    "{{canonicalName}}": {{name}}{{postfix}}{{delimiter}}
                     {{/bodyParams}}
                 ]{{/hasBodyParams}}
             )

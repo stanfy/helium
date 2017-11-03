@@ -15,8 +15,15 @@ interface SwiftAPIClientGenerator {
     fun clientFilesFromHeliumProject(project: Project, typesRegistry: SwiftTypeRegistry, options: SwiftGenerationOptions): List<SwiftFile>
 }
 
-data class ParameterDescription(val name: String, val type: String, val comment: String = "", val delimiter: String = ", ", val postfix: String = ".toJSONRepresentation()")
-data class PathExtension(val name: String, val value: String, val separator: Char = '&')
+data class ParameterDescription(val canonicalName: String,
+                                val name: String,
+                                val type: String,
+                                val comment: String = "",
+                                val delimiter: String = ", ",
+                                val postfix: String = ".toJSONRepresentation()")
+data class PathExtension(val name: String,
+                         val value: String,
+                         val separator: Char = '&')
 
 class SwiftServicesMapHelper {
 
@@ -35,6 +42,7 @@ class SwiftServicesMapHelper {
 
           var functionParamsMapped = functionParams.map { field ->
             ParameterDescription(
+                    canonicalName = typesRegistry.propertyName(field.name),
                     name = typesRegistry.propertyName(field.name),
                     type = typesRegistry.registerSwiftType(field.type).name,
                     comment = field.description ?: "",
@@ -48,6 +56,7 @@ class SwiftServicesMapHelper {
                 var bodyParamsMapped = bodyParams
                         .map { field ->
                           ParameterDescription(
+                                  canonicalName = typesRegistry.propertyName(field.name),
                                   name = typesRegistry.propertyName(field.name),
                                   type = typesRegistry.registerSwiftType(field.type).name,
                                   comment = field.description ?: "",
@@ -62,6 +71,7 @@ class SwiftServicesMapHelper {
                         .filter { field -> field.isRequired }
                         .map { field ->
                           ParameterDescription(
+                                  canonicalName = field.canonicalName,
                                   name = typesRegistry.propertyName(field.name),
                                   type = typesRegistry.registerSwiftType(field.type).name,
                                   comment = field.description ?: "",
@@ -71,7 +81,7 @@ class SwiftServicesMapHelper {
                 functionParamsMapped = functionParamsMapped + bodyParamsMappedWithParents
               }
               SwiftParametersPassing.WITH_WHOLE_TYPE -> {
-                var bodyAsSingleTypeInstance = ParameterDescription(name = Names.decapitalize(bodyMessage.name), type = bodyMessage.name)
+                var bodyAsSingleTypeInstance = ParameterDescription(canonicalName = "data", name = Names.decapitalize(bodyMessage.name), type = bodyMessage.name)
                 functionParamsMapped = functionParamsMapped + listOf(bodyAsSingleTypeInstance)
               }
             }
@@ -79,6 +89,7 @@ class SwiftServicesMapHelper {
 
           val pathParams = serviceMethod.pathParameters.map { name ->
             ParameterDescription(
+                    canonicalName = name,
                     name = name,
                     type = "String"
             )
