@@ -219,7 +219,7 @@ class Main {
                   break
                 default:
                   generationOptions.parametersPassing = SwiftParametersPassing.SIMPLE
-                  println "Unknown value passed in for parametersPassing option. Possible values are: [simple|with-parents].\nAccepting simple as default"
+                  println "Unknown value passed in for parametersPassing option. Possible values are: [simple|with-parents|whole-type].\nAccepting simple as default"
                   break
               }
             }
