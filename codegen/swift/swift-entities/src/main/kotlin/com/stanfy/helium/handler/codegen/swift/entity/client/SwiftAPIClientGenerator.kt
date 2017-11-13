@@ -54,8 +54,9 @@ class SwiftServicesMapHelper {
                     postfix = if (field.type.isPrimitive()) "" else ".toJSONRepresentation()"
             )
           }
-          when (options.parametersPassing) {
 
+          // Check the options and generate code
+          when (options.parametersPassing) {
             // Simple way is just put all names in actual parameters, nothing more special will be there
             SwiftParametersPassing.SIMPLE -> {
               if (bodyMessage != null) {
@@ -75,7 +76,6 @@ class SwiftServicesMapHelper {
               }
             }
 
-
             // This kind of output-handling will put the single parameter as a strictly defined typed item
             // for the message (or type). Usually, it's needed to pass dictionaries with varieties of values with no schema
             SwiftParametersPassing.AS_DICTIONARY -> {
@@ -88,12 +88,13 @@ class SwiftServicesMapHelper {
                 var bodyAsSingleTypeInstance = ParameterDescription(canonicalName = "data", name = Names.decapitalize(bodyMessage.name), type = parameterType)
                 functionParamsMapped = functionParamsMapped + listOf(bodyAsSingleTypeInstance)
               } else if (bodyType != null) {
-                wholeTypeParameter = Names.decapitalize(bodyType.name) + " as! [String:Any]"
-                var bodyAsSingleTypeInstance = ParameterDescription(canonicalName = "data", name = Names.decapitalize(bodyType.name), type = typesRegistry.registerSwiftType(bodyType).name)
+                val parameterType = typesRegistry.registerSwiftType(bodyType).name
+                val postfix = " as! [String:Any]"
+                wholeTypeParameter = Names.decapitalize(bodyType.name) + postfix
+                var bodyAsSingleTypeInstance = ParameterDescription(canonicalName = "data", name = Names.decapitalize(bodyType.name), type = parameterType)
                 functionParamsMapped = functionParamsMapped + listOf(bodyAsSingleTypeInstance)
               }
             }
-
           }
 
           val pathParams = serviceMethod.pathParameters.map { name ->
