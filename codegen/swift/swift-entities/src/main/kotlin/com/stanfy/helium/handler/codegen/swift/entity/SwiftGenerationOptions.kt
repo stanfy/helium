@@ -14,8 +14,7 @@ enum class SwiftEntitiesType {
 
 enum class SwiftParametersPassing {
   SIMPLE,
-  WITH_PARENT_PROPERTIES,
-  WITH_WHOLE_TYPE
+  AS_DICTIONARY
 }
 
 class SwiftGenerationOptions : GeneratorOptions () {

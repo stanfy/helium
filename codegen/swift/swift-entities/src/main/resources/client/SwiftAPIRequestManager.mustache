@@ -50,7 +50,8 @@ public class {{requestManagerAlias}} {
             return Request(
                 url: url,
                 method: .{{method}},
-                encoding: .{{encoding}}{{#hasBodyParams}},
+                encoding: .{{encoding}}{{#isParameterAsDictionary}},
+                params:{{parameterAsDictionary}}{{/isParameterAsDictionary}}{{#hasBodyParams}},
                 params:[
                     {{#bodyParams}}
                     "{{canonicalName}}": {{name}}{{postfix}}{{delimiter}}
