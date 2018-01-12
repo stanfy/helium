@@ -5,10 +5,10 @@ import spock.lang.Specification
 
 class SwiftApiClientGeneratorTest extends Specification {
 
-  private SwiftAPIClientGeneratorImpl generator
+  private SwiftServicesMapHelper servicesMapHelper
 
   def setup() {
-    generator = new SwiftAPIClientGeneratorImpl()
+    servicesMapHelper = new SwiftServicesMapHelper()
   }
 
   def "path parameters"() {
@@ -17,8 +17,7 @@ class SwiftApiClientGeneratorTest extends Specification {
     sm.path = "/path/@param1/{param2}/{param3}"
 
     expect:
-    generator.formattedPathForServiceMethod(sm) == '/path/\\(param1)/\\(param2)/\\(param3)'
-
+    servicesMapHelper.formattedPathForServiceMethod(sm) == '/path/\\(param1)/\\(param2)/\\(param3)'
   }
 
 }

@@ -12,6 +12,10 @@ enum class SwiftEntitiesType {
   CLASS
 }
 
+enum class SwiftParametersPassing {
+  SIMPLE,
+  AS_DICTIONARY
+}
 
 class SwiftGenerationOptions : GeneratorOptions () {
 
@@ -29,13 +33,43 @@ class SwiftGenerationOptions : GeneratorOptions () {
 
   /**
    * Specifies what visibility generated entities should have.
-   * Default value is INTERNAL
+   * Default value is PUBLIC
    */
-  var entitiesAccessLevel = SwiftEntitiesAccessLevel.INTERNAL
+  var entitiesAccessLevel = SwiftEntitiesAccessLevel.PUBLIC
 
   /**
    * Specifies types of the entities to generate (Classes vs structs)
    */
   var entitiesType = SwiftEntitiesType.STRUCT
 
+  /**
+   * Specifies the prefix for file name
+   */
+  var customFilePrefix = ""
+
+  /**
+   * Specifies the name of the API request manager
+   */
+  var apiManagerName = "APIRequestManager"
+
+  /**
+   * Specifies the name of the API request manager
+   */
+  var routeEnumName = "BaseAPI"
+
+  /**
+   * Specifies the list of output types shoud be skipped by generator
+   */
+  var skipTypes = listOf<String>()
+
+  /**
+   * Specifies how to pass parameters in generated functions: simple (when functions get parameters declared only in body's type
+   * or by passing all properties including parent's objects too
+   */
+  var parametersPassing = SwiftParametersPassing.SIMPLE
+
+  /**
+   * Specifies if resulting URL should pass parameters from function
+   */
+  var passURLparams = false
 }

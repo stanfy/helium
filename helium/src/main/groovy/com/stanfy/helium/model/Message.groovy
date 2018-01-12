@@ -56,6 +56,14 @@ final class Message extends Type {
 
   boolean isPrimitive() { return false }
 
+  List<Message> parentPropertiesList() {
+    List<Message> list = new ArrayList<Message>()
+    if (this.hasParent()) {
+      list.addAll(parent.parentPropertiesList())
+    }
+    list.add(this)
+    return list
+  }
 
   /**
    * Return true if parent is not null or empty.
