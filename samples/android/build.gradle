@@ -1,11 +1,12 @@
 buildscript {
   repositories {
     mavenLocal()
-    mavenCentral()
+    jcenter()
+    google()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.1.0'
+    classpath 'com.android.tools.build:gradle:3.0.1'
     classpath 'com.stanfy.helium:gradle-plugin:0.8.3-SNAPSHOT'
   }
 }
@@ -14,12 +15,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'helium-android'
 
 android {
-  compileSdkVersion 27
+  compileSdkVersion 26
   buildToolsVersion "27.0.3"
 
   defaultConfig {
     minSdkVersion 14
-    targetSdkVersion 27
+    targetSdkVersion 26
   }
 
   compileOptions {
