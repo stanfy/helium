@@ -49,4 +49,9 @@ service {
     response 'TaggedPosts'
   }
 
+  put 'posts/{id}/publish' spec {
+    name 'Publish post'
+    response 'BaseResponse'
+  }
+
 }
