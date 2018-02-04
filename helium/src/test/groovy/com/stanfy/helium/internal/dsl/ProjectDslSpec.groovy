@@ -94,6 +94,7 @@ class ProjectDslSpec extends Specification {
       'Date' {
         type 'int64'
       }
+      anotherField(type: 'string', sequence: true)
     }
     dsl.type "C" message {
       id long optional
@@ -116,7 +117,7 @@ class ProjectDslSpec extends Specification {
     dsl.messages[0].fields[0].type.name == 'bytes'
     dsl.messages[0].fields[1].name == 'SomeField'
 
-    dsl.messages[1].fields.size() == 4
+    dsl.messages[1].fields.size() == 5
     dsl.messages[1].fields[0].name == "id"
     dsl.messages[1].fields[0].type.name == "int64"
     !dsl.messages[1].fields[0].required
@@ -129,6 +130,9 @@ class ProjectDslSpec extends Specification {
     dsl.messages[1].fields[2].required
     dsl.messages[1].fields[2].description == 'Some description for field with at'
     dsl.messages[1].fields[3].name == "Date"
+    dsl.messages[1].fields[4].name == "anotherField"
+    dsl.messages[1].fields[4].sequence
+    dsl.messages[1].fields[4].required
 
     dsl.messages[2].fields.size() == 4
     dsl.messages[2].fields[0].name == "id"
