@@ -36,4 +36,11 @@ service {
     }
     response 'ProductList'
   }
+
+  post '/products' spec {
+    name 'Does not exist'
+    description 'Ignored during Swagger spec generation'
+    body 'Product'
+    response 'Product'
+  }
 }

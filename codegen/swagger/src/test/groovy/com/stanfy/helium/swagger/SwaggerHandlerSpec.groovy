@@ -261,7 +261,7 @@ class SwaggerHandlerSpec extends Specification {
   def "multipart body"() {
     given:
     handler.handle(project)
-    def data =specData(testSpec())
+    def data = specData(testSpec())
 
     expect:
     data.paths?.'/multipart'?.post != null
@@ -272,6 +272,19 @@ class SwaggerHandlerSpec extends Specification {
     data.paths.'/multipart'.post.parameters[0].required
     data.paths.'/multipart'.post.parameters[0].type == 'file'
     data.paths.'/multipart'.post.consumes == ['multipart/form-data']
+  }
+
+  def "respect includes in options"() {
+    given:
+    def options = new SwaggerOptions()
+    options.includes('GET /products')
+    handler = new SwaggerHandler(dir, options)
+    handler.handle(project)
+    def data = specData(uberSpec())
+
+    expect:
+    data.paths?.keySet() == ['/products'] as Set
+    data.paths.'/products'.keySet() == ['get'] as Set
   }
 
   void cleanup() {
