@@ -12,9 +12,14 @@ cache:
 
 android:
   components:
-    - build-tools-23.0.1
+    - build-tools-27.0.3
+    - platform-tools-27.0.1
+    - android-26
     - android-23
     - android-21
+  licenses:
+      - 'android-sdk-license-.+'
+      - 'google-gdk-license-.+'
 
 env:
   global:

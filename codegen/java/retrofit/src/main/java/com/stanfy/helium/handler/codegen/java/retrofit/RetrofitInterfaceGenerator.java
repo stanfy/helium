@@ -12,6 +12,7 @@ import com.stanfy.helium.model.FileType;
 import com.stanfy.helium.model.FormType;
 import com.stanfy.helium.model.HttpHeader;
 import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.MethodType;
 import com.stanfy.helium.model.MultipartType;
 import com.stanfy.helium.model.Project;
 import com.stanfy.helium.model.Sequence;
@@ -288,6 +289,10 @@ public class RetrofitInterfaceGenerator extends BaseJavaGenerator<RetrofitGenera
         res.add("@Body " + getJavaType(m.getBody(), writer, false));
         res.add("body");
       }
+    } else if (m.getType() == MethodType.PUT) {
+      // Retrofit 1 requires body for PUT. Work around this.
+      res.add("@Body String");
+      res.add("waUseEmptyString");
     }
 
     return res;

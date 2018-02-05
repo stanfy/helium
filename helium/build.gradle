@@ -8,7 +8,7 @@ apply plugin: "jacoco"
 apply from: file("$rootDir/gradle/common.gradle")
 
 dependencies {
-  compile 'org.codehaus.groovy:groovy-all:2.4.4'
+  compile 'org.codehaus.groovy:groovy-all:2.4.12'
 
   compile 'com.squareup:javawriter:2.5.0'
   compile 'com.squareup.okhttp:okhttp:2.3.0'
