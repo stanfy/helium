@@ -22,12 +22,17 @@ task clean(type: Delete) {
 }
 
 afterEvaluate {
+  generateSwaggerSpec {
+    includes 'GET /products'
+  }
+
   task check(dependsOn: 'generateSwaggerSpec')
   check << {
     def file = new File(generateSwaggerSpec.output, 'Uber_API.json')
     assert file
     def json = new JsonSlurper().parse(file)
     assert json.info.title == 'Uber API'
+    assert json.paths.'/products'.keySet() == ['get'] as Set
   }
 
 }
