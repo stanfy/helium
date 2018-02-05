@@ -1,7 +1,7 @@
 <ul class="results">
   {{#children}}
   <li class="{{status}}">
-    <a {{#hasDetails}}class="expandable"{{/hasDetails}}>{{title}}</a>
+    <a {{#hasDetails}}class="expandable"{{/hasDetails}}>{{title}} ({{timeMs}}ms)</a>
     {{#hasDetails}}
     <div class="details">
       <pre>{{details}}</pre>

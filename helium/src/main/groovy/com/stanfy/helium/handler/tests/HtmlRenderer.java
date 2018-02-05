@@ -161,6 +161,7 @@ final class HtmlRenderer extends HeliumTestLogMemory implements CheckListener {
     final boolean pending;
     final boolean success;
     final String status;
+    final long timeMs;
     final List<ResultsTreeScope> children;
     final String description;
     boolean hasDetails;
@@ -172,6 +173,7 @@ final class HtmlRenderer extends HeliumTestLogMemory implements CheckListener {
       pending = check.getResult() == BehaviourCheck.Result.PENDING;
       success = check.getResult() == BehaviourCheck.Result.PASSED;
       status = check.getResult().toString().toLowerCase(Locale.US);
+      timeMs = check.getTime().getMillis();
       description = check.getDescription();
       this.children = children;
       this.hasDetails = details != null && details.length() > 0;
