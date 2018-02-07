@@ -8,7 +8,6 @@ import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
 import com.stanfy.helium.handler.codegen.swift.entity.SwiftParametersPassing
 import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.Message
-import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.Project
 import com.stanfy.helium.model.ServiceMethod
 
@@ -55,14 +54,15 @@ class SwiftServicesMapHelper {
             )
           }
 
+          var bodyParamsMapped: List<ParameterDescription> = listOf()
           // Check the options and generate code
           when (options.parametersPassing) {
             // Simple way is just put all names in actual parameters, nothing more special will be there
             SwiftParametersPassing.SIMPLE -> {
               if (bodyMessage != null) {
                 // And in both cases there's possible variations how to put parameters
-                var bodyParams = bodyMessage.activeFields ?: listOf()
-                var bodyParamsMapped = bodyParams
+                var bodyMessageActiveFields = bodyMessage.activeFields ?: listOf()
+                bodyParamsMapped = bodyMessageActiveFields
                         .map { field ->
                           ParameterDescription(
                                   canonicalName = typesRegistry.propertyName(field.name),
@@ -105,7 +105,7 @@ class SwiftServicesMapHelper {
             )
           }
 
-          val bodyParams = if (wholeTypeParameter.isEmpty()) functionParamsMapped
+          val bodyParams = if (wholeTypeParameter.isEmpty()) bodyParamsMapped
                   .map { it.copy(delimiter = ",") }
                   .mapLast { it.copy(delimiter = "") }
             else null
@@ -154,7 +154,7 @@ class SwiftServicesMapHelper {
         res = functionParams.map { field ->
           var castValue = typesRegistry.propertyName(field.name)
           if (field.type.name != "string") {
-            castValue = "String(${castValue})"
+            castValue = "String(describing: ${castValue})"
           }
           PathExtension(
                   name = field.name,
