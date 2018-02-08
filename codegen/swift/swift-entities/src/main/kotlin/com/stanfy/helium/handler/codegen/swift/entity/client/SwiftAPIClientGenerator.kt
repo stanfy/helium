@@ -5,7 +5,6 @@ import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftFileImp
 import com.stanfy.helium.handler.codegen.swift.entity.mustache.SwiftTemplatesHelper.Companion.generatedTemplateWithName
 import com.stanfy.helium.handler.codegen.swift.entity.registry.SwiftTypeRegistry
 import com.stanfy.helium.handler.codegen.swift.entity.SwiftGenerationOptions
-import com.stanfy.helium.handler.codegen.swift.entity.SwiftParametersPassing
 import com.stanfy.helium.internal.utils.Names
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.Project
@@ -25,15 +24,32 @@ data class PathExtension(val name: String,
                          val value: String,
                          val separator: Char = '&')
 
+data class ServiceMappedObject(val location: String,
+                               val funcs: List<Any>)
+
+data class MethodMappedObject(val name: String,
+                              val route: String,
+                              val responseName: String,
+                              val interfaceParams: List<ParameterDescription>,
+                              val bodyParams: List<ParameterDescription>?,
+                              val parameterAsDictionary: String,
+                              val isParameterAsDictionary: Boolean,
+                              val hasBodyParams: Boolean,
+                              val method: String,
+                              val encoding: String,
+                              val path: String,
+                              val pathExtensions: List<Any>,
+                              val return_type: String)
+
 class SwiftServicesMapHelper {
 
   fun mapServices(project: Project, typesRegistry: SwiftTypeRegistry, options: SwiftGenerationOptions) : List<Any> {
     val responseFilename = "SwiftAPIClientResponse"
 
     return project.services.map { service ->
-      object {
-        var location = service.location
-        val funcs = service.methods.map { serviceMethod ->
+      ServiceMappedObject(
+        location = service.location,
+        funcs = service.methods.map { serviceMethod ->
 
           val path = formattedPathForServiceMethod(serviceMethod)
           val functionParams = serviceMethod.parameters?.fields ?: listOf()
@@ -56,84 +72,81 @@ class SwiftServicesMapHelper {
 
           var bodyParamsMapped: List<ParameterDescription> = listOf()
           // Check the options and generate code
-          when (options.parametersPassing) {
+          if (options.parametersPassingByDictionary == false) {
             // Simple way is just put all names in actual parameters, nothing more special will be there
-            SwiftParametersPassing.SIMPLE -> {
-              if (bodyMessage != null) {
-                // And in both cases there's possible variations how to put parameters
-                var bodyMessageActiveFields = bodyMessage.activeFields ?: listOf()
-                bodyParamsMapped = bodyMessageActiveFields
-                        .map { field ->
-                          ParameterDescription(
-                                  canonicalName = typesRegistry.propertyName(field.name),
-                                  name = typesRegistry.propertyName(field.name),
-                                  type = typesRegistry.registerSwiftType(field.type).name,
-                                  comment = field.description ?: "",
-                                  postfix = if (field.type.isPrimitive()) "" else ".toJSONRepresentation()"
-                          )
-                        }
-                functionParamsMapped = functionParamsMapped + bodyParamsMapped
-              }
+            if (bodyMessage != null) {
+              // And in both cases there's possible variations how to put parameters
+              var bodyMessageActiveFields = bodyMessage.activeFields ?: listOf()
+              bodyParamsMapped = bodyMessageActiveFields
+                      .map { field ->
+                        ParameterDescription(
+                                canonicalName = typesRegistry.propertyName(field.name),
+                                name = typesRegistry.propertyName(field.name),
+                                type = typesRegistry.registerSwiftType(field.type).name,
+                                comment = field.description ?: "",
+                                postfix = if (field.type.isPrimitive()) "" else ".toJSONRepresentation()"
+                        )
+                      }
+              functionParamsMapped = functionParamsMapped + bodyParamsMapped
             }
-
+          } else {
             // This kind of output-handling will put the single parameter as a strictly defined typed item
             // for the message (or type). Usually, it's needed to pass dictionaries with varieties of values with no schema
-            SwiftParametersPassing.AS_DICTIONARY -> {
-              // Body message could be any of either message or type
-              if (bodyMessage != null) {
-                val parameterType = typesRegistry.registerSwiftType(bodyMessage).name
-                val postfix = if (bodyMessage.isPrimitive()) " as! [String:Any]"
-                              else ".toJSONRepresentation() as! [String:Any]"
-                wholeTypeParameter = Names.decapitalize(bodyMessage.name) + postfix
-                var bodyAsSingleTypeInstance = ParameterDescription(canonicalName = "data", name = Names.decapitalize(bodyMessage.name), type = parameterType)
-                functionParamsMapped = functionParamsMapped + listOf(bodyAsSingleTypeInstance)
-              } else if (bodyType != null) {
-                val parameterType = typesRegistry.registerSwiftType(bodyType).name
-                val postfix = " as! [String:Any]"
-                wholeTypeParameter = Names.decapitalize(bodyType.name) + postfix
-                var bodyAsSingleTypeInstance = ParameterDescription(canonicalName = "data", name = Names.decapitalize(bodyType.name), type = parameterType)
-                functionParamsMapped = functionParamsMapped + listOf(bodyAsSingleTypeInstance)
-              }
+            // Body message could be any of either message or type
+            if (bodyMessage != null) {
+              val parameterType = typesRegistry.registerSwiftType(bodyMessage).name
+              val postfix = if (bodyMessage.isPrimitive()) " as! [String:Any]"
+              else ".toJSONRepresentation() as! [String:Any]"
+              System.out.println("Postfix: " + postfix)
+              wholeTypeParameter = Names.decapitalize(bodyMessage.name) + postfix
+              var bodyAsSingleTypeInstance = ParameterDescription(canonicalName = "data", name = Names.decapitalize(bodyMessage.name), type = parameterType)
+              functionParamsMapped = functionParamsMapped + listOf(bodyAsSingleTypeInstance)
+            } else if (bodyType != null) {
+              val parameterType = typesRegistry.registerSwiftType(bodyType).name
+              val postfix = " as! [String:Any]"
+              wholeTypeParameter = Names.decapitalize(bodyType.name) + postfix
+              var bodyAsSingleTypeInstance = ParameterDescription(canonicalName = "data", name = Names.decapitalize(bodyType.name), type = parameterType)
+              functionParamsMapped = functionParamsMapped + listOf(bodyAsSingleTypeInstance)
             }
           }
 
           val pathParams = serviceMethod.pathParameters.map { name ->
             ParameterDescription(
-              canonicalName = name,
-              name = name,
-              type = "String"
+                    canonicalName = name,
+                    name = name,
+                    type = "String"
             )
           }
 
           val bodyParams = if (wholeTypeParameter.isEmpty()) bodyParamsMapped
                   .map { it.copy(delimiter = ",") }
                   .mapLast { it.copy(delimiter = "") }
-            else null
+          else null
 
           val interfaceParams = (pathParams + functionParamsMapped)
-                  .mapLast { it.copy( delimiter = "") }
+                  .mapLast { it.copy(delimiter = "") }
 
-          object {
-            val name = Names.decapitalize(Names.prettifiedName(serviceMethod.canonicalName))
-            val route = Names.decapitalize(Names.prettifiedName(serviceMethod.canonicalName))
-            val responseName = responseFilename
-            val interfaceParams = interfaceParams
-            val bodyParams = bodyParams
-            val parameterAsDictionary = wholeTypeParameter
-            val isParameterAsDictionary = wholeTypeParameter.isNotEmpty()
-            val hasBodyParams = wholeTypeParameter.isEmpty() && bodyMessage != null
-            val method = serviceMethod.type.toString()
-            val encoding = if (serviceMethod.type.hasBody) "JSON" else "URL"
-            val path = path
-            val pathExtensions = pathExtensions
-            var return_type = (if (serviceMethod.response != null) {
+          MethodMappedObject(
+            name = Names.decapitalize(Names.prettifiedName(serviceMethod.canonicalName)),
+            route = Names.decapitalize(Names.prettifiedName(serviceMethod.canonicalName)),
+            responseName = responseFilename,
+            interfaceParams = interfaceParams,
+            bodyParams = bodyParams,
+            parameterAsDictionary = wholeTypeParameter,
+            isParameterAsDictionary = wholeTypeParameter.isNotEmpty(),
+            hasBodyParams = wholeTypeParameter.isEmpty() && bodyMessage != null,
+            method = serviceMethod.type.toString(),
+            encoding = if (serviceMethod.type.hasBody) "JSON" else "URL",
+            path = path,
+            pathExtensions = pathExtensions,
+            return_type = (if (serviceMethod.response != null) {
               typesRegistry.registerSwiftType(serviceMethod.response)
             } else {
               SwiftTypeRegistry.EmptyResponse
             }).name
-          }
+          )
         }
-      }
+      )
     }
   }
 

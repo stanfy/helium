@@ -173,7 +173,7 @@ class Main {
               "apiManagerName" : "Define alias name for multiple clients. Optional. Default: APIRequestManager. usage: -HapiManagerName=API_MANAGER_NAME",
               "routeEnumName" : "Define internal Route enumeration naming. Optional. Default: BaseAPI. usage: -HrouteEnumName=ROUTER_NAME",
               "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE",
-              "parametersPassing" : "Defines how to pass parameters to generated functions. Optional. Default is simple. usage: -HparametersPassing=[simple|as-dictionary].",
+              "parametersPassingByDictionary" : "Defines how to pass parameters to generated functions. Optional. Default is no. usage: -HparametersPassingByDictionary=[yes|no].",
               "passURLparams" : "If set to yes, URL will be enhanced by function's parameters. Optional. Default is no. usage: -HpassURLparams=[yes|no]"
           ],
           flags: [
@@ -205,20 +205,9 @@ class Main {
               generationOptions.skipTypes = skipTypes
             }
 
-            def parametersPassing = property(options, "parametersPassing")
-            if (parametersPassing != null && !parametersPassing.isEmpty()) {
-              switch (parametersPassing) {
-                case "simple":
-                  generationOptions.parametersPassing = SwiftParametersPassing.SIMPLE
-                  break
-                case "as-dictionary":
-                  generationOptions.parametersPassing = SwiftParametersPassing.AS_DICTIONARY
-                  break
-                default:
-                  generationOptions.parametersPassing = SwiftParametersPassing.SIMPLE
-                  println "Unknown value passed in for parametersPassing option. Possible values are: [simple|as-dictionary].\nAccepting simple as default"
-                  break
-              }
+            def parametersPassing = property(options, "parametersPassingByDictionary")
+            if (parametersPassing != null && parametersPassing.capitalize().compareTo("YES")) {
+              generationOptions.parametersPassingByDictionary = true
             }
 
             def passURLparams = property(options, "passURLparams")

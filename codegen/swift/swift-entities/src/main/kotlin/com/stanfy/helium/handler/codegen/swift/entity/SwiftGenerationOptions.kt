@@ -12,11 +12,6 @@ enum class SwiftEntitiesType {
   CLASS
 }
 
-enum class SwiftParametersPassing {
-  SIMPLE,
-  AS_DICTIONARY
-}
-
 class SwiftGenerationOptions : GeneratorOptions () {
 
   /**
@@ -58,15 +53,15 @@ class SwiftGenerationOptions : GeneratorOptions () {
   var routeEnumName = "BaseAPI"
 
   /**
-   * Specifies the list of output types shoud be skipped by generator
+   * Specifies the list of output types should be skipped by generator
    */
   var skipTypes = listOf<String>()
 
   /**
-   * Specifies how to pass parameters in generated functions: simple (when functions get parameters declared only in body's type
-   * or by passing all properties including parent's objects too
+   * Specifies how to pass parameters of body in generated functions. If false (default value), then functions get parameters declared only in body's type.
+   * Otherwise, it passes all properties including parent's objects too
    */
-  var parametersPassing = SwiftParametersPassing.SIMPLE
+  var parametersPassingByDictionary = false
 
   /**
    * Specifies if resulting URL should pass parameters from function

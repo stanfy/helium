@@ -11,6 +11,7 @@ type "Entity" message {
 
 service {
   name "Test service $providedVar"
+  location "http://www.somewhere.com"
 
   get "/profile" spec {
     response 'Entity'
