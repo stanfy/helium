@@ -476,6 +476,20 @@ class ProjectDslSpec extends Specification {
     writer != null
   }
 
+  def "can describe generic reader"() {
+    given:
+    dsl.type "custom" spec {
+      description "Custom type"
+      from("json") { asGeneric() }
+    }
+    def customType = dsl.types.byName("custom")
+    def reader = dsl.types.customReaders(MediaType.parse('*/json'))[customType]
+
+    expect:
+    customType != null
+    reader != null
+  }
+
   def "should allow empty response type"() {
     when:
     dsl.service {

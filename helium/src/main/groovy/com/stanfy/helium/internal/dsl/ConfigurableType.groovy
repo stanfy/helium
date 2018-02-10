@@ -47,11 +47,11 @@ class ConfigurableType extends ConfigurableProxy<Type> {
     return this.@constraints
   }
 
-  public class From {
-    public Closure<?> asString() {
+  class From {
+    Closure<?> asString() {
       return ClosureJsonConverter.AS_STRING_READER
     }
-    public Closure<?> asDate(final String dateFormat) {
+    Closure<?> asDate(final String dateFormat) {
       return stringParser("Expected format: $dateFormat") { String str ->
         return DateTimeFormat.forPattern(dateFormat)
             .withLocale(Locale.US)
@@ -59,7 +59,10 @@ class ConfigurableType extends ConfigurableProxy<Type> {
             .toDate()
       }
     }
-    public Closure<?> parseString(Closure<?> parser) {
+    Closure<?> asGeneric() {
+      return ClosureJsonConverter.AS_GENERIC_READER
+    }
+    Closure<?> parseString(Closure<?> parser) {
       return stringParser(null, parser)
     }
 
