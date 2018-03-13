@@ -2,6 +2,7 @@ package com.stanfy.helium.handler.codegen.swift.entity.registry
 
 import com.stanfy.helium.handler.codegen.swift.entity.entities.*
 import com.stanfy.helium.internal.utils.Names
+import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Sequence
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
@@ -14,6 +15,7 @@ interface SwiftTypeRegistry {
   fun registerMappings(mappings: Map<String, String>)
   fun simpleSequenceType(heliumType: Type): SwiftEntityArray
   fun propertyName(fieldName: String): String
+  fun className(heliumTypeName: String): String
 
   companion object {
     val EmptyResponse: SwiftEntity = SwiftEntityStruct("EmptyResponse")
@@ -34,6 +36,7 @@ class SwiftTypeRegistryImpl : SwiftTypeRegistry {
     return registry.getOrElse(heliumType.name) {
       val type: SwiftEntity =
           tryRegisterSequenceType(heliumType)
+              ?: tryDictionary(heliumType)
               ?: tryPrimitiveType(heliumType)
               ?: structType(heliumType)
       registry.put(heliumType.name, type)
@@ -80,6 +83,13 @@ class SwiftTypeRegistryImpl : SwiftTypeRegistry {
     }
   }
 
+  private fun tryDictionary(heliumType: Type): SwiftEntityDictionary? {
+    if (heliumType is Dictionary) {
+      return SwiftEntityDictionary(registerSwiftType(heliumType.key), registerSwiftType(heliumType.value))
+    }
+    return null
+  }
+
   fun enumType(heliumType: Type): SwiftEntityEnum? {
     if (heliumType !is ConstrainedType) return null
     val constraint = heliumType.constraints.first { con -> con is EnumConstraint } as? EnumConstraint<Any> ?: return null
@@ -94,8 +104,8 @@ class SwiftTypeRegistryImpl : SwiftTypeRegistry {
 
   }
 
-  fun className(className: String) : String {
-    val prettifiedName = Names.prettifiedName(Names.canonicalName(className))
+  override fun className(heliumTypeName: String) : String {
+    val prettifiedName = Names.prettifiedName(Names.canonicalName(heliumTypeName))
     if (arrayOf("Error").contains(prettifiedName)) {
       return "API" + prettifiedName
     }
@@ -104,7 +114,7 @@ class SwiftTypeRegistryImpl : SwiftTypeRegistry {
 
   override fun propertyName(fieldName: String): String {
     val prettifiedName = Names.prettifiedName(Names.canonicalName(fieldName))
-    if (arrayOf("enum", "default", "let", "case", "self", "description").contains(prettifiedName)) {
+    if (arrayOf("enum", "default", "let", "case", "self", "description", "where").contains(prettifiedName)) {
       return prettifiedName + "Value"
     }
     return prettifiedName

@@ -185,12 +185,12 @@ class TypedEntityValueBuilder {
 
     @Override
     protected Object resolveValue(K key, Object arg) {
-      Dictionary dict = type as Dictionary;
+      Dictionary dict = type as Dictionary
       return new TypedEntityValueBuilder(dict.value, scope).from(arg)
     }
 
     void entry(Object key, Object value) {
-      Dictionary dict = type as Dictionary;
+      Dictionary dict = type as Dictionary
       K mapKey = new TypedEntityValueBuilder(dict.key, scope).from(key) as K
       def mapValue = new TypedEntityValueBuilder(dict.value, scope).from(value)
       map[mapKey] = mapValue

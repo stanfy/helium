@@ -2,8 +2,6 @@ language: android
 
 jdk:
   - oraclejdk8
-  - oraclejdk7
-  - openjdk7
 
 sudo: false
 
@@ -14,13 +12,19 @@ cache:
 
 android:
   components:
-    - build-tools-23.0.1
+    - build-tools-27.0.3
+    - platform-tools-27.0.1
+    - android-26
     - android-23
+    - android-21
+  licenses:
+      - 'android-sdk-license-.+'
+      - 'google-gdk-license-.+'
 
 env:
   global:
-  - secure: "N65Gr043MKcOCsRGTaG4Agk+MxTV/QXUU753Z7jgLqaz6oGugtb25oh7fuQ5OrSuF/XV2AXJaM03++2Wa3Xadp4CCA/ciJUMFhmy5KY/PLzpnNtFO0HY0B1IPS79fvsLKNnMaQTW46hnQWIvsXCfTjqzXIZ612ZcQxFdYZEUpns="
-  - secure: "W6QGZAbSdKkLJQ53hDs5LXRNNCQnv18W40/h2vkEdoImIJ3pZX/gTbycmS0D3x7Ev8BsgjH0/jaK+BeTRmABBs2U7jld7XN690O3dkHTSONRVcRk9litCpvBDnzlt6EaMjvYZSzJ4YPBefG1MFtw+dJkZ5sO6k1J81zaOAXSI90="
+  - secure: "wUv5b8EUo5qaWTodkgllQyzlydhgbBSdtMtroWMaGG7zXcESXaOIvKAdfCislNGhabBKFPjPjHxWC33sP0KYdcUgl50Zb9h/7U8e+xqiNcZ4UxMRjuXjXy4H2NYj9w+oLtoSJXaa/LfRK544yXUfox8K5+SgpzHkFnTnV2TEbmBUzgXLZCiwrapxnImq1epEZHJ6yoMDcZwJnxWqlNa+VHY/ysJibb0g3QkUijOU2sTCqENk0z0coWNpKFrJZN1EMMTdXQCbYcFBAVDPuUcOGhAbZINrZ9tc55kOoRxgk+OJacIK2yoQVGK63Gyl/3y+Ge7PTaIzJqAuJxdAxlyltWdQWvgoQ844i/kLmyBiAfvOrT1f92rQClxIuMNe0oh9cozQMukj5KVMXCivUNt/4w20sPjIUf+bHbM9aK5g8SFWa7X70CAMWyWjQlQyfE+QTEY5Y5AOJAK1Ixf8r8YXSlkfzjdkFHo15NJuNTrbmkhoYw+MwB0hrRnv5gCSoQo89wH0dd0urb1XtDGnjUkaOsGzy3w+Mzztinr5AgqdT27T3o8ZzRlbdd7pMiIwjyknm2ZcsglrqRuXOGfvoUnFsTRgZmtKqzPVhlWjC8lqjKvEoMVloWGS6UzQP0riAX574UhRscDdKlhqzUya9OgJROU41zRTvcIv23A/wCCR1HI="
+  - secure: "aUObtkEFf+ioCOOfh2MLEX/P8Br/9tJ7Xc0aRJdLG0frV7CdnRarm7whNQ3kG3PxfEQovln51YecUXYpA8vy70EyEgIF+PA0iQVuZf+XoIZzfXVChhjipL7J+Xnrg9cDBejbniIQ9dAbTPPziMieSirsMGjMWaG0NZxprgX+wlHrYCwhpF4jC/ty0yOsYX7vwprU5L7fFSk0X31VcihPTSNhktHMNdSC65FOpksexImlZXIPuop74N+ALV7i92NT5unzBMnjJfZWcLiqbO9w4By9zpnH3UcCdUa5SppgHKXCqpBjiFqvpaZ9TqisPJ13DZBKWBtOpc6Rpul708j2UPRQe3VqOTuZjAlxzyO0AS8tXpFTikEPiKvGkZUbxZN31aIwE8EBtV/DKG4/Fa3E/nd75EHT+QCNbgT3aNheQs24wVFDcQXFNma6DCYzJgIYpOFvIsU80sevSRlDtQ0Fpn5ht/YZDLWPDN8jAJSZiIrYnNvMHhAixP54lShmaYQ9hQJfU2bmQA+0+2H17OzyaluHU1UOgjDZLfJCWZCmItkCgDe3lKrvCUdz+hM6WqOvBFFbPFprpjuPHFDllw3p1dHq0FSbtvvYyJBi115XrWmVM8Me9RJyccuOO1B2mEUtvzLrVKSOnwJzSvemb8idoObEsAlK6035u91lVGjnx30="
   - JAVA_OPTS=-XX:MaxPermSize=1024m
 
 notifications:
@@ -35,3 +39,7 @@ script:
 after_success:
 - bash <(curl -s https://codecov.io/bash)
 - ./scripts/deploy_to_maven.sh
+
+notifications:
+  email: false
+  

@@ -1,55 +1,55 @@
 import Foundation
 
-extension NSURLSessionDataTask: Cancellable {}
+extension URLSessionDataTask: Cancellable {}
 
 public struct NSURLSessionAPIService: APIService {
 
-    public typealias RequestLogger = (request: Request, urlRequest: NSURLRequest) -> ()
-    public typealias ResponseLogger = (request: Request, urlRequest: NSURLRequest, data: NSData?, response: NSHTTPURLResponse?, error: NSError?) -> ()
+    public typealias RequestLogger = (_ request: Request, _ urlRequest: URLRequest) -> ()
+    public typealias ResponseLogger = (_ request: Request, _ urlRequest: URLRequest, _ data: Data?, _ response: HTTPURLResponse?, _ error: Error?) -> ()
 
-    let session: NSURLSession
+    let session: URLSession
     let requestLogger: RequestLogger
     let responseLogger: ResponseLogger
 
-    public init(requestLogger: RequestLogger = {_ in }, responseLogger: ResponseLogger = { _ in } ) {
-        session = NSURLSession(configuration: NSURLSessionConfiguration.defaultSessionConfiguration())
+    public init(requestLogger: @escaping RequestLogger = {_,_  in }, responseLogger: @escaping ResponseLogger = { _,_,_,_,_  in } ) {
+        session = URLSession(configuration: URLSessionConfiguration.default)
         self.requestLogger = requestLogger
         self.responseLogger = responseLogger
     }
 
-    public func request(request: Request, callback:  (Result<APIResponse<NSData?>, APIResponseError<NSError>>) -> Void) -> Cancellable {
+    public func request(_ request: Request, callback: @escaping APIServiceRequestCallback) -> Cancellable {
 
         let urlRequest = convert(fromRequest: request)
-        requestLogger(request: request, urlRequest: urlRequest)
+        requestLogger(request, urlRequest)
 
-        let cancellable = session.dataTaskWithRequest(urlRequest) { (data, urlResponse, error) in
-            let httpURLResponse = urlResponse as? NSHTTPURLResponse
-            self.responseLogger(request: request, urlRequest: urlRequest, data: data, response: httpURLResponse, error: error)
+        let cancellable = session.dataTask(with: urlRequest, completionHandler: { (data, urlResponse, error) in
+            let httpURLResponse = urlResponse as? HTTPURLResponse
+            self.responseLogger(request, urlRequest, data, httpURLResponse, error)
             if let error = error {
-                callback(.Failure(APIResponseError(error: error, request:request, response: urlResponse as? NSHTTPURLResponse)))
+                callback(.failure(APIResponseError(error: error as NSError, request:request, response: httpURLResponse)))
                 return
             }
-            let nsdata = data.flatMap{ NSData(data: $0) }
-            callback(.Success(APIResponse(value: nsdata, response: httpURLResponse)))
-        }
+            let nsdata = data.flatMap{ (NSData(data: $0) as Data) }
+            callback(.success(APIResponse(value: nsdata, response: httpURLResponse)))
+        })
         cancellable.resume()
 
         return cancellable
     }
 
-    func convert(fromRequest request: Request) -> NSURLRequest {
+    func convert(fromRequest request: Request) -> URLRequest {
         let url = makeUrl(fromRequest: request)
 
-        var mutableRequest = NSMutableURLRequest(URL: url)
+        let mutableRequest = NSMutableURLRequest(url: url)
         updateMethod(forMutableRequest: mutableRequest, fromRequest: request)
         updateContentType(forMutableRequest: mutableRequest, fromRequest: request)
         updateHeaders(forMutableRequest: mutableRequest, fromRequest: request)
         updateBody(forMutableRequest: mutableRequest, fromRequest: request)
-        return mutableRequest
+        return mutableRequest as URLRequest
     }
 
     func updateMethod(forMutableRequest request: NSMutableURLRequest, fromRequest: Request) {
-        request.HTTPMethod = fromRequest.method.rawValue
+        request.httpMethod = fromRequest.method.rawValue
     }
 
     func updateBody(forMutableRequest request: NSMutableURLRequest, fromRequest: Request) {
@@ -57,13 +57,13 @@ public struct NSURLSessionAPIService: APIService {
         case .URL:
             break;
         case .JSON:
-            guard let data = try? NSJSONSerialization.dataWithJSONObject(fromRequest.params, options: []) else {
+            guard let data = try? JSONSerialization.data(withJSONObject: fromRequest.params, options: []) else {
                 return
             }
-            request.HTTPBody = data
+            request.httpBody = data
         case .FORM:
-            let data = formEncodedParameters(fromRequest.params).dataUsingEncoding(NSUTF8StringEncoding)
-            request.HTTPBody = data
+            let data = formEncodedParameters(fromRequest.params).data(using: String.Encoding.utf8)
+            request.httpBody = data
             return
         }
     }
@@ -85,39 +85,38 @@ public struct NSURLSessionAPIService: APIService {
         }
     }
 
-    func makeUrl(fromRequest request: Request) -> NSURL {
+    func makeUrl(fromRequest request: Request) -> URL {
         switch request.encoding {
         case .URL:
-            return url(request.url, withParameters: request.params)
+            return url(request.url as URL, withParameters: request.params)
         case .FORM, .JSON:
-            return request.url
+            return request.url as URL
         }
     }
 
-    func url(url:NSURL, withParameters parameters:[String:AnyObject]) -> NSURL {
+    func url(_ url: URL, withParameters parameters:[String:Any]) -> URL {
         let encodedParameters = formEncodedParameters(parameters)
         if encodedParameters.isEmpty {
             return url
         }
 
-        let hasQuestionMark = url.absoluteString!.containsString("?")
+        let hasQuestionMark = url.absoluteString.contains("?")
         let joiningCharacter = hasQuestionMark ? "&" : "?"
-        return NSURL(string: url.absoluteString! + joiningCharacter + encodedParameters)!
+        return URL(string: url.absoluteString + joiningCharacter + encodedParameters)!
     }
 
-    func formEncodedParameters(parameters:[String:AnyObject]) -> String {
+    func formEncodedParameters(_ parameters: [String:Any]) -> String {
         return parameters.map { key, value in
             let encodedValue = "\(value)".urlEncoded()
             let encodedKey = key.urlEncoded()
             return encodedKey + "=" + encodedValue
             }
-            .joinWithSeparator("&")
+            .joined(separator: "&")
     }
-
 }
 
 private extension String {
     func urlEncoded() -> String {
-        return self.stringByAddingPercentEncodingWithAllowedCharacters(.URLQueryAllowedCharacterSet())!
+        return self.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!
     }
 }

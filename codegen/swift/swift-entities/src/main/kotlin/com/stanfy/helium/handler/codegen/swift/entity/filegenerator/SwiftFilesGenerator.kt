@@ -25,14 +25,16 @@ class SwiftEntityFilesGeneratorImpl : SwiftFilesGenerator {
   }
 
   override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
-    // TODO : Different files? as an option
     val file: SwiftFile = object : SwiftFile {
       override fun name(): String {
-        return "Entities"
+        var nameValue = "Entities"
+        if (!options?.customFilePrefix.isNullOrEmpty())
+          nameValue = options?.customFilePrefix + nameValue
+        return nameValue
       }
 
       override fun contents(): String {
-        val accessLevel = options?.entitiesAccessLevel ?: SwiftEntitiesAccessLevel.INTERNAL
+        val accessLevel = options?.entitiesAccessLevel ?: SwiftEntitiesAccessLevel.PUBLIC
         val entitiesType = options?.entitiesType ?: SwiftEntitiesType.STRUCT
 
         val structs = entities(entities, entitiesType, accessLevel)
@@ -84,11 +86,14 @@ class SwiftDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerator {
   }
 
   override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
+    var nameValue = "Mappings"
+    if (!options?.customFilePrefix.isNullOrEmpty())
+      nameValue = options?.customFilePrefix + nameValue
     return listOf(
         SwiftFileImpl(
-            name = "Mappings",
+            name = nameValue,
             contents = {
-              val imports = "import Decodable"
+              val imports = "import Decodable.Decodable\nimport protocol Decodable.Decodable\nimport enum Decodable.DecodingError\nimport struct Decodable.KeyPath\n\n"
               val structs = entities
                   .filterIsInstance<SwiftEntityStruct>()
                   .map { entity ->
@@ -116,9 +121,12 @@ class SwiftTransformableDecodableMappingsFilesGeneratorImpl : SwiftFilesGenerato
   }
 
   override fun filesFromEntities(entities: List<SwiftEntity>, options: SwiftGenerationOptions?): List<SwiftFile> {
+    var nameValue = "TransformableMappings"
+    if (!options?.customFilePrefix.isNullOrEmpty())
+      nameValue = options?.customFilePrefix + nameValue
     return listOf(
-        SwiftFileImpl(
-            name = "TransformableMappings",
+            SwiftFileImpl(
+            name = nameValue,
             contents = SwiftTemplatesHelper.generatedTemplateWithName("decodable/SwiftAPIDeserializable.mustache", object : Any() {
               val entities = entities
             })

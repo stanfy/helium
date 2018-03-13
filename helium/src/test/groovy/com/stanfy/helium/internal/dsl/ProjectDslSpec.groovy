@@ -3,6 +3,7 @@ package com.stanfy.helium.internal.dsl
 import com.squareup.okhttp.MediaType
 import com.stanfy.helium.DefaultTypesLoader
 import com.stanfy.helium.internal.model.tests.CheckableService
+import com.stanfy.helium.model.Authentication
 import com.stanfy.helium.model.DataType
 import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.FileType
@@ -10,7 +11,6 @@ import com.stanfy.helium.model.FormType
 import com.stanfy.helium.model.Message
 import com.stanfy.helium.model.MethodType
 import com.stanfy.helium.model.MultipartType
-import com.stanfy.helium.model.Authentication
 import com.stanfy.helium.model.Type
 import com.stanfy.helium.model.constraints.ConstrainedType
 import com.stanfy.helium.model.tests.BehaviourCheck
@@ -94,6 +94,7 @@ class ProjectDslSpec extends Specification {
       'Date' {
         type 'int64'
       }
+      anotherField(type: 'string', sequence: true)
     }
     dsl.type "C" message {
       id long optional
@@ -116,7 +117,7 @@ class ProjectDslSpec extends Specification {
     dsl.messages[0].fields[0].type.name == 'bytes'
     dsl.messages[0].fields[1].name == 'SomeField'
 
-    dsl.messages[1].fields.size() == 4
+    dsl.messages[1].fields.size() == 5
     dsl.messages[1].fields[0].name == "id"
     dsl.messages[1].fields[0].type.name == "int64"
     !dsl.messages[1].fields[0].required
@@ -129,6 +130,9 @@ class ProjectDslSpec extends Specification {
     dsl.messages[1].fields[2].required
     dsl.messages[1].fields[2].description == 'Some description for field with at'
     dsl.messages[1].fields[3].name == "Date"
+    dsl.messages[1].fields[4].name == "anotherField"
+    dsl.messages[1].fields[4].sequence
+    dsl.messages[1].fields[4].required
 
     dsl.messages[2].fields.size() == 4
     dsl.messages[2].fields[0].name == "id"
@@ -470,6 +474,20 @@ class ProjectDslSpec extends Specification {
     customType != null
     reader != null
     writer != null
+  }
+
+  def "can describe generic reader"() {
+    given:
+    dsl.type "custom" spec {
+      description "Custom type"
+      from("json") { asGeneric() }
+    }
+    def customType = dsl.types.byName("custom")
+    def reader = dsl.types.customReaders(MediaType.parse('*/json'))[customType]
+
+    expect:
+    customType != null
+    reader != null
   }
 
   def "should allow empty response type"() {

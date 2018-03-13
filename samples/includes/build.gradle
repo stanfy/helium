@@ -12,14 +12,14 @@ buildscript {
 apply plugin: 'helium'
 
 helium {
-  specification file('fake.api')
+  specification file('service_a/service_a.api')
+  specification file('service_b/service_b.api')
 }
 
 task clean(type: Delete) {
   delete buildDir
 }
 
-task check()
-afterEvaluate {
-  check.dependsOn 'runApiTests'
+task check() {
+  dependsOn 'genApiTestsServiceA', 'genApiTestsServiceB'
 }

@@ -2,7 +2,7 @@
 
 extension {{name}} {
     func updated(
-        {{#props}}{{space}}{{space}}{{forcedName}}{{name}}: Optional<{{type.typeString}}> = nil{{{delimiter}}}
+        {{#props}}{{space}}{{space}}{{forcedName}}{{name}}: Optional<{{{type.typeString}}}> = nil{{{delimiter}}}
         {{/props}}
 {{space}}) -> {{name}} {
 {{space}}{{space}}return {{name}}(

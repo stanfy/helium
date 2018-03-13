@@ -66,6 +66,11 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
         response 'Map'
       }
 
+      put '/without-body' spec {
+        name 'Put without body'
+        response 'Map'
+      }
+
       get '/optional/parameters' spec {
         name 'optionalParametersTest'
         parameters {
@@ -110,6 +115,16 @@ class RetrofitInterfaceGeneratorSpec extends Specification {
     text.contains("import another.AMessage;")
     text.contains("import another.BMessage;")
     text.contains("import retrofit.client.Response;")
+  }
+
+  def "should work around empty body for PUT"() {
+    when:
+    options.entitiesPackage = "another"
+    gen.handle(project)
+    def text = new File("$output/test/api/A.java").text
+
+    then:
+    text.contains("putWithoutBody(@Body String waUseEmptyString)")
   }
 
   def "should not emit same package entity imports"() {

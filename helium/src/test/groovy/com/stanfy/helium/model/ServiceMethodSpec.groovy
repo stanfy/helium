@@ -74,7 +74,7 @@ class ServiceMethodSpec extends Specification {
     String q3 = method.getUriQueryWithExamples('UTF-8')
 
     expect:
-    q1 == '?a=1&b=2'
+    q1 == 'a=1&b=2'
     q2 == ''
     q3 == ''
 
@@ -122,12 +122,13 @@ class ServiceMethodSpec extends Specification {
 
   def "supports normal templating"() {
     given:
-    method.path = '/p/{a}/{b}{c}'
+    method.path = '/p/{a}/{b}{c}?test=value'
 
     expect:
     method.hasRequiredParametersInPath()
+    method.hasQueryInPath()
     method.pathParameters == ['a', 'b', 'c']
-    method.getPathWithParameters(a: '1', b: '2', c:'3') == '/p/1/23'
+    method.getPathWithParameters(a: '1', b: '2', c:'3') == '/p/1/23?test=value'
   }
 
   def "normalized path"() {
@@ -136,6 +137,19 @@ class ServiceMethodSpec extends Specification {
 
     expect:
     method.normalizedPath == '/{name}/{param}'
+  }
+
+  def "uri query"() {
+    given:
+    method.parameters = new Message(name: 'some_type')
+    method.parameters.addField(new Field(name: 'param1', type: new Type(name: 'string')))
+    method.parameters.addField(new Field(name: 'param2', type: new Type(name: 'string')))
+
+    and:
+    def uriQuery = method.getUriQueryWithParameters('UTF-8', ['param1': 'value1', 'param2': 'value2', 'other': 'value'])
+
+    expect:
+    uriQuery == 'param1=value1&param2=value2'
   }
 
 }

@@ -44,14 +44,23 @@ public class SwaggerHandler implements Handler {
   private static final String DEF_PREFIX = "#/definitions/";
 
   private final File destination;
+  private final SwaggerOptions options;
 
   private final SchemaBuilder schemaBuilder = new SchemaBuilder(DEF_PREFIX);
 
   public SwaggerHandler(File destination) {
+    this(destination, new SwaggerOptions());
+  }
+
+  public SwaggerHandler(File destination, SwaggerOptions options) {
     if (destination.exists() && !destination.isDirectory()) {
       throw new IllegalArgumentException("Destination must be a folder");
     }
+    if (options == null) {
+      throw new IllegalArgumentException("Options cannot be null");
+    }
     this.destination = destination;
+    this.options = options;
   }
 
   @Override
@@ -104,6 +113,10 @@ public class SwaggerHandler implements Handler {
       if (!service.getMethods().isEmpty()) {
         LinkedHashMap<String, Path> paths = new LinkedHashMap<>(service.getMethods().size());
         for (ServiceMethod m : service.getMethods()) {
+          if (!options.checkIncludes(m)) {
+            continue;
+          }
+
           Path.Method method = swaggerPath(paths, m).swaggerMethod(m);
           method.summary = m.getName();
           method.description = m.getDescription();

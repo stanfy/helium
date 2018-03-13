@@ -1,0 +1,25 @@
+include "$baseDir/../common.api"
+include "$baseDir/../service_a/service_a.api"
+
+note 'Service B'
+
+service {
+  name 'B'
+  location 'http://localhost:8080'
+
+  get '/test_2' spec {
+    response 'custom_type'
+  }
+
+}
+
+describe 'Integration' spec {
+  def serviceA = service_b('A')
+  def serviceB = service_b('B')
+
+  it('works') {
+    serviceA.get '/test_1' with { }
+    serviceB.get '/test_2' with { }
+  }
+
+}

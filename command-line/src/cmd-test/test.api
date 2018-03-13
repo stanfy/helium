@@ -1,13 +1,17 @@
+type 'SomeMap' dictionary('string', 'bool')
+
 type "Entity" message {
   a 'string'
   b int
   c long
   d 'bool'
   e 'float'
+  f 'SomeMap'
 }
 
 service {
   name "Test service $providedVar"
+  location "http://www.somewhere.com"
 
   get "/profile" spec {
     response 'Entity'

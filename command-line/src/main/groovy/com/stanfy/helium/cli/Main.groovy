@@ -10,6 +10,7 @@ import com.stanfy.helium.handler.codegen.objectivec.entity.ObjCMappingOption
 import com.stanfy.helium.handler.codegen.swift.entity.*
 import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientGeneratorImpl
+import com.stanfy.helium.handler.codegen.swift.entity.client.SwiftAPIClientSimpleGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGenerator
 import com.stanfy.helium.handler.codegen.swift.entity.entities.SwiftEntitiesGeneratorImpl
 import com.stanfy.helium.handler.codegen.swift.entity.filegenerator.SwiftEquatableFilesGeneratorImpl
@@ -71,7 +72,7 @@ class Main {
 
               factory: { def options, File output ->
                   ObjCEntitiesOptions genOptions = new ObjCEntitiesOptions()
-                  genOptions.prefix = requiredProperty(options, "prefix");
+                  genOptions.prefix = requiredProperty(options, "prefix")
                   genOptions.customTypesMappings = mapProperty(options, "customMapping")
                   genOptions.mantleCustomValueTransformers = mapProperty(options, "customValueTransformer")
                   def mappingType
@@ -95,8 +96,10 @@ class Main {
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
-              "entitiesAccessLevel" : "Entities visibility. Possible values : public, internal. Default : internal",
-              "entitiesType" : "Entities types. Possible values : struct, class. Default: struct"
+              "customFilePrefix" : "Prefix for filenames of with generated entities. Optional. usage: -HcustomFilePrefix=PREFIX",
+              "entitiesAccessLevel" : "Entities visibility. Possible values: public, internal. Default : public",
+              "entitiesType" : "Entities types. Possible values: struct, class. Default: struct",
+              "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE"
           ],
           flags: [
               "generate-equatables" : "Generates equatables functions for all entities. Optional",
@@ -104,7 +107,7 @@ class Main {
               "generate-mutable-structs" : "Generates mutable extensions for all struct entities. Optional",
           ],
           factory: { def options, File output ->
-            SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
+            SwiftGenerationOptions generationOptions  = new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
             generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
 
@@ -116,7 +119,8 @@ class Main {
                 generationOptions.entitiesAccessLevel = SwiftEntitiesAccessLevel.INTERNAL
                 break
               default:
-                println "Unknown entities visibility passed in Possible values : public, internal"
+                generationOptions.entitiesAccessLevel = SwiftEntitiesAccessLevel.PUBLIC
+                println "Unknown entities visibility passed in. Possible values are: public, internal.\nAccepting PUBLIC as default"
             }
 
             switch (property(options, "entitiesType")) {
@@ -127,7 +131,8 @@ class Main {
                 generationOptions.entitiesType = SwiftEntitiesType.CLASS
                 break
               default:
-                println "Unknown entities visibility passed in Possible values : public, internal"
+                generationOptions.entitiesType = SwiftEntitiesType.STRUCT
+                println "Unknown entities types passed in. Possible values are: struct, class.\nAccepting STRUCT as default"
             }
 
             def fileGenerators = []
@@ -145,6 +150,14 @@ class Main {
               fileGenerators << new SwiftMutableFilesGeneratorImpl()
             }
 
+            if (property(options, "customFilePrefix")) {
+              generationOptions.customFilePrefix = property(options, "customFilePrefix")
+            }
+
+            def skipTypes = properties(options, "skipType")
+            if (skipTypes != null && !skipTypes.isEmpty()) {
+              generationOptions.skipTypes = skipTypes
+            }
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
@@ -157,28 +170,63 @@ class Main {
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
+              "apiManagerName" : "Define alias name for multiple clients. Optional. Default: APIRequestManager. usage: -HapiManagerName=API_MANAGER_NAME",
+              "routeEnumName" : "Define internal Route enumeration naming. Optional. Default: BaseAPI. usage: -HrouteEnumName=ROUTER_NAME",
+              "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE",
+              "parametersPassingByDictionary" : "Defines how to pass parameters to generated functions. Optional. Default is no. usage: -HparametersPassingByDictionary=[yes|no].",
+              "passURLparams" : "If set to yes, URL will be enhanced by function's parameters. Optional. Default is no. usage: -HpassURLparams=[yes|no]"
           ],
           flags: [
+              "omitClientCore" : "Do not produce API core classes. Usefull when it's needed to generate client API only. Optional",
           ],
           factory: { def options, File output ->
-            SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
+            SwiftGenerationOptions generationOptions = new SwiftGenerationOptions()
             generationOptions.customTypesMappings = mapProperty(options, "customMapping")
             generationOptions.typeDefaultValues = mapProperty(options, "defaultValue")
+            // Grab possible variations via aliases defined via parameters
+            def apiManagerName = property(options, "apiManagerName")
+            if (apiManagerName?.trim()) {
+              generationOptions.apiManagerName = apiManagerName
+            }
+            def routeEnumName = property(options, "routeEnumName")
+            if (routeEnumName?.trim()) {
+              generationOptions.routeEnumName = routeEnumName
+            }
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
 
             SwiftAPIClientGenerator clientGenerator = new SwiftAPIClientGeneratorImpl()
+            if (flag(options, "omitClientCore")) {
+              clientGenerator = new SwiftAPIClientSimpleGeneratorImpl()
+            }
+
+            def skipTypes = properties(options, "skipType")
+            if (skipTypes != null && !skipTypes.isEmpty()) {
+              generationOptions.skipTypes = skipTypes
+            }
+
+            def parametersPassing = property(options, "parametersPassingByDictionary")
+            if (parametersPassing != null && parametersPassing.capitalize().compareTo("YES")) {
+              generationOptions.parametersPassingByDictionary = true
+            }
+
+            def passURLparams = property(options, "passURLparams")
+            if (passURLparams != null && passURLparams.capitalize().compareTo("YES")) {
+              generationOptions.passURLparams = true
+            }
+
             SwiftOutputGenerator outputGenerator = new SwiftOutputGeneratorImpl()
-            return new SwiftAPIClientHandler(output, generationOptions, clientGenerator, entitiesGenerator, outputGenerator )
+            return new SwiftAPIClientHandler(output, generationOptions, clientGenerator, entitiesGenerator, outputGenerator)
           }
       ],
-
       "swift-mappings": [
           description: "Generate Swift entity mappings for specified type",
           properties: [
               "customMapping" : "Type mappings. Can be specified multiple times. Optional. usage: -HcustomMapping=HELIUM_TYPE:SWIFT_TYPE",
               "defaultValue" : "Default values for types. Optional. usage: -HdefaultValue=HELIUM_TYPE:STRING",
-              "mappingType" : "Mapping type. Optional. Possible values : decodable|decodable-transformable"
+              "mappingType" : "Mapping type. Optional. Possible values : decodable|decodable-transformable",
+              "customFilePrefix" : "Prefix for filenames of with generated entities. Optional. usage: -HcustomFilePrefix=PREFIX",
+              "skipType" : "Skip type while generate entities, can be used in order to avoid types duplications. Can be specified multiple times. Optional. usage: -HskipType=SWIFT_TYPE"
           ],
           factory: { def options, File output ->
             SwiftGenerationOptions generationOptions  =  new SwiftGenerationOptions()
@@ -197,6 +245,15 @@ class Main {
                 println "Property -HmappingType=<value> is required. Possible values : [decodable]"
                 System.exit(1)
                 break
+            }
+
+            if (property(options, "customFilePrefix")) {
+              generationOptions.customFilePrefix = property(options, "customFilePrefix")
+            }
+
+            def skipTypes = properties(options, "skipType")
+            if (skipTypes != null && !skipTypes.isEmpty()) {
+              generationOptions.skipTypes = skipTypes
             }
 
             SwiftEntitiesGenerator entitiesGenerator = new SwiftEntitiesGeneratorImpl()
@@ -268,6 +325,20 @@ class Main {
       }
     }
     return null
+  }
+
+  private static List<String> properties(def options, String name) {
+    if (!options.Hs) {
+      return null
+    }
+    List<String> retnValue = new ArrayList<String>()
+    def props = options.Hs as List
+    for (int i = 0; i < props.size() / 2; i++) {
+      if (name == props[i * 2]) {
+        retnValue.add(props[i * 2 + 1])
+      }
+    }
+    return retnValue
   }
 
   private static Boolean flag(def options, String name) {

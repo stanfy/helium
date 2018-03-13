@@ -3,8 +3,10 @@ package com.stanfy.helium.handler.codegen.java.entity;
 import com.squareup.javawriter.JavaWriter;
 import com.stanfy.helium.handler.codegen.java.JavaPrimitiveTypes;
 import com.stanfy.helium.internal.utils.Names;
+import com.stanfy.helium.model.Dictionary;
 import com.stanfy.helium.model.Field;
 import com.stanfy.helium.model.Message;
+import com.stanfy.helium.model.Sequence;
 import com.stanfy.helium.model.constraints.ConstrainedType;
 
 import javax.lang.model.element.Modifier;
@@ -161,6 +163,12 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
+    if (field.getType() instanceof Dictionary) {
+      // Read dictionary.
+      readFromMap(fieldName, (Dictionary) field.getType(), output, classLoader);
+      return;
+    }
+
     String className = clazz != null ? clazz.getCanonicalName() : options.getPrimitiveTypeName(field.getType());
 
     // date?
@@ -179,6 +187,13 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
           resultClassName,
           classLoader);
     }
+  }
+
+  private void readFromMap(String fieldName, Dictionary dict, JavaWriter output, String classloader) throws IOException {
+    String keyType = options.getJavaTypeName(dict.getKey(), dict.getKey() instanceof Sequence, true, output, true);
+    String valueType = options.getJavaTypeName(dict.getValue(), dict.getValue() instanceof Sequence, true, output, true);
+    output.emitStatement("this.%1$s = new java.util.HashMap<%2$s, %3$s>()", fieldName, keyType, valueType);
+    output.emitStatement("source.readMap(this.%1$s, %2$s)", fieldName, classloader);
   }
 
   private static void readEnumFromParcelable(String fieldName, JavaWriter output, String name, boolean sequence) throws IOException {
@@ -268,6 +283,12 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
       return;
     }
 
+    if (field.getType() instanceof Dictionary) {
+      // Read dictionary.
+      writeMap(output, fieldName);
+      return;
+    }
+
     String className = clazz != null ? clazz.getCanonicalName() : options.getPrimitiveTypeName(field.getType());
 
     // date?
@@ -281,6 +302,10 @@ class AndroidParcelableWriter extends DelegateJavaClassWriter {
     } else {
       output.emitStatement("dest.writeValue(this.%s)", fieldName);
     }
+  }
+
+  private static void writeMap(JavaWriter output, String fieldName) throws IOException {
+    output.emitStatement("dest.writeMap(this.%1$s)", fieldName);
   }
 
   private static void writeEnumToParcel(JavaWriter output, String fieldName, boolean sequence) throws IOException {
