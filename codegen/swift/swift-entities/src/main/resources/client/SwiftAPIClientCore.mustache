@@ -142,7 +142,7 @@ public extension Gateway {
                     observer.send(error: responseError)
                 }
             }
-            disposable.add {
+            disposable.observeEnded {
                 cancelable.cancel()
             }
         }

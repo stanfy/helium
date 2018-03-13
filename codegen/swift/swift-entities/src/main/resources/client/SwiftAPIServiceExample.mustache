@@ -11,7 +11,7 @@ public struct NSURLSessionAPIService: APIService {
     let requestLogger: RequestLogger
     let responseLogger: ResponseLogger
 
-    public init(requestLogger: @escaping RequestLogger = {_ in }, responseLogger: @escaping ResponseLogger = { _ in } ) {
+    public init(requestLogger: @escaping RequestLogger = {_,_  in }, responseLogger: @escaping ResponseLogger = { _,_,_,_,_  in } ) {
         session = URLSession(configuration: URLSessionConfiguration.default)
         self.requestLogger = requestLogger
         self.responseLogger = responseLogger

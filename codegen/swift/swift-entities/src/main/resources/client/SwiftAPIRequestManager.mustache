@@ -23,11 +23,11 @@ public class {{requestManagerAlias}} {
     let requestProviderFactory: RequestProviderFactory?
     let gatewayFactory: GatewayFactory
 
-    static let defaultGatewayFactory: GatewayFactory = {  _ /* route */, service, provider in
+    public static let defaultGatewayFactory: GatewayFactory = {  _ /* route */, service, provider in
         GatewayImpl(apiService: service, requestProvider: provider)
     }
 
-    static let defaultCallBack: RequestProviderFactory = {  _ /* route */, provider in
+    public static let defaultCallBack: RequestProviderFactory = {  _ /* route */, provider in
         provider
     }
 
