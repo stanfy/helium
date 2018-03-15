@@ -97,7 +97,6 @@ class SwiftServicesMapHelper {
               val parameterType = typesRegistry.registerSwiftType(bodyMessage).name
               val postfix = if (bodyMessage.isPrimitive()) " as! [String:Any]"
               else ".toJSONRepresentation() as! [String:Any]"
-              System.out.println("Postfix: " + postfix)
               wholeTypeParameter = Names.decapitalize(bodyMessage.name) + postfix
               var bodyAsSingleTypeInstance = ParameterDescription(canonicalName = "data", name = Names.decapitalize(bodyMessage.name), type = parameterType)
               functionParamsMapped = functionParamsMapped + listOf(bodyAsSingleTypeInstance)
@@ -165,15 +164,15 @@ class SwiftServicesMapHelper {
       val functionParams = serviceMethod.parameters?.fields ?: listOf()
       if (functionParams.isNotEmpty()) {
         res = functionParams.map { field ->
-          var castValue = typesRegistry.propertyName(field.name)
-          if (field.type.name != "string") {
-            castValue = "String(describing: ${castValue})"
-          }
-          PathExtension(
-                  name = field.name,
-                  value = castValue
-          )
-        }
+                  var castValue = typesRegistry.propertyName(field.name)
+                  if (field.type.name != "string") {
+                    castValue = "String(describing: ${castValue})"
+                  }
+                  PathExtension(
+                          name = field.name,
+                          value = castValue
+                  )
+                }
                 .mapFirst { it.copy(separator = '?') }
       }
     }
