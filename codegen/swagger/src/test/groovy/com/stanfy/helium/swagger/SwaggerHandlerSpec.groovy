@@ -1,6 +1,7 @@
 package com.stanfy.helium.swagger
 
 import com.stanfy.helium.Helium
+import com.stanfy.helium.internal.utils.SelectionRules
 import com.stanfy.helium.model.Project
 import groovy.json.JsonSlurper
 import org.apache.commons.io.FileUtils
@@ -56,7 +57,7 @@ class SwaggerHandlerSpec extends Specification {
               name 'Product Types'
               description '''
                 The Products endpoint returns information about the Uber products offered at a given location.
-                The response includes the display name and other details about each product,
+                The response endpointsIncludes the display name and other details about each product,
                 and lists the products in the proper display order.
               '''
               parameters {
@@ -277,7 +278,7 @@ class SwaggerHandlerSpec extends Specification {
   def "respect includes in options"() {
     given:
     def options = new SwaggerOptions()
-    options.includes('GET /products')
+    options.endpoints.includes('GET /products')
     handler = new SwaggerHandler(dir, options)
     handler.handle(project)
     def data = specData(uberSpec())
@@ -285,6 +286,32 @@ class SwaggerHandlerSpec extends Specification {
     expect:
     data.paths?.keySet() == ['/products'] as Set
     data.paths.'/products'.keySet() == ['get'] as Set
+  }
+
+  def "respect types in options"() {
+    given:
+    def options = new SwaggerOptions()
+    options.types.excludes('SomeData')
+    handler = new SwaggerHandler(dir, options)
+    handler.handle(project)
+    def data = specData(uberSpec())
+
+    expect:
+    !data.definitions.containsKey('SomeData')
+  }
+
+  def "respect message fields in options"() {
+    given:
+    def options = new SwaggerOptions()
+    def productRules = new SelectionRules("Product")
+    productRules.excludes("image")
+    options.types.nest(productRules)
+    handler = new SwaggerHandler(dir, options)
+    handler.handle(project)
+    def data = specData(uberSpec())
+
+    expect:
+    !data.definitions.Product.properties.containsKey('image')
   }
 
   void cleanup() {

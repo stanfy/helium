@@ -44,29 +44,29 @@ class JsonSchemaGenerator extends BaseGenerator<JsonSchemaGeneratorOptions> impl
   }
 
   @Override
-  public void handle(Project project) {
-    JsonSchemaGeneratorOptions options = getOptions();
+  void handle(Project project) {
+    JsonSchemaGeneratorOptions options = getOptions()
 
     for (Type type : project.getTypes().all()) {
       boolean shouldProcess = options.isTypeUserDefinedMessage(type) && options.isTypeIncluded(type);
       if (shouldProcess) {
         final File schemaFile = new File(schemeOutputDir, type.getCanonicalName().concat(JSON_SCHEME_SUFFIX)
-            .concat(EXT_JSON));
-        FileWriter fileWriter = null;
+            .concat(EXT_JSON))
+        FileWriter fileWriter = null
         try {
-          fileWriter = new FileWriter(schemaFile);
-          write((Message) type, fileWriter);
+          fileWriter = new FileWriter(schemaFile)
+          write((Message) type, fileWriter)
         } catch (IOException e) {
-          throw new RuntimeException(e);
+          throw new RuntimeException(e)
         } finally {
-          IOUtils.closeQuietly(fileWriter);
+          IOUtils.closeQuietly(fileWriter)
         }
       }
     }
   }
 
   void write(Message msg, Appendable writer) {
-    def schema = builder.makeSchemaFromMessage(msg)
+    def schema = builder.makeSchemaFromMessage(msg, SchemaBuilder.FULL_SELECTION)
     schema.schema = JSON_SCHEMA_DRAFT_4_URI
 
     gson.toJson(schema, writer)

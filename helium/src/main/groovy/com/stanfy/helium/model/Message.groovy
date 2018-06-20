@@ -11,7 +11,7 @@ final class Message extends Type {
   /** Flag that allows to skip (ignore) all unknown fields met in response during validation in generated tests. */
   boolean skipUnknownFields
 
-  Message parent;
+  Message parent
 
   /** Message fields. */
   private final List<Field> fields = new ArrayList<>()
@@ -21,6 +21,16 @@ final class Message extends Type {
   List<Field> getActiveFields() {
     List<Field> active = (List<Field>) fields.findAll() { Field f -> !f.skip }
     return Collections.unmodifiableList(active)
+  }
+
+  List<Field> getActiveFieldsWithParents() {
+    Message m = this
+    ArrayList<Field> result = new ArrayList<>()
+    while (m) {
+      result.addAll(m.activeFields)
+      m = m.parent
+    }
+    return result
   }
 
   Field fieldByName(final String name) {

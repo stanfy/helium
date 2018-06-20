@@ -156,8 +156,8 @@ public class SwaggerHandler implements Handler {
   }
 
   private JsonSchemaEntity resolveDefinition(Type type, Root root) {
-    if (type.isAnonymous()) {
-      return schemaBuilder.makeSchemaFromType(type);
+    if (type.isAnonymous() || !options.checkIncludes(type)) {
+      return schemaBuilder.makeSchemaFromType(type, options.getTypes());
     }
     ensureDefinition(type, root);
     return new JsonSchemaEntity(DEF_PREFIX.concat(type.getName()));
@@ -225,12 +225,12 @@ public class SwaggerHandler implements Handler {
       return;
     }
 
-    if (!type.isAnonymous()) {
+    if (!type.isAnonymous() && options.checkIncludes(type)) {
       JsonSchemaEntity entity = root.definitions.get(type.getName());
       if (entity != null) {
         return;
       }
-      root.definitions.put(type.getName(), schemaBuilder.makeSchemaFromType(type));
+      root.definitions.put(type.getName(), schemaBuilder.makeSchemaFromType(type, options.getTypes()));
     }
 
     List<Type> nextTypes = Collections.emptyList();
@@ -240,8 +240,9 @@ public class SwaggerHandler implements Handler {
       Dictionary dict = (Dictionary) type;
       nextTypes = Arrays.asList(dict.getKey(), dict.getValue());
     } else if (type instanceof Message) {
-      nextTypes = new ArrayList<>(((Message) type).getActiveFields().size());
-      for (Field f : ((Message) type).getActiveFields()) {
+      List<Field> fields = ((Message) type).getActiveFieldsWithParents();
+      nextTypes = new ArrayList<>(fields.size());
+      for (Field f : fields) {
         nextTypes.add(f.getType());
       }
     }

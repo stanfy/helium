@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.json.schema
 
 import com.stanfy.helium.DefaultType
+import com.stanfy.helium.internal.utils.SelectionRules
 import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.FileType
@@ -14,6 +15,8 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class SchemaBuilder {
 
+  static final SelectionRules FULL_SELECTION = new SelectionRules("")
+
   private final String definitionsPrefix;
 
   SchemaBuilder() {
@@ -26,10 +29,10 @@ class SchemaBuilder {
 
   JsonType translateType(Type type) {
     if (type instanceof ConstrainedType) {
-      if (type.containsConstraint(EnumConstraint)) {
+      if ((type as ConstrainedType).containsConstraint(EnumConstraint)) {
         return JsonType.ENUM
       }
-      return translateType(type.baseType)
+      return translateType((type as ConstrainedType).baseType)
     }
     if (type instanceof FileType) {
       return JsonType.FILE;
@@ -68,42 +71,53 @@ class SchemaBuilder {
     return schema
   }
 
-  JsonSchemaEntity makeSchemaFromMessage(Message msg) {
+  JsonSchemaEntity makeSchemaFromMessage(Message msg, SelectionRules selection) {
     def schema = new JsonSchemaEntity()
 
     schema.type = JsonType.OBJECT
     schema.description = msg.getDescription()
 
     if (msg.fields) {
-      msg.activeFields.each { field ->
-        def property = makeSchema(field.getType(), true)
+      SelectionRules msgSelection = selection.nested(msg.name)
+      msg.activeFieldsWithParents.each { field ->
+        if (msgSelection && !msgSelection.check(field.name)) {
+          // Skip this field.
+          return
+        }
+        def property = makeSchema(field.getType(), selection, true)
         if (field.description) {
           property.description = field.getDescription()
         }
         schema.addProperty(field.name, property)
       }
 
-      msg.fields.grep { Field f -> f.required }.each { schema.addRequired(it.name) }
+      msg.activeFieldsWithParents.grep { Field f -> f.required && (!msgSelection || msgSelection.check(f.name)) }.each {
+        schema.addRequired(it.name)
+      }
     }
 
     return schema
   }
 
-  JsonSchemaEntity makeSchemaFromSequence(Sequence sequence) {
+  JsonSchemaEntity makeSchemaFromSequence(Sequence sequence, SelectionRules selection) {
     def schema = new JsonSchemaEntity()
 
     schema.type = JsonType.ARRAY
     schema.description = sequence.getDescription()
-    schema.items = makeSchema(sequence.itemsType, true)
+    schema.items = makeSchema(sequence.itemsType, selection, true)
 
     return schema
   }
 
   JsonSchemaEntity makeSchemaFromType(Type type) {
-    return makeSchema(type, false)
+    return makeSchemaFromType(type, FULL_SELECTION)
   }
 
-  private JsonSchemaEntity makeSchema(Type type, boolean nested) {
+  JsonSchemaEntity makeSchemaFromType(Type type, SelectionRules selection) {
+    return makeSchema(type, selection, false)
+  }
+
+  private JsonSchemaEntity makeSchema(Type type, SelectionRules selection, boolean nested) {
     if (nested && definitionsPrefix && !type.primitive && !type.anonymous) {
       return new JsonSchemaEntity("$definitionsPrefix$type.name")
     }
@@ -116,10 +130,10 @@ class SchemaBuilder {
       case JsonType.OBJECT:
         property = (type instanceof Dictionary
             ? makeSchemaFromDict((Dictionary) type)
-            : makeSchemaFromMessage((Message) type))
+            : makeSchemaFromMessage((Message) type, selection))
         break
       case JsonType.ARRAY:
-        property = makeSchemaFromSequence((Sequence) type)
+        property = makeSchemaFromSequence((Sequence) type, selection)
         break
       case JsonType.ENUM:
         property = new JsonSchemaEntity()

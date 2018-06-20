@@ -7,8 +7,8 @@ import spock.lang.Specification
  */
 class MessageSpec extends Specification {
 
-  def Message message
-  def Type type
+  Message message
+  Type type
 
   def setup() {
     message = new Message(name: 'Test')
@@ -37,4 +37,18 @@ class MessageSpec extends Specification {
     message.activeFields.collect { it.name } == ['a', 'd']
   }
 
+  def "active fields with parent"() {
+    given:
+    Message granny = new Message(name: 'Granny')
+    Message parent = new Message(name: 'Parent', parent: granny)
+    message.parent = parent
+    message.addField(new Field(name: 'a', type: type))
+    parent.addField(new Field(name: 'b', type: type))
+    parent.addField(new Field(name: 'parent_skip', type: type, skip: true))
+    granny.addField(new Field(name: 'c', type: type))
+    granny.addField(new Field(name: 'granny_skip', type: type, skip: true))
+
+    expect:
+    message.activeFieldsWithParents.collect { it.name } == ['a', 'b', 'c']
+  }
 }

@@ -1,26 +1,29 @@
 package com.stanfy.helium.gradle.tasks
 
+import com.stanfy.helium.gradle.internal.SelectionRulesBuilder
+import com.stanfy.helium.internal.utils.DslUtils
 import com.stanfy.helium.swagger.SwaggerHandler
 import com.stanfy.helium.swagger.SwaggerOptions
-import org.gradle.api.tasks.Input
 
 /** Task for generating Swagger spec. */
 class SwaggerTask extends BaseHeliumTask<SwaggerOptions> {
 
-  private List<String> includes
+  {
+    options = new SwaggerOptions()
+  }
 
-  @Input
-  void includes(String... includes) {
-    this.includes = Arrays.asList(includes)
+  void endpoints(Closure<?> config) {
+    DslUtils.runWithProxy(options.endpoints, config)
+  }
+
+  void types(Closure<?> config) {
+    DslUtils.runWithProxy(new SelectionRulesBuilder(options.types), config)
   }
 
   @Override
   protected void doIt() {
-    options = new SwaggerOptions()
-    if (this.includes) {
-      options.includes(this.includes)
-    }
     helium.processBy(new SwaggerHandler(output, options))
   }
+
 
 }

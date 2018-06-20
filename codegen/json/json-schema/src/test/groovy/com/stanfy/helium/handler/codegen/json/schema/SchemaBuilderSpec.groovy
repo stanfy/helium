@@ -1,6 +1,7 @@
 package com.stanfy.helium.handler.codegen.json.schema
 
 import com.stanfy.helium.DefaultType
+import com.stanfy.helium.internal.utils.SelectionRules
 import com.stanfy.helium.model.Dictionary
 import com.stanfy.helium.model.Field
 import com.stanfy.helium.model.Message
@@ -71,4 +72,21 @@ class SchemaBuilderSpec extends Specification {
     builder.makeSchemaFromType(msg).@properties.ff?.type == null
   }
 
+  def "use selection to filter fields"() {
+    given:
+    def msg = new Message(name: "ComplexType")
+    msg.addField(new Field(name: 'foo', type: new Type(name: 'string')))
+    msg.addField(new Field(name: 'bar', type: new Type(name: 'string')))
+    def msgSelection = new SelectionRules(msg.name)
+    msgSelection.excludes('foo')
+    def selection = new SelectionRules("test")
+    selection.nest(msgSelection)
+
+    when:
+    def schema = builder.makeSchemaFromType(msg, selection)
+
+    then:
+    schema.@properties.keySet() == ['bar'] as Set
+    schema.required == ['bar']
+  }
 }
