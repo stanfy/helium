@@ -82,6 +82,10 @@ class SwaggerHandlerSpec extends Specification {
             }
           }
 
+          type 'customType' spec {
+            description 'some custom type'
+          }
+
           service {
             name "Test API 1"
             location "http://localhost"
@@ -95,6 +99,11 @@ class SwaggerHandlerSpec extends Specification {
               body multipart('form-data') {
                 publickey file()
               }
+            }
+
+            post '/custom' spec {
+              name 'Submit generic payload'
+              body 'customType'
             }
           }
         }
@@ -242,7 +251,7 @@ class SwaggerHandlerSpec extends Specification {
   def "anonymous definitions"() {
     given:
     handler.handle(project)
-    def data =specData(uberSpec())
+    def data = specData(uberSpec())
 
     expect:
     data.definitions?.'Product' != null
@@ -250,10 +259,21 @@ class SwaggerHandlerSpec extends Specification {
     data.paths.'/products/{id}'.get.responses.'200'.schema.required == ['hash', 'product']
   }
 
+  def "custom types"() {
+    given:
+    handler.handle(project)
+    def data = specData(testSpec())
+    println data.paths?.'/custom'?.post
+
+    expect:
+    data.definitions?.'customType' == [:]
+    data.paths?.'/custom'?.post?.parameters?.find { it.name == 'body' }?.schema?.'$ref' == '#/definitions/customType'
+  }
+
   def "undefined responses"() {
     given:
     handler.handle(project)
-    def data =specData(testSpec())
+    def data = specData(testSpec())
 
     expect:
     data.paths?.'/test/resource'?.delete?.responses?.'200'?.description != null

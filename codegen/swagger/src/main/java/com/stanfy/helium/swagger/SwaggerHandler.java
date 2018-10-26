@@ -221,7 +221,7 @@ public class SwaggerHandler implements Handler {
   }
 
   private void ensureDefinition(Type type, Root root) {
-    if (type.isPrimitive()) {
+    if (type.isPrimitive() && schemaBuilder.translateType(type) != JsonType.ANY) {
       return;
     }
 

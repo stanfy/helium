@@ -8,10 +8,11 @@ public enum JsonType {
   BOOLEAN,
   INTEGER,
   NUMBER,
-  NULL,
   OBJECT,
   STRING,
   ENUM,
+
+  ANY, // Used to mark generic type.
 
   FILE; // Not really a JSON type but something that can be used in Swagger.
 

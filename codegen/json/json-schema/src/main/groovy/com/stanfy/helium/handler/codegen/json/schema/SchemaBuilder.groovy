@@ -35,7 +35,7 @@ class SchemaBuilder {
       return translateType((type as ConstrainedType).baseType)
     }
     if (type instanceof FileType) {
-      return JsonType.FILE;
+      return JsonType.FILE
     }
     if (type.isPrimitive()) {
       switch (type.name) {
@@ -49,8 +49,9 @@ class SchemaBuilder {
           return JsonType.BOOLEAN
         case DefaultType.STRING.langName:
         case DefaultType.BYTES.langName:
-        default:
           return JsonType.STRING
+        default:
+          return JsonType.ANY
       }
     } else {
       if (type instanceof Message || type instanceof Dictionary) {
@@ -125,6 +126,10 @@ class SchemaBuilder {
     def property
 
     def jsonType = translateType(type)
+
+    if (jsonType == JsonType.ANY) {
+      return new JsonSchemaEntity()
+    }
 
     switch (jsonType) {
       case JsonType.OBJECT:

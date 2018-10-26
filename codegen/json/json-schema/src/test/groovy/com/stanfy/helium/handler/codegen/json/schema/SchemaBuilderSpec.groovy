@@ -44,6 +44,14 @@ class SchemaBuilderSpec extends Specification {
     builder.translateType(dict) == JsonType.OBJECT
   }
 
+  def "custom types"() {
+    setup:
+    def customType = new Type(name: 'customType')
+
+    expect:
+    builder.translateType(customType) == JsonType.ANY
+  }
+
   def "should translate sequences into arrays"() {
     setup:
     def list = new Sequence()
