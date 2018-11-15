@@ -23,7 +23,7 @@ abstract class ConfigurableGenericMap<K, V> extends ScopedProxy {
     this.keyClass = keyClass
   }
 
-  protected abstract V resolveValue(final K key, final Object arg);
+  protected abstract V resolveValue(final K key, final Object arg)
 
   @Override
   Object invokeMethod(final String name, final Object args) {

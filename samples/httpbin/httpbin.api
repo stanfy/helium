@@ -1,10 +1,17 @@
 note 'Httpbin service - simply returns all data you sent back to you.'
 
+type 'customType' spec {
+  description 'A custom type'
+
+  from('json') { asGeneric() }
+  to('json') { asGeneric() }
+}
+
 type 'ParamsDictionary' dictionary('string', 'string')
 
 type 'BaseHttpBinResponse' message(skipUnknownFields: true) {
   args   'ParamsDictionary'
-  data   'string'
+  data   'customType'
   origin 'string'
   url    'string'
 }
@@ -17,6 +24,11 @@ type 'Person' message {
 
 type 'PersonResponse' message(parent: 'BaseHttpBinResponse', skipUnknownFields: true) {
   form 'Person'
+}
+
+type 'SomeInterestingMessage' message {
+  field1 'int32'
+  field2 'customType'
 }
 
 // Form post service with test.
@@ -153,4 +165,30 @@ service {
     }
   }
 
+}
+
+service {
+  name 'Custom type service'
+  location "http://httpbin.org"
+
+  post '/post' spec {
+    response 'BaseHttpBinResponse'
+    body 'SomeInterestingMessage'
+  }
+
+  describe 'Sending custom type values' spec {
+    it('should work') {
+      def resp = service.post '/post' with {
+        body {
+          field1 42
+          field2 {
+            'f1' 'v1'
+            f2 24
+          }
+        }
+      }
+      resp.mustSucceed()
+      assert resp.body.data == '{"field1":42,"field2":{"f1":"v1","f2":24}}'
+    }
+  }
 }

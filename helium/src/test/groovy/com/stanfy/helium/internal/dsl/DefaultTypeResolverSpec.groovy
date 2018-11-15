@@ -1,6 +1,7 @@
 package com.stanfy.helium.internal.dsl
 
 import com.squareup.okhttp.MediaType
+import com.stanfy.helium.DefaultType
 import com.stanfy.helium.format.PrimitiveReader
 import com.stanfy.helium.format.PrimitiveWriter
 import com.stanfy.helium.model.Type
@@ -69,6 +70,16 @@ class DefaultTypeResolverSpec extends Specification {
     writers.containsKey(typeB)
     writers[typeB].is writer
     writers.size() == 2
+  }
+
+  def "detect custom type"() {
+    expect:
+    DefaultType.isTypeCustom(new Type(name: name)) == custom
+
+    where:
+    name              | custom
+    'int32'           | false
+    'somethingCustom' | true
   }
 
 }

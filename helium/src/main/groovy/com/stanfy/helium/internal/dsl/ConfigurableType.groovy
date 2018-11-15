@@ -79,11 +79,12 @@ class ConfigurableType extends ConfigurableProxy<Type> {
     }
   }
 
-  public class To {
-    public Closure<?> asString() {
+  class To {
+    Closure<?> asString() {
       return ClosureJsonConverter.AS_STRING_WRITER
     }
-    public Closure<?> asDate(final String dateFormat) {
+
+    Closure<?> asDate(final String dateFormat) {
       return { JsonWriter input, Object value ->
         if (value == null) {
           input.nullValue()
@@ -104,7 +105,12 @@ class ConfigurableType extends ConfigurableProxy<Type> {
         throw new IllegalArgumentException("Cannot interpret '$value' as date. Format: '$dateFormat'.")
       }
     }
-    public Closure<?> formatToString(final Closure<String> formatter) {
+
+    Closure<?> asGeneric() {
+      return ClosureJsonConverter.AS_GENERIC_WRITER
+    }
+
+    Closure<?> formatToString(final Closure<String> formatter) {
       return { JsonWriter input, Object value ->
         if (value == null) {
           input.nullValue()

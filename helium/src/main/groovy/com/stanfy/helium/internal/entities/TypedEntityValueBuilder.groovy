@@ -29,10 +29,10 @@ class TypedEntityValueBuilder {
 
   final Map<String, Object> scope;
 
-  public TypedEntityValueBuilder(final Type type) {
+  TypedEntityValueBuilder(final Type type) {
     this(type, Collections.emptyMap())
   }
-  public TypedEntityValueBuilder(final Type type, final Map<String, Object> scope) {
+  TypedEntityValueBuilder(final Type type, final Map<String, Object> scope) {
     this.type = type
     this.scope = scope
   }
@@ -69,10 +69,12 @@ class TypedEntityValueBuilder {
     def value = new LinkedHashMap<String, Object>()
     if (type instanceof MultipartType) {
       runWithProxy(new MultipartEntityBuilder(value, type.name, scope), spec)
-    } else if (!(type instanceof Message) && !(type instanceof FormType)) {
-      throw new IllegalArgumentException("Can use closure to build a value of type $type")
-    } else {
+    } else if (type instanceof Message || type instanceof FormType) {
       runWithProxy(new MessageBuilder(value, type.name, scope), spec)
+    } else if (DefaultType.isTypeCustom(type)) {
+      runWithProxy(new CustomTypeValueBuilder(value, type.name, scope), spec)
+    } else {
+      throw new IllegalArgumentException("Cannot use closure to build a value of type $type")
     }
     return value
   }
@@ -196,6 +198,21 @@ class TypedEntityValueBuilder {
       map[mapKey] = mapValue
     }
 
+  }
+
+  class CustomTypeValueBuilder extends ConfigurableGenericMap<Object, Object> {
+
+    CustomTypeValueBuilder(Map<Object, Object> map, String name, Map<String, Object> scope) {
+      super(map, name, String.class, scope)
+    }
+
+    @Override
+    protected Object resolveValue(Object key, Object arg) {
+      if (arg instanceof Closure<?>) {
+        throw new IllegalArgumentException("Cannot use closure as a value for custom type ($type) value field ($key)")
+      }
+      return arg
+    }
   }
 
 }

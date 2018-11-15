@@ -200,4 +200,32 @@ class TypedEntityValueBuilderSpec extends Specification {
     value.baseField == 'forty two'
   }
 
+  def "custom defined types"() {
+    when:
+    Type customType = new Type(name: 'schemaLessMessage', description: 'some custom type')
+    def value = new TypedEntityValueBuilder(customType).from {
+      field1 'value1'
+      field2 123
+      field3 (['1', '2'])
+    }
+
+    then:
+    value.field1 == 'value1'
+    value.field2 == 123
+    value.field3 == ['1', '2']
+  }
+
+  def "no closures in custom values"() {
+    when:
+    Type customType = new Type(name: 'schemaLessMessage', description: 'some custom type')
+    def value = new TypedEntityValueBuilder(customType).from {
+      fieldName { something 'else' }
+    }
+
+    then:
+    def e = thrown(IllegalArgumentException)
+    e.message.contains('schemaLessMessage')
+    e.message.contains('fieldName')
+  }
+
 }

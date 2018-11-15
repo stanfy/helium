@@ -19,6 +19,21 @@ public enum DefaultType {
 
   private Type type;
 
+  public static boolean isTypeCustom(Type type) {
+    if (type.isAnonymous()) {
+      return false;
+    }
+    if (!type.isPrimitive()) {
+      return false;
+    }
+    for (DefaultType dt : DefaultType.values()) {
+      if (dt.getLangName().equals(type.getName())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   synchronized void setType(Type type) {
     this.type = type;
   }

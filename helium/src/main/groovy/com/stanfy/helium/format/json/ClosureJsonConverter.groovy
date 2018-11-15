@@ -31,7 +31,11 @@ class ClosureJsonConverter implements PrimitiveReader<JsonReader>, PrimitiveWrit
   }
 
   public static final Closure<?> AS_GENERIC_READER = { JsonReader reader ->
-    return JsonToGeneric.readValue(reader)
+    return GenericJson.readValue(reader)
+  }
+
+  public static final Closure<?> AS_GENERIC_WRITER = { JsonWriter output, Object value ->
+    return GenericJson.writeValue(output, value)
   }
 
   /** Writer closure. */
@@ -39,7 +43,7 @@ class ClosureJsonConverter implements PrimitiveReader<JsonReader>, PrimitiveWrit
   /** Reader closure. */
   final Closure<?> reader
 
-  public ClosureJsonConverter(final Closure<?> reader, final Closure<?> writer) {
+  ClosureJsonConverter(final Closure<?> reader, final Closure<?> writer) {
     this.writer = writer;
     this.reader = wrapWithOptionalNull(reader);
   }
