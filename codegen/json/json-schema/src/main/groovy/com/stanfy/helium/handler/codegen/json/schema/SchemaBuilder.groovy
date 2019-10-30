@@ -85,6 +85,14 @@ class SchemaBuilder {
           // Skip this field.
           return
         }
+
+        if (field.sequence) {
+          def sequence = new Sequence()
+          sequence.itemsType = field.type
+          sequence.anonymous = true
+          field.type = sequence
+        }
+
         def property = makeSchema(field.getType(), selection, true)
         if (field.description) {
           property.description = field.getDescription()
@@ -115,6 +123,7 @@ class SchemaBuilder {
   }
 
   JsonSchemaEntity makeSchemaFromType(Type type, SelectionRules selection) {
+    println "makeSchemaFromType: " + type
     return makeSchema(type, selection, false)
   }
 

@@ -247,7 +247,7 @@ public class SwaggerHandler implements Handler {
       }
     }
     for (Type t : nextTypes) {
-      if (!t.isAnonymous()) {
+      if (!t.isAnonymous() || t instanceof Sequence) {
         ensureDefinition(t, root);
       }
     }
